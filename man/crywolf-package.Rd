@@ -57,7 +57,7 @@ designs. \emph{Ecology}, 96, 332–339. \doi{10.1890/14-1507.1}
 Useful links:
 \itemize{
   \item \url{https://github.com/diogoprov/crywolf}
-  \item \url{https://diogoprov.github.io/crywolf/}
+  \item \url{https://provetelab.org/crywolf/}
   \item Report bugs at \url{https://github.com/diogoprov/crywolf/issues}
 }
 

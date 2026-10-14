@@ -1,11 +1,10 @@
 # Posterior predictive check for a false-positive occupancy model
 
 Replicates the detection data from the posterior of an
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
-fit and compares observed and replicated data with a discrepancy
-statistic, giving a Bayesian p-value. Detections are summed per site, so
-the check asks whether the model reproduces how many detections each
-site gets.
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) fit
+and compares observed and replicated data with a discrepancy statistic,
+giving a Bayesian p-value. Detections are summed per site, so the check
+asks whether the model reproduces how many detections each site gets.
 
 ## Usage
 
@@ -75,7 +74,7 @@ are typical of the fitted model.
 A p-value near 0.5 does not show that the false-positive process is
 correctly specified: a check of detection counts can have little power
 against a false-positive rate that tracks an unmeasured gradient. Use
-[`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 to ask whether the intervals of a given model are calibrated for a
 design.
 
@@ -85,8 +84,8 @@ package, so its `ppc_*()` functions can be used directly, for example
 
 ## See also
 
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md),
-[`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 
 ## Examples
 

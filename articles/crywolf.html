@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Getting started with crywolf • crywolf</title>
+<title>Introduction to crywolf • crywolf</title>
 <!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
   window.MathJax = {
     chtml: {
@@ -16,7 +16,7 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with crywolf">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to crywolf">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -64,7 +64,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Getting started with crywolf</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Introduction to crywolf</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/vignettes/crywolf.Rmd" class="external-link"><code>vignettes/crywolf.Rmd</code></a></small>
@@ -73,64 +73,127 @@
 
     
     
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
 <p>Automated detectors, such as the acoustic classifiers that scan
-thousands of hours of recordings, make two kinds of mistakes: they miss
-calls, and they label other sounds as the target species. Occupancy
-models deal with the first kind by repeating surveys, but false
-positives inflate occupancy and, worse, can distort the effects of
-environmental covariates. <strong>crywolf</strong> fits the
-multiple-methods false-positive occupancy model of Miller et al. (2011),
-in which a subset of detections is checked by an expert, and helps you
-ask whether the correction is good enough for your design.</p>
-<div class="section level2">
-<h2 id="the-design">The design<a class="anchor" aria-label="anchor" href="#the-design"></a>
-</h2>
-<p>At every site, the classifier scans several recordings (the
-<em>automated</em> occasions). At a subset of sites, someone also
-listens to a few clips and records whether the species was really there
-(the <em>verified</em> occasions). Verified detections are certain, so
-they tell the model how often the classifier is wrong.</p>
-</div>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
-<p>crywolf fits its models with <a href="https://mc-stan.org/cmdstanr/" class="external-link">CmdStan</a> through
-<strong>cmdstanr</strong>. Install both once:</p>
+thousands of hours of recordings (e.g. BirdNET; Kahl et al., 2021), make
+two kinds of mistakes. They miss calls of the target species (false
+negatives), and they label other sounds as the target species (false
+positives). Occupancy models deal with the first kind by repeating
+surveys at each site (MacKenzie et al., 2002), but they assume that
+every detection is real. Ignoring false positives inflates occupancy
+and, as we show below, can also distort the effect of environmental
+covariates on occupancy (Royle &amp; Link, 2006).</p>
+<p><strong>crywolf</strong> fits the multiple-methods false-positive
+occupancy model of Miller et al. (2011) in a Bayesian framework, using
+Stan through the ‘cmdstanr’ interface. In this design, the automated
+method runs at every site, and a subset of its output, or a separate
+survey, is verified by an expert, so that some detections are known to
+be correct. The verified data tell the model how often the automated
+method is wrong. Chambert et al. (2015) and Clare et al. (2021) review
+this and other designs for false-positive error.</p>
+<p>The package also simulates data under different false-positive
+regimes and checks, by simulation, whether the credible intervals of a
+model are calibrated for a given design. The simulation study behind the
+package (Provete et al., in preparation) showed that a constant
+false-positive rate is adequate when false positives are homogeneous or
+vary at random among sites, but not when they track an environmental
+gradient correlated with the occupancy covariate. In that case the
+occupancy slope is biased and its intervals miss the true value, and
+verifying more sites does not fix it. Letting the false-positive rate
+depend on covariates does.</p>
+<p>This vignette walks through a complete analysis with simulated
+data:</p>
+<ul>
+<li>assembling data with <code><a href="../reference/fp_data.html">fp_data()</a></code> and
+<code><a href="../reference/simulate_fp.html">simulate_fp()</a></code>;</li>
+<li>the model, its priors, and how to change them with
+<code><a href="../reference/fp_priors.html">fp_priors()</a></code>;</li>
+<li>fitting models with <code><a href="../reference/fp_occu.html">fp_occu()</a></code>, with a constant
+false-positive rate and with a rate that depends on site
+covariates;</li>
+<li>convergence diagnostics and posterior predictive checks with
+<code><a href="../reference/fp_ppc.html">fp_ppc()</a></code>;</li>
+<li>model comparison with leave-one-site-out cross-validation, and
+prediction (see <code>?fp_occu-methods</code>);</li>
+<li>detection covariates and recorder random effects.</li>
+</ul>
+<p><code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code>, which checks the calibration of a model
+for your own design, has its own vignette,
+<code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>.</p>
+<div class="section level3">
+<h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h3>
+<p>crywolf fits its models with <a href="https://mc-stan.org/cmdstanr/" class="external-link">CmdStan</a> through ‘cmdstanr’,
+which is not on CRAN. Install both once, then the package from
+GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cmdstanr"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://stan-dev.r-universe.dev"</span>,</span>
 <span>                                       <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">cmdstanr</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/cmdstanr/reference/install_cmdstan.html" class="external-link">install_cmdstan</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"diogoprov/crywolf"</span><span class="op">)</span></span></code></pre></div>
+<p>We load the package, together with ‘ggplot2’ and ‘bayesplot’ for the
+figures, and set a seed so that the results can be reproduced.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/diogoprov/crywolf" class="external-link">crywolf</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/diogoprov/crywolf" class="external-link">crywolf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/bayesplot/" class="external-link">bayesplot</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; This is bayesplot version 1.16.0</span></span>
+<span><span class="co">#&gt; - Online documentation and vignettes at mc-stan.org/bayesplot</span></span>
+<span><span class="co">#&gt; - bayesplot theme set to bayesplot::theme_default()</span></span>
+<span><span class="co">#&gt;    * Does _not_ affect other ggplot2 plots</span></span>
+<span><span class="co">#&gt;    * See ?bayesplot_theme_set for details on theme setting</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="your-data">Your data<a class="anchor" aria-label="anchor" href="#your-data"></a>
+<h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
 </h2>
-<p><code><a href="../reference/fp_data.html">fp_data()</a></code> takes three tables in long format: the
-automated detections (one row per site and occasion), the sites with
-their covariates, and, optionally, the verified detections. Here we
-simulate data instead, with a false-positive rate that rises along a
-gradient correlated with the occupancy covariate, as happens when a
-soundalike species becomes commoner where the target is rare.</p>
+<div class="section level3">
+<h3 id="the-multiple-methods-design">The multiple-methods design<a class="anchor" aria-label="anchor" href="#the-multiple-methods-design"></a>
+</h3>
+<p>Each site <span class="math inline">\(i\)</span> is surveyed <span class="math inline">\(K_i\)</span> times by the automated method, for
+example <span class="math inline">\(K_i\)</span> recordings scanned by a
+classifier. These are the <em>automated</em> occasions; each gives a
+detection (<span class="math inline">\(y_{ik} = 1\)</span>) or not
+(<span class="math inline">\(y_{ik} = 0\)</span>), and a detection may
+be a false positive. At a subset of sites, an expert also checks <span class="math inline">\(M_i\)</span> occasions, for example by listening
+to clips. These are the <em>verified</em> occasions (<span class="math inline">\(v_{im}\)</span>). A verified detection is certain:
+the species was there.</p>
+</div>
+<div class="section level3">
+<h3 id="simulated-data">Simulated data<a class="anchor" aria-label="anchor" href="#simulated-data"></a>
+</h3>
+<p>We simulate 300 sites with 20 automated occasions each, of which
+about 30% are verified on three occasions. Occupancy declines along a
+standardized covariate <code>x</code> (true slope <span class="math inline">\(-0.8\)</span>). False positives are rare on
+average (baseline rate 0.05), but they increase along a second gradient,
+<code>w</code>, whose correlation with <code>x</code> is 0.7. This is
+what happens, for instance, when a soundalike species becomes more
+common where the target is rare. In real data, <code>w</code> is usually
+not measured; <code><a href="../reference/simulate_fp.html">simulate_fp()</a></code> returns it so that we can fit
+the true model as a positive control.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">300</span>, nocc <span class="op">=</span> <span class="fl">20</span>, psi <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="op">-</span><span class="fl">0.8</span>,</span>
 <span>                   p11 <span class="op">=</span> <span class="fl">0.6</span>, p10 <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>                   conf_effect <span class="op">=</span> <span class="fl">1.5</span>, conf_cor <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>                   frac_verified <span class="op">=</span> <span class="fl">0.3</span>, seed <span class="op">=</span> <span class="fl">2026</span><span class="op">)</span></span>
-<span><span class="va">sim</span></span>
-<span><span class="co">#&gt; &lt;fp_sim&gt; structured false positives</span></span>
-<span><span class="co">#&gt;   truth: psi = 0.50, b1 = -0.80, p11 = 0.60, p10 = 0.050 (realized mean 0.106), r11 = 0.60</span></span>
-<span><span class="co">#&gt;   confusion: effect 1.50, correlation with x 0.70 (realized 0.76)</span></span>
-<span><span class="co">#&gt;   realized occupancy: 0.53</span></span>
+<span><span class="va">sim</span><span class="op">$</span><span class="va">data</span></span>
 <span><span class="co">#&gt; &lt;fp_data&gt;</span></span>
 <span><span class="co">#&gt;   sites:                  300</span></span>
 <span><span class="co">#&gt;   automated occasions:    6000 (naive occupancy 0.87)</span></span>
 <span><span class="co">#&gt;   verified sites:         85 (255 occasions, 39 with a confirmed detection)</span></span>
 <span><span class="co">#&gt;   recorders:              5</span></span>
 <span><span class="co">#&gt;   site covariates:        x, w </span></span>
-<span><span class="co">#&gt;   observation covariates: bio, aci</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">auto</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   observation covariates: bio, aci</span></span></code></pre></div>
+<p>The data object holds three tables in long format, one row per
+occasion: the automated detections (<code>auto</code>, with two
+observation covariates and a recorder identifier), the verified
+detections (<code>verified</code>), and the sites with their covariates
+(<code>sites</code>).</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">auto</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   site occasion y        bio         aci recorder</span></span>
 <span><span class="co">#&gt; 1    1        1 0 -1.3818134 -0.36543963        5</span></span>
 <span><span class="co">#&gt; 2    2        1 1  0.4355887  1.57117657        5</span></span>
@@ -138,6 +201,14 @@ soundalike species becomes commoner where the target is rare.</p>
 <span><span class="co">#&gt; 4    4        1 0 -0.7030971  1.26171428        5</span></span>
 <span><span class="co">#&gt; 5    5        1 1 -1.0114298 -1.02790936        4</span></span>
 <span><span class="co">#&gt; 6    6        1 1 -1.6309700 -0.06734317        5</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">verified</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    site occasion y</span></span>
+<span><span class="co">#&gt; 3     3        1 0</span></span>
+<span><span class="co">#&gt; 4     4        1 0</span></span>
+<span><span class="co">#&gt; 5     5        1 1</span></span>
+<span><span class="co">#&gt; 9     9        1 0</span></span>
+<span><span class="co">#&gt; 11   11        1 1</span></span>
+<span><span class="co">#&gt; 14   14        1 0</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">sites</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   site          x           w</span></span>
 <span><span class="co">#&gt; 1    1  0.5035356  0.40752869</span></span>
@@ -146,29 +217,278 @@ soundalike species becomes commoner where the target is rare.</p>
 <span><span class="co">#&gt; 4    4 -0.1328932 -0.22992891</span></span>
 <span><span class="co">#&gt; 5    5 -0.7446706 -1.44037323</span></span>
 <span><span class="co">#&gt; 6    6 -2.6891101 -3.06909421</span></span></code></pre></div>
-<p>If your detections are in site-by-occasion matrices, as in
-<strong>unmarked</strong>, <code><a href="../reference/fp_data_wide.html">fp_data_wide()</a></code> builds the same
-object.</p>
+<p>The element <code>truth</code> holds the generating values. Because
+the false-positive rate depends on <code>w</code>, it varies among
+sites: its mean over sites is 0.106, about twice the baseline, and it is
+highest where the target is least likely to occur.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p10_sites</span> <span class="op">&lt;-</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">sites</span></span>
+<span><span class="va">p10_sites</span><span class="op">$</span><span class="va">p10</span> <span class="op">&lt;-</span> <span class="va">sim</span><span class="op">$</span><span class="va">truth</span><span class="op">$</span><span class="va">p10_site</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">p10_sites</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">p10</span>, colour <span class="op">=</span> <span class="va">w</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Occupancy covariate (x)"</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"False-positive rate (p10)"</span>, colour <span class="op">=</span> <span class="st">"w"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="crywolf_files/figure-html/fig-p10-1.png" class="r-plt" alt="True false-positive rate at each site against the occupancy covariate x, coloured by the confusing gradient w." width="100%"><p class="caption">
+True false-positive rate at each site against the occupancy covariate x,
+coloured by the confusing gradient w.
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="your-own-data">Your own data<a class="anchor" aria-label="anchor" href="#your-own-data"></a>
+</h3>
+<p><code><a href="../reference/fp_data.html">fp_data()</a></code> builds the same object from your own tables.
+Each needs a site column and a 0/1 detection column; covariates are
+taken from <code>sites</code> (for occupancy and false positives) and
+from <code>auto</code> (for true detection). Sites may differ in the
+number of occasions.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">auto</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  y    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>,  <span class="fl">0</span>, <span class="fl">0</span>,  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  wind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">1.1</span>, <span class="fl">0.3</span>, <span class="op">-</span><span class="fl">1.4</span>, <span class="fl">0.8</span>, <span class="fl">0.0</span>, <span class="op">-</span><span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">verified</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"C"</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span>, forest <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="op">-</span><span class="fl">1.2</span>, <span class="fl">0.8</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/fp_data.html">fp_data</a></span><span class="op">(</span><span class="va">auto</span>, <span class="va">sites</span>, <span class="va">verified</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;fp_data&gt;</span></span>
+<span><span class="co">#&gt;   sites:                  3</span></span>
+<span><span class="co">#&gt;   automated occasions:    8 (naive occupancy 0.67)</span></span>
+<span><span class="co">#&gt;   verified sites:         2 (3 occasions, 1 with a confirmed detection)</span></span>
+<span><span class="co">#&gt;   site covariates:        forest </span></span>
+<span><span class="co">#&gt;   observation covariates: wind</span></span></code></pre></div>
+<p>Site A has a verified detection, so it is known to be occupied. If
+your detections are stored as site-by-occasion matrices, as in
+‘unmarked’, use <code><a href="../reference/fp_data_wide.html">fp_data_wide()</a></code> instead.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
+<h2 id="the-multiple-methods-false-positive-occupancy-model">The multiple-methods false-positive occupancy model<a class="anchor" aria-label="anchor" href="#the-multiple-methods-false-positive-occupancy-model"></a>
 </h2>
-<p><code><a href="../reference/fp_occu.html">fp_occu()</a></code> takes a formula for each process. With
-<code>fp = ~ 1</code> the false-positive rate is constant, which is what
-most applications assume.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="section level3">
+<h3 id="basic-model-description">Basic model description<a class="anchor" aria-label="anchor" href="#basic-model-description"></a>
+</h3>
+<p>Let <span class="math inline">\(z_i\)</span> be the true occupancy
+state of site <span class="math inline">\(i\)</span> (<span class="math inline">\(z_i = 1\)</span> if the species is present). We
+model it as</p>
+<p><span class="math display">\[
+z_i \sim \text{Bernoulli}(\psi_i), \qquad
+\text{logit}(\psi_i) = \mathbf{x}_i^\top \boldsymbol{\beta},
+\]</span></p>
+<p>where <span class="math inline">\(\psi_i\)</span> is the occupancy
+probability, <span class="math inline">\(\mathbf{x}_i\)</span> is the
+vector of site covariates (with a leading 1 for the intercept), and
+<span class="math inline">\(\boldsymbol{\beta}\)</span> the vector of
+occupancy coefficients.</p>
+<p>A detection by the automated method on occasion <span class="math inline">\(k\)</span> can come from an occupied site (a true
+detection, with probability <span class="math inline">\(p_{11,ik}\)</span>) or from an unoccupied site (a
+false positive, with probability <span class="math inline">\(p_{10,i}\)</span>):</p>
+<p><span class="math display">\[
+y_{ik} \mid z_i \sim \text{Bernoulli}\left(z_i\, p_{11,ik} + (1 - z_i)\,
+p_{10,i}\right).
+\]</span></p>
+<p>The true-detection probability depends on observation covariates
+<span class="math inline">\(\mathbf{d}_{ik}\)</span> (e.g. background
+noise on that recording) and, optionally, on a random intercept <span class="math inline">\(u_{r}\)</span> for the recorder <span class="math inline">\(r\)</span> used at the site:</p>
+<p><span class="math display">\[
+\text{logit}(p_{11,ik}) = \mathbf{d}_{ik}^\top \boldsymbol{\alpha} +
+u_{r[i]},
+\qquad u_r \sim \text{Normal}(0, \sigma_u^2),
+\]</span></p>
+<p>where the first element of <span class="math inline">\(\boldsymbol{\alpha}\)</span>, <span class="math inline">\(\alpha_0\)</span>, is the intercept. The
+false-positive rate depends on site covariates <span class="math inline">\(\mathbf{f}_i\)</span>:</p>
+<p><span class="math display">\[
+\text{logit}(p_{10,i}) = \gamma_0 + \mathbf{f}_i^\top
+\boldsymbol{\gamma},
+\qquad \gamma_0 = \alpha_0 - \Delta, \quad \Delta &gt; 0.
+\]</span></p>
+<p>With no covariates in <span class="math inline">\(\mathbf{f}_i\)</span>, the rate is constant across
+sites.</p>
+<p>The verified method cannot produce false positives. Its detection
+probability is <span class="math inline">\(r_{11}\)</span>:</p>
+<p><span class="math display">\[
+v_{im} \mid z_i \sim \text{Bernoulli}(z_i\, r_{11}),
+\qquad \text{logit}(r_{11}) = \delta_0.
+\]</span></p>
+<p><strong>The gap <span class="math inline">\(\Delta\)</span>.</strong>
+Without further constraints, the model has two equivalent solutions: one
+in which occupied sites are those with many detections, and one in which
+the labels of the two states are swapped. We write the false-positive
+intercept as the true-detection intercept minus a positive gap, <span class="math inline">\(\Delta\)</span>, so that at the reference values
+of the covariates (all zero) a true detection is always more likely than
+a false positive. This removes the label switching. Because the
+reference is the point where all covariates are zero, centre or
+standardize them, so that the constraint applies at an average site.</p>
+<p><strong>The role of the verified data.</strong> A site with at least
+one verified detection is known to be occupied. Verified data at
+occupied and unoccupied sites separate the two sources of automated
+detections and anchor <span class="math inline">\(p_{10}\)</span>.
+Without any verified data the false-positive rate is informed only by
+the priors and the gap, and <code><a href="../reference/fp_occu.html">fp_occu()</a></code> warns about it.</p>
+<p><strong>Likelihood.</strong> The latent state <span class="math inline">\(z_i\)</span> is summed out, so the likelihood of
+site <span class="math inline">\(i\)</span> is</p>
+<p><span class="math display">\[
+L_i = \psi_i \prod_{k} p_{11,ik}^{y_{ik}} (1 - p_{11,ik})^{1 - y_{ik}}
+\prod_{m} r_{11}^{v_{im}} (1 - r_{11})^{1 - v_{im}}
++ (1 - \psi_i) \prod_{k} p_{10,i}^{y_{ik}} (1 - p_{10,i})^{1 - y_{ik}}
+\prod_{m} (1 - v_{im}),
+\]</span></p>
+<p>where the last product is zero at sites with a verified detection and
+one elsewhere. Summing out <span class="math inline">\(z_i\)</span>
+makes sampling efficient in Stan and gives one log-likelihood value per
+site, which we use for cross-validation below. The Stan program itself
+is in the file returned by <code><a href="../reference/fp_stan_file.html">fp_stan_file()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="priors">Priors<a class="anchor" aria-label="anchor" href="#priors"></a>
+</h3>
+<p>All parameters have explicit priors on the logit scale, which are
+weakly informative when covariates are standardized:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Parameter</th>
+<th>Prior (default)</th>
+<th>Argument of <code><a href="../reference/fp_priors.html">fp_priors()</a></code>
+</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Intercepts <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\alpha_0\)</span>, <span class="math inline">\(\delta_0\)</span>
+</td>
+<td><span class="math inline">\(\text{Normal}(0, 1.5)\)</span></td>
+<td><code>intercept_sd</code></td>
+</tr>
+<tr class="even">
+<td>Slopes in <span class="math inline">\(\boldsymbol{\beta}\)</span>,
+<span class="math inline">\(\boldsymbol{\alpha}\)</span>, <span class="math inline">\(\boldsymbol{\gamma}\)</span>
+</td>
+<td><span class="math inline">\(\text{Normal}(0, 2.5)\)</span></td>
+<td><code>slope_sd</code></td>
+</tr>
+<tr class="odd">
+<td>Gap <span class="math inline">\(\Delta\)</span>
+</td>
+<td>
+<span class="math inline">\(\text{Normal}(2, 1.5)\)</span>,
+truncated at 0</td>
+<td>
+<code>gap_mean</code>, <code>gap_sd</code>
+</td>
+</tr>
+<tr class="even">
+<td>Recorder SD <span class="math inline">\(\sigma_u\)</span>
+</td>
+<td><span class="math inline">\(\text{half-Normal}(0, 2)\)</span></td>
+<td><code>recorder_sd</code></td>
+</tr>
+</tbody>
+</table>
+<p>A Normal(0, 1.5) prior on an intercept is roughly flat on the
+probability scale between 0.05 and 0.95. The prior on <span class="math inline">\(\Delta\)</span> places the false-positive rate at
+the reference about an order of magnitude below true detection, while
+leaving room for the data to move it. <code><a href="../reference/fp_priors.html">fp_priors()</a></code> prints
+the settings and lets you change them:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fp_priors.html">fp_priors</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;fp_priors&gt; (logit scale)</span></span>
+<span><span class="co">#&gt;   intercepts      ~ Normal(0, 1.5)</span></span>
+<span><span class="co">#&gt;   slopes          ~ Normal(0, 2.5)</span></span>
+<span><span class="co">#&gt;   fp_gap          ~ Normal(2, 1.5), truncated at 0</span></span>
+<span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span>
+<span><span class="fu"><a href="../reference/fp_priors.html">fp_priors</a></span><span class="op">(</span>slope_sd <span class="op">=</span> <span class="fl">1</span>, gap_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;fp_priors&gt; (logit scale)</span></span>
+<span><span class="co">#&gt;   intercepts      ~ Normal(0, 1.5)</span></span>
+<span><span class="co">#&gt;   slopes          ~ Normal(0, 1)</span></span>
+<span><span class="co">#&gt;   fp_gap          ~ Normal(2, 1), truncated at 0</span></span>
+<span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="parameter-names">Parameter names<a class="anchor" aria-label="anchor" href="#parameter-names"></a>
+</h3>
+<p>The output labels each coefficient by its process and by the column
+of the design matrix it multiplies:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Symbol</th>
+<th>Output name</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\boldsymbol{\beta}\)</span></td>
+<td>
+<code>occ_(Intercept)</code>, <code>occ_x</code>, …</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\boldsymbol{\alpha}\)</span></td>
+<td>
+<code>det_(Intercept)</code>, <code>det_bio</code>, …</td>
+</tr>
+<tr class="odd">
+<td>
+<span class="math inline">\(\gamma_0\)</span>, <span class="math inline">\(\boldsymbol{\gamma}\)</span>
+</td>
+<td>
+<code>fp_(Intercept)</code>, <code>fp_w</code>, …</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\Delta\)</span></td>
+<td><code>fp_gap</code></td>
+</tr>
+<tr class="odd">
+<td>
+<span class="math inline">\(\delta_0\)</span>, <span class="math inline">\(r_{11}\)</span>
+</td>
+<td>
+<code>verified_(Intercept)</code>, <code>p_verified</code>
+</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma_u\)</span></td>
+<td><code>sd_recorder</code></td>
+</tr>
+<tr class="odd">
+<td>
+<span class="math inline">\(p_{11}\)</span>, <span class="math inline">\(p_{10}\)</span> at the reference</td>
+<td>
+<code>p11_ref</code>, <code>p10_ref</code>
+</td>
+</tr>
+<tr class="even">
+<td>mean of <span class="math inline">\(p_{10,i}\)</span> over the
+sites</td>
+<td><code>p10_bar</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section level2">
+<h2 id="fitting-the-constant-rate-model-with-fp_occu">Fitting the constant-rate model with fp_occu()<a class="anchor" aria-label="anchor" href="#fitting-the-constant-rate-model-with-fp_occu"></a>
+</h2>
+<p><code><a href="../reference/fp_occu.html">fp_occu()</a></code> takes one formula for each process:
+<code>occ</code> for occupancy, <code>det</code> for true detection, and
+<code>fp</code> for the false-positive rate. With <code>fp = ~ 1</code>
+the rate is constant across sites, which is what most applications
+assume. <code>random_recorder</code> adds the recorder random intercept;
+the simulated data include a recorder column, but recorders have no
+effect in this simulation, so we turn it off. The sampler runs four
+chains of 1000 warm-up and 1000 sampling iterations by default
+(<code>chains</code>, <code>iter_warmup</code>,
+<code>iter_sampling</code>), with a target acceptance rate
+<code>adapt_delta = 0.95</code>; other arguments are passed to the
+<code>$sample()</code> method of ‘cmdstanr’. The model is compiled the
+first time it is used and cached for later sessions.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>                   random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Running MCMC with 4 parallel chains...</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 2 finished in 3.6 seconds.</span></span>
-<span><span class="co">#&gt; Chain 4 finished in 3.9 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 4.2 seconds.</span></span>
-<span><span class="co">#&gt; Chain 1 finished in 4.2 seconds.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 4.0 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 4.3 seconds.</span></span>
 <span><span class="va">m_const</span></span>
 <span><span class="co">#&gt; Bayesian false-positive occupancy model (multiple-methods design)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -190,49 +510,163 @@ most applications assume.</p>
 <span><span class="co">#&gt;               p10_bar  0.0837 0.00707  0.0701  0.09779    1     5456     3203</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 4307/2919</span></span></code></pre></div>
-<p>The true occupancy slope is −0.8. Because the false positives track a
-gradient correlated with <code>x</code>, the constant-rate model
-attributes part of the false positives to the occupancy process, and the
-slope is pulled towards zero. The site where the classifier is fooled
-most looks like a site where the species is present.</p>
+<p>The printed table gives, for each parameter, the posterior mean,
+standard deviation, the limits of the 95% equal-tailed credible
+interval, and the convergence diagnostics discussed in the next section.
+The true-detection probability at the reference, <code>p11_ref</code>,
+and the probability of detection by the verified method,
+<code>p_verified</code>, are on the probability scale; the other
+coefficients are on the logit scale.</p>
+</div>
+<div class="section level2">
+<h2 id="convergence-and-model-adequacy">Convergence and model adequacy<a class="anchor" aria-label="anchor" href="#convergence-and-model-adequacy"></a>
+</h2>
+<p>Before interpreting any estimate, we check that the chains converged
+and that the model reproduces the data.</p>
+<div class="section level3">
+<h3 id="convergence">Convergence<a class="anchor" aria-label="anchor" href="#convergence"></a>
+</h3>
+<p><code><a href="../reference/fp_occu.html">fp_occu()</a></code> reports, for every parameter, the
+rank-normalized <span class="math inline">\(\hat{R}\)</span>
+(<code>rhat</code>) and the bulk and tail effective sample sizes
+(<code>ess_bulk</code>, <code>ess_tail</code>), and summarizes the
+sampler diagnostics in the last line of the output: the number of
+divergent transitions, the largest <span class="math inline">\(\hat{R}\)</span>, and the smallest effective
+sample sizes. It warns when there are divergent transitions, when <span class="math inline">\(\hat{R} &gt; 1.01\)</span>, or when the bulk ESS
+is below 400. In this fit there were 0 divergent transitions, the
+largest <span class="math inline">\(\hat{R}\)</span> was 1.003, and the
+smallest bulk ESS was 4307, so the chains mixed well.
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns the same table, with an adjustable
+interval width:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m_const</span>, prob <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Posterior summary (90% equal-tailed intervals)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;              variable    mean      sd   lower   upper rhat ess_bulk ess_tail</span></span>
+<span><span class="co">#&gt;       occ_(Intercept)  0.4498 0.12468  0.2450  0.6605    1     4426     2919</span></span>
+<span><span class="co">#&gt;                 occ_x -0.2553 0.12958 -0.4664 -0.0458    1     4307     2970</span></span>
+<span><span class="co">#&gt;       det_(Intercept)  0.3506 0.03735  0.2901  0.4116    1     4655     3015</span></span>
+<span><span class="co">#&gt;  verified_(Intercept) -0.0379 0.17200 -0.3213  0.2481    1     4521     3034</span></span>
+<span><span class="co">#&gt;            p_verified  0.4906 0.04269  0.4204  0.5617    1     4521     3034</span></span>
+<span><span class="co">#&gt;               p11_ref  0.5867 0.00905  0.5720  0.6015    1     4655     3015</span></span>
+<span><span class="co">#&gt;        fp_(Intercept) -2.3967 0.09269 -2.5528 -2.2481    1     5456     3203</span></span>
+<span><span class="co">#&gt;                fp_gap  2.7473 0.09158  2.6012  2.9033    1     4991     3308</span></span>
+<span><span class="co">#&gt;               p10_ref  0.0837 0.00707  0.0722  0.0955    1     5456     3203</span></span>
+<span><span class="co">#&gt;               p10_bar  0.0837 0.00707  0.0722  0.0955    1     5456     3203</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 4307/2919</span></span></code></pre></div>
+<p>Trace plots show whether the chains explored the same region of the
+posterior. <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code> returns the draws with readable
+names, which ‘bayesplot’ can plot directly:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">draws_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df</a></span><span class="op">(</span><span class="va">m_const</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/bayesplot-colors.html" class="external-link">color_scheme_set</a></span><span class="op">(</span><span class="st">"purple"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-traces.html" class="external-link">mcmc_trace</a></span><span class="op">(</span><span class="va">draws_const</span>, pars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occ_x"</span>, <span class="st">"fp_gap"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="crywolf_files/figure-html/fig-trace-1.png" class="r-plt" alt="Trace plots of the occupancy slope and of the gap between the true-detection and false-positive intercepts, for the four chains." width="100%"><p class="caption">
+Trace plots of the occupancy slope and of the gap between the
+true-detection and false-positive intercepts, for the four chains.
+</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="posterior-predictive-check">Posterior predictive check<a class="anchor" aria-label="anchor" href="#posterior-predictive-check"></a>
+</h3>
+<p>A posterior predictive check compares the observed data with data
+replicated from the fitted model (Gabry et al., 2019).
+<code><a href="../reference/fp_ppc.html">fp_ppc()</a></code> does this for the number of detections at each
+site. For each posterior draw, it draws the occupancy state of each site
+from its conditional posterior, replicates the detections, and computes
+a discrepancy statistic (by default, Freeman-Tukey) for the observed and
+the replicated data. The Bayesian p-value is the proportion of draws in
+which the replicated discrepancy exceeds the observed one; values near 0
+or 1 indicate lack of fit.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ppc_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_ppc.html">fp_ppc</a></span><span class="op">(</span><span class="va">m_const</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">ppc_const</span></span>
+<span><span class="co">#&gt; Posterior predictive check (automated detections per site)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   statistic:          freeman-tukey</span></span>
+<span><span class="co">#&gt;   draws, sites:       1000, 300</span></span>
+<span><span class="co">#&gt;   mean discrepancy:   observed 115, replicated 67</span></span>
+<span><span class="co">#&gt;   Bayesian p-value:   0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   The p-value is far from 0.5: the model may not fit these data.</span></span></code></pre></div>
+<p>The elements <code>y</code> and <code>yrep</code> follow the
+conventions of ‘bayesplot’, so its <code>ppc_*()</code> functions work
+directly. Here we compare the distribution of the number of detections
+per site in the observed and replicated data:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/PPC-discrete.html" class="external-link">ppc_bars</a></span><span class="op">(</span><span class="va">ppc_const</span><span class="op">$</span><span class="va">y</span>, <span class="va">ppc_const</span><span class="op">$</span><span class="va">yrep</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Automated detections per site"</span>, y <span class="op">=</span> <span class="st">"Number of sites"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="crywolf_files/figure-html/fig-ppc-const-1.png" class="r-plt" alt="Posterior predictive check of the constant-rate model: number of sites with each number of automated detections, observed (bars) and replicated (points and intervals)." width="100%"><p class="caption">
+Posterior predictive check of the constant-rate model: number of sites
+with each number of automated detections, observed (bars) and replicated
+(points and intervals).
+</p>
+</div>
+<p>The Bayesian p-value of the constant-rate model is 0.00. The check
+flags a lack of fit: the model does not reproduce how detections are
+distributed among sites. In the figure, the replicated data have too few
+sites with no detections and too many with one or two, which is what we
+expect when the false-positive rate is in fact low at some sites and
+high at others. The next section shows why this matters.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="modelling-the-false-positive-rate">Modelling the false-positive rate<a class="anchor" aria-label="anchor" href="#modelling-the-false-positive-rate"></a>
+</h2>
+<div class="section level3">
+<h3 id="why-the-occupancy-slope-is-biased">Why the occupancy slope is biased<a class="anchor" aria-label="anchor" href="#why-the-occupancy-slope-is-biased"></a>
+</h3>
+<p>The true occupancy slope is <span class="math inline">\(-0.8\)</span>. The constant-rate model estimates
+it at -0.26:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_const</span>, <span class="st">"occ"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; occ_(Intercept)           occ_x </span></span>
+<span><span class="co">#&gt;       0.4497632      -0.2553304</span></span></code></pre></div>
+<p>False positives in these data increase along <code>w</code>, which is
+correlated with <code>x</code>. A model that assumes a constant
+false-positive rate cannot attribute the extra detections at sites with
+high <code>w</code> to false positives, so it attributes part of them to
+occupancy. Sites where the classifier is fooled most look like sites
+where the species is present, and the occupancy slope is pulled towards
+zero. In the simulation study behind this package, verifying more sites
+did not remove this bias, because the problem is the structure of the
+model, not the amount of verified data (Provete et al., in
+preparation).</p>
+</div>
+<div class="section level3">
+<h3 id="a-false-positive-rate-that-tracks-the-occupancy-covariate">A false-positive rate that tracks the occupancy covariate<a class="anchor" aria-label="anchor" href="#a-false-positive-rate-that-tracks-the-occupancy-covariate"></a>
+</h3>
 <p>The practical remedy is to let the false-positive rate depend on the
-occupancy covariate, which you always have:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+occupancy covariate, which is always available:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>,</span>
 <span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Running MCMC with 4 parallel chains...</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 1 finished in 4.9 seconds.</span></span>
-<span><span class="co">#&gt; Chain 2 finished in 5.1 seconds.</span></span>
-<span><span class="co">#&gt; Chain 4 finished in 5.1 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 5.3 seconds.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 5.1 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 5.4 seconds.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_const</span>, <span class="st">"occ"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; occ_(Intercept)           occ_x </span></span>
-<span><span class="co">#&gt;       0.4497632      -0.2553304</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_x</span>, <span class="st">"occ"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; occ_(Intercept)           occ_x </span></span>
-<span><span class="co">#&gt;       0.2907979      -0.5595734</span></span></code></pre></div>
-<p>and, if you have measured a covariate of whatever fools the
-classifier, adding it as well. In a simulation we know that variable,
-<code>w</code>, so we can fit the generating model as a positive
-control:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_x</span>, <span class="st">"fp"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; fp_(Intercept)           fp_x </span></span>
+<span><span class="co">#&gt;      -2.651316       1.006295</span></span></code></pre></div>
+<p>The coefficient <code>fp_x</code> captures the part of the confusion
+that is correlated with <code>x</code>. In the simulation study, this
+model reduced the bias of the occupancy slope by 34 to 62% when the
+confusing gradient had a correlation of 0.7 with the occupancy
+covariate, and its intervals became better calibrated as more sites were
+verified, although coverage remained below the nominal level (Provete et
+al., in preparation).</p>
+</div>
+<div class="section level3">
+<h3 id="a-false-positive-rate-that-tracks-the-confusing-gradient">A false-positive rate that tracks the confusing gradient<a class="anchor" aria-label="anchor" href="#a-false-positive-rate-that-tracks-the-confusing-gradient"></a>
+</h3>
+<p>If you have measured something that drives the confusion, such as the
+abundance of a soundalike species or an index of background noise, put
+it in the <code>fp</code> formula. In a simulation we know the confusing
+gradient <code>w</code>, so we can fit the generating model as a
+positive control:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_w</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">w</span>,</span>
 <span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Running MCMC with 4 parallel chains...</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 4 finished in 5.0 seconds.</span></span>
-<span><span class="co">#&gt; Chain 2 finished in 5.2 seconds.</span></span>
-<span><span class="co">#&gt; Chain 1 finished in 5.4 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 5.7 seconds.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 5.3 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 5.8 seconds.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m_w</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Posterior summary (95% equal-tailed intervals)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -250,26 +684,128 @@ control:</p>
 <span><span class="co">#&gt;               p10_bar  0.1072 0.00466  0.09826  0.1164    1     4598     3225</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 3410/2716</span></span></code></pre></div>
+<p>The estimated effect of <code>w</code> on the false-positive rate is
+1.47 (true value 1.5). In the simulation study, an imperfect proxy of
+the confusing gradient (correlation 0.7 with <code>w</code>) reduced the
+bias of the slope by only 17 to 37%, so the closer the covariate is to
+the real cause of the confusion, the better (Provete et al., in
+preparation).</p>
+<p>The figure compares the occupancy slope of the three models with its
+true value.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">slopes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`fp = ~ 1` <span class="op">=</span> <span class="va">m_const</span>, `fp = ~ x` <span class="op">=</span> <span class="va">m_x</span>, `fp = ~ w` <span class="op">=</span> <span class="va">m_w</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/imap.html" class="external-link">imap</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">nm</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">$</span><span class="va">table</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">nm</span>, <span class="va">tab</span><span class="op">[</span><span class="va">tab</span><span class="op">$</span><span class="va">variable</span> <span class="op">==</span> <span class="st">"occ_x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">slopes</span><span class="op">$</span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">slopes</span><span class="op">$</span><span class="va">model</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">slopes</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">slopes</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">mean</span>, <span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="op">-</span><span class="fl">0.8</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_pointrange</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="va">lower</span>, xmax <span class="op">=</span> <span class="va">upper</span><span class="op">)</span>, colour <span class="op">=</span> <span class="st">"#5B2A86"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Occupancy slope on x"</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="crywolf_files/figure-html/fig-slopes-1.png" class="r-plt" alt="Posterior mean and 95% credible interval of the occupancy slope under three models of the false-positive rate. The dashed line marks the true value." width="100%"><p class="caption">
+Posterior mean and 95% credible interval of the occupancy slope under
+three models of the false-positive rate. The dashed line marks the true
+value.
+</p>
+</div>
+<p>The posterior predictive checks of the three models agree with this
+picture:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`fp = ~ 1` <span class="op">=</span> <span class="va">ppc_const</span>, `fp = ~ x` <span class="op">=</span> <span class="fu"><a href="../reference/fp_ppc.html">fp_ppc</a></span><span class="op">(</span><span class="va">m_x</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>     `fp = ~ w` <span class="op">=</span> <span class="fu"><a href="../reference/fp_ppc.html">fp_ppc</a></span><span class="op">(</span><span class="va">m_w</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl</a></span><span class="op">(</span><span class="st">"p_value"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; fp = ~ 1 fp = ~ x fp = ~ w </span></span>
+<span><span class="co">#&gt;    0.000    0.000    0.824</span></span></code></pre></div>
+<p>Only the model with the confusing gradient has a p-value far from 0.
+A posterior predictive check is a useful warning, but a p-value near 0.5
+does not show that the false-positive process is correctly specified:
+with fewer occasions or weaker confusion, a misspecified model may pass
+the check and still have a biased slope. To ask whether the intervals of
+a model are calibrated for your design, use <code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code>
+(see <code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>).</p>
+</div>
+<div class="section level3">
+<h3 id="sensitivity-to-the-priors">Sensitivity to the priors<a class="anchor" aria-label="anchor" href="#sensitivity-to-the-priors"></a>
+</h3>
+<p>To check that the conclusions do not depend on the priors, we refit
+the model with <code>fp = ~ w</code> using narrower priors on the slopes
+and on the gap, and compare the main parameters:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m_w_narrow</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">w</span>,</span>
+<span>                      random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                      priors <span class="op">=</span> <span class="fu"><a href="../reference/fp_priors.html">fp_priors</a></span><span class="op">(</span>slope_sd <span class="op">=</span> <span class="fl">1</span>, gap_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occ_x"</span>, <span class="st">"fp_w"</span>, <span class="st">"fp_gap"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>parameter <span class="op">=</span> <span class="va">pars</span>,</span>
+<span>           default <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_w</span><span class="op">)</span><span class="op">[</span><span class="va">pars</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>           narrow  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_w_narrow</span><span class="op">)</span><span class="op">[</span><span class="va">pars</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, row.names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   parameter default narrow</span></span>
+<span><span class="co">#&gt; 1     occ_x  -0.783 -0.773</span></span>
+<span><span class="co">#&gt; 2      fp_w   1.472  1.459</span></span>
+<span><span class="co">#&gt; 3    fp_gap   3.336  3.317</span></span></code></pre></div>
+<p>With 300 sites, the data dominate the priors and the estimates barely
+change. With smaller data sets, the priors, particularly the one on
+<span class="math inline">\(\Delta\)</span>, matter more, and this
+comparison is worth reporting.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
+<h2 id="model-comparison-with-loo">Model comparison with LOO<a class="anchor" aria-label="anchor" href="#model-comparison-with-loo"></a>
 </h2>
-<p>The pointwise log-likelihood is computed per site, with the latent
-state marginalized, so <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> gives leave-one-site-out
-cross-validation.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">loo</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo_compare.html" class="external-link">loo_compare</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>constant <span class="op">=</span> <span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">m_const</span><span class="op">)</span>, fp_x <span class="op">=</span> <span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">m_x</span><span class="op">)</span>, fp_w <span class="op">=</span> <span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">m_w</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<p>Because the latent state is summed out, the pointwise log-likelihood
+is computed per site, and <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> gives approximate
+leave-one-site-out cross-validation by Pareto-smoothed importance
+sampling (Vehtari et al., 2017). <code>loo_compare()</code> ranks the
+models by their expected log predictive density (elpd):</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loo_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">m_const</span><span class="op">)</span></span>
+<span><span class="va">loo_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">m_x</span><span class="op">)</span></span>
+<span><span class="va">loo_w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">m_w</span><span class="op">)</span></span>
+<span><span class="fu">loo</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo_compare.html" class="external-link">loo_compare</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`fp = ~ 1` <span class="op">=</span> <span class="va">loo_const</span>, `fp = ~ x` <span class="op">=</span> <span class="va">loo_x</span>,</span>
+<span>                      `fp = ~ w` <span class="op">=</span> <span class="va">loo_w</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     model elpd_diff se_diff p_worse diag_diff diag_elpd</span></span>
-<span><span class="co">#&gt;      fp_w       0.0     0.0      NA                    </span></span>
-<span><span class="co">#&gt;      fp_x     -89.5    15.9    1.00                    </span></span>
-<span><span class="co">#&gt;  constant    -135.9    18.2    1.00</span></span></code></pre></div>
+<span><span class="co">#&gt;  fp = ~ w       0.0     0.0      NA                    </span></span>
+<span><span class="co">#&gt;  fp = ~ x     -89.5    15.9    1.00                    </span></span>
+<span><span class="co">#&gt;  fp = ~ 1    -135.9    18.2    1.00</span></span></code></pre></div>
+<p>The first row is the best model; <code>elpd_diff</code> is the
+difference in elpd from it, with its standard error
+<code>se_diff</code>. Here the model with the confusing gradient
+predicts best, followed by the model with <code>fp = ~ x</code>, and the
+constant-rate model predicts worst; the differences are several times
+their standard errors. Check the Pareto <span class="math inline">\(k\)</span> diagnostics printed by
+<code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code>: values above 0.7 mean that the approximation is
+unreliable for those sites.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loo_w</span></span>
+<span><span class="co">#&gt; Computed from 4000 by 300 log-likelihood matrix.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Estimate    SE</span></span>
+<span><span class="co">#&gt; elpd_loo  -3309.9  85.1</span></span>
+<span><span class="co">#&gt; p_loo         5.6   0.4</span></span>
+<span><span class="co">#&gt; looic      6619.8 170.2</span></span>
+<span><span class="co">#&gt; ------</span></span>
+<span><span class="co">#&gt; MCSE of elpd_loo is 0.0.</span></span>
+<span><span class="co">#&gt; MCSE and ESS estimates assume independent draws (r_eff=1).</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; All Pareto k estimates are good (k &lt; 0.7).</span></span>
+<span><span class="co">#&gt; See help('pareto-k-diagnostic') for details.</span></span></code></pre></div>
+<p>LOO measures predictive performance, not the bias of a particular
+coefficient. It can tell which model of the false-positive rate fits
+better, but not whether the occupancy slope of the best model is
+unbiased.</p>
 </div>
 <div class="section level2">
-<h2 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
+<h2 id="prediction">Prediction<a class="anchor" aria-label="anchor" href="#prediction"></a>
 </h2>
-<p><code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> returns the occupancy probability, or the
-false-positive rate, with credible intervals.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p><code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> returns the posterior mean and credible
+interval of the occupancy probability (<code>process = "occ"</code>) or
+of the false-positive rate (<code>process = "fp"</code>) for new values
+of the covariates. With <code>summary = FALSE</code> it returns the
+matrix of posterior draws instead, with one row per draw.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m_x</span>, newdata <span class="op">=</span> <span class="va">nd</span>, process <span class="op">=</span> <span class="st">"occ"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    x  estimate     lower     upper</span></span>
@@ -285,33 +821,131 @@ false-positive rate, with credible intervals.</p>
 <span><span class="co">#&gt; 3  0 0.066168481 0.054623116 0.07795714</span></span>
 <span><span class="co">#&gt; 4  1 0.162114250 0.139852866 0.18448956</span></span>
 <span><span class="co">#&gt; 5  2 0.346338560 0.278565834 0.41050497</span></span></code></pre></div>
+<p>Predicting over a grid of the occupancy covariate shows how the bias
+of the slope translates into the occupancy probability:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>, length.out <span class="op">=</span> <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`fp = ~ 1` <span class="op">=</span> <span class="va">m_const</span>, `fp = ~ x` <span class="op">=</span> <span class="va">m_x</span>, `fp = ~ w` <span class="op">=</span> <span class="va">m_w</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/imap.html" class="external-link">imap</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">nm</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">nm</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, newdata <span class="op">=</span> <span class="va">grid</span>, process <span class="op">=</span> <span class="st">"occ"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">x</span>, psi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">truth</span><span class="op">$</span><span class="va">b0</span> <span class="op">+</span> <span class="va">sim</span><span class="op">$</span><span class="va">truth</span><span class="op">$</span><span class="va">b1</span> <span class="op">*</span> <span class="va">grid</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pred</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">estimate</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">lower</span>, ymax <span class="op">=</span> <span class="va">upper</span>, fill <span class="op">=</span> <span class="va">model</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">psi</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">truth</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#FF3EA5"</span>, <span class="st">"#2DE2E6"</span>, <span class="st">"#5B2A86"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#FF3EA5"</span>, <span class="st">"#2DE2E6"</span>, <span class="st">"#5B2A86"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Occupancy covariate (x)"</span>, y <span class="op">=</span> <span class="st">"Occupancy probability"</span>,</span>
+<span>       colour <span class="op">=</span> <span class="cn">NULL</span>, fill <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="crywolf_files/figure-html/fig-predict-1.png" class="r-plt" alt="Predicted occupancy probability (posterior mean and 95% credible interval) along the occupancy covariate under three models of the false-positive rate. The dashed line is the true relationship." width="100%"><p class="caption">
+Predicted occupancy probability (posterior mean and 95% credible
+interval) along the occupancy covariate under three models of the
+false-positive rate. The dashed line is the true relationship.
+</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="covariates-on-detection-and-recorders">Covariates on detection and recorders<a class="anchor" aria-label="anchor" href="#covariates-on-detection-and-recorders"></a>
+<h2 id="detection-covariates-and-recorder-effects">Detection covariates and recorder effects<a class="anchor" aria-label="anchor" href="#detection-covariates-and-recorder-effects"></a>
 </h2>
 <p>The true-detection formula accepts observation covariates (columns of
-<code>auto</code>) and site covariates, and
-<code>random_recorder = TRUE</code> adds a random intercept per
-recorder.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span> <span class="op">+</span> <span class="va">aci</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>,</span>
-<span>        random_recorder <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code>auto</code>, which may change from occasion to occasion) and site
+covariates. With <code>random_recorder = TRUE</code>, the model adds a
+random intercept for each recorder, which absorbs differences in
+sensitivity among devices or observers. Name the recorder column with
+the <code>recorder</code> argument of <code><a href="../reference/fp_data.html">fp_data()</a></code>.</p>
+<p>We simulate a second data set in which two acoustic indices,
+<code>bio</code> and <code>aci</code>, affect true detection (effects
+0.5 and <span class="math inline">\(-0.3\)</span>), and ten recorders
+differ in sensitivity (standard deviation 0.6 on the logit scale):</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">300</span>, nocc <span class="op">=</span> <span class="fl">20</span>, a_bio <span class="op">=</span> <span class="fl">0.5</span>, a_aci <span class="op">=</span> <span class="op">-</span><span class="fl">0.3</span>,</span>
+<span>                       sd_recorder <span class="op">=</span> <span class="fl">0.6</span>, nrec <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                       conf_effect <span class="op">=</span> <span class="fl">1.5</span>, conf_cor <span class="op">=</span> <span class="fl">0.7</span>, seed <span class="op">=</span> <span class="fl">2027</span><span class="op">)</span></span>
+<span><span class="va">m_rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim_rec</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span> <span class="op">+</span> <span class="va">aci</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">w</span>,</span>
+<span>                 random_recorder <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">m_rec</span></span></code></pre></div>
+<p>When detection covariates change among occasions, each occasion
+enters the likelihood separately, instead of being grouped with the
+other occasions of its site, so the model takes longer to fit (about a
+minute here). To keep this vignette quick to build, we show the saved
+output of this fit:</p>
+<pre><code><span><span class="co">#&gt; Bayesian false-positive occupancy model (multiple-methods design)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   occupancy:       ~x </span></span>
+<span><span class="co">#&gt;   true detection:  ~bio + aci + (1 | recorder) </span></span>
+<span><span class="co">#&gt;   false positive:  ~w </span></span>
+<span><span class="co">#&gt;   data:            300 sites, 6000 automated and 270 verified occasions</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;              variable    mean      sd   lower   upper rhat ess_bulk ess_tail</span></span>
+<span><span class="co">#&gt;       occ_(Intercept) -0.0438 0.12139 -0.2903  0.1874    1     4009     2863</span></span>
+<span><span class="co">#&gt;                 occ_x -0.6366 0.14009 -0.9196 -0.3665    1     4515     2761</span></span>
+<span><span class="co">#&gt;       det_(Intercept)  0.2686 0.21205 -0.1726  0.6760    1      875     1188</span></span>
+<span><span class="co">#&gt;               det_bio  0.4145 0.04293  0.3330  0.4976    1     4116     2652</span></span>
+<span><span class="co">#&gt;               det_aci -0.3188 0.04106 -0.3987 -0.2382    1     4032     2650</span></span>
+<span><span class="co">#&gt;  verified_(Intercept)  0.5614 0.17494  0.2173  0.9020    1     4265     3009</span></span>
+<span><span class="co">#&gt;            p_verified  0.6358 0.04024  0.5541  0.7114    1     4265     3009</span></span>
+<span><span class="co">#&gt;               p11_ref  0.5661 0.05151  0.4570  0.6628    1      875     1188</span></span>
+<span><span class="co">#&gt;        fp_(Intercept) -2.9961 0.10328 -3.2001 -2.8032    1     4049     3336</span></span>
+<span><span class="co">#&gt;                  fp_w  1.5605 0.09049  1.3917  1.7402    1     4023     2873</span></span>
+<span><span class="co">#&gt;                fp_gap  3.2648 0.23471  2.7838  3.7208    1      990     1411</span></span>
+<span><span class="co">#&gt;               p10_ref  0.0478 0.00468  0.0392  0.0572    1     4049     3336</span></span>
+<span><span class="co">#&gt;               p10_bar  0.1003 0.00485  0.0909  0.1102    1     4174     3274</span></span>
+<span><span class="co">#&gt;           sd_recorder  0.6284 0.18510  0.3736  1.0802    1      932     1796</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 875/1188</span></span></code></pre>
+<p>The effects of the acoustic indices (<code>det_bio</code>,
+<code>det_aci</code>), the standard deviation among recorders
+(<code>sd_recorder</code>), and the effect of the confusing gradient
+(<code>fp_w</code>) are close to their true values. The true-detection
+intercept, the gap, and the recorder standard deviation have lower
+effective sample sizes than the other parameters, as is common with
+random intercepts, but all are above the threshold of 400.</p>
 </div>
 <div class="section level2">
-<h2 id="is-the-correction-calibrated-for-my-design">Is the correction calibrated for my design?<a class="anchor" aria-label="anchor" href="#is-the-correction-calibrated-for-my-design"></a>
+<h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
-<p>A single fit cannot tell you whether the credible intervals are
-honest. <code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code> and
-<code><a href="../reference/fp_verification_curve.html">fp_verification_curve()</a></code> answer that by simulation; see
-<code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>.</p>
+<ul>
+<li>
+<code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>: check
+whether a model’s credible intervals are calibrated for your design, and
+how much to verify.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<p>Chambert, T., Miller, D. A. W., &amp; Nichols, J. D. (2015). Modeling
+false positive detections in species occurrence data under different
+study designs. <em>Ecology</em>, 96, 332–339. <a href="https://doi.org/10.1890/14-1507.1" class="external-link uri">https://doi.org/10.1890/14-1507.1</a></p>
+<p>Clare, J. D. J., Townsend, P. A., &amp; Zuckerberg, B. (2021).
+Generalized model-based solutions to false-positive error in species
+detection/nondetection data. <em>Ecology</em>, 102, e03241. <a href="https://doi.org/10.1002/ecy.3241" class="external-link uri">https://doi.org/10.1002/ecy.3241</a></p>
+<p>Gabry, J., Simpson, D., Vehtari, A., Betancourt, M., &amp; Gelman, A.
+(2019). Visualization in Bayesian workflow. <em>Journal of the Royal
+Statistical Society Series A: Statistics in Society</em>, 182, 389–402.
+<a href="https://doi.org/10.1111/rssa.12378" class="external-link uri">https://doi.org/10.1111/rssa.12378</a></p>
+<p>Kahl, S., Wood, C. M., Eibl, M., &amp; Klinck, H. (2021). BirdNET: A
+deep learning solution for avian diversity monitoring. <em>Ecological
+Informatics</em>, 61, 101236. <a href="https://doi.org/10.1016/j.ecoinf.2021.101236" class="external-link uri">https://doi.org/10.1016/j.ecoinf.2021.101236</a></p>
+<p>MacKenzie, D. I., Nichols, J. D., Lachman, G. B., Droege, S., Royle,
+J. A., &amp; Langtimm, C. A. (2002). Estimating site occupancy rates
+when detection probabilities are less than one. <em>Ecology</em>, 83,
+2248–2255. <a href="https://doi.org/10.1890/0012-9658(2002)083%5B2248:ESORWD%5D2.0.CO;2" class="external-link uri">https://doi.org/10.1890/0012-9658(2002)083[2248:ESORWD]2.0.CO;2</a></p>
 <p>Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 Bailey, L. L., &amp; Weir, L. A. (2011). Improving occupancy estimation
 when two types of observational error occur: non-detection and species
 misidentification. <em>Ecology</em>, 92, 1422–1428. <a href="https://doi.org/10.1890/10-1396.1" class="external-link uri">https://doi.org/10.1890/10-1396.1</a></p>
+<p>Provete, D. B., et al. (in preparation).</p>
+<p>Royle, J. A., &amp; Link, W. A. (2006). Generalized site occupancy
+models allowing for false positive and false negative errors.
+<em>Ecology</em>, 87, 835–841. <a href="https://doi.org/10.1890/0012-9658(2006)87%5B835:GSOMAF%5D2.0.CO;2" class="external-link uri">https://doi.org/10.1890/0012-9658(2006)87[835:GSOMAF]2.0.CO;2</a></p>
+<p>Vehtari, A., Gelman, A., &amp; Gabry, J. (2017). Practical Bayesian
+model evaluation using leave-one-out cross-validation and WAIC.
+<em>Statistics and Computing</em>, 27, 1413–1432. <a href="https://doi.org/10.1007/s11222-016-9696-4" class="external-link uri">https://doi.org/10.1007/s11222-016-9696-4</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -2,7 +2,7 @@
 
 Summaries, point estimates, predictions, and model comparison for
 objects returned by
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md).
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
 
 ## Usage
 

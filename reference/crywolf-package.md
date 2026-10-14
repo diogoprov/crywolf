@@ -11,25 +11,24 @@ design.
 The package has three parts:
 
 - **Data and model.**
-  [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md)
-  (or
-  [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md))
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) (or
+  [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md))
   assembles the detections, and
-  [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   fits the model in Stan through 'cmdstanr'. The false-positive rate can
   be constant (`fp = ~ 1`) or depend on site covariates (`fp = ~ w`),
   and the true-detection process accepts observation covariates and a
   recorder random effect.
 
 - **Simulation.**
-  [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
   generates data under homogeneous, unstructured, and structured
   ("confusion") false-positive regimes.
 
 - **Calibration.**
-  [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+  [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
   and
-  [`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+  [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
   fit the model to many simulated datasets and report the coverage of
   the 95% credible intervals and the bias of the quantities of interest,
   so that users can see whether the correction holds for their design
@@ -67,7 +66,7 @@ Useful links:
 
 - <https://github.com/diogoprov/crywolf>
 
-- <https://diogoprov.github.io/crywolf/>
+- <https://provetelab.org/crywolf/>
 
 - Report bugs at <https://github.com/diogoprov/crywolf/issues>
 

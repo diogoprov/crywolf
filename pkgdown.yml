@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   calibration: calibration.html
   crywolf: crywolf.html
-last_built: 2026-10-14T21:34Z
+last_built: 2026-10-14T22:14Z
 urls:
-  reference: https://diogoprov.github.io/crywolf/reference
-  article: https://diogoprov.github.io/crywolf/articles
+  reference: https://provetelab.org/crywolf/reference
+  article: https://provetelab.org/crywolf/articles

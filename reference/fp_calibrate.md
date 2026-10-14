@@ -1,12 +1,12 @@
 # Simulation-based calibration check for a study design
 
 Simulates many datasets from a design with
-[`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md),
+[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md),
 fits one or more false-positive models to each with
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md),
-and scores how often the credible intervals contain the true values and
-how biased the posterior means are. Use it before collecting data, to
-ask whether the correction will be calibrated for the number of sites,
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md), and
+scores how often the credible intervals contain the true values and how
+biased the posterior means are. Use it before collecting data, to ask
+whether the correction will be calibrated for the number of sites,
 occasions, and verified sites you can afford, and whether a constant
 false-positive rate is enough under the confusion you suspect.
 
@@ -32,16 +32,16 @@ fp_calibrate(
 - design:
 
   A data frame (or list) whose columns are arguments of
-  [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md);
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md);
   each row is one cell of the design. Arguments not given take the
   defaults of
-  [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md).
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md).
 
 - models:
 
   Named list of formulas for the false-positive rate, one model per
   element, as in the `fp` argument of
-  [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md).
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
   The default fits only the constant-rate model.
 
 - occ, det:
@@ -75,7 +75,7 @@ fp_calibrate(
 - fit_args:
 
   List of further arguments for
-  [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md).
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
 
 ## Value
 
@@ -96,8 +96,8 @@ rate (`fp_w`).
 
 ## See also
 
-[`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md),
-[`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+[`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md),
+[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
 
 ## Examples
 

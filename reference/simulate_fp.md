@@ -136,8 +136,8 @@ and `nrec` corresponding to its `nsite`, `K`, `verified_coverage`,
 
 ## See also
 
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md),
-[`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 
 ## Examples
 

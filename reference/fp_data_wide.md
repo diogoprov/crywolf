@@ -1,10 +1,10 @@
 # Assemble data from detection matrices
 
 Convenience wrapper around
-[`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md)
-for data stored as site-by-occasion matrices, the layout used by
-'unmarked'. Missing values (`NA`) mark occasions that were not sampled,
-so sites may differ in effort.
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) for
+data stored as site-by-occasion matrices, the layout used by 'unmarked'.
+Missing values (`NA`) mark occasions that were not sampled, so sites may
+differ in effort.
 
 ## Usage
 
@@ -51,7 +51,7 @@ An object of class `fp_data`.
 
 ## See also
 
-[`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md)
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
 
 ## Examples
 

@@ -34,10 +34,10 @@ fp_occu(
 - data:
 
   An `fp_data` object from
-  [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md),
-  [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md),
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
+  [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md),
   or
-  [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md).
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md).
 
 - occ:
 
@@ -66,7 +66,7 @@ fp_occu(
 - priors:
 
   Prior settings from
-  [`fp_priors()`](https://diogoprov.github.io/crywolf/reference/fp_priors.md).
+  [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md).
 
 - chains, iter_warmup, iter_sampling, adapt_delta, seed, refresh:
 
@@ -99,7 +99,7 @@ intercept of true detection minus a positive gap, \\\gamma_0 =
 (all zero) a true detection is more likely than a false positive. This
 removes the label switching between the occupied and unoccupied states.
 Centre the covariates, so that the reference is an average site;
-[`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
 already returns them standardized.
 
 **Verified data.** The verified detections anchor the false-positive
@@ -113,7 +113,7 @@ sites, but not when they tracked an environmental gradient correlated
 with the occupancy covariate; verifying more sites did not fix it.
 Placing that gradient, or the occupancy covariate itself, in `fp` did.
 Use
-[`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 to check your own design.
 
 **Parameter names.** Coefficients are labelled by process and column of
@@ -134,9 +134,9 @@ misidentification. *Ecology*, 92, 1422–1428.
 
 ## See also
 
-[`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md),
-[`fp_priors()`](https://diogoprov.github.io/crywolf/reference/fp_priors.md),
-[`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
+[`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md),
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 
 ## Examples
 

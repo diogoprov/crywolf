@@ -2,10 +2,10 @@
 
 Collects the automated detections, the verified detections, and the site
 table into one object that
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
-can fit. All tables are in long format, one row per occasion, which
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) can
+fit. All tables are in long format, one row per occasion, which
 accommodates unequal numbers of occasions per site without padding. Use
-[`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md)
+[`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md)
 if your data are detection matrices, as in 'unmarked'.
 
 ## Usage
@@ -28,7 +28,7 @@ fp_data(auto, sites, verified = NULL, site = "site", y = "y", recorder = NULL)
   Data frame with one row per site: the site identifier plus any site
   covariates used in the occupancy (`occ`) or false-positive (`fp`)
   formulas of
-  [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md).
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
   Sites with no automated occasions are allowed and contribute only
   through their verified data, if any.
 
@@ -38,7 +38,7 @@ fp_data(auto, sites, verified = NULL, site = "site", y = "y", recorder = NULL)
   expert and therefore free of false positives), one row per site and
   occasion, with the same site and detection columns. Without it the
   false-positive rate is identified only by the priors, and
-  [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   warns about it.
 
 - site, y:
@@ -58,9 +58,9 @@ missing detection dropped), the column names, and the vector
 
 ## See also
 
-[`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md),
-[`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md),
-[`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+[`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md),
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
 
 ## Examples
 

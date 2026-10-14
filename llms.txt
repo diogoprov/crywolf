@@ -51,12 +51,12 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 | Function | Purpose |
 |----|----|
-| [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md), [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md) | assemble automated and verified detections and site covariates |
-| [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md) | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
-| [`fp_priors()`](https://diogoprov.github.io/crywolf/reference/fp_priors.md) | prior settings |
-| [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md) | simulate data under homogeneous, unstructured, or structured false positives |
-| [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md) | coverage and bias of the credible intervals for a design, by simulation |
-| [`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md) | coverage against the fraction of sites verified |
+| [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md), [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md) | assemble automated and verified detections and site covariates |
+| [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
+| [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md) | prior settings |
+| [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md) | simulate data under homogeneous, unstructured, or structured false positives |
+| [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md) | coverage and bias of the credible intervals for a design, by simulation |
+| [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md) | coverage against the fraction of sites verified |
 
 ## Citation
 
@@ -81,32 +81,32 @@ monstrabilis* by Tracy A. Heath, from PhyloPic, in the public domain
 
 Assemble automated and verified detections and site covariates.
 
-- [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md)
-  : Assemble data for a false-positive occupancy model
-- [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md)
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) :
+  Assemble data for a false-positive occupancy model
+- [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md)
   : Assemble data from detection matrices
 
 ## Fitting
 
 Fit the model and inspect, summarize, predict, and compare fits.
 
-- [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
-  : Fit a Bayesian false-positive occupancy model
-- [`fp_priors()`](https://diogoprov.github.io/crywolf/reference/fp_priors.md)
+- [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) :
+  Fit a Bayesian false-positive occupancy model
+- [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
   : Prior settings for fp_occu()
-- [`print(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
-  [`summary(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
-  [`print(`*`<summary.fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
-  [`coef(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
-  [`predict(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
-  [`loo(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
-  [`as_draws_df(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+- [`print(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
+  [`summary(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
+  [`print(`*`<summary.fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
+  [`coef(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
+  [`predict(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
+  [`loo(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
+  [`as_draws_df(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
   : Methods for fp_occu fits
-- [`fp_ppc()`](https://diogoprov.github.io/crywolf/reference/fp_ppc.md)
-  : Posterior predictive check for a false-positive occupancy model
-- [`fp_compile()`](https://diogoprov.github.io/crywolf/reference/fp_compile.md)
+- [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) :
+  Posterior predictive check for a false-positive occupancy model
+- [`fp_compile()`](https://provetelab.org/crywolf/reference/fp_compile.md)
   : Compile (or load) the Stan model
-- [`fp_stan_file()`](https://diogoprov.github.io/crywolf/reference/fp_stan_file.md)
+- [`fp_stan_file()`](https://provetelab.org/crywolf/reference/fp_stan_file.md)
   : Path to the Stan program
 
 ## Simulation and calibration
@@ -114,32 +114,32 @@ Fit the model and inspect, summarize, predict, and compare fits.
 Simulate false-positive regimes and check interval calibration for a
 design.
 
-- [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+- [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
   : Simulate data for a false-positive occupancy model
-- [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+- [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
   : Simulation-based calibration check for a study design
-- [`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+- [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
   : Coverage as a function of verification effort
 
 ## Package
 
-- [`crywolf`](https://diogoprov.github.io/crywolf/reference/crywolf-package.md)
-  [`crywolf-package`](https://diogoprov.github.io/crywolf/reference/crywolf-package.md)
+- [`crywolf`](https://provetelab.org/crywolf/reference/crywolf-package.md)
+  [`crywolf-package`](https://provetelab.org/crywolf/reference/crywolf-package.md)
   : crywolf: Bayesian false-positive occupancy models with calibration
   checks
-- [`reexports`](https://diogoprov.github.io/crywolf/reference/reexports.md)
-  [`loo`](https://diogoprov.github.io/crywolf/reference/reexports.md)
-  [`as_draws_df`](https://diogoprov.github.io/crywolf/reference/reexports.md)
+- [`reexports`](https://provetelab.org/crywolf/reference/reexports.md)
+  [`loo`](https://provetelab.org/crywolf/reference/reexports.md)
+  [`as_draws_df`](https://provetelab.org/crywolf/reference/reexports.md)
   : Objects exported from other packages
 
 # Articles
 
 ### Get started
 
-- [Getting started with
-  crywolf](https://diogoprov.github.io/crywolf/articles/crywolf.md):
+- [Introduction to
+  crywolf](https://provetelab.org/crywolf/articles/crywolf.md):
 
 ### Guides
 
 - [Checking calibration and how much to
-  verify](https://diogoprov.github.io/crywolf/articles/calibration.md):
+  verify](https://provetelab.org/crywolf/articles/calibration.md):

@@ -15,7 +15,7 @@ cover the truth.
 2.  Describe the false-positive structure you suspect: homogeneous,
     random among sites, or tracking an environmental gradient.
 3.  Run
-    [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+    [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
     with the candidate models.
 4.  Read the coverage and bias of the quantity you care about, usually
     the occupancy slope.
@@ -52,7 +52,7 @@ comparisons between models are paired.
 Verification anchors the false-positive rate. It is natural to think
 that verifying more sites will rescue a model that is not calibrated,
 and
-[`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+[`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
 tests that directly:
 
 ``` r
@@ -85,7 +85,7 @@ preparation), at a base false-positive rate of 0.05:
   depended on the occupancy covariate itself.
 
 So, if
-[`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+[`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
 shows the constant-rate model stuck below nominal coverage, verifying
 more is not the remedy. Model the false-positive rate instead, and
 verify enough to tell its effect apart from the occupancy effect.

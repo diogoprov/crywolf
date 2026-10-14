@@ -1,7 +1,7 @@
 # Coverage as a function of verification effort
 
 Runs
-[`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 over a grid of verification fractions and prints the coverage of the
 occupancy slope against the fraction of sites verified. If the
 constant-rate model does not approach nominal coverage as verification
@@ -31,7 +31,7 @@ fp_verification_curve(
 - ...:
 
   Arguments of
-  [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
   that define the scenario (held fixed), e.g.
   `p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7`.
 
@@ -42,7 +42,7 @@ fp_verification_curve(
 - models, occ, det, reps, base_seed, parallel, fit_args:
 
   As in
-  [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md).
+  [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md).
 
 ## Value
 

@@ -27,6 +27,7 @@ reference:
       - fp_occu
       - fp_priors
       - fp_occu-methods
+      - fp_ppc
       - fp_compile
       - fp_stan_file
   - title: Simulation and calibration

@@ -1,0 +1,206 @@
+#' Posterior predictive check for a false-positive occupancy model
+#'
+#' Replicates the detection data from the posterior of an [fp_occu()] fit and
+#' compares observed and replicated data with a discrepancy statistic, giving a
+#' Bayesian p-value. Detections are summed per site, so the check asks whether
+#' the model reproduces how many detections each site gets.
+#'
+#' @param object An `fp_occu` object.
+#' @param method Which data to check: `"automated"` (default; every site) or
+#'   `"verified"` (verified sites only).
+#' @param fit_stat Discrepancy statistic: `"freeman-tukey"` (default),
+#'   \eqn{\sum_i (\sqrt{y_i} - \sqrt{E_i})^2}, or `"chi-squared"`,
+#'   \eqn{\sum_i (y_i - E_i)^2 / E_i}, where \eqn{y_i} is the number of
+#'   detections at site \eqn{i} and \eqn{E_i} its expected value given the
+#'   parameters and the latent state.
+#' @param ndraws Number of posterior draws to use, sampled without replacement.
+#'   `NULL` uses all of them.
+#' @param seed Optional integer seed for the subsampling and replication.
+#'
+#' @details
+#' The latent occupancy state is marginalized in the Stan model, so for each
+#' posterior draw \eqn{z_i} is first drawn from its conditional posterior given
+#' the data and the parameters,
+#' \deqn{\Pr(z_i = 1 \mid \mathbf{y}_i, \theta) = \frac{\psi_i\,
+#' f(\mathbf{y}_i \mid z_i = 1, \theta)}{\psi_i\, f(\mathbf{y}_i \mid z_i = 1,
+#' \theta) + (1 - \psi_i)\, f(\mathbf{y}_i \mid z_i = 0, \theta)},}
+#' which is 1 at sites with a verified detection. Given \eqn{z_i}, automated
+#' detections are replicated with probability \eqn{z_i p_{11} + (1 - z_i)
+#' p_{10}} and verified detections with probability \eqn{z_i r_{11}}. The
+#' discrepancy is computed for the observed and the replicated data with the
+#' same \eqn{z} and parameters, and the Bayesian p-value is the proportion of
+#' draws in which the replicated discrepancy exceeds the observed one. Values
+#' near 0 or 1 indicate lack of fit; values near 0.5 indicate that the
+#' observed data are typical of the fitted model.
+#'
+#' A p-value near 0.5 does not show that the false-positive process is
+#' correctly specified: a check of detection counts can have little power
+#' against a false-positive rate that tracks an unmeasured gradient. Use
+#' [fp_calibrate()] to ask whether the intervals of a given model are
+#' calibrated for a design.
+#'
+#' The elements `y` and `yrep` follow the conventions of the 'bayesplot'
+#' package, so its `ppc_*()` functions can be used directly, for example
+#' `bayesplot::ppc_bars(ppc$y, ppc$yrep)`.
+#'
+#' @return An object of class `fp_ppc`, a list with `y` (observed detections
+#'   per site), `yrep` (matrix of replicated detections, draws in rows and
+#'   sites in columns), `fit_obs` and `fit_rep` (discrepancy of the observed and
+#'   replicated data, one value per draw), `p_value`, `site` (the site
+#'   identifiers of the columns), `method`, and `fit_stat`.
+#' @seealso [fp_occu()], [fp_calibrate()]
+#' @export
+#' @examples
+#' \dontrun{
+#' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' ppc <- fp_ppc(m, ndraws = 500, seed = 1)
+#' ppc
+#' bayesplot::ppc_bars(ppc$y, ppc$yrep)
+#' }
+fp_ppc <- function(object, method = c("automated", "verified"),
+                   fit_stat = c("freeman-tukey", "chi-squared"),
+                   ndraws = 1000, seed = NULL) {
+  if (!inherits(object, "fp_occu")) {
+    stop("`object` must be an `fp_occu` fit.", call. = FALSE)
+  }
+  method <- match.arg(method)
+  fit_stat <- match.arg(fit_stat)
+  sd <- object$stan_data
+  if (method == "verified" && sd$N1 == 0) {
+    stop("The data have no verified occasions.", call. = FALSE)
+  }
+  if (!is.null(seed)) set.seed(seed)
+  pars <- .ppc_pars(object$fit, sd, ndraws)
+  res <- .ppc_core(sd, pars, method, fit_stat)
+  site_ids <- object$data$sites[[object$data$site]]
+  structure(
+    list(y = res$y, yrep = res$yrep, fit_obs = res$fit_obs,
+         fit_rep = res$fit_rep, p_value = mean(res$fit_rep > res$fit_obs),
+         site = site_ids[res$keep], method = method, fit_stat = fit_stat),
+    class = "fp_ppc"
+  )
+}
+
+#' @export
+print.fp_ppc <- function(x, digits = 3, ...) {
+  cat("Posterior predictive check (", x$method, " detections per site)\n\n",
+      sep = "")
+  cat(sprintf("  statistic:          %s\n", x$fit_stat))
+  cat(sprintf("  draws, sites:       %d, %d\n", nrow(x$yrep), ncol(x$yrep)))
+  cat(sprintf("  mean discrepancy:   observed %s, replicated %s\n",
+              format(mean(x$fit_obs), digits = digits),
+              format(mean(x$fit_rep), digits = digits)))
+  cat(sprintf("  Bayesian p-value:   %s\n", format(x$p_value, digits = digits)))
+  if (x$p_value < 0.1 || x$p_value > 0.9) {
+    cat("\n  The p-value is far from 0.5: the model may not fit these data.\n")
+  }
+  invisible(x)
+}
+
+# internal ---------------------------------------------------------------------
+
+# posterior draws of the parameters the replication needs, as matrices with
+# one row per draw
+.ppc_pars <- function(fit, sd, ndraws) {
+  vars <- c("beta", "alpha", "delta0",
+            if (sd$estimate_re == 1) "u",
+            if (sd$estimate_fp == 1) "gamma0",
+            if (sd$estimate_fp == 1 && sd$Kfp > 0) "gamma_fp")
+  dm <- posterior::as_draws_matrix(fit$draws(variables = vars))
+  total <- nrow(dm)
+  if (!is.null(ndraws) && ndraws < total) {
+    dm <- dm[sort(sample.int(total, ndraws)), , drop = FALSE]
+  }
+  dm <- unclass(dm)
+  cols <- function(v) {
+    dm[, grep(paste0("^", v, "(\\[|$)"), colnames(dm)), drop = FALSE]
+  }
+  S <- nrow(dm)
+  list(
+    beta = cols("beta"), alpha = cols("alpha"), delta0 = cols("delta0")[, 1],
+    u = if (sd$estimate_re == 1) cols("u") else NULL,
+    gamma0 = if (sd$estimate_fp == 1) cols("gamma0")[, 1] else NULL,
+    gamma_fp = if (sd$estimate_fp == 1 && sd$Kfp > 0) cols("gamma_fp") else
+      matrix(0, S, 0)
+  )
+}
+
+# sum the columns of an S x N matrix by group, into an S x nsite matrix
+.site_sum <- function(M, g, nsite) {
+  out <- matrix(0, nrow(M), nsite)
+  if (length(g) == 0) return(out)
+  r <- rowsum(t(M), g)
+  out[, as.integer(rownames(r))] <- t(r)
+  out
+}
+
+.ppc_core <- function(sd, pars, method, fit_stat) {
+  S <- nrow(pars$beta)
+  nsite <- sd$nsite
+  rows <- function(v) rep(v, each = S)   # recycle a per-column vector over draws
+
+  # linear predictors
+  lpsi <- pars$beta %*% t(sd$X)                          # S x nsite
+  lp11 <- pars$alpha %*% t(sd$Z)                         # S x N2
+  if (sd$estimate_re == 1) lp11 <- lp11 + pars$u[, sd$rec2, drop = FALSE]
+  fp <- sd$estimate_fp == 1
+  if (fp) {
+    lp10 <- matrix(pars$gamma0, S, nsite)
+    if (sd$Kfp > 0) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
+    lp10_row <- lp10[, sd$site2, drop = FALSE]           # S x N2
+  }
+  y2 <- sd$y2
+  f2 <- sd$n2 - sd$y2
+
+  # conditional posterior of z, as in site_loglik() of the Stan program
+  l11 <- rows(y2) * stats::plogis(lp11, log.p = TRUE) +
+    rows(f2) * stats::plogis(-lp11, log.p = TRUE)
+  occ <- stats::plogis(lpsi, log.p = TRUE) + .site_sum(l11, sd$site2, nsite)
+  if (sd$N1 > 0) {
+    l1 <- outer(stats::plogis(pars$delta0, log.p = TRUE), sd$y1) +
+      outer(stats::plogis(-pars$delta0, log.p = TRUE), 1 - sd$y1)
+    occ <- occ + .site_sum(l1, sd$site1, nsite)
+  }
+  unocc <- stats::plogis(-lpsi, log.p = TRUE)
+  if (fp) {
+    l10 <- rows(y2) * stats::plogis(lp10_row, log.p = TRUE) +
+      rows(f2) * stats::plogis(-lp10_row, log.p = TRUE)
+    unocc <- unocc + .site_sum(l10, sd$site2, nsite)
+  } else {
+    any_det <- tabulate(sd$site2[y2 > 0], nbins = nsite) > 0
+    unocc[, any_det] <- -Inf
+  }
+  pz <- stats::plogis(occ - unocc)
+  pz[, sd$known_present == 1] <- 1
+  z <- matrix(stats::rbinom(S * nsite, 1, pz), S, nsite)
+
+  if (method == "automated") {
+    zr <- z[, sd$site2, drop = FALSE]
+    p_row <- zr * stats::plogis(lp11) +
+      if (fp) (1 - zr) * stats::plogis(lp10_row) else 0
+    n_row <- rows(sd$n2)
+    yrep_row <- matrix(stats::rbinom(length(p_row), n_row, p_row), S)
+    keep <- sd$len2 > 0
+    y <- tabulate(rep(sd$site2, y2), nbins = nsite)
+    E <- .site_sum(n_row * p_row, sd$site2, nsite)
+    yrep <- .site_sum(yrep_row, sd$site2, nsite)
+  } else {
+    nver <- tabulate(sd$site1, nbins = nsite)
+    keep <- nver > 0
+    y <- tabulate(sd$site1[sd$y1 == 1], nbins = nsite)
+    p <- z * stats::plogis(pars$delta0)
+    E <- p * rows(nver)
+    yrep <- matrix(stats::rbinom(length(p), rows(nver), p), S)
+  }
+  y <- y[keep]
+  E <- E[, keep, drop = FALSE]
+  yrep <- yrep[, keep, drop = FALSE]
+  Y <- matrix(y, S, length(y), byrow = TRUE)
+  disc <- switch(fit_stat,
+    "freeman-tukey" = function(obs) rowSums((sqrt(obs) - sqrt(E))^2),
+    "chi-squared"   = function(obs) rowSums((obs - E)^2 / (E + 1e-6))
+  )
+  list(y = y, yrep = yrep, fit_obs = disc(Y), fit_rep = disc(yrep),
+       z = z, keep = which(keep))
+}

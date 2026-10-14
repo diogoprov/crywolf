@@ -26,7 +26,7 @@ gh repo create diogoprov/crywolf --public --source=. --push
 
 # LICENSE.md já criado com usethis::use_gpl3_license()  # GPL (>= 3)
 devtools::document()          # regenera man/ e NAMESPACE
-devtools::test()              # 69 testes; os que usam Stan levam ~1 min
+devtools::test()              # 86 testes; os que usam Stan levam ~1 min
 devtools::check()             # a vinheta principal ajusta 3 modelos (~5 min)
 pkgdown::build_site()         # opcional, local
 ```

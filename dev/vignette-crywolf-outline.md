@@ -12,7 +12,7 @@ Legenda: **[chunk]** = bloco de código; **[fig]** = figura logo após o chunk;
 
 ## 0. Cabeçalho e setup
 
-- YAML: `title: "Introduction to crywolf"`, `html_vignette`,
+- YAML: `title: "Introduction to crywolf"` (decidido), `html_vignette`,
   `VignetteIndexEntry{Introduction to crywolf}`.
 - [chunk] `knitr::opts_chunk$set(..., eval = crywolf:::.has_cmdstan())`,
   `fig.width`, `fig.height`, `out.width`.
@@ -105,10 +105,14 @@ Equações em display (MathJax), vetores em negrito, cada símbolo em prosa:
   `fp_occu()` já reporta e quando avisa.
 - [chunk] `summary(m_const)`; comentar as colunas `rhat`, `ess_bulk`,
   `ess_tail`.
-- [fig] traceplots/densidades via `as_draws_df()` (bayesplot? ver decisão 3).
-- **Posterior predictive check**: ver decisão 1. Proposta: proporção de
-  sítios com ≥ 1 detecção automática e número de detecções por sítio,
-  observado vs. replicado.
+- [fig] traceplots e densidades com bayesplot sobre `as_draws_df()`
+  (`mcmc_trace()`, `mcmc_dens_overlay()`, `mcmc_rhat()`).
+- **Posterior predictive check** com `fp_ppc()`: [chunk]
+  `fp_ppc(m_const, seed = 1)`; explicar a discrepância (Freeman-Tukey) por
+  sítio e o p-valor bayesiano; [fig] `bayesplot::ppc_bars(ppc$y, ppc$yrep)`
+  e dispersão de `fit_rep` contra `fit_obs`. Ressalva: p-valor perto de 0,5
+  não prova que a estrutura do FP está certa (o modelo constante pode
+  passar no PPC e ainda ter o declive enviesado), por isso a calibração.
 - Interpretação dos resultados só depois dessas checagens.
 
 ## 6. Modelling the false-positive rate
@@ -182,20 +186,10 @@ Autor-ano; só entram referências conferidas.
 
 ---
 
-## Decisões em aberto (para o Diogo)
+## Decisões (14/10/2026)
 
-1. **Posterior predictive check.** O pacote não tem PPC: o bloco
-   `generated quantities` de `fp_occu.stan` não gera `y_rep`. Opções:
-   (a) acrescentar `y_rep` (ou estatísticas de discrepância por sítio) ao
-   Stan e um método `fp_ppc()`; (b) fazer o PPC na vinheta a partir dos draws
-   em R. Minha recomendação é (a), com uma função própria e testada, antes de
-   escrever a seção 5.
-2. **Computação no site.** A vinheta ajusta ao menos 3 modelos (4 com a
-   seção 9). Rodar ao vivo (alguns minutos no CI) ou pré-computar e salvar
-   resumos/draws reduzidos em `.rds`? Sugiro rodar ao vivo as seções 4–8 e
-   deixar a seção 9 com `eval = FALSE` ou pré-computada.
-3. **Gráficos de diagnóstico.** Usar `bayesplot` (nova dependência em
-   Suggests) ou só ggplot2 sobre `as_draws_df()`?
-4. **Título.** O plano diz "Introduction to crywolf"; o atual é "Getting
-   started with crywolf". O pkgdown usa a vinheta com o nome do pacote como
-   "Get started" em qualquer caso.
+1. PPC: feito com a função `fp_ppc()` (R/fp_ppc.R), calculada em R a partir
+   dos draws; o Stan não mudou.
+2. Computação no site: ainda em aberto (ver conversa).
+3. Gráficos de diagnóstico: bayesplot (em Suggests).
+4. Título: "Introduction to crywolf".

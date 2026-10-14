@@ -39,6 +39,7 @@ Imports:
     tools,
     utils
 Suggests:
+    bayesplot,
     furrr,
     future,
     ggplot2,

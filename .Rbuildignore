@@ -1,0 +1,14 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^dev$
+^README\.Rmd$
+^CITATION\.cff$
+^LICENSE\.md$
+^rename_package\.sh$
+^inst/stan/fp_occu$
+^CLAUDE\.md$
+^\.claude$

@@ -1,0 +1,150 @@
+---
+title: "Getting started with crywolf"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with crywolf}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  eval = crywolf:::.has_cmdstan()   # chunks that need Stan run only with CmdStan
+)
+```
+
+Automated detectors, such as the acoustic classifiers that scan thousands of
+hours of recordings, make two kinds of mistakes: they miss calls, and they
+label other sounds as the target species. Occupancy models deal with the
+first kind by repeating surveys, but false positives inflate occupancy and,
+worse, can distort the effects of environmental covariates. **crywolf** fits
+the multiple-methods false-positive occupancy model of Miller et al. (2011),
+in which a subset of detections is checked by an expert, and helps you ask
+whether the correction is good enough for your design.
+
+## The design
+
+At every site, the classifier scans several recordings (the *automated*
+occasions). At a subset of sites, someone also listens to a few clips and
+records whether the species was really there (the *verified* occasions).
+Verified detections are certain, so they tell the model how often the
+classifier is wrong.
+
+## Installation
+
+crywolf fits its models with [CmdStan](https://mc-stan.org/cmdstanr/)
+through **cmdstanr**. Install both once:
+
+```{r install, eval = FALSE}
+install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev",
+                                       getOption("repos")))
+cmdstanr::install_cmdstan()
+remotes::install_github("diogoprov/crywolf")
+```
+
+```{r load, eval = TRUE}
+library(crywolf)
+```
+
+## Your data
+
+`fp_data()` takes three tables in long format: the automated detections (one
+row per site and occasion), the sites with their covariates, and, optionally,
+the verified detections. Here we simulate data instead, with a false-positive
+rate that rises along a gradient correlated with the occupancy covariate, as
+happens when a soundalike species becomes commoner where the target is rare.
+
+```{r simulate, eval = TRUE}
+sim <- simulate_fp(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
+                   p11 = 0.6, p10 = 0.05,
+                   conf_effect = 1.5, conf_cor = 0.7,
+                   frac_verified = 0.3, seed = 2026)
+sim
+head(sim$data$auto)
+head(sim$data$sites)
+```
+
+If your detections are in site-by-occasion matrices, as in **unmarked**,
+`fp_data_wide()` builds the same object.
+
+## Fitting the model
+
+`fp_occu()` takes a formula for each process. With `fp = ~ 1` the
+false-positive rate is constant, which is what most applications assume.
+
+```{r fit-constant}
+m_const <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ 1,
+                   random_recorder = FALSE, seed = 1)
+m_const
+```
+
+The true occupancy slope is −0.8. Because the false positives track a
+gradient correlated with `x`, the constant-rate model attributes part of the
+false positives to the occupancy process, and the slope is pulled towards
+zero. The site where the classifier is fooled most looks like a site where
+the species is present.
+
+The practical remedy is to let the false-positive rate depend on the
+occupancy covariate, which you always have:
+
+```{r fit-x}
+m_x <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ x,
+               random_recorder = FALSE, seed = 1)
+coef(m_const, "occ")
+coef(m_x, "occ")
+```
+
+and, if you have measured a covariate of whatever fools the classifier,
+adding it as well. In a simulation we know that variable, `w`, so we can fit
+the generating model as a positive control:
+
+```{r fit-w}
+m_w <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ w,
+               random_recorder = FALSE, seed = 1)
+summary(m_w)
+```
+
+## Comparing models
+
+The pointwise log-likelihood is computed per site, with the latent state
+marginalized, so `loo()` gives leave-one-site-out cross-validation.
+
+```{r loo}
+loo::loo_compare(list(constant = loo(m_const), fp_x = loo(m_x), fp_w = loo(m_w)))
+```
+
+## Predictions
+
+`predict()` returns the occupancy probability, or the false-positive rate,
+with credible intervals.
+
+```{r predict}
+nd <- data.frame(x = seq(-2, 2, by = 1))
+predict(m_x, newdata = nd, process = "occ")
+predict(m_x, newdata = nd, process = "fp")
+```
+
+## Covariates on detection and recorders
+
+The true-detection formula accepts observation covariates (columns of
+`auto`) and site covariates, and `random_recorder = TRUE` adds a random
+intercept per recorder.
+
+```{r det, eval = FALSE}
+fp_occu(sim$data, occ = ~ x, det = ~ bio + aci, fp = ~ x,
+        random_recorder = TRUE)
+```
+
+## Is the correction calibrated for my design?
+
+A single fit cannot tell you whether the credible intervals are honest.
+`fp_calibrate()` and `fp_verification_curve()` answer that by simulation; see
+`vignette("calibration", package = "crywolf")`.
+
+## References
+
+Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C., Bailey,
+L. L., & Weir, L. A. (2011). Improving occupancy estimation when two types of
+observational error occur: non-detection and species misidentification.
+*Ecology*, 92, 1422–1428. https://doi.org/10.1890/10-1396.1

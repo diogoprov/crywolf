@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+docs/
+inst/doc
+/doc/
+/Meta/
+# compiled Stan executables
+inst/stan/fp_occu
+inst/stan/*.exe

@@ -1,0 +1,57 @@
+Package: crywolf
+Title: Bayesian False-Positive Occupancy Models with Calibration Checks
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Diogo B.", "Provete", email = "dbprovete@gmail.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-0097-0651")),
+    person("Liliana", "Piatti", role = "aut",
+           comment = c(ORCID = "0000-0001-6324-1723")),
+    person("Tessa", "Rhinehart", role = "aut",
+           comment = c(ORCID = "0000-0002-4352-3464")),
+    person("Larissa Sayuri Moreira", "Sugai", role = "aut",
+           comment = c(ORCID = "0000-0002-6248-291X"))
+    )
+Description: Fits single-season occupancy models that correct for false
+    positives from automated detectors, such as acoustic classifiers, using
+    the multiple-methods (site-confirmation) design of Miller et al. (2011)
+    <doi:10.1890/10-1396.1>, in which a subset of detections is verified.
+    Models are written in 'Stan' and fitted through 'cmdstanr'. The
+    false-positive rate can be constant or depend on site covariates, and
+    the true-detection process accepts observation covariates and a recorder
+    random effect. The package also simulates data under homogeneous,
+    unstructured, and structured false-positive regimes and runs
+    simulation-based calibration checks, so users can ask whether the
+    correction keeps nominal interval coverage for their own design and how
+    much verification it needs.
+License: GPL (>= 3)
+URL: https://github.com/diogoprov/crywolf, https://diogoprov.github.io/crywolf/
+BugReports: https://github.com/diogoprov/crywolf/issues
+Depends:
+    R (>= 4.2)
+Imports:
+    cmdstanr (>= 0.8.0),
+    loo,
+    posterior,
+    purrr (>= 1.0.0),
+    stats,
+    tibble,
+    tools,
+    utils
+Suggests:
+    furrr,
+    future,
+    ggplot2,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder:
+    knitr
+Remotes:
+    stan-dev/cmdstanr
+Additional_repositories: https://stan-dev.r-universe.dev
+SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.1.1

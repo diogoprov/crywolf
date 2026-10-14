@@ -1,0 +1,51 @@
+url: https://diogoprov.github.io/crywolf/
+
+template:
+  bootstrap: 5
+  math-rendering: mathjax
+  bslib:
+    primary: "#241042"
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+home:
+  sidebar:
+    structure: [links, license, citation, authors, dev]
+
+reference:
+  - title: Data
+    desc: Assemble automated and verified detections and site covariates.
+    contents:
+      - fp_data
+      - fp_data_wide
+  - title: Fitting
+    desc: Fit the model and inspect, summarize, predict, and compare fits.
+    contents:
+      - fp_occu
+      - fp_priors
+      - fp_occu-methods
+      - fp_compile
+      - fp_stan_file
+  - title: Simulation and calibration
+    desc: Simulate false-positive regimes and check interval calibration for a design.
+    contents:
+      - simulate_fp
+      - fp_calibrate
+      - fp_verification_curve
+  - title: Package
+    contents:
+      - crywolf-package
+      - reexports
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - crywolf
+  - title: Guides
+    navbar: Guides
+    contents:
+      - calibration

@@ -107,12 +107,14 @@ rate. With none, the model still runs, but the rate is informed only by
 the priors and the gap, and the fit should not be trusted.
 
 **When to model the false-positive rate.** In the simulations behind
-this package, a constant rate kept nominal coverage of the occupancy
-slope when false positives were homogeneous or varied at random among
-sites, but not when they tracked an environmental gradient correlated
-with the occupancy covariate; verifying more sites did not fix it.
-Placing that gradient, or the occupancy covariate itself, in `fp` did.
-Use
+this package, a constant rate gave calibrated intervals for the
+occupancy slope when false positives were homogeneous; random variation
+of the rate among sites made the estimate of the rate unreliable but
+largely spared the slope. When the rate tracked an environmental
+gradient correlated with the occupancy covariate and the confusion was
+strong, the slope was biased and verifying more sites did not fix it.
+Placing the occupancy covariate in `fp` recovered part of the
+calibration, and placing the gradient itself recovered all of it. Use
 [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
 to check your own design.
 

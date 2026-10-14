@@ -25,12 +25,16 @@ The package also simulates data under different false-positive regimes
 and checks, by simulation, whether the credible intervals of a model are
 calibrated for a given design. The simulation study behind the package
 (Provete et al., in preparation) showed that a constant false-positive
-rate is adequate when false positives are homogeneous or vary at random
-among sites, but not when they track an environmental gradient
-correlated with the occupancy covariate. In that case the occupancy
-slope is biased and its intervals miss the true value, and verifying
-more sites does not fix it. Letting the false-positive rate depend on
-covariates does.
+rate gives well-calibrated intervals for the occupancy slope when false
+positives are homogeneous across sites. Random variation of the rate
+among sites made the estimate of the rate itself unreliable, but largely
+spared the occupancy slope (coverage of 0.81, against the nominal 0.95).
+When the rate tracked an environmental gradient correlated with the
+occupancy covariate, and the confusion was strong, the occupancy slope
+was biased towards zero and its intervals rarely contained the true
+value, and verifying up to 90% of the sites did not fix it. Letting the
+false-positive rate depend on covariates did. Weak confusion left the
+constant-rate model calibrated.
 
 This vignette walks through a complete analysis with simulated data:
 
@@ -526,9 +530,11 @@ attribute the extra detections at sites with high `w` to false
 positives, so it attributes part of them to occupancy. Sites where the
 classifier is fooled most look like sites where the species is present,
 and the occupancy slope is pulled towards zero. In the simulation study
-behind this package, verifying more sites did not remove this bias,
-because the problem is the structure of the model, not the amount of
-verified data (Provete et al., in preparation).
+behind this package, verifying more sites did not remove this bias:
+verification anchors the mean false-positive rate, but not its
+dependence on the covariate, so a constant-rate model passes that
+dependence on to the occupancy slope however precisely the mean is
+estimated (Provete et al., in preparation).
 
 ### A false-positive rate that tracks the occupancy covariate
 
@@ -549,7 +555,9 @@ correlated with `x`. In the simulation study, this model reduced the
 bias of the occupancy slope by 34 to 62% when the confusing gradient had
 a correlation of 0.7 with the occupancy covariate, and its intervals
 became better calibrated as more sites were verified, although coverage
-remained below the nominal level (Provete et al., in preparation).
+remained below the nominal level. When false positives depended on the
+occupancy covariate exactly, this model was fully calibrated (Provete et
+al., in preparation).
 
 ### A false-positive rate that tracks the confusing gradient
 
@@ -582,10 +590,16 @@ summary(m_w)
 ```
 
 The estimated effect of `w` on the false-positive rate is 1.47 (true
-value 1.5). In the simulation study, an imperfect proxy of the confusing
-gradient (correlation 0.7 with `w`) reduced the bias of the slope by
-only 17 to 37%, so the closer the covariate is to the real cause of the
-confusion, the better (Provete et al., in preparation).
+value 1.5). Measured covariates are rarely the confusing gradient
+itself. In the simulation study, a proxy of the gradient (correlation
+0.7 with `w`, related to `x` only through `w`) recovered less than the
+occupancy covariate did, reducing the bias of the slope by 17 to 37%.
+Only the part of the gradient aligned with the occupancy covariate
+distorts its slope, and the occupancy covariate captures that part by
+construction. The recommendation is therefore to include the occupancy
+covariates in `fp`, add any measured correlate of the confusion, and
+verify enough sites to tell the effects apart (Provete et al., in
+preparation).
 
 The figure compares the occupancy slope of the three models with its
 true value.

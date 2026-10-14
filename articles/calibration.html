@@ -136,9 +136,11 @@ and <code><a href="../reference/fp_verification_curve.html">fp_verification_curv
 <p>In the simulation study that motivated this package (Provete et al.,
 in preparation), at a base false-positive rate of 0.05:</p>
 <ul>
-<li>When false positives were homogeneous or varied at random among
-sites, the constant-rate model kept nominal coverage of the occupancy
-slope.</li>
+<li>When false positives were homogeneous, the constant-rate model kept
+nominal coverage of the occupancy slope. When they varied at random
+among sites, the estimate of the false-positive rate became unreliable,
+but coverage of the slope fell only to 0.81 (across all cells of that
+regime).</li>
 <li>When the false-positive rate tracked a gradient correlated with the
 occupancy covariate (effect 1.5 on the logit scale, correlation 0.7),
 coverage of the slope fell to 0.08–0.20, and verifying up to 90% of the

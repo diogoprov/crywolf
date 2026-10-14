@@ -37,6 +37,10 @@ reference:
       - fp_calibrate
       - fp_verification_curve
       - plot.fp_calibration
+  - title: Example data
+    desc: Passive acoustic monitoring of the Common Pauraque in the Pantanal.
+    contents:
+      - curiango
   - title: Package
     contents:
       - crywolf-package

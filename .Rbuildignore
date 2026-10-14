@@ -12,3 +12,4 @@
 ^inst/stan/fp_occu$
 ^CLAUDE\.md$
 ^\.claude$
+^data-raw$

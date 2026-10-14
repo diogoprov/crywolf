@@ -24,7 +24,7 @@ Description: Fits single-season occupancy models that correct for false
     simulation-based calibration checks, so users can ask whether the
     correction keeps nominal interval coverage for their own design and how
     much verification it needs.
-License: GPL (>= 3)
+License: GPL-3
 URL: https://github.com/diogoprov/crywolf, https://diogoprov.github.io/crywolf/
 BugReports: https://github.com/diogoprov/crywolf/issues
 Depends:

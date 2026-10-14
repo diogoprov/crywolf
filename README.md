@@ -71,5 +71,5 @@ observational error occur: non-detection and species misidentification.
 
 ## License
 
-GPL (>= 3). The wolf silhouette in the logo is *Canis lupus monstrabilis* by
+GPL-3. The wolf silhouette in the logo is *Canis lupus monstrabilis* by
 Tracy A. Heath, from PhyloPic, in the public domain (CC0 1.0).

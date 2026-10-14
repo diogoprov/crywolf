@@ -5,10 +5,10 @@ Authors@R: c(
     person("Diogo B.", "Provete", email = "dbprovete@gmail.com",
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0097-0651")),
-    person("Liliana", "Piatti", role = "aut",
-           comment = c(ORCID = "0000-0001-6324-1723")),
     person("Tessa", "Rhinehart", role = "aut",
            comment = c(ORCID = "0000-0002-4352-3464")),
+    person("Liliana", "Piatti", role = "aut",
+           comment = c(ORCID = "0000-0001-6324-1723")),
     person("Larissa Sayuri Moreira", "Sugai", role = "aut",
            comment = c(ORCID = "0000-0002-6248-291X"))
     )

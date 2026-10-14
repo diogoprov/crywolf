@@ -36,6 +36,7 @@ reference:
       - simulate_fp
       - fp_calibrate
       - fp_verification_curve
+      - plot.fp_calibration
   - title: Package
     contents:
       - crywolf-package

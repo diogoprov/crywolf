@@ -99,15 +99,15 @@ effect.
 
 ## Plotting
 
+`plot()` draws the coverage of the occupancy slope against the design column
+that varies (here, the fraction of sites verified), one colour per model,
+with intervals of two Monte Carlo standard errors and a dashed line at the
+nominal level. `type = "bias"` plots the bias instead, and `parameter`
+selects another scored quantity. The result is a 'ggplot2' object that can be
+modified as usual.
+
 ```{r, eval = FALSE}
-library(ggplot2)
-s <- summary(cal)
-ggplot(subset(s, parameter == "occ_x"),
-       aes(conf_effect, coverage, colour = model)) +
-  geom_hline(yintercept = 0.95, linetype = 2) +
-  geom_pointrange(aes(ymin = coverage - 2 * mc_se, ymax = coverage + 2 * mc_se),
-                  position = position_dodge(width = 0.1)) +
-  labs(x = "Confusion effect (logit scale)",
-       y = "Coverage of the 95% interval of the occupancy slope") +
-  theme_classic()
+plot(cal)
+plot(cal, type = "bias")
+plot(cal, parameter = "p10_bar")
 ```

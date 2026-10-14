@@ -252,3 +252,94 @@ print.summary.fp_calibration <- function(x, ...) {
   }) |>
     purrr::list_rbind()
 }
+
+#' Plot the results of a calibration check
+#'
+#' Plots the coverage (or bias) of one scored quantity against the column of
+#' the design that varies, one colour per model. Coverage is shown with an
+#' interval of two Monte Carlo standard errors and a dashed line at the nominal
+#' level; bias, with a dashed line at zero.
+#'
+#' @param x An `fp_calibration` object from [fp_calibrate()] or
+#'   [fp_verification_curve()].
+#' @param parameter Scored quantity to plot, by default the occupancy slope
+#'   (`"occ_x"`). See [fp_calibrate()] for the others.
+#' @param type `"coverage"` (default) or `"bias"`.
+#' @param by Name of the design column for the horizontal axis. By default, the
+#'   first design column that varies among cells; further varying columns
+#'   become panels. With no varying column, the models are on the axis.
+#' @param ... Unused.
+#'
+#' @return A 'ggplot2' object, which can be modified with the usual `+`
+#'   syntax.
+#' @export
+#' @examples
+#' \dontrun{
+#' cal <- fp_verification_curve(p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7,
+#'                              models = list(constant = ~ 1, fp_on_x = ~ x),
+#'                              reps = 50)
+#' plot(cal)
+#' plot(cal, type = "bias")
+#' }
+plot.fp_calibration <- function(x, parameter = "occ_x",
+                                 type = c("coverage", "bias"), by = NULL, ...) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("plot() needs the 'ggplot2' package.", call. = FALSE)
+  }
+  type <- match.arg(type)
+  s <- as.data.frame(summary(x))
+  if (!parameter %in% s$parameter) {
+    stop("`parameter` must be one of: ",
+         paste(unique(s$parameter), collapse = ", "), ".", call. = FALSE)
+  }
+  s <- s[s$parameter == parameter, , drop = FALSE]
+  varying <- .varying_design(s)
+  if (is.null(by)) {
+    by <- if (length(varying)) varying[1] else "model"
+  } else if (!by %in% names(s)) {
+    stop("`by` must be a column of the design.", call. = FALSE)
+  }
+  panels <- setdiff(varying, by)
+
+  df <- data.frame(
+    x = s[[by]], model = s$model,
+    y = if (type == "coverage") s$coverage else s$bias,
+    lo = if (type == "coverage") pmax(0, s$coverage - 2 * s$mc_se) else NA_real_,
+    hi = if (type == "coverage") pmin(1, s$coverage + 2 * s$mc_se) else NA_real_,
+    panel = if (length(panels)) {
+      do.call(paste, c(purrr::map(panels, function(p) paste(p, "=", s[[p]])),
+                       list(sep = ", ")))
+    } else ""
+  )
+  dodge <- ggplot2::position_dodge(width = if (is.numeric(df$x))
+    0.03 * diff(range(df$x, 1)) else 0.3)
+  ref <- if (type == "coverage") attr(x, "prob") else 0
+  p <- ggplot2::ggplot(df, ggplot2::aes(x, y, colour = model, group = model)) +
+    ggplot2::geom_hline(yintercept = ref, linetype = "dashed", colour = "grey40")
+  if (is.numeric(df$x)) p <- p + ggplot2::geom_line(position = dodge, alpha = 0.6)
+  p <- if (type == "coverage") {
+    p + ggplot2::geom_pointrange(ggplot2::aes(ymin = lo, ymax = hi),
+                                 position = dodge) +
+      ggplot2::coord_cartesian(ylim = c(0, 1))
+  } else {
+    p + ggplot2::geom_point(position = dodge, size = 2)
+  }
+  if (length(panels)) p <- p + ggplot2::facet_wrap(~ panel)
+  p + ggplot2::labs(
+    x = by, colour = "Model",
+    y = if (type == "coverage")
+      sprintf("Coverage of the %g%% interval of %s", 100 * attr(x, "prob"), parameter)
+    else sprintf("Bias of %s", parameter)
+  ) +
+    ggplot2::theme_minimal()
+}
+
+# design columns of a calibration summary that vary among cells
+.varying_design <- function(s) {
+  fixed <- c("cell", "model", "parameter", "n", "failed", "coverage", "mc_se",
+             "bias", "rmse", "prop_divergent")
+  cols <- setdiff(names(s), fixed)
+  cols[purrr::map_lgl(cols, function(cl) length(unique(s[[cl]])) > 1)]
+}
+
+utils::globalVariables(c("y", "lo", "hi", "model"))

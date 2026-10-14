@@ -3,6 +3,7 @@
 S3method(as_draws_df,fp_occu)
 S3method(coef,fp_occu)
 S3method(loo,fp_occu)
+S3method(plot,fp_calibration)
 S3method(predict,fp_occu)
 S3method(print,fp_calibration)
 S3method(print,fp_data)

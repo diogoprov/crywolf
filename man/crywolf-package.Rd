@@ -68,8 +68,8 @@ Useful links:
 Authors:
 \itemize{
   \item Diogo B. Provete \email{dbprovete@gmail.com} (\href{https://orcid.org/0000-0002-0097-0651}{ORCID})
-  \item Liliana Piatti (\href{https://orcid.org/0000-0001-6324-1723}{ORCID})
   \item Tessa Rhinehart (\href{https://orcid.org/0000-0002-4352-3464}{ORCID})
+  \item Liliana Piatti (\href{https://orcid.org/0000-0001-6324-1723}{ORCID})
   \item Larissa Sayuri Moreira Sugai (\href{https://orcid.org/0000-0002-6248-291X}{ORCID})
 }
 

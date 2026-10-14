@@ -41,12 +41,14 @@
 #' and the gap, and the fit should not be trusted.
 #'
 #' **When to model the false-positive rate.** In the simulations behind this
-#' package, a constant rate kept nominal coverage of the occupancy slope when
-#' false positives were homogeneous or varied at random among sites, but not
-#' when they tracked an environmental gradient correlated with the occupancy
-#' covariate; verifying more sites did not fix it. Placing that gradient, or
-#' the occupancy covariate itself, in `fp` did. Use [fp_calibrate()] to check
-#' your own design.
+#' package, a constant rate gave calibrated intervals for the occupancy slope
+#' when false positives were homogeneous; random variation of the rate among
+#' sites made the estimate of the rate unreliable but largely spared the slope.
+#' When the rate tracked an environmental gradient correlated with the
+#' occupancy covariate and the confusion was strong, the slope was biased and
+#' verifying more sites did not fix it. Placing the occupancy covariate in `fp`
+#' recovered part of the calibration, and placing the gradient itself
+#' recovered all of it. Use [fp_calibrate()] to check your own design.
 #'
 #' **Parameter names.** Coefficients are labelled by process and column of the
 #' design matrix: `occ_*` (occupancy), `det_*` (true detection), `fp_*` (false

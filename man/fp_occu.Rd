@@ -77,12 +77,14 @@ With none, the model still runs, but the rate is informed only by the priors
 and the gap, and the fit should not be trusted.
 
 \strong{When to model the false-positive rate.} In the simulations behind this
-package, a constant rate kept nominal coverage of the occupancy slope when
-false positives were homogeneous or varied at random among sites, but not
-when they tracked an environmental gradient correlated with the occupancy
-covariate; verifying more sites did not fix it. Placing that gradient, or
-the occupancy covariate itself, in \code{fp} did. Use \code{\link[=fp_calibrate]{fp_calibrate()}} to check
-your own design.
+package, a constant rate gave calibrated intervals for the occupancy slope
+when false positives were homogeneous; random variation of the rate among
+sites made the estimate of the rate unreliable but largely spared the slope.
+When the rate tracked an environmental gradient correlated with the
+occupancy covariate and the confusion was strong, the slope was biased and
+verifying more sites did not fix it. Placing the occupancy covariate in \code{fp}
+recovered part of the calibration, and placing the gradient itself
+recovered all of it. Use \code{\link[=fp_calibrate]{fp_calibrate()}} to check your own design.
 
 \strong{Parameter names.} Coefficients are labelled by process and column of the
 design matrix: \verb{occ_*} (occupancy), \verb{det_*} (true detection), \verb{fp_*} (false

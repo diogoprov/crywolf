@@ -10,3 +10,7 @@ inst/doc
 # compiled Stan executables
 inst/stan/fp_occu
 inst/stan/*.exe
+
+# memória do Claude Code (local, não publicar)
+CLAUDE.md
+.claude/

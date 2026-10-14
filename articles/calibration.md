@@ -1,0 +1,107 @@
+# Checking calibration and how much to verify
+
+A 95% credible interval should contain the true value in about 95% of
+datasets. When the model is misspecified, it may not, and nothing in a
+single fit will warn you. Simulation-based calibration answers the
+question for a given design: simulate many datasets from known
+parameters, fit the model to each, and count how often the intervals
+cover the truth.
+
+## The workflow
+
+1.  Describe the design you can afford: number of sites, automated
+    occasions, fraction of sites verified, and plausible detection and
+    false-positive rates.
+2.  Describe the false-positive structure you suspect: homogeneous,
+    random among sites, or tracking an environmental gradient.
+3.  Run
+    [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+    with the candidate models.
+4.  Read the coverage and bias of the quantity you care about, usually
+    the occupancy slope.
+
+``` r
+
+library(crywolf)
+fp_compile()   # compile once before starting parallel workers
+
+future::plan(future::multisession, workers = 8)
+
+design <- expand.grid(
+  nsite = 300, nocc = 20, p10 = 0.05, frac_verified = 0.3,
+  conf_effect = c(0, 0.5, 1.5), conf_cor = 0.7
+)
+
+cal <- fp_calibrate(
+  design,
+  models = list(constant = ~ 1, fp_on_x = ~ x),
+  occ = ~ x, reps = 50, parallel = TRUE
+)
+summary(cal)
+```
+
+Each replicate costs one Stan fit per model, so this design needs 3
+cells × 50 replicates × 2 models = 300 fits. With 50 replicates, the
+Monte Carlo standard error of a coverage of 0.95 is about 0.03, enough
+to tell a calibrated model from a broken one; raise `reps` only to pin a
+borderline value. Every model is fitted to the same datasets, so
+comparisons between models are paired.
+
+## How much to verify
+
+Verification anchors the false-positive rate. It is natural to think
+that verifying more sites will rescue a model that is not calibrated,
+and
+[`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+tests that directly:
+
+``` r
+
+fp_verification_curve(
+  nsite = 300, nocc = 20, p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7,
+  frac_verified = c(0.1, 0.3, 0.5, 0.7, 0.9),
+  models = list(constant = ~ 1, fp_on_x = ~ x),
+  reps = 50, parallel = TRUE
+)
+```
+
+## What to expect
+
+In the simulation study that motivated this package (Provete et al., in
+preparation), at a base false-positive rate of 0.05:
+
+- When false positives were homogeneous or varied at random among sites,
+  the constant-rate model kept nominal coverage of the occupancy slope.
+- When the false-positive rate tracked a gradient correlated with the
+  occupancy covariate (effect 1.5 on the logit scale, correlation 0.7),
+  coverage of the slope fell to 0.08–0.20, and verifying up to 90% of
+  the sites did not restore it.
+- Letting the false-positive rate depend on the occupancy covariate
+  (`fp = ~ x`) recovered part of the coverage (0.48–0.66) and improved
+  with verification; with the true gradient (`fp = ~ w`), coverage
+  returned to 0.90–0.97.
+- Weak confusion (effects of 0.5 or less) left the constant-rate model
+  calibrated at every correlation, including when false positives
+  depended on the occupancy covariate itself.
+
+So, if
+[`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+shows the constant-rate model stuck below nominal coverage, verifying
+more is not the remedy. Model the false-positive rate instead, and
+verify enough to tell its effect apart from the occupancy effect.
+
+## Plotting
+
+``` r
+
+library(ggplot2)
+s <- summary(cal)
+ggplot(subset(s, parameter == "occ_x"),
+       aes(conf_effect, coverage, colour = model)) +
+  geom_hline(yintercept = 0.95, linetype = 2) +
+  geom_pointrange(aes(ymin = coverage - 2 * mc_se, ymax = coverage + 2 * mc_se),
+                  position = position_dodge(width = 0.1)) +
+  labs(x = "Confusion effect (logit scale)",
+       y = "Coverage of the 95% interval of the occupancy slope") +
+  theme_classic()
+```

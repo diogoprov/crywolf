@@ -1,0 +1,89 @@
+# crywolf: Bayesian false-positive occupancy models with calibration checks
+
+Automated detectors, such as acoustic classifiers, return false
+positives, and occupancy models that ignore them overestimate occupancy
+and distort covariate effects. crywolf fits the multiple-methods
+(site-confirmation) false-positive occupancy model of Miller et al.
+(2011), in which a subset of detections is verified and therefore
+certain, and asks whether the correction is calibrated for a given study
+design.
+
+The package has three parts:
+
+- **Data and model.**
+  [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md)
+  (or
+  [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md))
+  assembles the detections, and
+  [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
+  fits the model in Stan through 'cmdstanr'. The false-positive rate can
+  be constant (`fp = ~ 1`) or depend on site covariates (`fp = ~ w`),
+  and the true-detection process accepts observation covariates and a
+  recorder random effect.
+
+- **Simulation.**
+  [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+  generates data under homogeneous, unstructured, and structured
+  ("confusion") false-positive regimes.
+
+- **Calibration.**
+  [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+  and
+  [`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+  fit the model to many simulated datasets and report the coverage of
+  the 95% credible intervals and the bias of the quantities of interest,
+  so that users can see whether the correction holds for their design
+  and how much verification it needs.
+
+## Model
+
+For site \\i\\, automated occasion \\k\\, and verified occasion \\m\\:
+\$\$z_i \sim \mathrm{Bernoulli}(\psi_i), \quad \mathrm{logit}(\psi_i) =
+X_i\beta\$\$ \$\$y^{aut}\_{ik} \sim \mathrm{Bernoulli}(z_i p\_{11,ik} +
+(1 - z_i) p\_{10,i})\$\$ \$\$\mathrm{logit}(p\_{11,ik}) =
+Z\_{ik}\alpha + u\_{j\[ik\]}, \quad \mathrm{logit}(p\_{10,i}) =
+\alpha_1 - \Delta + W_i\gamma\$\$ \$\$y^{ver}\_{im} \sim
+\mathrm{Bernoulli}(z_i r\_{11})\$\$ The latent state \\z\\ is
+marginalized. The positive gap \\\Delta\\ keeps the true-detection
+probability above the false-positive probability at the reference values
+of the covariates, which prevents label switching.
+
+## References
+
+Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
+Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
+two types of observational error occur: non-detection and species
+misidentification. *Ecology*, 92, 1422–1428.
+[doi:10.1890/10-1396.1](https://doi.org/10.1890/10-1396.1)
+
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. *Ecology*, 96, 332–339.
+[doi:10.1890/14-1507.1](https://doi.org/10.1890/14-1507.1)
+
+## See also
+
+Useful links:
+
+- <https://github.com/diogoprov/crywolf>
+
+- <https://diogoprov.github.io/crywolf/>
+
+- Report bugs at <https://github.com/diogoprov/crywolf/issues>
+
+## Author
+
+**Maintainer**: Diogo B. Provete <dbprovete@gmail.com>
+([ORCID](https://orcid.org/0000-0002-0097-0651))
+
+Authors:
+
+- Diogo B. Provete <dbprovete@gmail.com>
+  ([ORCID](https://orcid.org/0000-0002-0097-0651))
+
+- Liliana Piatti ([ORCID](https://orcid.org/0000-0001-6324-1723))
+
+- Tessa Rhinehart ([ORCID](https://orcid.org/0000-0002-4352-3464))
+
+- Larissa Sayuri Moreira Sugai
+  ([ORCID](https://orcid.org/0000-0002-6248-291X))

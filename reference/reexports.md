@@ -1,0 +1,12 @@
+# Objects exported from other packages
+
+These objects are imported from other packages. Follow the links below
+to see their documentation.
+
+- loo:
+
+  [`loo()`](https://mc-stan.org/loo/reference/loo.html)
+
+- posterior:
+
+  [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)

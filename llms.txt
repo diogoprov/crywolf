@@ -1,0 +1,145 @@
+# crywolf
+
+Bayesian false-positive occupancy models for data from automated
+detectors, with simulation-based checks of whether the correction is
+calibrated for your design.
+
+Acoustic classifiers and other automated detectors return false
+positives. **crywolf** fits the multiple-methods (site-confirmation)
+false-positive occupancy model of Miller et al. (2011) in Stan: the
+classifier output may be wrong, and a verified subset of detections is
+certain. The false-positive rate can be constant or depend on site
+covariates, which matters when false positives track the same
+environmental gradient as the species.
+
+## Installation
+
+``` r
+
+install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev",
+                                       getOption("repos")))
+cmdstanr::install_cmdstan()
+# install.packages("remotes")
+remotes::install_github("diogoprov/crywolf")
+```
+
+## Example
+
+``` r
+
+library(crywolf)
+
+# simulated data in which false positives track a gradient correlated
+# with the occupancy covariate
+sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
+                   conf_cor = 0.7, seed = 2026)
+
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1)   # constant false-positive rate
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x)   # rate depends on x
+
+coef(m0, "occ"); coef(m1, "occ")                # true slope: -0.8
+loo::loo_compare(loo(m0), loo(m1))
+
+# is a constant rate calibrated for this design, and does verifying more help?
+fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
+                      conf_cor = 0.7,
+                      models = list(constant = ~ 1, fp_on_x = ~ x),
+                      reps = 50)
+```
+
+## Main functions
+
+| Function | Purpose |
+|----|----|
+| [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md), [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md) | assemble automated and verified detections and site covariates |
+| [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md) | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
+| [`fp_priors()`](https://diogoprov.github.io/crywolf/reference/fp_priors.md) | prior settings |
+| [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md) | simulate data under homogeneous, unstructured, or structured false positives |
+| [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md) | coverage and bias of the credible intervals for a design, by simulation |
+| [`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md) | coverage against the fraction of sites verified |
+
+## Citation
+
+If you use crywolf, please cite the package (`citation("crywolf")`) and
+Miller et al. (2011).
+
+Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
+Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
+two types of observational error occur: non-detection and species
+misidentification. *Ecology*, 92, 1422–1428.
+<https://doi.org/10.1890/10-1396.1>
+
+## License
+
+GPL (\>= 3). The wolf silhouette in the logo is *Canis lupus
+monstrabilis* by Tracy A. Heath, from PhyloPic, in the public domain
+(CC0 1.0).
+
+# Package index
+
+## Data
+
+Assemble automated and verified detections and site covariates.
+
+- [`fp_data()`](https://diogoprov.github.io/crywolf/reference/fp_data.md)
+  : Assemble data for a false-positive occupancy model
+- [`fp_data_wide()`](https://diogoprov.github.io/crywolf/reference/fp_data_wide.md)
+  : Assemble data from detection matrices
+
+## Fitting
+
+Fit the model and inspect, summarize, predict, and compare fits.
+
+- [`fp_occu()`](https://diogoprov.github.io/crywolf/reference/fp_occu.md)
+  : Fit a Bayesian false-positive occupancy model
+- [`fp_priors()`](https://diogoprov.github.io/crywolf/reference/fp_priors.md)
+  : Prior settings for fp_occu()
+- [`print(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  [`summary(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  [`print(`*`<summary.fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  [`coef(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  [`predict(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  [`loo(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  [`as_draws_df(`*`<fp_occu>`*`)`](https://diogoprov.github.io/crywolf/reference/fp_occu-methods.md)
+  : Methods for fp_occu fits
+- [`fp_ppc()`](https://diogoprov.github.io/crywolf/reference/fp_ppc.md)
+  : Posterior predictive check for a false-positive occupancy model
+- [`fp_compile()`](https://diogoprov.github.io/crywolf/reference/fp_compile.md)
+  : Compile (or load) the Stan model
+- [`fp_stan_file()`](https://diogoprov.github.io/crywolf/reference/fp_stan_file.md)
+  : Path to the Stan program
+
+## Simulation and calibration
+
+Simulate false-positive regimes and check interval calibration for a
+design.
+
+- [`simulate_fp()`](https://diogoprov.github.io/crywolf/reference/simulate_fp.md)
+  : Simulate data for a false-positive occupancy model
+- [`fp_calibrate()`](https://diogoprov.github.io/crywolf/reference/fp_calibrate.md)
+  : Simulation-based calibration check for a study design
+- [`fp_verification_curve()`](https://diogoprov.github.io/crywolf/reference/fp_verification_curve.md)
+  : Coverage as a function of verification effort
+
+## Package
+
+- [`crywolf`](https://diogoprov.github.io/crywolf/reference/crywolf-package.md)
+  [`crywolf-package`](https://diogoprov.github.io/crywolf/reference/crywolf-package.md)
+  : crywolf: Bayesian false-positive occupancy models with calibration
+  checks
+- [`reexports`](https://diogoprov.github.io/crywolf/reference/reexports.md)
+  [`loo`](https://diogoprov.github.io/crywolf/reference/reexports.md)
+  [`as_draws_df`](https://diogoprov.github.io/crywolf/reference/reexports.md)
+  : Objects exported from other packages
+
+# Articles
+
+### Get started
+
+- [Getting started with
+  crywolf](https://diogoprov.github.io/crywolf/articles/crywolf.md):
+
+### Guides
+
+- [Checking calibration and how much to
+  verify](https://diogoprov.github.io/crywolf/articles/calibration.md):

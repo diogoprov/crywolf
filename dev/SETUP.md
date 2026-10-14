@@ -24,7 +24,7 @@ gh repo create diogoprov/crywolf --public --source=. --push
 # install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev", getOption("repos")))
 # cmdstanr::install_cmdstan()
 
-# LICENSE.md (GPL-3) já criado com usethis::use_gpl_license(3, include_future = FALSE)
+# LICENSE.md já criado com usethis::use_gpl3_license()  # GPL (>= 3)
 devtools::document()          # regenera man/ e NAMESPACE
 devtools::test()              # 69 testes; os que usam Stan levam ~1 min
 devtools::check()             # a vinheta principal ajusta 3 modelos (~5 min)

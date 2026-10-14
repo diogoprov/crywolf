@@ -3,7 +3,7 @@ message: "If you use this software, please cite it as below."
 title: "crywolf: Bayesian false-positive occupancy models with calibration checks"
 type: software
 version: 0.0.0.9000
-license: GPL-3.0-only
+license: GPL-3.0-or-later
 repository-code: "https://github.com/diogoprov/crywolf"
 # Author order of the middle authors is still to be decided.
 authors:

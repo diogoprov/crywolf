@@ -23,10 +23,23 @@
 #'   tables.
 #' @param recorder Optional name of a column of `auto` that identifies the
 #'   recorder or observer, used for a random intercept on true detection.
+#' @param confirmed Optional names of two columns of `auto` holding, for the
+#'   occasions whose observations were checked by an expert, the number of
+#'   observations confirmed as the target species and the number confirmed as
+#'   something else, in that order (the observation-confirmation design of
+#'   Chambert et al. 2015). Use `NA` in both for occasions that were not
+#'   checked. All observations of a checked occasion must have been checked,
+#'   so an occasion with a detection has at least one confirmed observation,
+#'   and one without has none. See Details of [fp_occu()].
 #'
 #' @return An object of class `fp_data`: a list with the three tables (rows
 #'   with a missing detection dropped), the column names, and the vector
-#'   `known_present`, which flags sites with at least one verified detection.
+#'   `known_present`, which flags sites with at least one verified detection
+#'   or confirmed true observation.
+#' @references
+#' Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+#' positive detections in species occurrence data under different study
+#' designs. *Ecology*, 96, 332–339. \doi{10.1890/14-1507.1}
 #' @seealso [fp_data_wide()], [fp_occu()], [simulate_fp()]
 #' @export
 #' @examples
@@ -38,8 +51,8 @@
 #'              verified = sim$data$verified, recorder = "recorder")
 #' d
 fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
-                    recorder = NULL) {
-  .check_df(auto, "auto", c(site, y, recorder))
+                    recorder = NULL, confirmed = NULL) {
+  .check_df(auto, "auto", c(site, y, recorder, confirmed))
   .check_df(sites, "sites", site)
   if (anyDuplicated(sites[[site]])) {
     stop("`sites` must have one row per site; duplicated identifiers found in `",
@@ -59,15 +72,21 @@ fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
     stop("Column `", recorder, "` of `auto` has missing values.", call. = FALSE)
   }
 
+  if (!is.null(confirmed)) .check_confirmed(auto, confirmed, y)
+
   known_present <- rep(0L, nrow(sites))
   if (!is.null(verified) && nrow(verified) > 0) {
     hit <- unique(verified[[site]][verified[[y]] == 1])
     known_present[match(hit, sites[[site]])] <- 1L
   }
+  if (!is.null(confirmed)) {
+    hit <- unique(auto[[site]][which(auto[[confirmed[1]]] > 0)])
+    known_present[match(hit, sites[[site]])] <- 1L
+  }
 
   structure(
     list(auto = auto, verified = verified, sites = sites,
-         site = site, y = y, recorder = recorder,
+         site = site, y = y, recorder = recorder, confirmed = confirmed,
          known_present = known_present),
     class = "fp_data"
   )
@@ -152,12 +171,18 @@ print.fp_data <- function(x, ...) {
   cat(sprintf("  verified sites:         %d (%d occasions, %d with a confirmed detection)\n",
               nver_sites, if (is.null(x$verified)) 0L else nrow(x$verified),
               sum(x$known_present)))
+  if (!is.null(x$confirmed)) {
+    n_true <- x$auto[[x$confirmed[1]]]
+    cat(sprintf("  confirmed occasions:    %d (%d with a true observation)\n",
+                sum(!is.na(n_true)), sum(n_true > 0, na.rm = TRUE)))
+  }
   if (!is.null(x$recorder)) {
     cat(sprintf("  recorders:              %d\n", length(unique(x$auto[[x$recorder]]))))
   }
   covs <- setdiff(names(x$sites), x$site)
   if (length(covs)) cat("  site covariates:       ", paste(covs, collapse = ", "), "\n")
-  ocovs <- setdiff(names(x$auto), c(x$site, x$y, x$recorder, "occasion"))
+  ocovs <- setdiff(names(x$auto), c(x$site, x$y, x$recorder, x$confirmed,
+                                    "occasion"))
   if (length(ocovs)) cat("  observation covariates:", paste(ocovs, collapse = ", "), "\n")
   invisible(x)
 }
@@ -177,6 +202,29 @@ print.fp_data <- function(x, ...) {
 .check_binary <- function(v, what) {
   if (!all(v %in% c(0, 1))) {
     stop("Detections in `", what, "` must be coded 0/1.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.check_confirmed <- function(auto, confirmed, y) {
+  if (length(confirmed) != 2) {
+    stop("`confirmed` must name two columns: confirmed true and confirmed ",
+         "false observations.", call. = FALSE)
+  }
+  n_true <- auto[[confirmed[1]]]
+  n_false <- auto[[confirmed[2]]]
+  if (!identical(is.na(n_true), is.na(n_false))) {
+    stop("Columns `", confirmed[1], "` and `", confirmed[2], "` must be NA ",
+         "on the same occasions.", call. = FALSE)
+  }
+  ok <- !is.na(n_true)
+  if (any(n_true[ok] < 0 | n_false[ok] < 0 |
+          n_true[ok] %% 1 != 0 | n_false[ok] %% 1 != 0)) {
+    stop("Confirmed counts must be non-negative integers.", call. = FALSE)
+  }
+  if (any((n_true[ok] + n_false[ok] > 0) != (auto[[y]][ok] == 1))) {
+    stop("On confirmed occasions, a detection must have at least one ",
+         "confirmed observation and a non-detection none.", call. = FALSE)
   }
   invisible(TRUE)
 }

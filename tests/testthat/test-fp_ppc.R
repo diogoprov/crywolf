@@ -73,3 +73,25 @@ test_that("fp_ppc works on a fit", {
   expect_equal(nrow(pv$yrep), 600)
   expect_length(pv$site, ncol(pv$yrep))
 })
+
+test_that("the R likelihood matches the Stan log_lik in both designs", {
+  skip_if_no_cmdstan()
+  same_ll <- function(s, ...) {
+    m <- suppressWarnings(fp_occu(s$data, occ = ~ x, ..., chains = 1,
+                                  iter_warmup = 150, iter_sampling = 100,
+                                  seed = 3, show_messages = FALSE))
+    pars <- crywolf:::.ppc_pars(m$fit, m$stan_data, NULL)
+    r <- crywolf:::.ppc_core(m$stan_data, pars, "automated", "freeman-tukey")
+    ll <- unclass(posterior::as_draws_matrix(m$fit$draws("log_lik")))
+    expect_lt(max(abs(r$ll - ll)), 1e-4)   # CmdStan writes 6 significant digits
+    m
+  }
+  s1 <- simulate_fp(nsite = 80, nocc = 6, a_bio = 0.5, sd_recorder = 0.5,
+                    frac_confirmed = 0.4, frac_verified = 0, seed = 6)
+  m1 <- same_ll(s1, det = ~ bio, fp = ~ 1, random_recorder = TRUE)
+  expect_output(suppressWarnings(print(m1)), "observation-confirmation design")
+  expect_false("p_verified" %in% posterior::variables(m1$draws))
+  expect_no_warning(fp_ppc(m1, ndraws = 50, seed = 1))
+  s2 <- simulate_fp(nsite = 80, nocc = 6, conf_effect = 1, conf_cor = 0.5, seed = 6)
+  same_ll(s2, det = ~ 1, fp = ~ w, random_recorder = FALSE)
+})

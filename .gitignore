@@ -14,3 +14,4 @@ inst/stan/*.exe
 # memória do Claude Code (local, não publicar)
 CLAUDE.md
 .claude/
+dev/curiango-fits/

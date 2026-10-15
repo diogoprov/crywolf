@@ -75,7 +75,9 @@ This vignette walks through a complete analysis with simulated data:
   `fp_ppc()`;
 - model comparison with leave-one-site-out cross-validation, and prediction
   (see `?fp_occu-methods`);
-- detection covariates and recorder random effects.
+- detection covariates and recorder random effects;
+- the observation-confirmation design of Chambert et al. (2015), in which
+  an expert checks the observations of some automated occasions.
 
 `fp_calibrate()`, which checks the
 calibration of a model for your own design, has its own vignette,
@@ -255,10 +257,12 @@ the gap, and `fp_occu()` warns about it.
 site $i$ is
 
 $$
-L_i = \psi_i \prod_{k} p_{11,ik}^{y_{ik}} (1 - p_{11,ik})^{1 - y_{ik}}
-\prod_{m} r_{11}^{v_{im}} (1 - r_{11})^{1 - v_{im}}
-+ (1 - \psi_i) \prod_{k} p_{10,i}^{y_{ik}} (1 - p_{10,i})^{1 - y_{ik}}
+\begin{aligned}
+L_i ={}& \psi_i \prod_{k} p_{11,ik}^{y_{ik}} (1 - p_{11,ik})^{1 - y_{ik}}
+\prod_{m} r_{11}^{v_{im}} (1 - r_{11})^{1 - v_{im}} \\
+&+ (1 - \psi_i) \prod_{k} p_{10,i}^{y_{ik}} (1 - p_{10,i})^{1 - y_{ik}}
 \prod_{m} (1 - v_{im}),
+\end{aligned}
 $$
 
 where the last product is zero at sites with a verified detection and one
@@ -621,6 +625,64 @@ deviation among recorders (`sd_recorder`), and the effect of the confusing
 gradient (`fp_w`) are close to their true values. The true-detection intercept, the gap, and the recorder standard deviation
 have lower effective sample sizes than the other parameters, as is common
 with random intercepts, but all are above the threshold of 400.
+
+## The observation-confirmation design
+
+In the design used so far, the verified method is separate from the
+automated one, and its detections identify occupied sites. In many acoustic
+studies, an expert instead listens to the clips that the classifier flagged
+and labels each one as the target species or not. Chambert et al. (2015)
+called this the *observation-confirmation* design. Each checked occasion
+ends in one of four states: nothing was assigned to the species (0), all
+assigned observations were false (1), all were true (2), or both kinds were
+found (3). Because false observations can now be seen directly, at occupied
+sites as well as at unoccupied ones, the model describes each occasion by
+two probabilities: $s_1$, of at least one true observation (at an occupied
+site), and $s_0$, of at least one false observation. The four states have
+probabilities
+
+$$
+\Pr(v = 0, 1, 2, 3 \mid z = 1) =
+\left[(1 - s_1)(1 - s_0),\; (1 - s_1)\, s_0,\; s_1 (1 - s_0),\; s_1 s_0\right],
+\qquad
+\Pr(v = 0, 1, 2, 3 \mid z = 0) = \left[1 - s_0,\; s_0,\; 0,\; 0\right],
+$$
+
+and an occasion that was not checked is a detection with probability
+$p_{11} = 1 - (1 - s_1)(1 - s_0)$ at an occupied site and $p_{10} = s_0$ at
+an unoccupied one. The formulas `det` and `fp` of `fp_occu()` then model
+$\text{logit}(s_1)$ and $\text{logit}(s_0)$.
+
+To use this design, add two columns to `auto` with the number of
+observations confirmed as the species and as something else, `NA` on the
+occasions that were not checked, and name them in the `confirmed` argument
+of `fp_data()`. All observations of a checked occasion must be checked.
+`simulate_fp()` generates such data with `frac_confirmed`, the probability
+that an occasion is checked:
+
+```{r sim-confirm, eval = TRUE}
+sim_conf <- simulate_fp(nsite = 200, nocc = 10, p10 = 0.1,
+                        frac_confirmed = 0.3, frac_verified = 0, seed = 2028)
+sim_conf$data
+head(sim_conf$data$auto[!is.na(sim_conf$data$auto$n_true), ])
+```
+
+Here no site has a separately verified survey: the confirmed occasions alone
+identify the false-positive rate, so `fp_occu()` does not warn about missing
+verified data.
+
+```{r fit-confirm}
+m_conf <- fp_occu(sim_conf$data, occ = ~ x, det = ~ 1, fp = ~ 1,
+                  random_recorder = FALSE, seed = 1)
+m_conf
+```
+
+The occupancy slope (true value $-0.8$), the probability of a false
+observation `p10_ref` (true value 0.1), and the detection intercept, now the
+logit of $s_1$ (true value 0.6, so `r num(qlogis(0.6))` on the logit scale),
+are all estimated without verified surveys. Both kinds of known truth can be
+combined: keep a verified method in `verified` and add confirmed occasions to
+`auto`.
 
 ## Next steps
 

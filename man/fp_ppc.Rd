@@ -58,6 +58,10 @@ draws in which the replicated discrepancy exceeds the observed one. Values
 near 0 or 1 indicate lack of fit; values near 0.5 indicate that the
 observed data are typical of the fitted model.
 
+Under the observation-confirmation design, the conditional probability of
+\eqn{z_i} also uses the confirmed occasions, and \code{"automated"} checks the
+occasions that were not confirmed.
+
 A p-value near 0.5 does not show that the false-positive process is
 correctly specified: a check of detection counts can have little power
 against a false-positive rate that tracks an unmeasured gradient. Use

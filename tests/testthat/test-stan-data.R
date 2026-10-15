@@ -83,3 +83,21 @@ test_that("collapsing keeps rows that differ in covariates or recorder", {
   expect_equal(b$y2, c(1L, 1L, 0L, 0L))
   expect_equal(b$Z[, 2], c(0, 1, 0, 0))
 })
+
+test_that("confirmed occasions leave the binomial rows", {
+  s <- simulate_fp(nsite = 30, nocc = 4, frac_confirmed = 0.5, seed = 2)
+  a <- s$data$auto
+  b <- crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ 1, FALSE, fp_priors())
+  sd <- b$stan_data
+  conf <- !is.na(a$n_true)
+  expect_equal(sd$obs_confirm, 1L)
+  expect_equal(sd$N3, sum(conf))
+  expect_equal(sum(sd$n2) + sd$N3, nrow(a))
+  expect_equal(sum(sd$y2), sum(a$y[!conf]))
+  expect_equal(sort(sd$v3), sort(2L * (a$n_true[conf] > 0) + (a$n_false[conf] > 0)))
+  expect_equal(dim(sd$Z3), c(sum(conf), 1L))
+  expect_error(crywolf:::.build_stan_data(s$data, ~ x, ~ 1, NULL, FALSE, fp_priors()),
+               "needs a false-positive")
+  m <- crywolf:::.name_map(b$design, TRUE, FALSE, has_verified = FALSE)
+  expect_false("p_verified" %in% m)
+})

@@ -11,7 +11,9 @@ your design.
 Acoustic classifiers and other automated detectors return false positives.
 **crywolf** fits the multiple-methods (site-confirmation) false-positive
 occupancy model of Miller et al. (2011) in Stan: the classifier output may be
-wrong, and a verified subset of detections is certain. The false-positive
+wrong, and a verified subset of detections is certain. It also fits the
+observation-confirmation design of Chambert et al. (2015), in which an expert
+checks the observations of some automated occasions. The false-positive
 rate can be constant or depend on site covariates, which matters when false
 positives track the same environmental gradient as the species.
 
@@ -52,12 +54,15 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 | Function | Purpose |
 |---|---|
-| `fp_data()`, `fp_data_wide()` | assemble automated and verified detections and site covariates |
+| `fp_data()`, `fp_data_wide()` | assemble automated, verified, and confirmed detections and site covariates |
 | `fp_occu()` | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
+| `fp_ppc()` | posterior predictive check of the detections per site |
 | `fp_priors()` | prior settings |
 | `simulate_fp()` | simulate data under homogeneous, unstructured, or structured false positives |
 | `fp_calibrate()` | coverage and bias of the credible intervals for a design, by simulation |
 | `fp_verification_curve()` | coverage against the fraction of sites verified |
+| `plot()` | coverage or bias of a calibration run |
+| `curiango` | acoustic monitoring of the Common Pauraque in the Pantanal (Piatti et al. 2026) |
 
 ## Citation
 

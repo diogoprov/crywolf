@@ -4,7 +4,15 @@
 \alias{fp_data}
 \title{Assemble data for a false-positive occupancy model}
 \usage{
-fp_data(auto, sites, verified = NULL, site = "site", y = "y", recorder = NULL)
+fp_data(
+  auto,
+  sites,
+  verified = NULL,
+  site = "site",
+  y = "y",
+  recorder = NULL,
+  confirmed = NULL
+)
 }
 \arguments{
 \item{auto}{Data frame of the automated method (the one that can return
@@ -28,11 +36,21 @@ tables.}
 
 \item{recorder}{Optional name of a column of \code{auto} that identifies the
 recorder or observer, used for a random intercept on true detection.}
+
+\item{confirmed}{Optional names of two columns of \code{auto} holding, for the
+occasions whose observations were checked by an expert, the number of
+observations confirmed as the target species and the number confirmed as
+something else, in that order (the observation-confirmation design of
+Chambert et al. 2015). Use \code{NA} in both for occasions that were not
+checked. All observations of a checked occasion must have been checked,
+so an occasion with a detection has at least one confirmed observation,
+and one without has none. See Details of \code{\link[=fp_occu]{fp_occu()}}.}
 }
 \value{
 An object of class \code{fp_data}: a list with the three tables (rows
 with a missing detection dropped), the column names, and the vector
-\code{known_present}, which flags sites with at least one verified detection.
+\code{known_present}, which flags sites with at least one verified detection
+or confirmed true observation.
 }
 \description{
 Collects the automated detections, the verified detections, and the site
@@ -49,6 +67,11 @@ sim$data
 d <- fp_data(auto = sim$data$auto, sites = sim$data$sites,
              verified = sim$data$verified, recorder = "recorder")
 d
+}
+\references{
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. \emph{Ecology}, 96, 332–339. \doi{10.1890/14-1507.1}
 }
 \seealso{
 \code{\link[=fp_data_wide]{fp_data_wide()}}, \code{\link[=fp_occu]{fp_occu()}}, \code{\link[=simulate_fp]{simulate_fp()}}

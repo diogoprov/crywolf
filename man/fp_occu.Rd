@@ -76,6 +76,19 @@ already returns them standardized.
 With none, the model still runs, but the rate is informed only by the priors
 and the gap, and the fit should not be trusted.
 
+\strong{Observation-confirmation design.} When \code{data} has confirmed occasions
+(argument \code{confirmed} of \code{\link[=fp_data]{fp_data()}}), the model follows the
+observation-confirmation design of Chambert et al. (2015): an expert checks
+every observation of some automated occasions and finds only false ones,
+only true ones, both, or none. False observations can then occur at
+occupied sites too, and \code{det} and \code{fp} model \eqn{s_1} and \eqn{s_0}, the
+probabilities of at least one true and at least one false observation on an
+occasion; a site-level detection at an occupied site has probability
+\eqn{p_{11} = 1 - (1 - s_1)(1 - s_0)}, and \code{p11_ref} reports it at the
+reference. The confirmed occasions identify \eqn{s_0} directly, so verified
+data are optional; they can be combined with this design. The gap still
+applies, so that \eqn{s_1 > s_0} at the reference.
+
 \strong{When to model the false-positive rate.} In the simulations behind this
 package, a constant rate gave calibrated intervals for the occupancy slope
 when false positives were homogeneous; random variation of the rate among
@@ -109,6 +122,10 @@ loo::loo_compare(loo(m0), loo(m1))
 }
 }
 \references{
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. \emph{Ecology}, 96, 332–339. \doi{10.1890/14-1507.1}
+
 Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 two types of observational error occur: non-detection and species

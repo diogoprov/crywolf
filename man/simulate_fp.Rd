@@ -22,6 +22,7 @@ simulate_fp(
   a_aci = 0,
   sd_recorder = 0,
   nrec = 5,
+  frac_confirmed = 0,
   seed = NULL
 )
 }
@@ -67,6 +68,10 @@ true detection. 0 by default.}
 
 \item{nrec}{Number of recorders.}
 
+\item{frac_confirmed}{Probability that an automated occasion is checked
+under the observation-confirmation design of Chambert et al. (2015). 0
+(default) for none. See Details.}
+
 \item{seed}{Optional integer seed.}
 }
 \value{
@@ -96,6 +101,14 @@ positive control. The function draws random numbers in the same order as
 \code{nocc}, \code{frac_verified}, \code{nver}, \code{sd_recorder}, and \code{nrec} corresponding
 to its \code{nsite}, \code{K}, \code{verified_coverage}, \code{n_verified}, \code{sig_u}, and
 \code{nobser}.
+
+With \code{frac_confirmed > 0}, false observations occur at occupied sites too:
+on each occasion, a true observation occurs with probability \code{p11} (and
+its covariate effects) at occupied sites, and a false one with the site's
+false-positive rate at any site, independently. The occasion is a
+detection if either occurs. Checked occasions get the columns \code{n_true}
+and \code{n_false} of \code{auto} (0 or 1; \code{NA} elsewhere). These draws come after
+all others, so the default design reproduces the same random numbers.
 }
 \examples{
 # homogeneous false positives

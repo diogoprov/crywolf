@@ -33,6 +33,10 @@
 #' near 0 or 1 indicate lack of fit; values near 0.5 indicate that the
 #' observed data are typical of the fitted model.
 #'
+#' Under the observation-confirmation design, the conditional probability of
+#' \eqn{z_i} also uses the confirmed occasions, and `"automated"` checks the
+#' occasions that were not confirmed.
+#'
 #' A p-value near 0.5 does not show that the false-positive process is
 #' correctly specified: a check of detection counts can have little power
 #' against a false-positive rate that tracks an unmeasured gradient. Use
@@ -152,10 +156,18 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   }
   y2 <- sd$y2
   f2 <- sd$n2 - sd$y2
+  conf <- isTRUE(sd$obs_confirm == 1)
 
   # conditional posterior of z, as in site_loglik() of the Stan program
-  l11 <- rows(y2) * stats::plogis(lp11, log.p = TRUE) +
-    rows(f2) * stats::plogis(-lp11, log.p = TRUE)
+  if (conf) {
+    # observation confirmation: log(1 - p11) = log(1 - s1) + log(1 - s0)
+    lq11 <- stats::plogis(-lp11, log.p = TRUE) +
+      stats::plogis(-lp10_row, log.p = TRUE)
+    l11 <- rows(y2) * log(-expm1(lq11)) + rows(f2) * lq11
+  } else {
+    l11 <- rows(y2) * stats::plogis(lp11, log.p = TRUE) +
+      rows(f2) * stats::plogis(-lp11, log.p = TRUE)
+  }
   occ <- stats::plogis(lpsi, log.p = TRUE) + .site_sum(l11, sd$site2, nsite)
   if (sd$N1 > 0) {
     l1 <- outer(stats::plogis(pars$delta0, log.p = TRUE), sd$y1) +
@@ -171,13 +183,33 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     any_det <- tabulate(sd$site2[y2 > 0], nbins = nsite) > 0
     unocc[, any_det] <- -Inf
   }
+  if (conf) {
+    v3 <- sd$v3
+    lp3 <- pars$alpha %*% t(sd$Z3)
+    if (sd$estimate_re == 1) lp3 <- lp3 + pars$u[, sd$rec3, drop = FALSE]
+    lp10_3 <- lp10[, sd$site3, drop = FALSE]
+    occ3 <- rows(v3 >= 2) * stats::plogis(lp3, log.p = TRUE) +
+      rows(v3 < 2) * stats::plogis(-lp3, log.p = TRUE) +
+      rows(v3 %% 2 == 1) * stats::plogis(lp10_3, log.p = TRUE) +
+      rows(v3 %% 2 == 0) * stats::plogis(-lp10_3, log.p = TRUE)
+    unocc3 <- rows(v3 == 1) * stats::plogis(lp10_3, log.p = TRUE) +
+      rows(v3 == 0) * stats::plogis(-lp10_3, log.p = TRUE)
+    occ <- occ + .site_sum(occ3, sd$site3, nsite)
+    unocc <- unocc + .site_sum(unocc3, sd$site3, nsite)
+    unocc[, unique(sd$site3[v3 >= 2])] <- -Inf
+  }
+  # marginal log-likelihood per site (the log_lik of the Stan program)
+  m <- pmax(occ, unocc)
+  ll <- m + log(exp(occ - m) + exp(unocc - m))
+  ll[, sd$known_present == 1] <- occ[, sd$known_present == 1]
   pz <- stats::plogis(occ - unocc)
   pz[, sd$known_present == 1] <- 1
   z <- matrix(stats::rbinom(S * nsite, 1, pz), S, nsite)
 
   if (method == "automated") {
     zr <- z[, sd$site2, drop = FALSE]
-    p_row <- zr * stats::plogis(lp11) +
+    p11_row <- if (conf) -expm1(lq11) else stats::plogis(lp11)
+    p_row <- zr * p11_row +
       if (fp) (1 - zr) * stats::plogis(lp10_row) else 0
     n_row <- rows(sd$n2)
     yrep_row <- matrix(stats::rbinom(length(p_row), n_row, p_row), S)
@@ -202,5 +234,5 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     "chi-squared"   = function(obs) rowSums((obs - E)^2 / (E + 1e-6))
   )
   list(y = y, yrep = yrep, fit_obs = disc(Y), fit_rep = disc(yrep),
-       z = z, keep = which(keep))
+       z = z, ll = ll, keep = which(keep))
 }

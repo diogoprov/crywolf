@@ -226,8 +226,8 @@ print.summary.fp_calibration <- function(x, ...) {
   )
   secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
 
-  targets <- c(`occ_(Intercept)` = tr$b0, occ_x = tr$b1,
-               p_verified = tr$r11)
+  targets <- c(`occ_(Intercept)` = tr$b0, occ_x = tr$b1)
+  if (tr$n_verified_sites > 0) targets <- c(targets, p_verified = tr$r11)
   if (!is.null(fp)) {
     targets <- c(targets, p10_bar = tr$p10_marginal)
     if ("w" %in% all.vars(fp)) targets <- c(targets, fp_w = tr$conf_effect)

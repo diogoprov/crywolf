@@ -33,6 +33,9 @@
 #' @param sd_recorder Standard deviation of a recorder random intercept on
 #'   true detection. 0 by default.
 #' @param nrec Number of recorders.
+#' @param frac_confirmed Probability that an automated occasion is checked
+#'   under the observation-confirmation design of Chambert et al. (2015). 0
+#'   (default) for none. See Details.
 #' @param seed Optional integer seed.
 #'
 #' @details
@@ -46,6 +49,14 @@
 #' `nocc`, `frac_verified`, `nver`, `sd_recorder`, and `nrec` corresponding
 #' to its `nsite`, `K`, `verified_coverage`, `n_verified`, `sig_u`, and
 #' `nobser`.
+#'
+#' With `frac_confirmed > 0`, false observations occur at occupied sites too:
+#' on each occasion, a true observation occurs with probability `p11` (and
+#' its covariate effects) at occupied sites, and a false one with the site's
+#' false-positive rate at any site, independently. The occasion is a
+#' detection if either occurs. Checked occasions get the columns `n_true`
+#' and `n_false` of `auto` (0 or 1; `NA` elsewhere). These draws come after
+#' all others, so the default design reproduces the same random numbers.
 #'
 #' @return A list of class `fp_sim` with elements `data` (an `fp_data` object
 #'   whose `sites` table holds `x` and `w`, and whose `auto` table holds `bio`,
@@ -69,11 +80,12 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
                         conf_effect = 0, conf_cor = 0,
                         r11 = 0.6, frac_verified = 0.3, nver = 3,
                         a_bio = 0, a_aci = 0, sd_recorder = 0, nrec = 5,
-                        seed = NULL) {
+                        frac_confirmed = 0, seed = NULL) {
   stopifnot(nsite >= 2, nocc >= 1, nver >= 1,
             psi > 0, psi < 1, p11 > 0, p11 < 1, p10 > 0, p10 < 1,
             r11 > 0, r11 <= 1, frac_verified >= 0, frac_verified <= 1,
-            abs(conf_cor) <= 1, sigma_p10 >= 0, sd_recorder >= 0)
+            abs(conf_cor) <= 1, sigma_p10 >= 0, sd_recorder >= 0,
+            frac_confirmed >= 0, frac_confirmed <= 1)
   if (!is.null(seed)) set.seed(seed)
   b0 <- stats::qlogis(psi)
   a0 <- stats::qlogis(p11)
@@ -125,6 +137,17 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
                            nv, nver)
   }
 
+  # observation confirmation (Chambert et al. 2015)
+  if (frac_confirmed > 0) {
+    Zm <- matrix(z, nsite, nocc)
+    extra <- matrix(stats::rbinom(nsite * nocc, 1, matrix(p10_i, nsite, nocc)),
+                    nsite, nocc)
+    true_obs <- Zm * Y2
+    false_obs <- (1L - Zm) * Y2 + Zm * extra
+    Y2 <- pmax(true_obs, false_obs)
+    checked <- stats::runif(nsite * nocc) < frac_confirmed
+  }
+
   # long tables (column-major, as in the compendium)
   auto <- data.frame(
     site = rep(seq_len(nsite), times = nocc),
@@ -133,6 +156,10 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
     bio = as.vector(bio), aci = as.vector(aci),
     recorder = rep(rec, times = nocc)
   )
+  if (frac_confirmed > 0) {
+    auto$n_true <- ifelse(checked, as.vector(true_obs), NA_integer_)
+    auto$n_false <- ifelse(checked, as.vector(false_obs), NA_integer_)
+  }
   verified <- data.frame(
     site = rep(seq_len(nsite), times = nver),
     occasion = rep(seq_len(nver), each = nsite),
@@ -142,7 +169,8 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
   sites <- data.frame(site = seq_len(nsite), x = x, w = w)
 
   data <- fp_data(auto = auto, sites = sites, verified = verified,
-                  recorder = "recorder")
+                  recorder = "recorder",
+                  confirmed = if (frac_confirmed > 0) c("n_true", "n_false"))
 
   regime <- if (conf_effect != 0) "structured"
             else if (!is.null(p10_conc) || sigma_p10 > 0) "unstructured"
@@ -154,6 +182,7 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
     conf_effect = conf_effect, conf_cor = conf_cor,
     conf_cor_realized = if (conf_effect != 0) stats::cor(w, x) else NA_real_,
     a_bio = a_bio, a_aci = a_aci, sd_recorder = sd_recorder,
+    frac_confirmed = frac_confirmed,
     n_verified_sites = sum(is_ver), z = z, p10_site = p10_i
   )
   structure(list(data = data, truth = truth), class = "fp_sim")

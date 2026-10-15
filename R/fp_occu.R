@@ -40,6 +40,19 @@
 #' With none, the model still runs, but the rate is informed only by the priors
 #' and the gap, and the fit should not be trusted.
 #'
+#' **Observation-confirmation design.** When `data` has confirmed occasions
+#' (argument `confirmed` of [fp_data()]), the model follows the
+#' observation-confirmation design of Chambert et al. (2015): an expert checks
+#' every observation of some automated occasions and finds only false ones,
+#' only true ones, both, or none. False observations can then occur at
+#' occupied sites too, and `det` and `fp` model \eqn{s_1} and \eqn{s_0}, the
+#' probabilities of at least one true and at least one false observation on an
+#' occasion; a site-level detection at an occupied site has probability
+#' \eqn{p_{11} = 1 - (1 - s_1)(1 - s_0)}, and `p11_ref` reports it at the
+#' reference. The confirmed occasions identify \eqn{s_0} directly, so verified
+#' data are optional; they can be combined with this design. The gap still
+#' applies, so that \eqn{s_1 > s_0} at the reference.
+#'
 #' **When to model the false-positive rate.** In the simulations behind this
 #' package, a constant rate gave calibrated intervals for the occupancy slope
 #' when false positives were homogeneous; random variation of the rate among
@@ -62,6 +75,10 @@
 #'   [base::summary()], [stats::coef()], [stats::predict()], [loo::loo()], and
 #'   [posterior::as_draws_df()]. The 'cmdstanr' fit is in element `fit`.
 #' @references
+#' Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+#' positive detections in species occurrence data under different study
+#' designs. *Ecology*, 96, 332–339. \doi{10.1890/14-1507.1}
+#'
 #' Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 #' Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 #' two types of observational error occur: non-detection and species
@@ -90,7 +107,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   if (!inherits(data, "fp_data")) {
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
   }
-  if (is.null(data$verified) || nrow(data$verified) == 0) {
+  no_ver <- is.null(data$verified) || nrow(data$verified) == 0
+  no_conf <- is.null(data$confirmed) || all(is.na(data$auto[[data$confirmed[1]]]))
+  if (no_ver && no_conf) {
     warning("No verified data: the false-positive rate is identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
@@ -232,10 +251,30 @@ print.fp_priors <- function(x, ...) {
     y1 <- as.integer(ver[[data$y]]); site1 <- match(ver[[s]], sites[[s]])
   }
 
+  # observation confirmation: checked occasions leave the automated rows and
+  # enter with their confirmation state
+  conf <- data$confirmed
+  is3 <- if (is.null(conf)) rep(FALSE, nrow(auto)) else !is.na(auto[[conf[1]]])
+  obs_confirm <- any(is3)
+  if (obs_confirm && !estimate_fp) {
+    stop("The observation-confirmation design needs a false-positive ",
+         "process; do not use `fp = NULL`.", call. = FALSE)
+  }
+  v3 <- if (obs_confirm) {
+    as.integer(2L * (auto[[conf[1]]][is3] > 0) + (auto[[conf[2]]][is3] > 0))
+  } else integer(0)
+  site3 <- site2[is3]
+  rec3 <- rec2[is3]
+  Z3 <- d_det$X[is3, , drop = FALSE]
+  auto <- auto[!is3, , drop = FALSE]
+  site2 <- site2[!is3]
+  rec2 <- rec2[!is3]
+  X_det <- d_det$X[!is3, , drop = FALSE]
+
   # collapse occasions with identical covariates within a site into
   # binomial rows (exact, and much faster when detection is site-level)
   y_raw <- as.integer(auto[[data$y]])
-  key <- do.call(paste, c(list(site2, rec2), as.data.frame(d_det$X),
+  key <- do.call(paste, c(list(site2, rec2), as.data.frame(X_det),
                           list(sep = "\r")))
   grp <- match(key, unique(key))
   first <- !duplicated(grp)
@@ -243,7 +282,7 @@ print.fp_priors <- function(x, ...) {
   y2 <- as.integer(rowsum(y_raw, grp, reorder = FALSE))
   site2 <- site2[first]
   rec2 <- rec2[first]
-  Z <- d_det$X[first, , drop = FALSE]
+  Z <- X_det[first, , drop = FALSE]
   len2 <- tabulate(site2, nbins = nsite)
   start2 <- cumsum(c(1L, len2))[seq_len(nsite)]
 
@@ -257,6 +296,8 @@ print.fp_priors <- function(x, ...) {
     Kfp = ncol(Xfp), Xfp = unname(Xfp), estimate_fp = as.integer(estimate_fp),
     N1 = length(y1), y1 = y1, site1 = as.integer(site1),
     known_present = as.integer(data$known_present),
+    obs_confirm = as.integer(obs_confirm), N3 = length(v3), v3 = v3,
+    site3 = as.integer(site3), Z3 = unname(Z3), rec3 = as.integer(rec3),
     prior_sd_int = priors$intercept_sd, prior_sd_slope = priors$slope_sd,
     gap_mean = priors$gap_mean, gap_sd = priors$gap_sd,
     recorder_sd = priors$recorder_sd
@@ -270,14 +311,14 @@ print.fp_priors <- function(x, ...) {
 
 # internal: readable parameter names ------------------------------------------
 
-.name_map <- function(design, estimate_fp, use_re) {
+.name_map <- function(design, estimate_fp, use_re, has_verified = TRUE) {
   m <- c(
     stats::setNames(paste0("occ_", design$occ_names),
                     sprintf("beta[%d]", seq_along(design$occ_names))),
     stats::setNames(paste0("det_", design$det_names),
                     sprintf("alpha[%d]", seq_along(design$det_names))),
-    c("delta0" = "verified_(Intercept)", "r11" = "p_verified",
-      "p11_ref" = "p11_ref")
+    if (has_verified) c("delta0" = "verified_(Intercept)", "r11" = "p_verified"),
+    c("p11_ref" = "p11_ref")
   )
   if (estimate_fp) {
     slopes <- design$fp_names[-1]
@@ -294,7 +335,8 @@ print.fp_priors <- function(x, ...) {
 
 .pretty_draws <- function(fit, sd_list) {
   sd <- sd_list$stan_data
-  map <- .name_map(sd_list$design, sd$estimate_fp == 1, sd$estimate_re == 1)
+  map <- .name_map(sd_list$design, sd$estimate_fp == 1, sd$estimate_re == 1,
+                   has_verified = sd$N1 > 0)
   dr <- posterior::as_draws_df(fit$draws(variables = unique(sub("\\[.*", "", names(map)))))
   dr <- posterior::subset_draws(dr, variable = names(map))
   posterior::variables(dr) <- unname(map[posterior::variables(dr)])

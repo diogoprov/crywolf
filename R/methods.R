@@ -13,7 +13,10 @@ NULL
 #' @rdname fp_occu-methods
 #' @export
 print.fp_occu <- function(x, digits = 3, ...) {
-  cat("Bayesian false-positive occupancy model (multiple-methods design)\n\n")
+  sd <- x$stan_data
+  cat("Bayesian false-positive occupancy model (",
+      if (isTRUE(sd$obs_confirm == 1)) "observation-confirmation" else "multiple-methods",
+      " design)\n\n", sep = "")
   f <- x$formulas
   cat("  occupancy:      ", .fmt_formula(f$occ), "\n")
   cat("  true detection: ", .fmt_formula(f$det),
@@ -21,9 +24,13 @@ print.fp_occu <- function(x, digits = 3, ...) {
   cat("  false positive: ",
       if (is.null(f$fp)) "none (standard occupancy model)" else .fmt_formula(f$fp),
       "\n")
-  sd <- x$stan_data
-  cat(sprintf("  data:            %d sites, %d automated and %d verified occasions\n\n",
-              sd$nsite, sum(sd$n2), sd$N1))
+  if (isTRUE(sd$N3 > 0)) {
+    cat(sprintf("  data:            %d sites, %d automated (%d confirmed) and %d verified occasions\n\n",
+                sd$nsite, sum(sd$n2) + sd$N3, sd$N3, sd$N1))
+  } else {
+    cat(sprintf("  data:            %d sites, %d automated and %d verified occasions\n\n",
+                sd$nsite, sum(sd$n2), sd$N1))
+  }
   s <- summary(x)
   print(as.data.frame(s$table), digits = digits, row.names = FALSE)
   .print_diag(x$diagnostics)

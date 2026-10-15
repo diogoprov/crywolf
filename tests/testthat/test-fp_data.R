@@ -30,3 +30,20 @@ test_that("fp_data_wide matches the long layout", {
   expect_error(fp_data_wide(ya, obs_covs = list(bio = matrix(1, 2, 2))),
                "same dimensions")
 })
+
+test_that("confirmed occasions are validated and mark sites as occupied", {
+  auto <- data.frame(site = c(1, 1, 2, 2, 3), y = c(1, 0, 1, 0, 1),
+                     n_true = c(1, 0, 0, NA, NA), n_false = c(2, 0, 1, NA, NA))
+  sites <- data.frame(site = 1:3)
+  d <- fp_data(auto, sites, confirmed = c("n_true", "n_false"))
+  expect_equal(d$known_present, c(1L, 0L, 0L))
+  expect_output(print(d), "confirmed occasions:    3 \\(1 with a true")
+
+  bad <- auto; bad$n_false[4] <- 0
+  expect_error(fp_data(bad, sites, confirmed = c("n_true", "n_false")), "same occasions")
+  bad <- auto; bad$n_true[2] <- 1
+  expect_error(fp_data(bad, sites, confirmed = c("n_true", "n_false")), "detection must")
+  bad <- auto; bad$n_true[1] <- -1
+  expect_error(fp_data(bad, sites, confirmed = c("n_true", "n_false")), "non-negative")
+  expect_error(fp_data(auto, sites, confirmed = "n_true"), "two columns")
+})

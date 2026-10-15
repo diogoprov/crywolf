@@ -14,6 +14,13 @@
 // the intercept. Kfp = 0 gives the constant-rate model; estimate_fp = 0 gives
 // the standard occupancy model (no false positives).
 //
+// Observation-confirmation design (Chambert et al. 2015), when obs_confirm = 1:
+// the observations of some automated occasions are checked, giving a state
+// v3 = 0 (nothing), 1 (false observations only), 2 (true only), 3 (both). The
+// detection and false-positive predictors are then those of s1 and s0, the
+// probabilities of at least one true and at least one false observation on an
+// occasion, and p11 = 1 - (1 - s1)(1 - s0), p10 = s0 for unchecked occasions.
+//
 // Automated occasions enter as rows of identical covariates within a site
 // (n2 trials, y2 detections), which is exact for a product of Bernoulli
 // trials and much faster when detection covariates are constant within
@@ -21,6 +28,14 @@
 // site's rows are contiguous and can be summed with segment().
 // ============================================================================
 functions {
+  // linear predictor of true detection on the confirmed occasions
+  vector confirmed_lp11(matrix Z3, vector alpha, vector u, array[] int rec3,
+                int estimate_re) {
+    vector[rows(Z3)] lp = Z3 * alpha;
+    if (estimate_re == 1) lp += u[rec3];
+    return lp;
+  }
+
   // Marginal log-likelihood of each site, with the latent state z summed out.
   vector site_loglik(vector lpsi, vector lp11_fixed, real gamma0, matrix Xfp,
                      vector gamma_fp, vector u, array[] int rec2,
@@ -28,7 +43,9 @@ functions {
                      vector y2v, vector f2v, array[] int site2, array[] int start2,
                      array[] int len2, array[] int any_det2,
                      array[] int y1, array[] int site1, real delta0,
-                     array[] int known_present) {
+                     array[] int known_present,
+                     int obs_confirm, array[] int v3, array[] int site3,
+                     vector lp11_3) {
     int nsite = rows(lpsi);
     int N2 = rows(y2v);
     vector[N2] lp11 = lp11_fixed;
@@ -37,11 +54,18 @@ functions {
     if (Kfp > 0) lp10 += Xfp * gamma_fp;
 
     // per-occasion log-likelihoods, vectorized
-    vector[N2] l11 = y2v .* log_inv_logit(lp11) + f2v .* log1m_inv_logit(lp11);
+    vector[N2] l11;
     vector[N2] l10;
     if (estimate_fp == 1) {
       vector[N2] lp10_n = lp10[site2];
       l10 = y2v .* log_inv_logit(lp10_n) + f2v .* log1m_inv_logit(lp10_n);
+    }
+    if (obs_confirm == 1) {
+      // log(1 - p11) = log(1 - s1) + log(1 - s0)
+      vector[N2] lq11 = log1m_inv_logit(lp11) + log1m_inv_logit(lp10[site2]);
+      l11 = y2v .* log1m_exp(lq11) + f2v .* lq11;
+    } else {
+      l11 = y2v .* log_inv_logit(lp11) + f2v .* log1m_inv_logit(lp11);
     }
 
     vector[nsite] occ = rep_vector(0, nsite);
@@ -55,6 +79,17 @@ functions {
     }
     for (n in 1:size(y1))
       occ[site1[n]] += bernoulli_logit_lpmf(y1[n] | delta0);
+    if (obs_confirm == 1) {
+      for (n in 1:size(v3)) {
+        int i = site3[n];
+        real ls1 = log_inv_logit(lp11_3[n]);
+        real lq1 = log1m_inv_logit(lp11_3[n]);
+        real ls0 = log_inv_logit(lp10[i]);
+        real lq0 = log1m_inv_logit(lp10[i]);
+        occ[i] += (v3[n] >= 2 ? ls1 : lq1) + (v3[n] % 2 == 1 ? ls0 : lq0);
+        unocc[i] += v3[n] >= 2 ? negative_infinity() : (v3[n] == 1 ? ls0 : lq0);
+      }
+    }
 
     vector[nsite] ll;
     for (i in 1:nsite) {
@@ -92,6 +127,13 @@ data {
   array[N1] int<lower=0, upper=1> y1;
   array[N1] int<lower=1, upper=nsite> site1;
   array[nsite] int<lower=0, upper=1> known_present;
+
+  int<lower=0, upper=1> obs_confirm;         // observation-confirmation design
+  int<lower=0> N3;                           // confirmed occasions
+  array[N3] int<lower=0, upper=3> v3;        // confirmation state
+  array[N3] int<lower=1, upper=nsite> site3;
+  matrix[N3, Kalpha] Z3;                     // detection design of confirmed occasions
+  array[N3] int<lower=1, upper=nrec> rec3;
 
   real<lower=0> prior_sd_int;                // sd of Normal priors on intercepts
   real<lower=0> prior_sd_slope;              // sd of Normal priors on slopes
@@ -141,14 +183,17 @@ model {
     vector[nsite] ll_site = site_loglik(X * beta, Z * alpha, gamma0, Xfp, gamma_fp,
                                         u, rec2, estimate_re, estimate_fp, Kfp,
                                         y2v, f2v, site2, start2, len2, any_det2,
-                                        y1, site1, delta0, known_present);
+                                        y1, site1, delta0, known_present,
+                                        obs_confirm, v3, site3, confirmed_lp11(Z3, alpha, u, rec3, estimate_re));
     target += sum(ll_site);
   }
 }
 
 generated quantities {
   vector[nsite] log_lik;
-  real p11_ref = inv_logit(alpha[1]);
+  real p11_ref = obs_confirm == 1
+                 ? 1 - (1 - inv_logit(alpha[1])) * (1 - inv_logit(gamma0))
+                 : inv_logit(alpha[1]);
   real p10_ref = estimate_fp == 1 ? inv_logit(gamma0) : 0.0;
   real p10_bar = 0;
   real r11 = inv_logit(delta0);
@@ -159,6 +204,7 @@ generated quantities {
     log_lik = site_loglik(X * beta, Z * alpha, gamma0, Xfp, gamma_fp,
                           u, rec2, estimate_re, estimate_fp, Kfp,
                           y2v, f2v, site2, start2, len2, any_det2,
-                          y1, site1, delta0, known_present);
+                          y1, site1, delta0, known_present,
+                          obs_confirm, v3, site3, confirmed_lp11(Z3, alpha, u, rec3, estimate_re));
   }
 }

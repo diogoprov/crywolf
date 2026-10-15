@@ -35,3 +35,16 @@ test_that("unstructured heterogeneity is flagged", {
   expect_equal(simulate_fp(nsite = 20, nocc = 2, p10_conc = 2, seed = 1)$truth$regime,
                "unstructured")
 })
+
+test_that("frac_confirmed adds confirmations without changing the default draws", {
+  a <- simulate_fp(nsite = 60, nocc = 5, seed = 9)
+  expect_identical(simulate_fp(nsite = 60, nocc = 5, frac_confirmed = 0, seed = 9), a)
+  b <- simulate_fp(nsite = 60, nocc = 5, frac_confirmed = 0.4, seed = 9)
+  unocc <- rep(a$truth$z, 5) == 0
+  expect_identical(b$data$auto$y[unocc], a$data$auto$y[unocc])
+  expect_identical(b$data$verified, a$data$verified)
+  conf <- !is.na(b$data$auto$n_true)
+  expect_true(any(conf))
+  expect_true(all(b$data$auto$n_true[conf & unocc] == 0))
+  expect_equal(b$data$confirmed, c("n_true", "n_false"))
+})

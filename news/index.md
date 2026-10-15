@@ -1,6 +1,6 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 1.1.0
 
 - The likelihood is summed over sites with Stan’s `reduce_sum()`, and
   the model is compiled with threading, so

@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/diogoprov/crywolf/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/diogoprov/crywolf/actions/workflows/R-CMD-check.yaml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23385045.svg)](https://doi.org/10.5281/zenodo.23385045)
 <!-- badges: end -->
 
 Bayesian false-positive occupancy models for data from automated detectors,
@@ -83,7 +84,9 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 ## Citation
 
-If you use crywolf, please cite the package (`citation("crywolf")`) and
+If you use crywolf, please cite the package (`citation("crywolf")`;
+https://doi.org/10.5281/zenodo.23385045, which always resolves to the latest
+version) and
 Miller et al. (2011), or Chambert et al. (2015) for the observation-confirmation
 design.
 

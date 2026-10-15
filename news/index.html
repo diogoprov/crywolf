@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,8 +21,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/simulation.html">Simulating false-positive regimes</a></li>
     <li><a class="dropdown-item" href="../articles/calibration.html">Checking calibration and how much to verify</a></li>
     <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
+    <li><a class="dropdown-item" href="../articles/unmarked.html">Coming from unmarked::occuFP()</a></li>
+    <li><a class="dropdown-item" href="../articles/stan_model.html">The Stan model</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -40,16 +43,33 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.0.9000" id="crywolf-0009000">crywolf 0.0.0.9000<a class="anchor" aria-label="anchor" href="#crywolf-0009000"></a></h2>
-<ul><li><p><code><a href="../reference/fp_ppc.html">fp_ppc()</a></code>: posterior predictive check with a Bayesian p-value.</p></li>
-<li><p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method for <code>fp_calibration</code> objects.</p></li>
-<li><p>Observation-confirmation design of Chambert et al. (2015): argument <code>confirmed</code> of <code><a href="../reference/fp_data.html">fp_data()</a></code> and <code>frac_confirmed</code> of <code><a href="../reference/simulate_fp.html">simulate_fp()</a></code>.</p></li>
-<li><p><code>curiango</code> dataset (Piatti et al. 2026).</p></li>
-<li><p>Progress: <code><a href="../reference/fp_occu.html">fp_occu()</a></code> reports chain progress in interactive sessions (<code>refresh</code>), and <code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code> and <code><a href="../reference/fp_verification_curve.html">fp_verification_curve()</a></code> show a progress bar with the estimated time remaining, also in parallel (needs ‘progressr’).</p></li>
-<li><p>First version: <code><a href="../reference/fp_data.html">fp_data()</a></code>, <code><a href="../reference/fp_data_wide.html">fp_data_wide()</a></code>, <code><a href="../reference/fp_occu.html">fp_occu()</a></code> with methods, <code><a href="../reference/fp_priors.html">fp_priors()</a></code>, <code><a href="../reference/simulate_fp.html">simulate_fp()</a></code>, <code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code>, and <code><a href="../reference/fp_verification_curve.html">fp_verification_curve()</a></code>.</p></li>
-<li><p>The Stan model generalizes the one in the fpcalib research compendium: any number of occupancy, detection, and false-positive covariates, an optional recorder random intercept, and configurable priors.</p></li>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="crywolf-100">crywolf 1.0.0<a class="anchor" aria-label="anchor" href="#crywolf-100"></a></h2>
+<p>First release, accompanying the simulation study of Provete et al. (fpcalib research compendium, v0.1.0, <a href="doi:10.5281/zenodo.23379100" class="uri">doi:10.5281/zenodo.23379100</a>).</p>
+<div class="section level3">
+<h3 id="models-1-0-0">Models<a class="anchor" aria-label="anchor" href="#models-1-0-0"></a></h3>
+<ul><li>
+<code><a href="../reference/fp_occu.html">fp_occu()</a></code> fits the multiple-methods false-positive occupancy model of Miller et al. (2011) in Stan, with any number of occupancy, detection, and false-positive covariates, an optional recorder random intercept, and configurable priors (<code><a href="../reference/fp_priors.html">fp_priors()</a></code>). <code>fp = NULL</code> gives the standard occupancy model.</li>
+<li>Observation-confirmation design of Chambert et al. (2015): argument <code>confirmed</code> of <code><a href="../reference/fp_data.html">fp_data()</a></code> and <code>frac_confirmed</code> of <code><a href="../reference/simulate_fp.html">simulate_fp()</a></code>.</li>
+<li>Methods <code>print</code>, <code>summary</code>, <code>coef</code>, <code>predict</code>, <code>loo</code>, and <code>as_draws_df</code>.</li>
+<li>
+<code><a href="../reference/fp_ppc.html">fp_ppc()</a></code>: posterior predictive check with a Bayesian p-value.</li>
 </ul></div>
-  </main></div>
+<div class="section level3">
+<h3 id="simulation-and-calibration-1-0-0">Simulation and calibration<a class="anchor" aria-label="anchor" href="#simulation-and-calibration-1-0-0"></a></h3>
+<ul><li>
+<code><a href="../reference/simulate_fp.html">simulate_fp()</a></code> generates homogeneous, unstructured, and structured false-positive regimes; with the same seed it returns the same datasets as the simulator of the fpcalib compendium.</li>
+<li>
+<code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code> and <code><a href="../reference/fp_verification_curve.html">fp_verification_curve()</a></code> report the coverage and bias of credible intervals for a design, with a <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method and a progress bar that shows the time remaining (needs ‘progressr’). They fit the recorder random intercept only when the simulated design has one, which avoids divergent transitions.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="data-and-documentation-1-0-0">Data and documentation<a class="anchor" aria-label="anchor" href="#data-and-documentation-1-0-0"></a></h3>
+<ul><li>
+<code>curiango</code> dataset: acoustic monitoring of the Common Pauraque in the Pantanal (Piatti et al. 2026).</li>
+<li>Articles: introduction, simulation, calibration, a case study with the <code>curiango</code> data, coming from <code><a href="https://ecoverseR.github.io/unmarked/reference/occuFP.html" class="external-link">unmarked::occuFP()</a></code>, and the Stan model.</li>
+</ul></div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

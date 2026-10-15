@@ -95,3 +95,18 @@ leave-one-site-out.
 
 [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)
 returns the posterior draws with the readable parameter names.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m                                   # posterior summary and diagnostics
+summary(m, prob = 0.9)$table
+coef(m, "occ")
+predict(m, newdata = data.frame(x = c(-1, 0, 1)), process = "occ")
+loo(m)
+draws <- as_draws_df(m)
+} # }
+```

@@ -974,12 +974,20 @@ occasions to `auto`.
 
 ## Next steps
 
+- [`vignette("simulation", package = "crywolf")`](https://provetelab.org/crywolf/articles/simulation.md):
+  the false-positive regimes and observation options of
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md).
 - [`vignette("calibration", package = "crywolf")`](https://provetelab.org/crywolf/articles/calibration.md):
   check whether a model’s credible intervals are calibrated for your
   design, and how much to verify.
 - [`vignette("curiango", package = "crywolf")`](https://provetelab.org/crywolf/articles/curiango.md):
   a case study with acoustic monitoring of the Common Pauraque and two
   classifiers.
+- [`vignette("unmarked", package = "crywolf")`](https://provetelab.org/crywolf/articles/unmarked.md):
+  translating data and formulas from
+  [`unmarked::occuFP()`](https://ecoverseR.github.io/unmarked/reference/occuFP.html).
+- [`vignette("stan_model", package = "crywolf")`](https://provetelab.org/crywolf/articles/stan_model.md):
+  the Stan program, and how to fit a modified copy.
 
 ## References
 

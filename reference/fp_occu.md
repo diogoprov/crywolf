@@ -61,7 +61,11 @@ fp_occu(
 - random_recorder:
 
   Logical. Add a recorder random intercept to true detection? Defaults
-  to `TRUE` when `data` has a recorder column.
+  to `TRUE` when `data` has a recorder column. Data from
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
+  always have one; with its default `sd_recorder = 0` set this to
+  `FALSE`, because a random effect whose true variance is zero causes
+  divergent transitions.
 
 - priors:
 
@@ -175,10 +179,11 @@ if (FALSE) { # \dontrun{
 sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 42)
 
-# constant false-positive rate
-m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1)
+# constant false-positive rate (the simulated recorders have no effect,
+# so the recorder term is left out)
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
 # false-positive rate that tracks the occupancy covariate
-m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x)
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8
 loo::loo_compare(loo(m0), loo(m1))

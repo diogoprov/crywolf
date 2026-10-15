@@ -78,6 +78,9 @@ fp_calibrate(
 
   List of further arguments for
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
+  Unless set here, `random_recorder` is `TRUE` only when the design
+  simulates a recorder effect (`sd_recorder > 0`): fitting one whose
+  true standard deviation is zero produces divergent transitions.
 
 ## Value
 

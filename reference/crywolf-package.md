@@ -42,6 +42,21 @@ The package has three parts:
   so that users can see whether the correction holds for their design
   and how much verification it needs.
 
+## Getting started
+
+[`vignette("crywolf")`](https://provetelab.org/crywolf/articles/crywolf.md)
+introduces the model and the workflow. Further articles cover simulation
+([`vignette("simulation")`](https://provetelab.org/crywolf/articles/simulation.md)),
+calibration and how much to verify
+([`vignette("calibration")`](https://provetelab.org/crywolf/articles/calibration.md)),
+a case study with real data
+([`vignette("curiango")`](https://provetelab.org/crywolf/articles/curiango.md)),
+the translation from 'unmarked'
+([`vignette("unmarked")`](https://provetelab.org/crywolf/articles/unmarked.md)),
+and the Stan program
+([`vignette("stan_model")`](https://provetelab.org/crywolf/articles/stan_model.md)).
+They are also on the package website, <https://provetelab.org/crywolf/>.
+
 ## Model
 
 For site \\i\\, automated occasion \\k\\, and verified occasion \\m\\:

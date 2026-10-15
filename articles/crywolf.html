@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,8 +42,11 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/simulation.html">Simulating false-positive regimes</a></li>
     <li><a class="dropdown-item" href="../articles/calibration.html">Checking calibration and how much to verify</a></li>
     <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
+    <li><a class="dropdown-item" href="../articles/unmarked.html">Coming from unmarked::occuFP()</a></li>
+    <li><a class="dropdown-item" href="../articles/stan_model.html">The Stan model</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -1037,6 +1040,10 @@ Both kinds of known truth can be combined: keep a verified method in
 </h2>
 <ul>
 <li>
+<code><a href="../articles/simulation.html">vignette("simulation", package = "crywolf")</a></code>: the
+false-positive regimes and observation options of
+<code><a href="../reference/simulate_fp.html">simulate_fp()</a></code>.</li>
+<li>
 <code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>: check
 whether a model’s credible intervals are calibrated for your design, and
 how much to verify.</li>
@@ -1044,6 +1051,12 @@ how much to verify.</li>
 <code><a href="../articles/curiango.html">vignette("curiango", package = "crywolf")</a></code>: a case study
 with acoustic monitoring of the Common Pauraque and two
 classifiers.</li>
+<li>
+<code><a href="../articles/unmarked.html">vignette("unmarked", package = "crywolf")</a></code>: translating
+data and formulas from <code><a href="https://ecoverseR.github.io/unmarked/reference/occuFP.html" class="external-link">unmarked::occuFP()</a></code>.</li>
+<li>
+<code><a href="../articles/stan_model.html">vignette("stan_model", package = "crywolf")</a></code>: the Stan
+program, and how to fit a modified copy.</li>
 </ul>
 </div>
 <div class="section level2">

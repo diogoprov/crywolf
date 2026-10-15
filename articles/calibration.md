@@ -59,12 +59,12 @@ standard error, the bias, and a verdict:
     #>     3 constant   300   20 0.05           0.3         1.5      0.7 50      0
     #>     3  fp_on_x   300   20 0.05           0.3         1.5      0.7 50      0
     #>  coverage mc_se    bias rmse prop_divergent   verdict
-    #>      1.00 0.000 0.06986 0.19           0.66        ok
-    #>      0.98 0.020 0.00032 0.14           0.52        ok
-    #>      0.96 0.028 0.07085 0.21           0.58        ok
-    #>      0.96 0.028 0.01103 0.15           0.70        ok
-    #>      0.22 0.059 0.42449 0.45           0.60 collapsed
-    #>      0.62 0.069 0.24085 0.29           0.68 collapsed
+    #>      0.98 0.020 -0.0082 0.13           0.00        ok
+    #>      0.98 0.020 -0.0081 0.13           0.00        ok
+    #>      0.96 0.028  0.0094 0.13           0.00        ok
+    #>      0.96 0.028 -0.0016 0.13           0.02        ok
+    #>      0.22 0.059  0.4090 0.44           0.00 collapsed
+    #>      0.62 0.069  0.2301 0.27           0.00 collapsed
     #> 
     #> All quantities: inspect the returned tibble.
 
@@ -87,9 +87,12 @@ borderline value. Every model is fitted to the same datasets, so
 comparisons between models are paired.
 
 The column `prop_divergent` is the share of fits with at least one
-divergent transition. In this run most fits had a few divergences
-(median 1 of 4000 draws), so check `max_rhat` and `divergences` in the
-returned tibble before trusting a cell whose fits had many.
+divergent transition. In this run only 2 of the 800 fits had one, and
+the largest R-hat was 1.01. Check `max_rhat` and `divergences` in the
+returned tibble before trusting a cell whose fits had many. The
+simulated designs here have no recorder effect, so the calibration fits
+leave the recorder random intercept out; fitting a random effect whose
+true variance is zero is a common source of divergent transitions.
 
 ## How much to verify
 
@@ -124,16 +127,16 @@ fp_verification_curve(
     #>     5 constant           0.9   300   20 0.05         1.5      0.7 50      0
     #>     5  fp_on_x           0.9   300   20 0.05         1.5      0.7 50      0
     #>  coverage mc_se bias rmse prop_divergent   verdict
-    #>      0.06 0.034 0.55 0.57           0.82 collapsed
-    #>      0.38 0.069 0.39 0.43           0.82 collapsed
-    #>      0.12 0.046 0.45 0.48           0.64 collapsed
-    #>      0.48 0.071 0.29 0.32           0.68 collapsed
-    #>      0.22 0.059 0.40 0.42           0.58 collapsed
-    #>      0.64 0.068 0.21 0.26           0.68 collapsed
-    #>      0.10 0.042 0.40 0.42           0.62 collapsed
-    #>      0.64 0.068 0.21 0.24           0.58 collapsed
-    #>      0.24 0.060 0.39 0.42           0.64 collapsed
-    #>      0.64 0.068 0.21 0.25           0.60 collapsed
+    #>      0.08 0.038 0.46 0.48           0.02 collapsed
+    #>      0.46 0.070 0.28 0.31           0.00 collapsed
+    #>      0.12 0.046 0.43 0.44           0.00 collapsed
+    #>      0.48 0.071 0.27 0.30           0.00 collapsed
+    #>      0.22 0.059 0.39 0.42           0.00 collapsed
+    #>      0.66 0.067 0.21 0.26           0.00 collapsed
+    #>      0.12 0.046 0.40 0.42           0.00 collapsed
+    #>      0.68 0.066 0.21 0.24           0.00 collapsed
+    #>      0.20 0.057 0.39 0.42           0.00 collapsed
+    #>      0.64 0.068 0.21 0.25           0.00 collapsed
     #> 
     #> All quantities: inspect the returned tibble.
 
@@ -212,11 +215,12 @@ simulations.](calibration_files/figure-html/plot-p10-1.png)
 Coverage of the 95% interval of the mean false-positive rate over sites
 (`p10_bar`), in the same simulations.
 
-The interval of the mean false-positive rate also misses the truth more
-often as verification increases. With more verified sites the interval
-narrows (its mean width falls from about 0.29 to 0.02–0.03 for the
-constant-rate model), but a bias of about −0.02 remains, so the narrower
-interval covers the truth less often.
+Neither model recovers the mean false-positive rate over sites under
+this confusion. Both estimate it at about 0.077 when the truth is about
+0.10, with intervals only about 0.02 wide, so coverage stays at 0.22 or
+below at every level of verification. Modelling the rate on `x` reduces
+the bias of the occupancy slope, but a rate that depends on the
+unmeasured gradient `w` is not fully captured by `x`.
 
 ## References
 

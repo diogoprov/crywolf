@@ -117,8 +117,8 @@ m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
 #> Running MCMC with 4 parallel chains...
 #> 
 #> Chain 1 finished in 4.2 seconds.
-#> Chain 2 finished in 4.6 seconds.
-#> Chain 4 finished in 4.5 seconds.
+#> Chain 4 finished in 4.6 seconds.
+#> Chain 2 finished in 4.7 seconds.
 #> Chain 3 finished in 4.9 seconds.
 #> 
 #> All 4 chains finished successfully.

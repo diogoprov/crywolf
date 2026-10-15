@@ -83,9 +83,10 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 ## Citation
 
-If you use crywolf, please cite the package (`citation("crywolf")`) and
-Miller et al. (2011), or Chambert et al. (2015) for the
-observation-confirmation design.
+If you use crywolf, please cite the package (`citation("crywolf")`;
+<https://doi.org/10.5281/zenodo.23385045>, which always resolves to the
+latest version) and Miller et al. (2011), or Chambert et al. (2015) for
+the observation-confirmation design.
 
 Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when

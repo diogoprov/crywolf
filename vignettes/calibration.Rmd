@@ -8,9 +8,13 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-# The calibration runs below take hours, so this vignette shows the code
-# without running it (eval = FALSE in every chunk).
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+# The calibration runs below take about 20 minutes on 8 cores, so the code
+# chunks are not run when the vignette is built. Their results were saved by
+# dev/precompute-calibration.R and are read from calibration-results.rds.
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
+                      fig.width = 6.5, fig.height = 4, out.width = "100%")
+library(crywolf)
+results <- readRDS("calibration-results.rds")
 ```
 
 A 95% credible interval should contain the true value in about 95% of
@@ -49,12 +53,30 @@ cal <- fp_calibrate(
 summary(cal)
 ```
 
+The code above is not run when this vignette is built; the output below
+comes from the same call, saved in advance. `summary()` prints, for the
+occupancy slope, the coverage of the 95% intervals, its Monte Carlo standard
+error, the bias, and a verdict:
+
+```{r results-confusion, echo = FALSE}
+summary(results$confusion)
+```
+
+```{r plot-confusion, echo = FALSE, fig.cap = "Coverage of the 95% interval of the occupancy slope against the strength of the confusion, for the constant-rate model and for a false-positive rate that depends on the occupancy covariate. Bars span two Monte Carlo standard errors; the dashed line is the nominal coverage."}
+plot(results$confusion, by = "conf_effect")
+```
+
 Each replicate costs one Stan fit per model, so this design needs
 3 cells × 50 replicates × 2 models = 300 fits. With 50 replicates, the Monte
 Carlo standard error of a coverage of 0.95 is about 0.03, enough to tell a
 calibrated model from a broken one; raise `reps` only to pin a borderline
 value. Every model is fitted to the same datasets, so comparisons between
 models are paired.
+
+The column `prop_divergent` is the share of fits with at least one divergent
+transition. In this run most fits had a few divergences (median 1 of 4000
+draws), so check `max_rhat` and `divergences` in the returned tibble before
+trusting a cell whose fits had many.
 
 ## How much to verify
 
@@ -69,6 +91,14 @@ fp_verification_curve(
   models = list(constant = ~ 1, fp_on_x = ~ x),
   reps = 50, parallel = TRUE
 )
+```
+
+```{r results-verification, echo = FALSE}
+summary(results$verification)
+```
+
+```{r plot-verification, echo = FALSE, fig.cap = "Coverage of the 95% interval of the occupancy slope against the fraction of sites verified, under structured confusion (effect 1.5, correlation 0.7)."}
+plot(results$verification)
 ```
 
 ## What to expect

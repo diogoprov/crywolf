@@ -2,7 +2,7 @@ url: https://provetelab.org/crywolf/
 
 template:
   bootstrap: 5
-  math-rendering: mathjax
+  math-rendering: katex
   bslib:
     primary: "#241042"
 

@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -515,8 +515,11 @@ chains of 1000 warm-up and 1000 sampling iterations by default
 (<code>chains</code>, <code>iter_warmup</code>,
 <code>iter_sampling</code>), with a target acceptance rate
 <code>adapt_delta = 0.95</code>; other arguments are passed to the
-<code>$sample()</code> method of ‘cmdstanr’. The model is compiled the
-first time it is used and cached for later sessions.</p>
+<code>$sample()</code> method of ‘cmdstanr’. With many sites or
+occasions, <code>threads_per_chain</code> lets each chain use several
+cores (see <code><a href="../articles/stan_model.html">vignette("stan_model", package = "crywolf")</a></code>).
+The model is compiled the first time it is used and cached for later
+sessions.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>                   random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -529,18 +532,18 @@ first time it is used and cached for later sessions.</p>
 <span><span class="co">#&gt;   data:            300 sites, 6000 automated and 255 verified occasions</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;              variable    mean      sd   lower    upper rhat ess_bulk ess_tail</span></span>
-<span><span class="co">#&gt;       occ_(Intercept)  0.4498 0.12468  0.2116  0.69666    1     4426     2919</span></span>
-<span><span class="co">#&gt;                 occ_x -0.2553 0.12958 -0.5145 -0.00286    1     4307     2970</span></span>
-<span><span class="co">#&gt;       det_(Intercept)  0.3506 0.03735  0.2783  0.42288    1     4655     3015</span></span>
-<span><span class="co">#&gt;  verified_(Intercept) -0.0379 0.17200 -0.3740  0.28997    1     4521     3034</span></span>
-<span><span class="co">#&gt;            p_verified  0.4906 0.04269  0.4076  0.57199    1     4521     3034</span></span>
-<span><span class="co">#&gt;               p11_ref  0.5867 0.00905  0.5691  0.60417    1     4655     3015</span></span>
-<span><span class="co">#&gt;        fp_(Intercept) -2.3967 0.09269 -2.5853 -2.22202    1     5456     3203</span></span>
-<span><span class="co">#&gt;                fp_gap  2.7473 0.09158  2.5763  2.93488    1     4991     3308</span></span>
-<span><span class="co">#&gt;               p10_ref  0.0837 0.00707  0.0701  0.09779    1     5456     3203</span></span>
-<span><span class="co">#&gt;               p10_bar  0.0837 0.00707  0.0701  0.09779    1     5456     3203</span></span>
+<span><span class="co">#&gt;       occ_(Intercept)  0.4490 0.12174  0.2078  0.69354    1     3804     2861</span></span>
+<span><span class="co">#&gt;                 occ_x -0.2575 0.12911 -0.5136 -0.00854    1     4573     2802</span></span>
+<span><span class="co">#&gt;       det_(Intercept)  0.3511 0.03710  0.2787  0.42441    1     4039     3111</span></span>
+<span><span class="co">#&gt;  verified_(Intercept) -0.0425 0.17185 -0.3836  0.29152    1     4911     2969</span></span>
+<span><span class="co">#&gt;            p_verified  0.4895 0.04264  0.4053  0.57237    1     4911     2969</span></span>
+<span><span class="co">#&gt;               p11_ref  0.5869 0.00899  0.5692  0.60454    1     4039     3111</span></span>
+<span><span class="co">#&gt;        fp_(Intercept) -2.3942 0.09343 -2.5846 -2.21561    1     4404     3098</span></span>
+<span><span class="co">#&gt;                fp_gap  2.7454 0.09150  2.5701  2.93004    1     4434     3083</span></span>
+<span><span class="co">#&gt;               p10_ref  0.0839 0.00715  0.0701  0.09836    1     4404     3098</span></span>
+<span><span class="co">#&gt;               p10_bar  0.0839 0.00715  0.0701  0.09836    1     4404     3098</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 4307/2919</span></span></code></pre></div>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 3804/2802</span></span></code></pre></div>
 <p>The printed table gives, for each parameter, the posterior mean,
 standard deviation, the limits of the 95% equal-tailed credible
 interval, and the convergence diagnostics discussed in the next section.
@@ -568,26 +571,26 @@ sampler diagnostics in the last line of the output: the number of
 divergent transitions, the largest <span class="math inline">\hat{R}</span>, and the smallest effective sample
 sizes. It warns when there are divergent transitions, when <span class="math inline">\hat{R} &gt; 1.01</span>, or when the bulk ESS is
 below 400. In this fit there were 0 divergent transitions, the largest
-<span class="math inline">\hat{R}</span> was 1.003, and the smallest
-bulk ESS was 4307, so the chains mixed well. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+<span class="math inline">\hat{R}</span> was 1.001, and the smallest
+bulk ESS was 3804, so the chains mixed well. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 returns the same table, with an adjustable interval width:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m_const</span>, prob <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Posterior summary (90% equal-tailed intervals)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;              variable    mean      sd   lower   upper rhat ess_bulk ess_tail</span></span>
-<span><span class="co">#&gt;       occ_(Intercept)  0.4498 0.12468  0.2450  0.6605    1     4426     2919</span></span>
-<span><span class="co">#&gt;                 occ_x -0.2553 0.12958 -0.4664 -0.0458    1     4307     2970</span></span>
-<span><span class="co">#&gt;       det_(Intercept)  0.3506 0.03735  0.2901  0.4116    1     4655     3015</span></span>
-<span><span class="co">#&gt;  verified_(Intercept) -0.0379 0.17200 -0.3213  0.2481    1     4521     3034</span></span>
-<span><span class="co">#&gt;            p_verified  0.4906 0.04269  0.4204  0.5617    1     4521     3034</span></span>
-<span><span class="co">#&gt;               p11_ref  0.5867 0.00905  0.5720  0.6015    1     4655     3015</span></span>
-<span><span class="co">#&gt;        fp_(Intercept) -2.3967 0.09269 -2.5528 -2.2481    1     5456     3203</span></span>
-<span><span class="co">#&gt;                fp_gap  2.7473 0.09158  2.6012  2.9033    1     4991     3308</span></span>
-<span><span class="co">#&gt;               p10_ref  0.0837 0.00707  0.0722  0.0955    1     5456     3203</span></span>
-<span><span class="co">#&gt;               p10_bar  0.0837 0.00707  0.0722  0.0955    1     5456     3203</span></span>
+<span><span class="co">#&gt;       occ_(Intercept)  0.4490 0.12174  0.2510  0.6518    1     3804     2861</span></span>
+<span><span class="co">#&gt;                 occ_x -0.2575 0.12911 -0.4760 -0.0488    1     4573     2802</span></span>
+<span><span class="co">#&gt;       det_(Intercept)  0.3511 0.03710  0.2917  0.4112    1     4039     3111</span></span>
+<span><span class="co">#&gt;  verified_(Intercept) -0.0425 0.17185 -0.3303  0.2375    1     4911     2969</span></span>
+<span><span class="co">#&gt;            p_verified  0.4895 0.04264  0.4182  0.5591    1     4911     2969</span></span>
+<span><span class="co">#&gt;               p11_ref  0.5869 0.00899  0.5724  0.6014    1     4039     3111</span></span>
+<span><span class="co">#&gt;        fp_(Intercept) -2.3942 0.09343 -2.5519 -2.2408    1     4404     3098</span></span>
+<span><span class="co">#&gt;                fp_gap  2.7454 0.09150  2.5964  2.8973    1     4434     3083</span></span>
+<span><span class="co">#&gt;               p10_ref  0.0839 0.00715  0.0723  0.0961    1     4404     3098</span></span>
+<span><span class="co">#&gt;               p10_bar  0.0839 0.00715  0.0723  0.0961    1     4404     3098</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 4307/2919</span></span></code></pre></div>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 3804/2802</span></span></code></pre></div>
 <p>Trace plots show whether the chains explored the same region of the
 posterior. <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code> returns the draws with readable
 names, which ‘bayesplot’ can plot directly:</p>
@@ -621,7 +624,7 @@ or 1 indicate lack of fit.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   statistic:          freeman-tukey</span></span>
 <span><span class="co">#&gt;   draws, sites:       1000, 300</span></span>
-<span><span class="co">#&gt;   mean discrepancy:   observed 115, replicated 67</span></span>
+<span><span class="co">#&gt;   mean discrepancy:   observed 116, replicated 67</span></span>
 <span><span class="co">#&gt;   Bayesian p-value:   0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   The p-value is far from 0.5: the model may not fit these data.</span></span></code></pre></div>
@@ -658,7 +661,7 @@ The constant-rate model estimates it at -0.26:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_const</span>, <span class="st">"occ"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; occ_(Intercept)           occ_x </span></span>
-<span><span class="co">#&gt;       0.4497632      -0.2553304</span></span></code></pre></div>
+<span><span class="co">#&gt;       0.4490307      -0.2574936</span></span></code></pre></div>
 <p>False positives in these data increase along <code>w</code>, which is
 correlated with <code>x</code>. A model that assumes a constant
 false-positive rate cannot attribute the extra detections at sites with
@@ -681,7 +684,7 @@ occupancy covariate, which is always available:</p>
 <span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_x</span>, <span class="st">"fp"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; fp_(Intercept)           fp_x </span></span>
-<span><span class="co">#&gt;      -2.651316       1.006295</span></span></code></pre></div>
+<span><span class="co">#&gt;      -2.656303       1.010679</span></span></code></pre></div>
 <p>The coefficient <code>fp_x</code> captures the part of the confusion
 that is correlated with <code>x</code>. In the simulation study, this
 model reduced the bias of the occupancy slope by 34 to 62% when the
@@ -706,19 +709,19 @@ positive control:</p>
 <span><span class="co">#&gt; Posterior summary (95% equal-tailed intervals)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;              variable    mean      sd    lower   upper rhat ess_bulk ess_tail</span></span>
-<span><span class="co">#&gt;       occ_(Intercept)  0.1070 0.12816 -0.14845  0.3582    1     4902     2716</span></span>
-<span><span class="co">#&gt;                 occ_x -0.7834 0.14643 -1.06963 -0.5012    1     4428     2897</span></span>
-<span><span class="co">#&gt;       det_(Intercept)  0.4323 0.03794  0.35785  0.5080    1     4759     2744</span></span>
-<span><span class="co">#&gt;  verified_(Intercept)  0.3571 0.17975  0.00826  0.7079    1     5243     3156</span></span>
-<span><span class="co">#&gt;            p_verified  0.5877 0.04326  0.50207  0.6699    1     5243     3156</span></span>
-<span><span class="co">#&gt;               p11_ref  0.6064 0.00905  0.58852  0.6243    1     4759     2744</span></span>
-<span><span class="co">#&gt;        fp_(Intercept) -2.9041 0.10097 -3.10811 -2.7116    1     3614     3034</span></span>
-<span><span class="co">#&gt;                  fp_w  1.4724 0.07767  1.32306  1.6257    1     3760     3075</span></span>
-<span><span class="co">#&gt;                fp_gap  3.3364 0.10796  3.12574  3.5459    1     3410     2793</span></span>
-<span><span class="co">#&gt;               p10_ref  0.0522 0.00499  0.04277  0.0623    1     3614     3034</span></span>
-<span><span class="co">#&gt;               p10_bar  0.1072 0.00466  0.09826  0.1164    1     4598     3225</span></span>
+<span><span class="co">#&gt;       occ_(Intercept)  0.1077 0.12397 -0.13277  0.3485    1     5453     2996</span></span>
+<span><span class="co">#&gt;                 occ_x -0.7825 0.14688 -1.08259 -0.5007    1     4412     2968</span></span>
+<span><span class="co">#&gt;       det_(Intercept)  0.4332 0.03736  0.36147  0.5092    1     5045     2995</span></span>
+<span><span class="co">#&gt;  verified_(Intercept)  0.3548 0.18982 -0.00476  0.7218    1     5385     2945</span></span>
+<span><span class="co">#&gt;            p_verified  0.5870 0.04566  0.49881  0.6730    1     5385     2945</span></span>
+<span><span class="co">#&gt;               p11_ref  0.6066 0.00891  0.58940  0.6246    1     5045     2995</span></span>
+<span><span class="co">#&gt;        fp_(Intercept) -2.9022 0.09837 -3.10058 -2.7132    1     3722     3373</span></span>
+<span><span class="co">#&gt;                  fp_w  1.4716 0.07567  1.32664  1.6230    1     3545     3002</span></span>
+<span><span class="co">#&gt;                fp_gap  3.3354 0.10464  3.13681  3.5428    1     3472     3007</span></span>
+<span><span class="co">#&gt;               p10_ref  0.0523 0.00486  0.04308  0.0622    1     3722     3373</span></span>
+<span><span class="co">#&gt;               p10_bar  0.1073 0.00462  0.09836  0.1167    1     4904     3049</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 3410/2716</span></span></code></pre></div>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 3472/2945</span></span></code></pre></div>
 <p>The estimated effect of <code>w</code> on the false-positive rate is
 1.47 (true value 1.5). Measured covariates are rarely the confusing
 gradient itself. In the simulation study, a proxy of the gradient
@@ -760,7 +763,7 @@ picture:</p>
 <span>     `fp = ~ w` <span class="op">=</span> <span class="fu"><a href="../reference/fp_ppc.html">fp_ppc</a></span><span class="op">(</span><span class="va">m_w</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl</a></span><span class="op">(</span><span class="st">"p_value"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; fp = ~ 1 fp = ~ x fp = ~ w </span></span>
-<span><span class="co">#&gt;    0.000    0.000    0.824</span></span></code></pre></div>
+<span><span class="co">#&gt;    0.000    0.000    0.831</span></span></code></pre></div>
 <p>Only the model with the confusing gradient has a p-value far from 0.
 A posterior predictive check is a useful warning, but a p-value near 0.5
 does not show that the false-positive process is correctly specified:
@@ -784,9 +787,9 @@ and on the gap, and compare the main parameters:</p>
 <span>           default <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_w</span><span class="op">)</span><span class="op">[</span><span class="va">pars</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>           narrow  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_w_narrow</span><span class="op">)</span><span class="op">[</span><span class="va">pars</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, row.names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   parameter default narrow</span></span>
-<span><span class="co">#&gt; 1     occ_x  -0.783 -0.773</span></span>
+<span><span class="co">#&gt; 1     occ_x  -0.783 -0.770</span></span>
 <span><span class="co">#&gt; 2      fp_w   1.472  1.459</span></span>
-<span><span class="co">#&gt; 3    fp_gap   3.336  3.317</span></span></code></pre></div>
+<span><span class="co">#&gt; 3    fp_gap   3.335  3.317</span></span></code></pre></div>
 <p>With 300 sites, the data dominate the priors and the estimates barely
 change. With smaller data sets, the priors, particularly the one on
 <span class="math inline">\Delta</span>, matter more, and this
@@ -809,8 +812,8 @@ models by their expected log predictive density (elpd):</p>
 <span>                      `fp = ~ w` <span class="op">=</span> <span class="va">loo_w</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     model elpd_diff se_diff p_worse diag_diff diag_elpd</span></span>
 <span><span class="co">#&gt;  fp = ~ w       0.0     0.0      NA                    </span></span>
-<span><span class="co">#&gt;  fp = ~ x     -89.5    15.9    1.00                    </span></span>
-<span><span class="co">#&gt;  fp = ~ 1    -135.9    18.2    1.00</span></span></code></pre></div>
+<span><span class="co">#&gt;  fp = ~ x     -89.8    15.9    1.00                    </span></span>
+<span><span class="co">#&gt;  fp = ~ 1    -136.0    18.2    1.00</span></span></code></pre></div>
 <p>The first row is the best model; <code>elpd_diff</code> is the
 difference in elpd from it, with its standard error
 <code>se_diff</code>. Here the model with the confusing gradient
@@ -824,9 +827,9 @@ sites.</p>
 <span><span class="co">#&gt; Computed from 4000 by 300 log-likelihood matrix.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate    SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3309.9  85.1</span></span>
+<span><span class="co">#&gt; elpd_loo  -3309.8  85.1</span></span>
 <span><span class="co">#&gt; p_loo         5.6   0.4</span></span>
-<span><span class="co">#&gt; looic      6619.8 170.2</span></span>
+<span><span class="co">#&gt; looic      6619.7 170.2</span></span>
 <span><span class="co">#&gt; ------</span></span>
 <span><span class="co">#&gt; MCSE of elpd_loo is 0.0.</span></span>
 <span><span class="co">#&gt; MCSE and ESS estimates assume independent draws (r_eff=1).</span></span>
@@ -850,18 +853,18 @@ matrix of posterior draws instead, with one row per draw.</p>
 <code class="sourceCode R"><span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m_x</span>, newdata <span class="op">=</span> <span class="va">nd</span>, process <span class="op">=</span> <span class="st">"occ"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    x  estimate     lower     upper</span></span>
-<span><span class="co">#&gt; 1 -2 0.7994252 0.6964307 0.8827909</span></span>
-<span><span class="co">#&gt; 2 -1 0.6992305 0.6237379 0.7708294</span></span>
-<span><span class="co">#&gt; 3  0 0.5719128 0.5110966 0.6314804</span></span>
-<span><span class="co">#&gt; 4  1 0.4338290 0.3438219 0.5285994</span></span>
-<span><span class="co">#&gt; 5  2 0.3080601 0.1877566 0.4461158</span></span>
+<span><span class="co">#&gt; 1 -2 0.8007148 0.6936194 0.8863740</span></span>
+<span><span class="co">#&gt; 2 -1 0.7006876 0.6213420 0.7755722</span></span>
+<span><span class="co">#&gt; 3  0 0.5730807 0.5118715 0.6309239</span></span>
+<span><span class="co">#&gt; 4  1 0.4343703 0.3411549 0.5272494</span></span>
+<span><span class="co">#&gt; 5  2 0.3080732 0.1860316 0.4478089</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m_x</span>, newdata <span class="op">=</span> <span class="va">nd</span>, process <span class="op">=</span> <span class="st">"fp"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    x    estimate       lower      upper</span></span>
-<span><span class="co">#&gt; 1 -2 0.009661468 0.005558678 0.01561041</span></span>
-<span><span class="co">#&gt; 2 -1 0.025501627 0.017722220 0.03492059</span></span>
-<span><span class="co">#&gt; 3  0 0.066168481 0.054623116 0.07795714</span></span>
-<span><span class="co">#&gt; 4  1 0.162114250 0.139852866 0.18448956</span></span>
-<span><span class="co">#&gt; 5  2 0.346338560 0.278565834 0.41050497</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 -2 0.009539925 0.005490955 0.01538964</span></span>
+<span><span class="co">#&gt; 2 -1 0.025280477 0.017684257 0.03471712</span></span>
+<span><span class="co">#&gt; 3  0 0.065871816 0.054122079 0.07819775</span></span>
+<span><span class="co">#&gt; 4  1 0.162054380 0.139157832 0.18558329</span></span>
+<span><span class="co">#&gt; 5  2 0.347229508 0.278738876 0.41289238</span></span></code></pre></div>
 <p>Predicting over a grid of the occupancy covariate shows how the bias
 of the slope translates into the occupancy probability:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -1017,16 +1020,16 @@ occasions alone identify the false-positive rate, so
 <span><span class="co">#&gt;   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         variable    mean      sd   lower  upper rhat ess_bulk ess_tail</span></span>
-<span><span class="co">#&gt;  occ_(Intercept) -0.0370 0.15156 -0.3337  0.265    1     4207     2629</span></span>
-<span><span class="co">#&gt;            occ_x -0.7198 0.17092 -1.0665 -0.401    1     3851     2346</span></span>
-<span><span class="co">#&gt;  det_(Intercept)  0.3744 0.06927  0.2425  0.512    1     2890     2855</span></span>
-<span><span class="co">#&gt;          p11_ref  0.6307 0.01511  0.6016  0.660    1     3292     2876</span></span>
-<span><span class="co">#&gt;   fp_(Intercept) -2.2700 0.09320 -2.4530 -2.093    1     4518     3491</span></span>
-<span><span class="co">#&gt;           fp_gap  2.6445 0.12242  2.4119  2.890    1     2864     2551</span></span>
-<span><span class="co">#&gt;          p10_ref  0.0939 0.00792  0.0792  0.110    1     4518     3491</span></span>
-<span><span class="co">#&gt;          p10_bar  0.0939 0.00792  0.0792  0.110    1     4518     3491</span></span>
+<span><span class="co">#&gt;  occ_(Intercept) -0.0367 0.14962 -0.3375  0.252    1     4144     3185</span></span>
+<span><span class="co">#&gt;            occ_x -0.7187 0.16417 -1.0511 -0.418    1     3584     2734</span></span>
+<span><span class="co">#&gt;  det_(Intercept)  0.3734 0.06893  0.2391  0.510    1     3151     2597</span></span>
+<span><span class="co">#&gt;          p11_ref  0.6306 0.01503  0.6006  0.660    1     3697     2670</span></span>
+<span><span class="co">#&gt;   fp_(Intercept) -2.2678 0.09272 -2.4549 -2.087    1     4444     3398</span></span>
+<span><span class="co">#&gt;           fp_gap  2.6412 0.12184  2.4082  2.877    1     2867     2782</span></span>
+<span><span class="co">#&gt;          p10_ref  0.0941 0.00789  0.0791  0.110    1     4444     3398</span></span>
+<span><span class="co">#&gt;          p10_bar  0.0941 0.00789  0.0791  0.110    1     4444     3398</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.002, min bulk/tail ESS 2864/2346</span></span></code></pre></div>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 2867/2597</span></span></code></pre></div>
 <p>The occupancy slope (true value <span class="math inline">-0.8</span>), the probability of a false observation
 <code>p10_ref</code> (true value 0.1), and the detection intercept, now
 the logit of <span class="math inline">s_1</span> (true value 0.6, so

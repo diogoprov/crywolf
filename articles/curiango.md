@@ -76,7 +76,11 @@ false-positive process: a standard occupancy model that takes every
 automated detection at face value (`fp = NULL`), a constant
 false-positive rate (`fp = ~ 1`), and a rate that depends on the same
 three covariates as occupancy (`fp = ~ temp + rh + moon`). The code is
-shown but not run; the six fits took about an hour each.
+shown but not run; the six fits took about an hour each with crywolf
+1.0.0, one core per chain. Later versions can split each chain among
+cores: with `threads_per_chain = 4`, the constant-rate fit of the custom
+classifier took 16.5 minutes on an 18-core laptop, with the same
+posterior.
 
 ``` r
 

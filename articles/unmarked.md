@@ -114,25 +114,25 @@ method covariate is needed:
 
 d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
 m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
-#> Running MCMC with 4 parallel chains...
+#> Running MCMC with 4 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 4.2 seconds.
-#> Chain 4 finished in 4.6 seconds.
-#> Chain 2 finished in 4.7 seconds.
-#> Chain 3 finished in 4.9 seconds.
+#> Chain 4 finished in 20.0 seconds.
+#> Chain 2 finished in 21.3 seconds.
+#> Chain 3 finished in 21.8 seconds.
+#> Chain 1 finished in 22.5 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 4.6 seconds.
-#> Total execution time: 5.0 seconds.
+#> Mean chain execution time: 21.4 seconds.
+#> Total execution time: 22.6 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
-#>            0.1577335           -0.7722234            0.4273138 
+#>           0.15522435          -0.77425011           0.42786246 
 #> verified_(Intercept)           p_verified              p11_ref 
-#>            0.6583782            0.6578890            0.6051650 
+#>           0.65954571           0.65820716           0.60529522 
 #>       fp_(Intercept)               fp_gap              p10_ref 
-#>           -2.9844018            3.4117156            0.0484965 
+#>          -2.98644676           3.41430922           0.04837542 
 #>              p10_bar 
-#>            0.0484965
+#>           0.04837542
 ```
 
 Both fits recover the generating values (occupancy intercept 0, slope
@@ -146,7 +146,7 @@ estimates and the posterior means nearly coincide:
 | occupancy slope                   | -0.80 |    -0.77 |   -0.77 |
 | true detection, automated (logit) |  0.41 |     0.43 |    0.43 |
 | true detection, verified (logit)  |  0.41 |     0.66 |    0.66 |
-| false positive (logit)            | -2.94 |    -2.99 |   -2.98 |
+| false positive (logit)            | -2.94 |    -2.99 |   -2.99 |
 
 Maximum-likelihood estimates from occuFP() and posterior means from
 fp_occu(), logit scale. {.table}
@@ -221,9 +221,9 @@ predict(m_um, type = "state", newdata = nd)
 #> 3 0.3519150 0.04165223 0.2751642 0.4371623
 predict(m_cw, newdata = nd, process = "occ")
 #>    x  estimate     lower     upper
-#> 1 -1 0.7154213 0.6369037 0.7891078
-#> 2  0 0.5391985 0.4780114 0.6013398
-#> 3  1 0.3521221 0.2725364 0.4366321
+#> 1 -1 0.7153759 0.6353726 0.7862628
+#> 2  0 0.5385834 0.4784579 0.5982293
+#> 3  1 0.3510890 0.2735747 0.4330131
 ```
 
 ## References

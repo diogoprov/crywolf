@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -148,7 +148,11 @@ automated detection at face value (<code>fp = NULL</code>), a constant
 false-positive rate (<code>fp = ~ 1</code>), and a rate that depends on
 the same three covariates as occupancy
 (<code>fp = ~ temp + rh + moon</code>). The code is shown but not run;
-the six fits took about an hour each.</p>
+the six fits took about an hour each with crywolf 1.0.0, one core per
+chain. Later versions can split each chain among cores: with
+<code>threads_per_chain = 4</code>, the constant-rate fit of the custom
+classifier took 16.5 minutes on an 18-core laptop, with the same
+posterior.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fp_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>standard <span class="op">=</span> <span class="cn">NULL</span>, constant <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>                  covariates <span class="op">=</span> <span class="op">~</span> <span class="va">temp</span> <span class="op">+</span> <span class="va">rh</span> <span class="op">+</span> <span class="va">moon</span><span class="op">)</span></span>

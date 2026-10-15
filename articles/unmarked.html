@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -211,25 +211,25 @@ no method covariate is needed:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_data_wide.html">fp_data_wide</a></span><span class="op">(</span><span class="va">y_auto</span>, <span class="va">y_ver</span>, site_covs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">m_cw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Running MCMC with 4 parallel chains...</span></span>
+<span><span class="co">#&gt; Running MCMC with 4 parallel chains, with 1 thread(s) per chain...</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 1 finished in 4.2 seconds.</span></span>
-<span><span class="co">#&gt; Chain 4 finished in 4.6 seconds.</span></span>
-<span><span class="co">#&gt; Chain 2 finished in 4.7 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 4.9 seconds.</span></span>
+<span><span class="co">#&gt; Chain 4 finished in 20.0 seconds.</span></span>
+<span><span class="co">#&gt; Chain 2 finished in 21.3 seconds.</span></span>
+<span><span class="co">#&gt; Chain 3 finished in 21.8 seconds.</span></span>
+<span><span class="co">#&gt; Chain 1 finished in 22.5 seconds.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 4.6 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 5.0 seconds.</span></span>
+<span><span class="co">#&gt; Mean chain execution time: 21.4 seconds.</span></span>
+<span><span class="co">#&gt; Total execution time: 22.6 seconds.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_cw</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      occ_(Intercept)                occ_x      det_(Intercept) </span></span>
-<span><span class="co">#&gt;            0.1577335           -0.7722234            0.4273138 </span></span>
+<span><span class="co">#&gt;           0.15522435          -0.77425011           0.42786246 </span></span>
 <span><span class="co">#&gt; verified_(Intercept)           p_verified              p11_ref </span></span>
-<span><span class="co">#&gt;            0.6583782            0.6578890            0.6051650 </span></span>
+<span><span class="co">#&gt;           0.65954571           0.65820716           0.60529522 </span></span>
 <span><span class="co">#&gt;       fp_(Intercept)               fp_gap              p10_ref </span></span>
-<span><span class="co">#&gt;           -2.9844018            3.4117156            0.0484965 </span></span>
+<span><span class="co">#&gt;          -2.98644676           3.41430922           0.04837542 </span></span>
 <span><span class="co">#&gt;              p10_bar </span></span>
-<span><span class="co">#&gt;            0.0484965</span></span></code></pre></div>
+<span><span class="co">#&gt;           0.04837542</span></span></code></pre></div>
 <p>Both fits recover the generating values (occupancy intercept 0, slope
 −0.8, true detection logit(0.6) = 0.41 for both methods, false positives
 logit(0.05) = −2.94), and with this much data the maximum-likelihood
@@ -272,7 +272,7 @@ from fp_occu(), logit scale.</caption>
 <td align="left">false positive (logit)</td>
 <td align="right">-2.94</td>
 <td align="right">-2.99</td>
-<td align="right">-2.98</td>
+<td align="right">-2.99</td>
 </tr>
 </tbody>
 </table>
@@ -386,9 +386,9 @@ models.</p>
 <span><span class="co">#&gt; 3 0.3519150 0.04165223 0.2751642 0.4371623</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m_cw</span>, newdata <span class="op">=</span> <span class="va">nd</span>, process <span class="op">=</span> <span class="st">"occ"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    x  estimate     lower     upper</span></span>
-<span><span class="co">#&gt; 1 -1 0.7154213 0.6369037 0.7891078</span></span>
-<span><span class="co">#&gt; 2  0 0.5391985 0.4780114 0.6013398</span></span>
-<span><span class="co">#&gt; 3  1 0.3521221 0.2725364 0.4366321</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 -1 0.7153759 0.6353726 0.7862628</span></span>
+<span><span class="co">#&gt; 2  0 0.5385834 0.4784579 0.5982293</span></span>
+<span><span class="co">#&gt; 3  1 0.3510890 0.2735747 0.4330131</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

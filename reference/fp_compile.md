@@ -29,6 +29,13 @@ fp_compile(force = FALSE, quiet = TRUE)
 
 A `CmdStanModel` object (invisibly).
 
+## Details
+
+The model is compiled with threading enabled (`stan_threads`), so that
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) can
+split the likelihood of each chain among several threads (argument
+`threads_per_chain`).
+
 ## Examples
 
 ``` r

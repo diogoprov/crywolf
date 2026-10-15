@@ -388,8 +388,11 @@ simulation, so we turn it off. The sampler runs four chains of 1000
 warm-up and 1000 sampling iterations by default (`chains`,
 `iter_warmup`, `iter_sampling`), with a target acceptance rate
 `adapt_delta = 0.95`; other arguments are passed to the `$sample()`
-method of ‘cmdstanr’. The model is compiled the first time it is used
-and cached for later sessions.
+method of ‘cmdstanr’. With many sites or occasions, `threads_per_chain`
+lets each chain use several cores (see
+[`vignette("stan_model", package = "crywolf")`](https://provetelab.org/crywolf/articles/stan_model.md)).
+The model is compiled the first time it is used and cached for later
+sessions.
 
 ``` r
 
@@ -404,18 +407,18 @@ m_const
 #>   data:            300 sites, 6000 automated and 255 verified occasions
 #> 
 #>              variable    mean      sd   lower    upper rhat ess_bulk ess_tail
-#>       occ_(Intercept)  0.4498 0.12468  0.2116  0.69666    1     4426     2919
-#>                 occ_x -0.2553 0.12958 -0.5145 -0.00286    1     4307     2970
-#>       det_(Intercept)  0.3506 0.03735  0.2783  0.42288    1     4655     3015
-#>  verified_(Intercept) -0.0379 0.17200 -0.3740  0.28997    1     4521     3034
-#>            p_verified  0.4906 0.04269  0.4076  0.57199    1     4521     3034
-#>               p11_ref  0.5867 0.00905  0.5691  0.60417    1     4655     3015
-#>        fp_(Intercept) -2.3967 0.09269 -2.5853 -2.22202    1     5456     3203
-#>                fp_gap  2.7473 0.09158  2.5763  2.93488    1     4991     3308
-#>               p10_ref  0.0837 0.00707  0.0701  0.09779    1     5456     3203
-#>               p10_bar  0.0837 0.00707  0.0701  0.09779    1     5456     3203
+#>       occ_(Intercept)  0.4490 0.12174  0.2078  0.69354    1     3804     2861
+#>                 occ_x -0.2575 0.12911 -0.5136 -0.00854    1     4573     2802
+#>       det_(Intercept)  0.3511 0.03710  0.2787  0.42441    1     4039     3111
+#>  verified_(Intercept) -0.0425 0.17185 -0.3836  0.29152    1     4911     2969
+#>            p_verified  0.4895 0.04264  0.4053  0.57237    1     4911     2969
+#>               p11_ref  0.5869 0.00899  0.5692  0.60454    1     4039     3111
+#>        fp_(Intercept) -2.3942 0.09343 -2.5846 -2.21561    1     4404     3098
+#>                fp_gap  2.7454 0.09150  2.5701  2.93004    1     4434     3083
+#>               p10_ref  0.0839 0.00715  0.0701  0.09836    1     4404     3098
+#>               p10_bar  0.0839 0.00715  0.0701  0.09836    1     4404     3098
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 4307/2919
+#>   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 3804/2802
 ```
 
 The printed table gives, for each parameter, the posterior mean,
@@ -442,8 +445,8 @@ summarizes the sampler diagnostics in the last line of the output: the
 number of divergent transitions, the largest \hat{R}, and the smallest
 effective sample sizes. It warns when there are divergent transitions,
 when \hat{R} \> 1.01, or when the bulk ESS is below 400. In this fit
-there were 0 divergent transitions, the largest \hat{R} was 1.003, and
-the smallest bulk ESS was 4307, so the chains mixed well.
+there were 0 divergent transitions, the largest \hat{R} was 1.001, and
+the smallest bulk ESS was 3804, so the chains mixed well.
 [`summary()`](https://rdrr.io/r/base/summary.html) returns the same
 table, with an adjustable interval width:
 
@@ -453,18 +456,18 @@ summary(m_const, prob = 0.9)
 #> Posterior summary (90% equal-tailed intervals)
 #> 
 #>              variable    mean      sd   lower   upper rhat ess_bulk ess_tail
-#>       occ_(Intercept)  0.4498 0.12468  0.2450  0.6605    1     4426     2919
-#>                 occ_x -0.2553 0.12958 -0.4664 -0.0458    1     4307     2970
-#>       det_(Intercept)  0.3506 0.03735  0.2901  0.4116    1     4655     3015
-#>  verified_(Intercept) -0.0379 0.17200 -0.3213  0.2481    1     4521     3034
-#>            p_verified  0.4906 0.04269  0.4204  0.5617    1     4521     3034
-#>               p11_ref  0.5867 0.00905  0.5720  0.6015    1     4655     3015
-#>        fp_(Intercept) -2.3967 0.09269 -2.5528 -2.2481    1     5456     3203
-#>                fp_gap  2.7473 0.09158  2.6012  2.9033    1     4991     3308
-#>               p10_ref  0.0837 0.00707  0.0722  0.0955    1     5456     3203
-#>               p10_bar  0.0837 0.00707  0.0722  0.0955    1     5456     3203
+#>       occ_(Intercept)  0.4490 0.12174  0.2510  0.6518    1     3804     2861
+#>                 occ_x -0.2575 0.12911 -0.4760 -0.0488    1     4573     2802
+#>       det_(Intercept)  0.3511 0.03710  0.2917  0.4112    1     4039     3111
+#>  verified_(Intercept) -0.0425 0.17185 -0.3303  0.2375    1     4911     2969
+#>            p_verified  0.4895 0.04264  0.4182  0.5591    1     4911     2969
+#>               p11_ref  0.5869 0.00899  0.5724  0.6014    1     4039     3111
+#>        fp_(Intercept) -2.3942 0.09343 -2.5519 -2.2408    1     4404     3098
+#>                fp_gap  2.7454 0.09150  2.5964  2.8973    1     4434     3083
+#>               p10_ref  0.0839 0.00715  0.0723  0.0961    1     4404     3098
+#>               p10_bar  0.0839 0.00715  0.0723  0.0961    1     4404     3098
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 4307/2919
+#>   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 3804/2802
 ```
 
 Trace plots show whether the chains explored the same region of the
@@ -508,7 +511,7 @@ ppc_const
 #> 
 #>   statistic:          freeman-tukey
 #>   draws, sites:       1000, 300
-#>   mean discrepancy:   observed 115, replicated 67
+#>   mean discrepancy:   observed 116, replicated 67
 #>   Bayesian p-value:   0
 #> 
 #>   The p-value is far from 0.5: the model may not fit these data.
@@ -551,7 +554,7 @@ at -0.26:
 
 coef(m_const, "occ")
 #> occ_(Intercept)           occ_x 
-#>       0.4497632      -0.2553304
+#>       0.4490307      -0.2574936
 ```
 
 False positives in these data increase along `w`, which is correlated
@@ -577,7 +580,7 @@ m_x <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ x,
                random_recorder = FALSE, seed = 1)
 coef(m_x, "fp")
 #> fp_(Intercept)           fp_x 
-#>      -2.651316       1.006295
+#>      -2.656303       1.010679
 ```
 
 The coefficient `fp_x` captures the part of the confusion that is
@@ -604,19 +607,19 @@ summary(m_w)
 #> Posterior summary (95% equal-tailed intervals)
 #> 
 #>              variable    mean      sd    lower   upper rhat ess_bulk ess_tail
-#>       occ_(Intercept)  0.1070 0.12816 -0.14845  0.3582    1     4902     2716
-#>                 occ_x -0.7834 0.14643 -1.06963 -0.5012    1     4428     2897
-#>       det_(Intercept)  0.4323 0.03794  0.35785  0.5080    1     4759     2744
-#>  verified_(Intercept)  0.3571 0.17975  0.00826  0.7079    1     5243     3156
-#>            p_verified  0.5877 0.04326  0.50207  0.6699    1     5243     3156
-#>               p11_ref  0.6064 0.00905  0.58852  0.6243    1     4759     2744
-#>        fp_(Intercept) -2.9041 0.10097 -3.10811 -2.7116    1     3614     3034
-#>                  fp_w  1.4724 0.07767  1.32306  1.6257    1     3760     3075
-#>                fp_gap  3.3364 0.10796  3.12574  3.5459    1     3410     2793
-#>               p10_ref  0.0522 0.00499  0.04277  0.0623    1     3614     3034
-#>               p10_bar  0.1072 0.00466  0.09826  0.1164    1     4598     3225
+#>       occ_(Intercept)  0.1077 0.12397 -0.13277  0.3485    1     5453     2996
+#>                 occ_x -0.7825 0.14688 -1.08259 -0.5007    1     4412     2968
+#>       det_(Intercept)  0.4332 0.03736  0.36147  0.5092    1     5045     2995
+#>  verified_(Intercept)  0.3548 0.18982 -0.00476  0.7218    1     5385     2945
+#>            p_verified  0.5870 0.04566  0.49881  0.6730    1     5385     2945
+#>               p11_ref  0.6066 0.00891  0.58940  0.6246    1     5045     2995
+#>        fp_(Intercept) -2.9022 0.09837 -3.10058 -2.7132    1     3722     3373
+#>                  fp_w  1.4716 0.07567  1.32664  1.6230    1     3545     3002
+#>                fp_gap  3.3354 0.10464  3.13681  3.5428    1     3472     3007
+#>               p10_ref  0.0523 0.00486  0.04308  0.0622    1     3722     3373
+#>               p10_bar  0.1073 0.00462  0.09836  0.1167    1     4904     3049
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 3410/2716
+#>   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 3472/2945
 ```
 
 The estimated effect of `w` on the false-positive rate is 1.47 (true
@@ -667,7 +670,7 @@ list(`fp = ~ 1` = ppc_const, `fp = ~ x` = fp_ppc(m_x, seed = 1),
      `fp = ~ w` = fp_ppc(m_w, seed = 1)) |>
   purrr::map_dbl("p_value")
 #> fp = ~ 1 fp = ~ x fp = ~ w 
-#>    0.000    0.000    0.824
+#>    0.000    0.000    0.831
 ```
 
 Only the model with the confusing gradient has a p-value far from 0. A
@@ -696,9 +699,9 @@ data.frame(parameter = pars,
            default = round(coef(m_w)[pars], 3),
            narrow  = round(coef(m_w_narrow)[pars], 3), row.names = NULL)
 #>   parameter default narrow
-#> 1     occ_x  -0.783 -0.773
+#> 1     occ_x  -0.783 -0.770
 #> 2      fp_w   1.472  1.459
-#> 3    fp_gap   3.336  3.317
+#> 3    fp_gap   3.335  3.317
 ```
 
 With 300 sites, the data dominate the priors and the estimates barely
@@ -723,8 +726,8 @@ loo::loo_compare(list(`fp = ~ 1` = loo_const, `fp = ~ x` = loo_x,
                       `fp = ~ w` = loo_w))
 #>     model elpd_diff se_diff p_worse diag_diff diag_elpd
 #>  fp = ~ w       0.0     0.0      NA                    
-#>  fp = ~ x     -89.5    15.9    1.00                    
-#>  fp = ~ 1    -135.9    18.2    1.00
+#>  fp = ~ x     -89.8    15.9    1.00                    
+#>  fp = ~ 1    -136.0    18.2    1.00
 ```
 
 The first row is the best model; `elpd_diff` is the difference in elpd
@@ -741,9 +744,9 @@ loo_w
 #> Computed from 4000 by 300 log-likelihood matrix.
 #> 
 #>          Estimate    SE
-#> elpd_loo  -3309.9  85.1
+#> elpd_loo  -3309.8  85.1
 #> p_loo         5.6   0.4
-#> looic      6619.8 170.2
+#> looic      6619.7 170.2
 #> ------
 #> MCSE of elpd_loo is 0.0.
 #> MCSE and ESS estimates assume independent draws (r_eff=1).
@@ -770,18 +773,18 @@ matrix of posterior draws instead, with one row per draw.
 nd <- data.frame(x = seq(-2, 2, by = 1))
 predict(m_x, newdata = nd, process = "occ")
 #>    x  estimate     lower     upper
-#> 1 -2 0.7994252 0.6964307 0.8827909
-#> 2 -1 0.6992305 0.6237379 0.7708294
-#> 3  0 0.5719128 0.5110966 0.6314804
-#> 4  1 0.4338290 0.3438219 0.5285994
-#> 5  2 0.3080601 0.1877566 0.4461158
+#> 1 -2 0.8007148 0.6936194 0.8863740
+#> 2 -1 0.7006876 0.6213420 0.7755722
+#> 3  0 0.5730807 0.5118715 0.6309239
+#> 4  1 0.4343703 0.3411549 0.5272494
+#> 5  2 0.3080732 0.1860316 0.4478089
 predict(m_x, newdata = nd, process = "fp")
 #>    x    estimate       lower      upper
-#> 1 -2 0.009661468 0.005558678 0.01561041
-#> 2 -1 0.025501627 0.017722220 0.03492059
-#> 3  0 0.066168481 0.054623116 0.07795714
-#> 4  1 0.162114250 0.139852866 0.18448956
-#> 5  2 0.346338560 0.278565834 0.41050497
+#> 1 -2 0.009539925 0.005490955 0.01538964
+#> 2 -1 0.025280477 0.017684257 0.03471712
+#> 3  0 0.065871816 0.054122079 0.07819775
+#> 4  1 0.162054380 0.139157832 0.18558329
+#> 5  2 0.347229508 0.278738876 0.41289238
 ```
 
 Predicting over a grid of the occupancy covariate shows how the bias of
@@ -953,16 +956,16 @@ m_conf
 #>   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions
 #> 
 #>         variable    mean      sd   lower  upper rhat ess_bulk ess_tail
-#>  occ_(Intercept) -0.0370 0.15156 -0.3337  0.265    1     4207     2629
-#>            occ_x -0.7198 0.17092 -1.0665 -0.401    1     3851     2346
-#>  det_(Intercept)  0.3744 0.06927  0.2425  0.512    1     2890     2855
-#>          p11_ref  0.6307 0.01511  0.6016  0.660    1     3292     2876
-#>   fp_(Intercept) -2.2700 0.09320 -2.4530 -2.093    1     4518     3491
-#>           fp_gap  2.6445 0.12242  2.4119  2.890    1     2864     2551
-#>          p10_ref  0.0939 0.00792  0.0792  0.110    1     4518     3491
-#>          p10_bar  0.0939 0.00792  0.0792  0.110    1     4518     3491
+#>  occ_(Intercept) -0.0367 0.14962 -0.3375  0.252    1     4144     3185
+#>            occ_x -0.7187 0.16417 -1.0511 -0.418    1     3584     2734
+#>  det_(Intercept)  0.3734 0.06893  0.2391  0.510    1     3151     2597
+#>          p11_ref  0.6306 0.01503  0.6006  0.660    1     3697     2670
+#>   fp_(Intercept) -2.2678 0.09272 -2.4549 -2.087    1     4444     3398
+#>           fp_gap  2.6412 0.12184  2.4082  2.877    1     2867     2782
+#>          p10_ref  0.0941 0.00789  0.0791  0.110    1     4444     3398
+#>          p10_bar  0.0941 0.00789  0.0791  0.110    1     4444     3398
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.002, min bulk/tail ESS 2864/2346
+#>   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 2867/2597
 ```
 
 The occupancy slope (true value -0.8), the probability of a false

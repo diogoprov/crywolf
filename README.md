@@ -20,13 +20,21 @@ positives track the same environmental gradient as the species.
 
 ## Installation
 
+crywolf is distributed through
+[R-universe](https://diogoprov.r-universe.dev), which provides binaries for
+Windows, macOS and Linux. The command below also installs 'cmdstanr' from
+the Stan R-universe; CmdStan itself is installed once with
+`install_cmdstan()`:
+
 ```r
-install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev",
-                                       getOption("repos")))
+install.packages("crywolf", repos = c("https://diogoprov.r-universe.dev",
+                                      "https://stan-dev.r-universe.dev",
+                                      getOption("repos")))
 cmdstanr::install_cmdstan()
-# install.packages("remotes")
-remotes::install_github("diogoprov/crywolf")
 ```
+
+The development version can be installed from GitHub with
+`remotes::install_github("diogoprov/crywolf")`.
 
 ## Example
 

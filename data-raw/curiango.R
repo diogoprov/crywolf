@@ -1,10 +1,12 @@
 # Builds the `curiango` dataset from the public deposit of Piatti et al. (2026),
 # Zenodo record 21795898 (CC BY 4.0): https://doi.org/10.5281/zenodo.21795898
 #
-# The source table (df_night_clean.txt) has one row per detection window with
-# exact duplicates within each one-minute recording; confidence scores, acoustic
-# indices, and weather are constant within a minute. We keep one row per
-# minute, which is the occasion of the occupancy model. The verified data are
+# The source table (df_night_clean.txt) has one to 20 rows (detection windows)
+# per one-minute recording. Acoustic indices and weather are constant within a
+# minute; a classifier's confidence score is non-zero only in the windows where
+# it detected the species (the custom score usually repeats across all windows
+# of a minute, the BirdNET score usually does not). We keep one row per minute,
+# the occasion of the occupancy model, with the maximum score over its windows. The verified data are
 # the independent ground-truth test set (CM-Custom.txt): about 1% of the
 # recordings, chosen in proportion to the effort at each site and annotated by
 # ear in 3-s segments; a minute is a verified detection if any of its segments
@@ -29,18 +31,22 @@ get <- function(f) {
 
 raw <- utils::read.delim(get("df_night_clean.txt"))
 
+# within a minute, a classifier's score is non-zero only in the windows where
+# it detected the species, so the minute takes the maximum over its windows;
+# the other columns are constant within a minute
 minutes <- raw |>
-  distinct(Site, DataHora_Formatada, .keep_all = TRUE) |>
-  transmute(
-    site_night = night_site_id,
-    site = Site,
-    time = as.POSIXct(datetime, tz = "America/Campo_Grande"),
-    conf_custom = conf_div,
-    conf_birdnet = conf_preb,
-    bio = BIO,
-    aci = ACI,
-    key = DataHora_Formatada
+  group_by(Site, DataHora_Formatada) |>
+  summarise(
+    site_night = first(night_site_id),
+    time = as.POSIXct(first(datetime), tz = "America/Campo_Grande"),
+    conf_custom = max(conf_div),
+    conf_birdnet = max(conf_preb),
+    bio = first(BIO),
+    aci = first(ACI),
+    .groups = "drop"
   ) |>
+  transmute(site_night, site = Site, time, conf_custom, conf_birdnet, bio, aci,
+            key = DataHora_Formatada) |>
   arrange(site_night, time)
 
 nights <- raw |>

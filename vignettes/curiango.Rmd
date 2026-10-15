@@ -149,11 +149,26 @@ produce at least one false detection with probability
 detection as presence, estimates a much higher occupancy below.
 
 The custom estimate agrees with the 0.31% (95% CrI 0.29–0.33%) of Piatti et
-al. (2026). Their BirdNET estimate, 0.43% (0.40–0.46%), is lower than ours.
-The two analyses differ in the occasion (one-minute recordings here,
-detection windows there) and in the random effects, and we have not traced
-the difference further. The annotated recordings themselves suggest a rate
-of the order estimated here: of the
+al. (2026). Their BirdNET estimate, 0.43% (0.40–0.46%), is about four times
+lower than ours, a difference that matches the definition of the
+occasion. Piatti et al. (2026) used each detection window of the source
+table as an occasion; here the occasion is the one-minute recording, a
+detection when any of its windows reaches the threshold. A minute has
+between 1 and 20 windows in the source table. When the custom classifier
+detects the species, its score repeats across all windows of the minute;
+the BirdNET score is usually non-zero in only one of them. Counted by
+window, BirdNET detections are therefore diluted: in the public deposit,
+7.3% of the minutes but only 1.6% of the windows hold a BirdNET detection,
+a ratio of 4.6, close to the ratio of 4.4 between the two estimates. The
+custom classifier is not diluted in this way (1.8% of minutes, 3.3% of
+windows), which is consistent with the agreement of the two custom
+estimates. The two analyses also differ in their random effects, so the
+match is approximate. A false-positive rate is a rate per occasion and
+must be read with its occasion: per
+one-minute recording, BirdNET at a threshold of 0.10 errs about once in 50
+recordings.
+
+The annotated recordings agree with the per-minute rates: of the
 `r length(neg)` annotated recordings without the species,
 `r sprintf("%.1f%%", 100 * raw_fp[["birdnet"]])` reached the BirdNET
 threshold, against `r sprintf("%.1f%%", 100 * raw_fp[["custom"]])` for the

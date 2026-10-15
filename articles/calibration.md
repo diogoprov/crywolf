@@ -5,7 +5,9 @@ datasets. When the model is misspecified, it may not, and nothing in a
 single fit will warn you. Simulation-based calibration answers the
 question for a given design: simulate many datasets from known
 parameters, fit the model to each, and count how often the intervals
-cover the truth.
+cover the truth. This is a coverage-based form of simulation-based
+calibration checking, one of the steps of the Bayesian workflow (Gelman
+et al., 2026, Ch. 31).
 
 ## The workflow
 
@@ -188,3 +190,37 @@ plot(cal)
 plot(cal, type = "bias")
 plot(cal, parameter = "p10_bar")
 ```
+
+For the verification curve above, the bias of the occupancy slope shows
+why coverage stays low: the constant-rate model overestimates the slope
+at every level of verification, and modelling the rate on `x` reduces,
+but does not remove, the bias.
+
+![Bias of the posterior mean of the occupancy slope against the fraction
+of sites verified, under structured confusion (effect 1.5, correlation
+0.7). The dashed line marks no
+bias.](calibration_files/figure-html/plot-bias-1.png)
+
+Bias of the posterior mean of the occupancy slope against the fraction
+of sites verified, under structured confusion (effect 1.5, correlation
+0.7). The dashed line marks no bias.
+
+![Coverage of the 95% interval of the mean false-positive rate over
+sites (\`p10_bar\`), in the same
+simulations.](calibration_files/figure-html/plot-p10-1.png)
+
+Coverage of the 95% interval of the mean false-positive rate over sites
+(`p10_bar`), in the same simulations.
+
+The interval of the mean false-positive rate also misses the truth more
+often as verification increases. With more verified sites the interval
+narrows (its mean width falls from about 0.29 to 0.02–0.03 for the
+constant-rate model), but a bias of about −0.02 remains, so the narrower
+interval covers the truth less often.
+
+## References
+
+Gelman, A., Vehtari, A., McElreath, R., Simpson, D., Margossian, C. C.,
+Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., Modrák, M., & Leos
+Barajas, V. (2026). *Bayesian Workflow*. Chapman & Hall.
+<https://avehtari.github.io/Bayesian-Workflow/>

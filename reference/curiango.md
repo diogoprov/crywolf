@@ -62,10 +62,12 @@ detection by a classifier is a confidence score at or above a threshold;
 Piatti et al. (2026) used 0.40 (custom) and 0.10 (BirdNET) to maximize
 F1, and 0.95 for both to maximize precision.
 
-The source table has one row per detection window, with exact duplicates
-within each recording; this dataset keeps one row per recording. The
-script that builds it from the public deposit is `data-raw/curiango.R`
-in the package repository.
+The source table has one to 20 rows (detection windows) per recording,
+and a classifier's score is non-zero only in the windows where it
+detected the species. This dataset keeps one row per recording, with the
+maximum score over its windows, so a recording is a detection when any
+of its windows reaches the threshold. The script that builds it from the
+public deposit is `data-raw/curiango.R` in the package repository.
 
 ## References
 

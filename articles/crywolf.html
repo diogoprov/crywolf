@@ -43,6 +43,7 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/calibration.html">Checking calibration and how much to verify</a></li>
+    <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -350,6 +351,25 @@ one elsewhere. Summing out <span class="math inline">z_i</span> makes
 sampling efficient in Stan and gives one log-likelihood value per site,
 which we use for cross-validation below. The Stan program itself is in
 the file returned by <code><a href="../reference/fp_stan_file.html">fp_stan_file()</a></code>.</p>
+<p><strong>The model as a graph.</strong> The directed acyclic graph
+below shows how the pieces fit together, from the priors (top) to the
+data (bottom). The automated detections <span class="math inline">y_{ik}</span> appear as <span class="math inline">y^{aut}_{ik}</span> and the verified detections
+<span class="math inline">v_{im}</span> as <span class="math inline">y^{ver}_{im}</span>. Both depend on the latent state
+<span class="math inline">z_i</span>, which is why the verified data,
+through <span class="math inline">z_i</span>, inform the false-positive
+rate.</p>
+<div class="figure" style="text-align: center">
+<img src="crywolf-dag.png" class="r-plt" alt="Directed acyclic graph of the multiple-methods false-positive occupancy model fitted by `fp_occu()`. Hexagons are priors (defaults of `fp_priors()`), yellow ellipses are parameters, blue boxes are covariates, green ellipses are latent quantities and linear predictors, and octagons are the observed data. Dashed outlines mark optional components: false-positive covariates (`fp = ~ ...`) and the recorder random intercept (`random_recorder = TRUE`). Adapted from the fpcalib research compendium." width="100%"><p class="caption">
+Directed acyclic graph of the multiple-methods false-positive occupancy
+model fitted by <code><a href="../reference/fp_occu.html">fp_occu()</a></code>. Hexagons are priors (defaults of
+<code><a href="../reference/fp_priors.html">fp_priors()</a></code>), yellow ellipses are parameters, blue boxes
+are covariates, green ellipses are latent quantities and linear
+predictors, and octagons are the observed data. Dashed outlines mark
+optional components: false-positive covariates (<code>fp = ~ ...</code>)
+and the recorder random intercept (<code>random_recorder = TRUE</code>).
+Adapted from the fpcalib research compendium.
+</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="priors">Priors<a class="anchor" aria-label="anchor" href="#priors"></a>
@@ -530,7 +550,10 @@ coefficients are on the logit scale.</p>
 <h2 id="convergence-and-model-adequacy">Convergence and model adequacy<a class="anchor" aria-label="anchor" href="#convergence-and-model-adequacy"></a>
 </h2>
 <p>Before interpreting any estimate, we check that the chains converged
-and that the model reproduces the data.</p>
+and that the model reproduces the data. These steps, together with the
+model comparison and the simulation-based checks of
+<code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>, follow the
+Bayesian workflow described by Gelman et al. (2026).</p>
 <div class="section level3">
 <h3 id="convergence">Convergence<a class="anchor" aria-label="anchor" href="#convergence"></a>
 </h3>
@@ -1017,6 +1040,10 @@ Both kinds of known truth can be combined: keep a verified method in
 <code><a href="../articles/calibration.html">vignette("calibration", package = "crywolf")</a></code>: check
 whether a model’s credible intervals are calibrated for your design, and
 how much to verify.</li>
+<li>
+<code><a href="../articles/curiango.html">vignette("curiango", package = "crywolf")</a></code>: a case study
+with acoustic monitoring of the Common Pauraque and two
+classifiers.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -1032,6 +1059,10 @@ detection/nondetection data. <em>Ecology</em>, 102, e03241. <a href="https://doi
 (2019). Visualization in Bayesian workflow. <em>Journal of the Royal
 Statistical Society Series A: Statistics in Society</em>, 182, 389–402.
 <a href="https://doi.org/10.1111/rssa.12378" class="external-link uri">https://doi.org/10.1111/rssa.12378</a></p>
+<p>Gelman, A., Vehtari, A., McElreath, R., Simpson, D., Margossian, C.
+C., Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., Modrák, M., &amp;
+Leos Barajas, V. (2026). <em>Bayesian Workflow</em>. Chapman &amp; Hall.
+<a href="https://avehtari.github.io/Bayesian-Workflow/" class="external-link uri">https://avehtari.github.io/Bayesian-Workflow/</a></p>
 <p>Kahl, S., Wood, C. M., Eibl, M., &amp; Klinck, H. (2021). BirdNET: A
 deep learning solution for avian diversity monitoring. <em>Ecological
 Informatics</em>, 61, 101236. <a href="https://doi.org/10.1016/j.ecoinf.2021.101236" class="external-link uri">https://doi.org/10.1016/j.ecoinf.2021.101236</a></p>

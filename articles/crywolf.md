@@ -297,6 +297,34 @@ cross-validation below. The Stan program itself is in the file returned
 by
 [`fp_stan_file()`](https://provetelab.org/crywolf/reference/fp_stan_file.md).
 
+**The model as a graph.** The directed acyclic graph below shows how the
+pieces fit together, from the priors (top) to the data (bottom). The
+automated detections y\_{ik} appear as y^{aut}\_{ik} and the verified
+detections v\_{im} as y^{ver}\_{im}. Both depend on the latent state
+z_i, which is why the verified data, through z_i, inform the
+false-positive rate.
+
+![Directed acyclic graph of the multiple-methods false-positive
+occupancy model fitted by \`fp_occu()\`. Hexagons are priors (defaults
+of \`fp_priors()\`), yellow ellipses are parameters, blue boxes are
+covariates, green ellipses are latent quantities and linear predictors,
+and octagons are the observed data. Dashed outlines mark optional
+components: false-positive covariates (\`fp = ~ ...\`) and the recorder
+random intercept (\`random_recorder = TRUE\`). Adapted from the fpcalib
+research compendium.](crywolf-dag.png)
+
+Directed acyclic graph of the multiple-methods false-positive occupancy
+model fitted by
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
+Hexagons are priors (defaults of
+[`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)),
+yellow ellipses are parameters, blue boxes are covariates, green
+ellipses are latent quantities and linear predictors, and octagons are
+the observed data. Dashed outlines mark optional components:
+false-positive covariates (`fp = ~ ...`) and the recorder random
+intercept (`random_recorder = TRUE`). Adapted from the fpcalib research
+compendium.
+
 ### Priors
 
 All parameters have explicit priors on the logit scale, which are weakly
@@ -400,7 +428,10 @@ the probability scale; the other coefficients are on the logit scale.
 ## Convergence and model adequacy
 
 Before interpreting any estimate, we check that the chains converged and
-that the model reproduces the data.
+that the model reproduces the data. These steps, together with the model
+comparison and the simulation-based checks of
+[`vignette("calibration", package = "crywolf")`](https://provetelab.org/crywolf/articles/calibration.md),
+follow the Bayesian workflow described by Gelman et al. (2026).
 
 ### Convergence
 
@@ -946,6 +977,9 @@ occasions to `auto`.
 - [`vignette("calibration", package = "crywolf")`](https://provetelab.org/crywolf/articles/calibration.md):
   check whether a model’s credible intervals are calibrated for your
   design, and how much to verify.
+- [`vignette("curiango", package = "crywolf")`](https://provetelab.org/crywolf/articles/curiango.md):
+  a case study with acoustic monitoring of the Common Pauraque and two
+  classifiers.
 
 ## References
 
@@ -962,6 +996,11 @@ Gabry, J., Simpson, D., Vehtari, A., Betancourt, M., & Gelman, A.
 (2019). Visualization in Bayesian workflow. *Journal of the Royal
 Statistical Society Series A: Statistics in Society*, 182, 389–402.
 <https://doi.org/10.1111/rssa.12378>
+
+Gelman, A., Vehtari, A., McElreath, R., Simpson, D., Margossian, C. C.,
+Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., Modrák, M., & Leos
+Barajas, V. (2026). *Bayesian Workflow*. Chapman & Hall.
+<https://avehtari.github.io/Bayesian-Workflow/>
 
 Kahl, S., Wood, C. M., Eibl, M., & Klinck, H. (2021). BirdNET: A deep
 learning solution for avian diversity monitoring. *Ecological

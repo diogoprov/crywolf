@@ -34,6 +34,7 @@ of the multiple-methods design."><meta property="og:image" content="https://prov
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/calibration.html">Checking calibration and how much to verify</a></li>
+    <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -108,8 +109,11 @@ al., 2026). They can therefore serve as the verified method of
 <code><a href="fp_data.html">fp_data()</a></code>. A detection by a classifier is a confidence score at or above a
 threshold; Piatti et al. (2026) used 0.40 (custom) and 0.10 (BirdNET) to
 maximize F1, and 0.95 for both to maximize precision.</p>
-<p>The source table has one row per detection window, with exact duplicates
-within each recording; this dataset keeps one row per recording. The script
+<p>The source table has one to 20 rows (detection windows) per recording,
+and a classifier's score is non-zero only in the windows where it detected
+the species. This dataset keeps one row per recording, with the maximum
+score over its windows, so a recording is a detection when any of its
+windows reaches the threshold. The script
 that builds it from the public deposit is <code>data-raw/curiango.R</code> in the
 package repository.</p>
     </div>

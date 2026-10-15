@@ -1,3 +1,16 @@
+# crywolf (development version)
+
+* The likelihood is summed over sites with Stan's `reduce_sum()`, and the
+  model is compiled with threading, so `fp_occu(threads_per_chain = )` can
+  split each chain among several cores. On the curiango data (97,806
+  automated occasions) a fit with four chains of four threads each took
+  16.5 minutes instead of 70, and each gradient evaluation was 2.7 times faster than with the
+  previous model in a short benchmark on the same computer. The log
+  density and its gradient are unchanged up to floating-point rounding, and
+  the automated occasions use `y * lp - n * log1p_exp(lp)`, an equivalent
+  form of the binomial log-likelihood with half the transcendental
+  functions. Executables compiled by earlier versions are rebuilt once.
+
 # crywolf 1.0.0
 
 First release, accompanying the simulation study of Provete et al.

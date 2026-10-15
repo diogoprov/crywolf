@@ -331,8 +331,9 @@ no effect in this simulation, so we turn it off. The sampler runs four chains
 of 1000 warm-up and 1000 sampling iterations by default (`chains`,
 `iter_warmup`, `iter_sampling`), with a target acceptance rate
 `adapt_delta = 0.95`; other arguments are passed to the `$sample()` method of
-'cmdstanr'. The model is compiled the first time it is used and cached for
-later sessions.
+'cmdstanr'. With many sites or occasions, `threads_per_chain` lets each chain
+use several cores (see `vignette("stan_model", package = "crywolf")`). The
+model is compiled the first time it is used and cached for later sessions.
 
 ```{r fit-constant}
 m_const <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ 1,

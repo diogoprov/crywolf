@@ -22,6 +22,11 @@ without recompiling. \code{\link[=fp_occu]{fp_occu()}} calls this function itsel
 directly to compile ahead of time, for example before launching parallel
 workers in \code{\link[=fp_calibrate]{fp_calibrate()}}.
 }
+\details{
+The model is compiled with threading enabled (\code{stan_threads}), so that
+\code{\link[=fp_occu]{fp_occu()}} can split the likelihood of each chain among several threads
+(argument \code{threads_per_chain}).
+}
 \examples{
 \dontrun{
 fp_compile()

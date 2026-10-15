@@ -1,0 +1,6 @@
+/* long display equations scroll inside the column on narrow screens
+   instead of overflowing the page */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}

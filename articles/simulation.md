@@ -125,9 +125,9 @@ rarer, or when background noise that the classifier confuses with the
 target changes along the same environmental gradient. The rate of site i
 is
 
-\text{logit}(p\_{10,i}) = \text{logit}(p\_{10}) + \gamma_w w_i, \qquad
-w_i = \rho x_i + \sqrt{1 - \rho^2}\\ \epsilon_i, \quad \epsilon_i \sim
-\text{Normal}(0, 1),
+\begin{aligned} \text{logit}(p\_{10,i}) &= \text{logit}(p\_{10}) +
+\gamma_w w_i,\\ w_i &= \rho x_i + \sqrt{1 - \rho^2}\\ \epsilon_i, \qquad
+\epsilon_i \sim \text{Normal}(0, 1), \end{aligned}
 
 where \gamma_w is `conf_effect` and \rho is `conf_cor`, so `w` has unit
 variance and correlation \rho with `x`.

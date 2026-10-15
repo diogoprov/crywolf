@@ -16,7 +16,8 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to crywolf">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Introduction to crywolf">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -964,13 +965,13 @@ observations can now be seen directly, at occupied sites as well as at
 unoccupied ones, the model describes each occasion by two probabilities:
 <span class="math inline">s_1</span>, of at least one true observation
 (at an occupied site), and <span class="math inline">s_0</span>, of at
-least one false observation. The four states have probabilities</p>
+least one false observation. The probabilities of the four states <span class="math inline">v = 0, 1, 2, 3</span> are</p>
 <p><span class="math display">
-\Pr(v = 0, 1, 2, 3 \mid z = 1) =
-\left[(1 - s_1)(1 - s_0),\; (1 - s_1)\, s_0,\; s_1 (1 - s_0),\; s_1
-s_0\right],
-\qquad
-\Pr(v = 0, 1, 2, 3 \mid z = 0) = \left[1 - s_0,\; s_0,\; 0,\; 0\right],
+\begin{aligned}
+\Pr(v \mid z = 1) &amp;= \bigl[(1 - s_1)(1 - s_0),\; (1 - s_1)\, s_0,\\
+&amp;\qquad s_1 (1 - s_0),\; s_1 s_0\bigr],\\
+\Pr(v \mid z = 0) &amp;= \bigl[1 - s_0,\; s_0,\; 0,\; 0\bigr],
+\end{aligned}
 </span></p>
 <p>and an occasion that was not checked is a detection with probability
 <span class="math inline">p_{11} = 1 - (1 - s_1)(1 - s_0)</span> at an

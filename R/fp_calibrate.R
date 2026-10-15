@@ -26,7 +26,9 @@
 #'   sees exactly the same datasets.
 #' @param parallel Logical. Fit replicates in parallel with 'furrr'. Set the
 #'   plan first, e.g. `future::plan(future::multisession, workers = 8)`, and
-#'   keep `parallel_chains = 1` in `fit_args`.
+#'   keep `parallel_chains = 1` in `fit_args`. In interactive sessions with
+#'   'progressr' installed, a progress bar shows the estimated time remaining,
+#'   also when fitting in parallel.
 #' @param fit_args List of further arguments for [fp_occu()].
 #'
 #' @details
@@ -84,14 +86,30 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
       purrr::list_rbind()
   }
 
-  res <- if (parallel) {
-    if (!requireNamespace("furrr", quietly = TRUE)) {
-      stop("`parallel = TRUE` needs the 'furrr' package.", call. = FALSE)
+  if (parallel && !requireNamespace("furrr", quietly = TRUE)) {
+    stop("`parallel = TRUE` needs the 'furrr' package.", call. = FALSE)
+  }
+  run_all <- function(tick) {
+    job <- function(...) {
+      out <- run_one(...)
+      tick()
+      out
     }
-    furrr::future_pmap(jobs, run_one,
-                       .options = furrr::furrr_options(seed = TRUE))
+    if (parallel) {
+      furrr::future_pmap(jobs, job, .options = furrr::furrr_options(seed = TRUE))
+    } else {
+      purrr::pmap(jobs, job)
+    }
+  }
+  # progress bar with time remaining, also from parallel workers
+  res <- if (interactive() && requireNamespace("progressr", quietly = TRUE)) {
+    progressr::with_progress({
+      p <- progressr::progressor(steps = nrow(jobs))
+      run_all(function() p())
+    }, handlers = progressr::handler_cli(
+      format = "{cli::pb_current}/{cli::pb_total} replicates {cli::pb_bar} {cli::pb_percent} | ETA {cli::pb_eta}"))
   } else {
-    purrr::pmap(jobs, run_one, .progress = interactive())
+    run_all(function() NULL)
   }
   out <- purrr::list_rbind(res)
   out <- merge(out, design, by = "cell", sort = FALSE)
@@ -216,7 +234,8 @@ print.summary.fp_calibration <- function(x, ...) {
 .score_fit <- function(sim, fp, occ, det, model, prob, seed, fit_args) {
   tr <- sim$truth
   fit_args <- utils::modifyList(list(show_messages = FALSE,
-                                     show_exceptions = FALSE), fit_args)
+                                     show_exceptions = FALSE, refresh = 0),
+                                fit_args)
   t0 <- Sys.time()
   fit <- tryCatch(
     suppressWarnings(do.call(fp_occu, c(list(data = sim$data, occ = occ,

@@ -42,7 +42,9 @@ sees exactly the same datasets.}
 
 \item{parallel}{Logical. Fit replicates in parallel with 'furrr'. Set the
 plan first, e.g. \code{future::plan(future::multisession, workers = 8)}, and
-keep \code{parallel_chains = 1} in \code{fit_args}.}
+keep \code{parallel_chains = 1} in \code{fit_args}. In interactive sessions with
+'progressr' installed, a progress bar shows the estimated time remaining,
+also when fitting in parallel.}
 
 \item{fit_args}{List of further arguments for \code{\link[=fp_occu]{fp_occu()}}.}
 }

@@ -44,6 +44,7 @@ Suggests:
     future,
     ggplot2,
     knitr,
+    progressr,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder:

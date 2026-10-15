@@ -19,7 +19,11 @@ The package has three parts:
 detections, and \code{\link[=fp_occu]{fp_occu()}} fits the model in Stan through 'cmdstanr'.
 The false-positive rate can be constant (\code{fp = ~ 1}) or depend on site
 covariates (\code{fp = ~ w}), and the true-detection process accepts
-observation covariates and a recorder random effect.
+observation covariates and a recorder random effect. The
+observation-confirmation design of Chambert et al. (2015), in which an
+expert checks the detections of some automated occasions, is supported
+through the \code{confirmed} argument of \code{\link[=fp_data]{fp_data()}}. \code{\link[=fp_ppc]{fp_ppc()}} runs a
+posterior predictive check, and \link{curiango} holds a real dataset.
 \item \strong{Simulation.} \code{\link[=simulate_fp]{simulate_fp()}} generates data under homogeneous,
 unstructured, and structured ("confusion") false-positive regimes.
 \item \strong{Calibration.} \code{\link[=fp_calibrate]{fp_calibrate()}} and \code{\link[=fp_verification_curve]{fp_verification_curve()}} fit the

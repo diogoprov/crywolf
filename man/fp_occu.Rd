@@ -17,7 +17,7 @@ fp_occu(
   iter_sampling = 1000,
   adapt_delta = 0.95,
   seed = NULL,
-  refresh = 0,
+  refresh = NULL,
   ...
 )
 }
@@ -43,10 +43,16 @@ detection? Defaults to \code{TRUE} when \code{data} has a recorder column.}
 
 \item{priors}{Prior settings from \code{\link[=fp_priors]{fp_priors()}}.}
 
-\item{chains, iter_warmup, iter_sampling, adapt_delta, seed, refresh}{Passed to
-the \verb{$sample()} method of 'cmdstanr'.}
+\item{chains, iter_warmup, iter_sampling, adapt_delta, seed}{Passed to the
+\verb{$sample()} method of 'cmdstanr'.}
 
 \item{parallel_chains}{Number of chains run in parallel.}
+
+\item{refresh}{How often each chain reports its progress, in iterations.
+The default, \code{NULL}, reports every 10\% of the iterations in interactive
+sessions and nothing otherwise; \code{0} silences it. Warm-up iterations are
+usually slower than sampling ones, so the first half of the run takes
+more than half of the time.}
 
 \item{...}{Further arguments passed to \verb{$sample()}.}
 }

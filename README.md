@@ -74,6 +74,27 @@ L. L., & Weir, L. A. (2011). Improving occupancy estimation when two types of
 observational error occur: non-detection and species misidentification.
 *Ecology*, 92, 1422–1428. https://doi.org/10.1890/10-1396.1
 
+## Why "crywolf"?
+
+The name comes from Aesop's fable *The Boy Who Cried Wolf* (Perry Index
+210), in which a shepherd boy raises the alarm about a wolf so many times
+when there is none that nobody believes him when the wolf finally comes
+([Wikipedia](https://en.wikipedia.org/wiki/The_Boy_Who_Cried_Wolf)). An
+automated detector is that boy: it sometimes cries "species!" when the
+species is absent. Ignoring the false alarms biases occupancy estimates, and
+discarding every alarm wastes the true ones. crywolf takes the middle path:
+it uses a verified subset of detections to estimate how often the detector
+cries wolf, and corrects for it.
+
+The logo is a nod to the 1980s and to
+["Cry Wolf"](https://en.wikipedia.org/wiki/Cry_Wolf_(A-ha_song)), the 1986
+single by the Norwegian band a-ha from the album *Scoundrel Days*. It borrows
+the synthwave look of the decade: a neon magenta frame on deep purple, a
+striped setting sun, and a rounded display typeface. The wolf howls in sound
+waves over a cyan audio equalizer, standing for the acoustic recordings
+behind the package. The package has no connection with
+the band, and the logo uses none of its artwork or lyrics.
+
 ## License
 
 GPL (>= 3). The wolf silhouette in the logo is *Canis lupus monstrabilis* by

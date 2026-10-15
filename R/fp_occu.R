@@ -22,8 +22,13 @@
 #' @param random_recorder Logical. Add a recorder random intercept to true
 #'   detection? Defaults to `TRUE` when `data` has a recorder column.
 #' @param priors Prior settings from [fp_priors()].
-#' @param chains,iter_warmup,iter_sampling,adapt_delta,seed,refresh Passed to
-#'   the `$sample()` method of 'cmdstanr'.
+#' @param chains,iter_warmup,iter_sampling,adapt_delta,seed Passed to the
+#'   `$sample()` method of 'cmdstanr'.
+#' @param refresh How often each chain reports its progress, in iterations.
+#'   The default, `NULL`, reports every 10% of the iterations in interactive
+#'   sessions and nothing otherwise; `0` silences it. Warm-up iterations are
+#'   usually slower than sampling ones, so the first half of the run takes
+#'   more than half of the time.
 #' @param parallel_chains Number of chains run in parallel.
 #' @param ... Further arguments passed to `$sample()`.
 #'
@@ -103,7 +108,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     priors = fp_priors(),
                     chains = 4, parallel_chains = chains,
                     iter_warmup = 1000, iter_sampling = 1000,
-                    adapt_delta = 0.95, seed = NULL, refresh = 0, ...) {
+                    adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
   if (!inherits(data, "fp_data")) {
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
   }
@@ -114,6 +119,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
   sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors)
+  if (is.null(refresh)) {
+    refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
+  }
   mod <- fp_compile()
   fit <- mod$sample(data = sd_list$stan_data, chains = chains,
                     parallel_chains = parallel_chains,

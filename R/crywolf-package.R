@@ -27,6 +27,20 @@
 #'   users can see whether the correction holds for their design and how much
 #'   verification it needs.
 #'
+#' @section Installation:
+#' crywolf is distributed through R-universe, with binaries for Windows,
+#' macOS, and Linux. 'cmdstanr' comes from the Stan R-universe, and CmdStan
+#' itself is installed once:
+#' ```
+#' install.packages("crywolf", repos = c("https://diogoprov.r-universe.dev",
+#'                                       "https://stan-dev.r-universe.dev",
+#'                                       getOption("repos")))
+#' cmdstanr::install_cmdstan()
+#' ```
+#' The model is compiled the first time [fp_occu()] needs it, or ahead of
+#' time with [fp_compile()], and the executable is kept in the user cache
+#' directory for later sessions.
+#'
 #' @section Getting started:
 #' `vignette("crywolf")` introduces the model and the workflow. Further
 #' articles cover simulation (`vignette("simulation")`), calibration and how
@@ -46,6 +60,24 @@
 #' The latent state \eqn{z} is marginalized. The positive gap \eqn{\Delta}
 #' keeps the true-detection probability above the false-positive probability
 #' at the reference values of the covariates, which prevents label switching.
+#' Priors are Normal on the logit scale for intercepts and slopes, Normal
+#' truncated at zero for \eqn{\Delta}, and half-Normal for the standard
+#' deviation of the recorder effect; [fp_priors()] lists the defaults and
+#' changes them without recompiling. `vignette("stan_model")` walks through
+#' the Stan program.
+#'
+#' @section Computation:
+#' Each chain runs on one core by default. The likelihood is summed over
+#' sites with Stan's `reduce_sum()`, so `threads_per_chain` in [fp_occu()]
+#' splits each chain among several cores, which pays off with many sites or
+#' occasions. Keep `parallel_chains * threads_per_chain` at or below the
+#' number of physical cores. [fp_calibrate()] fits many models, one chain per
+#' worker; compile the model with [fp_compile()] before starting workers.
+#'
+#' @section Citation:
+#' `citation("crywolf")` gives the reference to the package. Every release
+#' is archived on Zenodo; \doi{10.5281/zenodo.23385045} always resolves to
+#' the latest version.
 #'
 #' @references
 #' Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,

@@ -33,6 +33,23 @@ users can see whether the correction holds for their design and how much
 verification it needs.
 }
 }
+\section{Installation}{
+
+crywolf is distributed through R-universe, with binaries for Windows,
+macOS, and Linux. 'cmdstanr' comes from the Stan R-universe, and CmdStan
+itself is installed once:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{install.packages("crywolf", repos = c("https://diogoprov.r-universe.dev",
+                                      "https://stan-dev.r-universe.dev",
+                                      getOption("repos")))
+cmdstanr::install_cmdstan()
+}\if{html}{\out{</div>}}
+
+The model is compiled the first time \code{\link[=fp_occu]{fp_occu()}} needs it, or ahead of
+time with \code{\link[=fp_compile]{fp_compile()}}, and the executable is kept in the user cache
+directory for later sessions.
+}
+
 \section{Getting started}{
 
 \code{vignette("crywolf")} introduces the model and the workflow. Further
@@ -55,6 +72,28 @@ For site \eqn{i}, automated occasion \eqn{k}, and verified occasion
 The latent state \eqn{z} is marginalized. The positive gap \eqn{\Delta}
 keeps the true-detection probability above the false-positive probability
 at the reference values of the covariates, which prevents label switching.
+Priors are Normal on the logit scale for intercepts and slopes, Normal
+truncated at zero for \eqn{\Delta}, and half-Normal for the standard
+deviation of the recorder effect; \code{\link[=fp_priors]{fp_priors()}} lists the defaults and
+changes them without recompiling. \code{vignette("stan_model")} walks through
+the Stan program.
+}
+
+\section{Computation}{
+
+Each chain runs on one core by default. The likelihood is summed over
+sites with Stan's \code{reduce_sum()}, so \code{threads_per_chain} in \code{\link[=fp_occu]{fp_occu()}}
+splits each chain among several cores, which pays off with many sites or
+occasions. Keep \code{parallel_chains * threads_per_chain} at or below the
+number of physical cores. \code{\link[=fp_calibrate]{fp_calibrate()}} fits many models, one chain per
+worker; compile the model with \code{\link[=fp_compile]{fp_compile()}} before starting workers.
+}
+
+\section{Citation}{
+
+\code{citation("crywolf")} gives the reference to the package. Every release
+is archived on Zenodo; \doi{10.5281/zenodo.23385045} always resolves to
+the latest version.
 }
 
 \references{

@@ -8,7 +8,6 @@
 ^README\.Rmd$
 ^CITATION\.cff$
 ^LICENSE\.md$
-^rename_package\.sh$
 ^inst/stan/fp_occu$
 ^CLAUDE\.md$
 ^\.claude$

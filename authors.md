@@ -15,7 +15,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/diogoprov/crywolf/blob/v1.1.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/diogoprov/crywolf/blob/main/DESCRIPTION)
 
 Provete D, Rhinehart T, Piatti L, Sugai L (2026). *crywolf: Bayesian
 False-Positive Occupancy Models with Calibration Checks*. R package

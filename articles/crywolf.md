@@ -63,15 +63,15 @@ vignette,
 ### Installation
 
 crywolf fits its models with [CmdStan](https://mc-stan.org/cmdstanr/)
-through ‘cmdstanr’, which is not on CRAN. Install both once, then the
-package from GitHub:
+through ‘cmdstanr’, which is not on CRAN. Install the package and
+‘cmdstanr’ from R-universe, then CmdStan once:
 
 ``` r
 
-install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev",
-                                       getOption("repos")))
+install.packages("crywolf", repos = c("https://diogoprov.r-universe.dev",
+                                      "https://stan-dev.r-universe.dev",
+                                      getOption("repos")))
 cmdstanr::install_cmdstan()
-remotes::install_github("diogoprov/crywolf")
 ```
 
 We load the package, together with ‘ggplot2’ and ‘bayesplot’ for the

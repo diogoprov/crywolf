@@ -71,7 +71,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Introduction to crywolf</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.1.0/vignettes/crywolf.Rmd" class="external-link"><code>vignettes/crywolf.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/vignettes/crywolf.Rmd" class="external-link"><code>vignettes/crywolf.Rmd</code></a></small>
       <div class="d-none name"><code>crywolf.Rmd</code></div>
     </div>
 
@@ -137,13 +137,13 @@ for your own design, has its own vignette,
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <p>crywolf fits its models with <a href="https://mc-stan.org/cmdstanr/" class="external-link">CmdStan</a> through ‘cmdstanr’,
-which is not on CRAN. Install both once, then the package from
-GitHub:</p>
+which is not on CRAN. Install the package and ‘cmdstanr’ from
+R-universe, then CmdStan once:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cmdstanr"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://stan-dev.r-universe.dev"</span>,</span>
-<span>                                       <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">cmdstanr</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/cmdstanr/reference/install_cmdstan.html" class="external-link">install_cmdstan</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"diogoprov/crywolf"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"crywolf"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://diogoprov.r-universe.dev"</span>,</span>
+<span>                                      <span class="st">"https://stan-dev.r-universe.dev"</span>,</span>
+<span>                                      <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">cmdstanr</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/cmdstanr/reference/install_cmdstan.html" class="external-link">install_cmdstan</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>We load the package, together with ‘ggplot2’ and ‘bayesplot’ for the
 figures, and set a seed so that the results can be reproduced.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">

@@ -27,6 +27,14 @@
 #'   users can see whether the correction holds for their design and how much
 #'   verification it needs.
 #'
+#' @section Getting started:
+#' `vignette("crywolf")` introduces the model and the workflow. Further
+#' articles cover simulation (`vignette("simulation")`), calibration and how
+#' much to verify (`vignette("calibration")`), a case study with real data
+#' (`vignette("curiango")`), the translation from 'unmarked'
+#' (`vignette("unmarked")`), and the Stan program (`vignette("stan_model")`).
+#' They are also on the package website, <https://provetelab.org/crywolf/>.
+#'
 #' @section Model:
 #' For site \eqn{i}, automated occasion \eqn{k}, and verified occasion
 #' \eqn{m}:

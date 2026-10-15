@@ -29,7 +29,10 @@
 #'   keep `parallel_chains = 1` in `fit_args`. In interactive sessions with
 #'   'progressr' installed, a progress bar shows the estimated time remaining,
 #'   also when fitting in parallel.
-#' @param fit_args List of further arguments for [fp_occu()].
+#' @param fit_args List of further arguments for [fp_occu()]. Unless set
+#'   here, `random_recorder` is `TRUE` only when the design simulates a
+#'   recorder effect (`sd_recorder > 0`): fitting one whose true standard
+#'   deviation is zero produces divergent transitions.
 #'
 #' @details
 #' The scored quantities are the occupancy intercept and slope
@@ -233,8 +236,11 @@ print.summary.fp_calibration <- function(x, ...) {
 
 .score_fit <- function(sim, fp, occ, det, model, prob, seed, fit_args) {
   tr <- sim$truth
+  # fit a recorder effect only when the data were simulated with one: with
+  # sd_recorder = 0 its variance collapses to zero and the sampler diverges
   fit_args <- utils::modifyList(list(show_messages = FALSE,
-                                     show_exceptions = FALSE, refresh = 0),
+                                     show_exceptions = FALSE, refresh = 0,
+                                     random_recorder = tr$sd_recorder > 0),
                                 fit_args)
   t0 <- Sys.time()
   fit <- tryCatch(

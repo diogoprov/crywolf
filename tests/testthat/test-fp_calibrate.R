@@ -15,6 +15,25 @@ test_that("fp_calibrate runs a tiny design", {
   expect_setequal(unique(s$model), c("constant", "fp_x"))
 })
 
+test_that("calibration fits a recorder effect only when one was simulated", {
+  seen <- NULL
+  local_mocked_bindings(fp_occu = function(...) {
+    seen <<- list(...)$random_recorder
+    stop("not fitted")
+  })
+  score <- function(sim, fit_args = list()) {
+    crywolf:::.score_fit(sim, fp = ~ 1, occ = ~ x, det = ~ 1, model = "m",
+                         prob = 0.95, seed = 1, fit_args = fit_args)
+  }
+  score(simulate_fp(nsite = 20, nocc = 2, seed = 1))
+  expect_false(seen)
+  score(simulate_fp(nsite = 20, nocc = 2, sd_recorder = 0.5, seed = 1))
+  expect_true(seen)
+  score(simulate_fp(nsite = 20, nocc = 2, seed = 1),
+        fit_args = list(random_recorder = TRUE))
+  expect_true(seen)
+})
+
 fake_calibration <- function() {
   grid <- expand.grid(rep = 1:20, frac_verified = c(0.1, 0.5, 0.9),
                       model = c("constant", "fp_x"), stringsAsFactors = FALSE)

@@ -76,9 +76,12 @@ value. Every model is fitted to the same datasets, so comparisons between
 models are paired.
 
 The column `prop_divergent` is the share of fits with at least one divergent
-transition. In this run most fits had a few divergences (median 1 of 4000
-draws), so check `max_rhat` and `divergences` in the returned tibble before
-trusting a cell whose fits had many.
+transition. In this run only 2 of the 800 fits had one, and the largest
+R-hat was 1.01. Check `max_rhat` and `divergences` in the returned tibble
+before trusting a cell whose fits had many. The simulated designs here have
+no recorder effect, so the calibration fits leave the recorder random
+intercept out; fitting a random effect whose true variance is zero is a
+common source of divergent transitions.
 
 ## How much to verify
 
@@ -157,11 +160,12 @@ plot(results$verification, type = "bias")
 plot(results$verification, parameter = "p10_bar")
 ```
 
-The interval of the mean false-positive rate also misses the truth more
-often as verification increases. With more verified sites the interval
-narrows (its mean width falls from about 0.29 to 0.02–0.03 for the constant-rate
-model), but a bias of about −0.02 remains, so the narrower interval covers
-the truth less often.
+Neither model recovers the mean false-positive rate over sites under this
+confusion. Both estimate it at about 0.077 when the truth is about 0.10,
+with intervals only about 0.02 wide, so coverage stays at 0.22 or below at
+every level of verification. Modelling the rate on `x` reduces the bias of
+the occupancy slope, but a rate that depends on the unmeasured gradient `w`
+is not fully captured by `x`.
 
 ## References
 

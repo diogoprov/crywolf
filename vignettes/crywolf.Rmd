@@ -700,10 +700,16 @@ combined: keep a verified method in `verified` and add confirmed occasions to
 
 ## Next steps
 
+- `vignette("simulation", package = "crywolf")`: the false-positive regimes
+  and observation options of `simulate_fp()`.
 - `vignette("calibration", package = "crywolf")`: check whether a model's
   credible intervals are calibrated for your design, and how much to verify.
 - `vignette("curiango", package = "crywolf")`: a case study with acoustic
   monitoring of the Common Pauraque and two classifiers.
+- `vignette("unmarked", package = "crywolf")`: translating data and
+  formulas from `unmarked::occuFP()`.
+- `vignette("stan_model", package = "crywolf")`: the Stan program, and how
+  to fit a modified copy.
 
 ## References
 

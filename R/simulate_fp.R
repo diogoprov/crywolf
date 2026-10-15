@@ -44,11 +44,12 @@
 #' \epsilon}, with \eqn{\epsilon} standard normal, so it has unit variance and
 #' correlation \eqn{\rho} with `x`. In practice `w` is not observed; it is
 #' returned in `sites` so that a model given the true structure can serve as a
-#' positive control. The function draws random numbers in the same order as
-#' `simulate_fp()` of the fpcalib research compendium (v0.1.0), with `nsite`,
-#' `nocc`, `frac_verified`, `nver`, `sd_recorder`, and `nrec` corresponding
-#' to its `nsite`, `K`, `verified_coverage`, `n_verified`, `sig_u`, and
-#' `nobser`.
+#' positive control. With the same seed, the function returns the same
+#' datasets as `simulate_fp()` of the fpcalib research compendium (v0.1.0,
+#' \doi{10.5281/zenodo.23379100}), with `nocc`, `frac_verified`, `nver`,
+#' `p10_conc`, `sd_recorder`, and `nrec` corresponding to its `K`,
+#' `verified_coverage`, `n_verified`, `p10_beta_conc`, `sig_u`, and `nobser`
+#' (checked by `dev/compare-simulate-fp.R` in the package repository).
 #'
 #' With `frac_confirmed > 0`, false observations occur at occupied sites too:
 #' on each occasion, a true observation occurs with probability `p11` (and

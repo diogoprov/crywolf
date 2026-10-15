@@ -75,3 +75,15 @@ parameter names.
 Summaries, point estimates, predictions, and model comparison for objects
 returned by \code{\link[=fp_occu]{fp_occu()}}.
 }
+\examples{
+\dontrun{
+sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m                                   # posterior summary and diagnostics
+summary(m, prob = 0.9)$table
+coef(m, "occ")
+predict(m, newdata = data.frame(x = c(-1, 0, 1)), process = "occ")
+loo(m)
+draws <- as_draws_df(m)
+}
+}

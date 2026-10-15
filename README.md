@@ -37,8 +37,9 @@ library(crywolf)
 sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 2026)
 
-m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1)   # constant false-positive rate
-m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x)   # rate depends on x
+# the simulated recorders have no effect, so leave the recorder term out
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)  # constant rate
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)  # rate depends on x
 
 coef(m0, "occ"); coef(m1, "occ")                # true slope: -0.8
 loo::loo_compare(loo(m0), loo(m1))
@@ -64,15 +65,36 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 | `plot()` | coverage or bias of a calibration run |
 | `curiango` | acoustic monitoring of the Common Pauraque in the Pantanal (Piatti et al. 2026) |
 
+## Related tools
+
+- [fpcalib](https://github.com/diogoprov/fpcalib) is the research compendium
+  of the simulation study behind the calibration checks
+  (https://doi.org/10.5281/zenodo.23379100). `simulate_fp(seed = s)`
+  reproduces its datasets exactly.
+- [birdnet-validation-sampler](https://github.com/diogoprov/birdnet-validation-sampler)
+  (https://doi.org/10.5281/zenodo.22696210) cuts audio clips from BirdNET
+  predictions for manual review and records the verdict on each clip, which
+  can feed the verified or confirmed data of `fp_data()`. The models in
+  crywolf treat the checked recordings as chosen independently of the
+  classifier's confidence score. Clips picked because they have the highest
+  scores contain fewer false positives than a random sample and would
+  understate the false-positive rate, so draw the clips at random for this
+  use.
+
 ## Citation
 
 If you use crywolf, please cite the package (`citation("crywolf")`) and
-Miller et al. (2011).
+Miller et al. (2011), or Chambert et al. (2015) for the observation-confirmation
+design.
 
 Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C., Bailey,
 L. L., & Weir, L. A. (2011). Improving occupancy estimation when two types of
 observational error occur: non-detection and species misidentification.
 *Ecology*, 92, 1422–1428. https://doi.org/10.1890/10-1396.1
+
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. *Ecology*, 96, 332–339. https://doi.org/10.1890/14-1507.1
 
 ## Why "crywolf"?
 

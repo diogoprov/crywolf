@@ -46,7 +46,10 @@ keep \code{parallel_chains = 1} in \code{fit_args}. In interactive sessions with
 'progressr' installed, a progress bar shows the estimated time remaining,
 also when fitting in parallel.}
 
-\item{fit_args}{List of further arguments for \code{\link[=fp_occu]{fp_occu()}}.}
+\item{fit_args}{List of further arguments for \code{\link[=fp_occu]{fp_occu()}}. Unless set
+here, \code{random_recorder} is \code{TRUE} only when the design simulates a
+recorder effect (\code{sd_recorder > 0}): fitting one whose true standard
+deviation is zero produces divergent transitions.}
 }
 \value{
 A tibble of class \code{fp_calibration}, one row per replicate, model,

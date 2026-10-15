@@ -96,11 +96,12 @@ exactly. The confusing gradient is \eqn{w = \rho x + \sqrt{1 - \rho^2}
 \epsilon}, with \eqn{\epsilon} standard normal, so it has unit variance and
 correlation \eqn{\rho} with \code{x}. In practice \code{w} is not observed; it is
 returned in \code{sites} so that a model given the true structure can serve as a
-positive control. The function draws random numbers in the same order as
-\code{simulate_fp()} of the fpcalib research compendium (v0.1.0), with \code{nsite},
-\code{nocc}, \code{frac_verified}, \code{nver}, \code{sd_recorder}, and \code{nrec} corresponding
-to its \code{nsite}, \code{K}, \code{verified_coverage}, \code{n_verified}, \code{sig_u}, and
-\code{nobser}.
+positive control. With the same seed, the function returns the same
+datasets as \code{simulate_fp()} of the fpcalib research compendium (v0.1.0,
+\doi{10.5281/zenodo.23379100}), with \code{nocc}, \code{frac_verified}, \code{nver},
+\code{p10_conc}, \code{sd_recorder}, and \code{nrec} corresponding to its \code{K},
+\code{verified_coverage}, \code{n_verified}, \code{p10_beta_conc}, \code{sig_u}, and \code{nobser}
+(checked by \code{dev/compare-simulate-fp.R} in the package repository).
 
 With \code{frac_confirmed > 0}, false observations occur at occupied sites too:
 on each occasion, a true observation occurs with probability \code{p11} (and

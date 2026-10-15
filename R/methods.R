@@ -7,6 +7,17 @@
 #' @param prob Width of the equal-tailed credible interval.
 #' @param digits Number of digits to print.
 #' @param ... Unused, or passed on (see each method).
+#' @examples
+#' \dontrun{
+#' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m                                   # posterior summary and diagnostics
+#' summary(m, prob = 0.9)$table
+#' coef(m, "occ")
+#' predict(m, newdata = data.frame(x = c(-1, 0, 1)), process = "occ")
+#' loo(m)
+#' draws <- as_draws_df(m)
+#' }
 #' @name fp_occu-methods
 NULL
 

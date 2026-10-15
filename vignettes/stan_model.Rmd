@@ -1,0 +1,180 @@
+---
+title: "The Stan model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The Stan model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(crywolf)
+# print one block of the Stan program, read from the installed file so that
+# the excerpts never drift from the code that runs
+stan_lines <- readLines(fp_stan_file())
+stan_block <- function(name) {
+  start <- grep(paste0("^", name, " \\{"), stan_lines)
+  end <- start + which(stan_lines[(start + 1):length(stan_lines)] == "}")[1]
+  cat(stan_lines[start:end], sep = "\n")
+}
+```
+
+`fp_occu()` fits one Stan program for every model in the package: the
+multiple-methods design of Miller et al. (2011), its observation-confirmation
+variant (Chambert et al., 2015), and the standard occupancy model. This
+article walks through it for readers who want to know exactly what is
+estimated, or who want to change it. The model itself is described in
+`vignette("crywolf", package = "crywolf")`; here the focus is on how it is
+coded. The program is a file installed with the package:
+
+```{r path, eval = FALSE}
+fp_stan_file()
+```
+
+`fp_compile()` copies it to the user cache directory and compiles it the
+first time it is needed, so later sessions reuse the executable.
+
+## Data
+
+`fp_occu()` turns the `fp_data` object and the formulas into the list that
+Stan reads, which is kept in the fitted object as `m$stan_data`. The data
+block declares it:
+
+```{r data-block, echo = FALSE, comment = ""}
+stan_block("data")
+```
+
+The occupancy design `X`, the detection design `Z`, and the false-positive
+design `Xfp` are model matrices built from the formulas. `Xfp` has no
+intercept column, because the intercept of the false-positive rate is not a
+free parameter (see below). Switches turn parts of the model on and off:
+`estimate_fp = 0` gives the standard occupancy model (`fp = NULL`),
+`Kfp = 0` the constant false-positive rate, `estimate_re = 1` the recorder
+random intercept, and `obs_confirm = 1` the observation-confirmation design.
+The prior scales are data too, which is why `fp_priors()` can change them
+without recompiling.
+
+### Binomial rows
+
+Automated occasions do not enter one by one. Occasions of the same site
+with identical detection covariates (and recorder) are collapsed into one
+row with `n2` trials and `y2` detections. Given the occupancy state, the
+occasions of a site are independent Bernoulli trials with the same
+probability, so the product of their likelihoods equals the binomial
+likelihood without its coefficient, which does not depend on the
+parameters. The posterior is therefore exactly the same, and the model is
+much faster when detection covariates are constant within sites. With
+occasion-level covariates, such as the acoustic indices of the
+`vignette("curiango", package = "crywolf")` data, each occasion is its own
+row. Rows are sorted by site, and `start2` and `len2` give the first row and
+the number of rows of each site.
+
+## Parameters
+
+```{r parameters, echo = FALSE, comment = ""}
+stan_block("parameters")
+stan_block("transformed parameters")
+```
+
+The recorder effects are written as `sigma_u * u_raw`, with `u_raw`
+standard normal (the non-centred parametrization), which samples better
+when there are few recorders or little information about their variance.
+
+The false-positive intercept is not a parameter of its own:
+`gamma0 = alpha[1] - fp_gap`, with `fp_gap` constrained to be positive.
+Because column 1 of `Z` is the intercept, `alpha[1]` is the logit of true
+detection at the reference values of the covariates (all zero), and the gap
+keeps the false-positive rate below it there. Without this constraint, the
+likelihood has a second mode in which occupied and unoccupied sites swap
+roles, and the sampler could visit either.
+
+## Likelihood
+
+The occupancy state $z_i$ is discrete, so Stan cannot sample it. The
+function `site_loglik()` sums it out for each site:
+
+```{r functions, echo = FALSE, comment = ""}
+stan_block("functions")
+```
+
+For site $i$, `occ[i]` accumulates the log-likelihood of all its data if
+the site is occupied and `unocc[i]` if it is not; the site's contribution
+is then
+
+$$
+\log\left[\psi_i \exp(\text{occ}_i) + (1 - \psi_i) \exp(\text{unocc}_i)\right],
+$$
+
+computed with `log_sum_exp()` for numerical stability. Three cases
+shortcut it:
+
+- A site with a verified detection (`known_present`) must be occupied, so
+  only the first term is kept.
+- Under the standard model (`estimate_fp = 0`), an automated detection also
+  proves occupancy, so `unocc[i]` is set to $-\infty$.
+- Under the observation-confirmation design, an occasion confirmed to hold
+  a true observation ($v_3 \geq 2$) rules out the unoccupied state in the
+  same way.
+
+The per-occasion terms are computed as vectors and summed by site with
+`segment()`, which works because the rows of each site are contiguous.
+
+## Priors and model block
+
+```{r model, echo = FALSE, comment = ""}
+stan_block("model")
+```
+
+All priors are on the logit scale and are listed with their defaults in
+`?fp_priors`. The model block calls `site_loglik()` once and adds the sum
+over sites to the log density.
+
+## Generated quantities
+
+```{r gq, echo = FALSE, comment = ""}
+stan_block("generated quantities")
+```
+
+`log_lik` holds one value per site, with $z_i$ summed out, so `loo()` on a
+fitted model gives leave-one-site-out cross-validation: a site with all its
+occasions is the unit left out. `p11_ref` and `p10_ref` are the true- and
+false-detection probabilities at the reference values of the covariates,
+`p10_bar` is the false-positive rate averaged over the sites in the data,
+and `r11` is the detection probability of the verified method
+(`p_verified` in the output of `fp_occu()`).
+
+## Modifying a copy
+
+To change the model, for example its priors' families or the structure of
+a submodel, edit a copy of the file and fit it with 'cmdstanr' directly,
+using the data list that `fp_occu()` prepared:
+
+```{r modify, eval = FALSE}
+file.copy(fp_stan_file(), "my_fp_occu.stan")
+# ... edit my_fp_occu.stan ...
+sim <- simulate_fp(seed = 1)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)  # for the data list
+my_model <- cmdstanr::cmdstan_model("my_fp_occu.stan")
+my_fit <- my_model$sample(data = m$stan_data, chains = 4, parallel_chains = 4,
+                          adapt_delta = 0.95)
+my_fit$summary(c("beta", "alpha", "fp_gap", "p10_ref"))
+```
+
+The result is a `CmdStanMCMC` object with the Stan names of the
+parameters (`beta`, `alpha`, `gamma0`, ...), not an `fp_occu` object, so the
+methods of crywolf do not apply to it. If the edit adds data, add the new
+elements to the list before sampling. `fp_ppc()` recomputes the likelihood
+in R from the posterior draws, so it describes the original model, not an
+edited one.
+
+## References
+
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. *Ecology*, 96, 332–339. https://doi.org/10.1890/14-1507.1
+
+Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C., Bailey,
+L. L., & Weir, L. A. (2011). Improving occupancy estimation when two types of
+observational error occur: non-detection and species misidentification.
+*Ecology*, 92, 1422–1428. https://doi.org/10.1890/10-1396.1

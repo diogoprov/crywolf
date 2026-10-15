@@ -54,5 +54,8 @@ articles:
   - title: Guides
     navbar: Guides
     contents:
+      - simulation
       - calibration
       - curiango
+      - unmarked
+      - stan_model

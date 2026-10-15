@@ -1,0 +1,323 @@
+---
+title: "Case study: the Common Pauraque in the Pantanal"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Case study: the Common Pauraque in the Pantanal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+# Each fit below takes about an hour (97,806 one-minute occasions), so the
+# fitting code is not run when the vignette is built. The results were saved
+# by dev/precompute-curiango.R and are read from curiango-fits.rds.
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
+                      fig.width = 7, fig.height = 4.5, out.width = "100%")
+library(crywolf)
+fits <- readRDS("curiango-fits.rds")
+classifiers <- c(custom = "Custom", birdnet = "BirdNET")
+model_labels <- c(standard = "standard", constant = "constant rate",
+                  covariates = "rate on covariates")
+fits <- fits[paste(rep(names(classifiers), each = 3), names(model_labels),
+                   sep = "_")]
+row_of <- function(f, var) f$table[f$table$variable == var, ]
+pct <- function(x) sprintf("%.2f%%", 100 * x)
+```
+
+This article fits the models of `vignette("crywolf")` to real data: passive
+acoustic monitoring of the Common Pauraque (*Nyctidromus albicollis*) at
+seven sites in the Pantanal and adjacent Cerrado, Brazil (Piatti et al.,
+2026). Two automated classifiers scored every one-minute recording, a custom
+model and BirdNET (Kahl et al., 2021), and an independent sample of about 1%
+of the recordings was annotated by ear. The annotated recordings are the
+verified method of the multiple-methods design (Miller et al., 2011).
+
+We ask three questions. How often does each classifier produce a false
+positive? Do the environmental effects on occupancy change when false
+positives are modelled? And does the false-positive rate itself depend on
+the environment?
+
+## The data
+
+`curiango` is a list with one table of recordings, one of site-nights, and
+one of annotated recordings:
+
+```{r data}
+str(curiango, max.level = 1)
+```
+
+The occupancy unit is the site-night (whether the species called that
+night) and the occasion is the one-minute recording. A recording is an
+automated detection when the classifier's confidence score reaches a
+threshold; we use the thresholds that maximized F1 in Piatti et al. (2026),
+0.40 for the custom classifier and 0.10 for BirdNET. Nightly temperature,
+relative humidity, and the log of lunar illumination enter the occupancy
+model, standardized. The Bioacoustic Index (`bio`) and the Acoustic
+Complexity Index (`aci`) of each recording enter the true-detection model,
+and each recorder site gets a random intercept.
+
+```{r fp-data}
+thresholds <- c(custom = 0.40, birdnet = 0.10)
+zs <- function(v) as.numeric(scale(v))
+
+curiango_data <- function(classifier) {
+  m <- curiango$minutes
+  auto <- data.frame(site_night = m$site_night,
+                     y = as.integer(m[[paste0("conf_", classifier)]] >=
+                                      thresholds[[classifier]]),
+                     bio = zs(m$bio), aci = zs(m$aci), recorder = m$site)
+  n <- curiango$nights
+  sites <- data.frame(site_night = n$site_night, temp = zs(n$temp),
+                      rh = zs(n$rh), moon = zs(log(n$moon)))
+  ver <- data.frame(site_night = curiango$verified$site_night,
+                    y = curiango$verified$y)
+  fp_data(auto, sites, ver, site = "site_night", recorder = "recorder")
+}
+
+d_custom <- curiango_data("custom")
+d_custom
+```
+
+## Fitting
+
+For each classifier we fit three models that differ only in the
+false-positive process: a standard occupancy model that takes every
+automated detection at face value (`fp = NULL`), a constant false-positive
+rate (`fp = ~ 1`), and a rate that depends on the same three covariates as
+occupancy (`fp = ~ temp + rh + moon`). The code is shown but not run; the
+six fits took about an hour each.
+
+```{r fit, eval = FALSE}
+fp_models <- list(standard = NULL, constant = ~ 1,
+                  covariates = ~ temp + rh + moon)
+m <- fp_occu(d_custom, occ = ~ temp + rh + moon, det = ~ bio + aci,
+             fp = fp_models$constant, random_recorder = TRUE, seed = 1)
+```
+
+## Convergence
+
+Before reading any estimate, check the sampler. The table gives, for each
+fit, the number of divergent transitions, the largest R-hat, and the
+smallest bulk and tail effective sample sizes over all parameters (4 chains
+of 1000 draws).
+
+```{r convergence, echo = FALSE}
+conv <- purrr::map(fits, function(f) {
+  data.frame(classifier = classifiers[[f$classifier]],
+             model = model_labels[[f$model]],
+             divergences = f$diagnostics$divergences,
+             max_rhat = round(f$diagnostics$max_rhat, 3),
+             min_ess_bulk = round(f$diagnostics$min_ess_bulk),
+             min_ess_tail = round(f$diagnostics$min_ess_tail),
+             minutes = round(f$minutes))
+}) |> purrr::list_rbind()
+knitr::kable(conv)
+```
+
+## How often does each classifier err?
+
+In the constant-rate model, `p10_ref` is the probability that a recording
+from a night without the species is a detection.
+
+```{r p10, echo = FALSE}
+p10 <- purrr::map(fits[grepl("_constant$", names(fits))], function(f) {
+  r <- row_of(f, "p10_ref")
+  data.frame(classifier = classifiers[[f$classifier]],
+             p10 = pct(r$mean), lower = pct(r$lower), upper = pct(r$upper))
+}) |> purrr::list_rbind()
+knitr::kable(p10, row.names = FALSE)
+```
+
+```{r p10-night, include = FALSE}
+k_night <- mean(table(curiango$minutes$site_night))
+p10_mean <- purrr::map_dbl(fits[c("custom_constant", "birdnet_constant")],
+                           function(f) row_of(f, "p10_ref")$mean)
+night_fp <- 1 - (1 - p10_mean)^k_night
+v <- curiango$verified
+neg <- match(paste(v$site_night, v$time)[v$y == 0],
+             paste(curiango$minutes$site_night, curiango$minutes$time))
+raw_fp <- c(custom = mean(curiango$minutes$conf_custom[neg] >= 0.40),
+            birdnet = mean(curiango$minutes$conf_birdnet[neg] >= 0.10))
+```
+
+The custom classifier errs about once in 300 recordings from a night without
+the species, BirdNET about once in 50. A site-night has on average
+`r round(k_night)` recordings, so a night without the species would still
+produce at least one false detection with probability
+`r sprintf("%.2f", night_fp[1])` (custom) or `r sprintf("%.2f", night_fp[2])`
+(BirdNET). This is why the standard occupancy model, which reads every
+detection as presence, estimates a much higher occupancy below.
+
+The custom estimate agrees with the 0.31% (95% CrI 0.29–0.33%) of Piatti et
+al. (2026). Their BirdNET estimate, 0.43% (0.40–0.46%), is lower than ours.
+The two analyses differ in the occasion (one-minute recordings here,
+detection windows there) and in the random effects, and we have not traced
+the difference further. The annotated recordings themselves suggest a rate
+of the order estimated here: of the
+`r length(neg)` annotated recordings without the species,
+`r sprintf("%.1f%%", 100 * raw_fp[["birdnet"]])` reached the BirdNET
+threshold, against `r sprintf("%.1f%%", 100 * raw_fp[["custom"]])` for the
+custom classifier. These raw shares are not estimates of the false-positive
+rate, because many of these recordings come from nights when the species was
+present, but they give a sense of its order of magnitude.
+
+## Occupancy with and without false positives
+
+```{r occ, echo = FALSE}
+occ <- purrr::map(fits, function(f) {
+  t <- f$table[grepl("^occ_", f$table$variable), ]
+  data.frame(classifier = classifiers[[f$classifier]],
+             model = model_labels[[f$model]],
+             parameter = t$variable,
+             estimate = sprintf("%.2f (%.2f, %.2f)", t$mean, t$lower, t$upper))
+}) |> purrr::list_rbind()
+occ$model <- factor(occ$model, model_labels)
+occ <- stats::reshape(occ, idvar = c("classifier", "parameter"),
+                      timevar = "model", direction = "wide")
+names(occ) <- sub("^estimate\\.", "", names(occ))
+knitr::kable(occ, row.names = FALSE,
+             caption = "Posterior means and 95% intervals of the occupancy coefficients (logit scale, standardized covariates).")
+```
+
+Ignoring false positives inflates occupancy: the intercept, the logit of the
+probability that the species calls on an average night, drops by about one
+unit with the custom classifier and by more than 1.5 units with BirdNET once
+false positives are modelled. The covariate effects keep their signs.
+Calling activity declines with humidity and with temperature in every
+model, as Piatti et al. (2026) found, and the temperature effect roughly
+doubles once false positives are modelled. The effect of moonlight is small
+and its interval includes zero in most models.
+
+## Does the false-positive rate track the environment?
+
+The third model lets the false-positive rate depend on temperature,
+humidity, and moonlight. Its coefficients are on the logit scale, per
+standard deviation of each covariate:
+
+```{r fp, echo = FALSE}
+fpc <- purrr::map(fits[grepl("_covariates$", names(fits))], function(f) {
+  t <- f$table[grepl("^fp_", f$table$variable) & f$table$variable != "fp_gap", ]
+  data.frame(classifier = classifiers[[f$classifier]], parameter = t$variable,
+             mean = round(t$mean, 2), lower = round(t$lower, 2),
+             upper = round(t$upper, 2))
+}) |> purrr::list_rbind()
+knitr::kable(fpc, row.names = FALSE)
+```
+
+For both classifiers the false-positive rate falls on humid nights
+(`fp_rh` below zero), so false positives are more frequent where the species
+is also more active. This is the situation in which a constant rate can
+bias the occupancy slope (`vignette("calibration", package = "crywolf")`).
+Here the humidity effect on occupancy changes little when the rate is
+allowed to depend on humidity, by less than a fifth of its value, so the
+constant-rate estimates of the occupancy effects are not far off. The
+effects of temperature and moonlight on the false-positive rate are small or
+uncertain.
+
+## Model comparison
+
+All three models of a classifier use the same automated and verified data,
+so their leave-one-site-night-out cross-validation scores are comparable.
+
+```{r loo}
+purrr::map(c("custom", "birdnet"), function(cl) {
+  l <- purrr::map(fits[paste(cl, names(model_labels), sep = "_")], "loo")
+  names(l) <- model_labels
+  loo::loo_compare(l)
+}) |> setNames(classifiers)
+```
+
+Modelling false positives improves the expected predictive accuracy by
+440 (custom) and more than 1200 (BirdNET) units of `elpd`. Letting the rate depend
+on the covariates helps further for BirdNET (a difference of about three
+standard errors) but not clearly for the custom classifier. One site-night
+in each BirdNET model has a Pareto *k* above 0.7, so those comparisons rest
+on a slightly less reliable approximation.
+
+## Posterior predictive checks
+
+`fp_ppc()` compares the number of automated detections per site-night with
+replicates from the posterior, using the Freeman-Tukey discrepancy. A
+Bayesian p-value near 0 or 1 means that the model does not reproduce the
+data.
+
+```{r ppc, echo = FALSE}
+ppc <- purrr::map(fits, function(f) {
+  data.frame(classifier = classifiers[[f$classifier]],
+             model = model_labels[[f$model]],
+             p_value = round(f$ppc$p_value, 3))
+}) |> purrr::list_rbind()
+knitr::kable(ppc, row.names = FALSE)
+```
+
+No model reproduces the counts of detections per site-night, including
+those with false positives, in line with Piatti et al. (2026), where no
+model showed adequate fit at this level. A likely reason, which we have not
+tested here, is that calls cluster within a night: a calling bird is
+recorded in runs of consecutive minutes, so detections are more dispersed
+among nights than independent occasions allow. The estimates above should
+therefore be read as a comparison among models, not as well-calibrated
+absolute values; a model with dependence among occasions is beyond the
+scope of crywolf.
+
+## Predicted occupancy
+
+The predictions hold the other covariates at their means and are shown on
+the original scale of each covariate.
+
+```{r pred, echo = FALSE, fig.cap = "Predicted probability that the species calls on a night, with 95% intervals, for each classifier and model."}
+n <- curiango$nights
+unscale <- list(temp = c(mean(n$temp), stats::sd(n$temp)),
+                rh = c(mean(n$rh), stats::sd(n$rh)),
+                moon = c(mean(log(n$moon)), stats::sd(log(n$moon))))
+observed <- list(temp = range(n$temp), rh = range(n$rh), moon = range(n$moon))
+pred <- purrr::map(fits, function(f) {
+  p <- f$pred_occ
+  p$x <- purrr::map2_dbl(p$covariate, p$value,
+                         function(v, z) z * unscale[[v]][2] + unscale[[v]][1])
+  p$x[p$covariate == "moon"] <- exp(p$x[p$covariate == "moon"])
+  keep <- purrr::map2_lgl(p$covariate, p$x, function(v, x)
+    x >= observed[[v]][1] && x <= observed[[v]][2])
+  p <- p[keep, ]
+  p$classifier <- classifiers[[f$classifier]]
+  p$model <- model_labels[[f$model]]
+  p
+}) |> purrr::list_rbind()
+pred$covariate <- factor(pred$covariate, c("temp", "rh", "moon"),
+                         c("Temperature (°C)", "Relative humidity (%)",
+                           "Lunar illumination"))
+pred$model <- factor(pred$model, model_labels)
+ggplot2::ggplot(pred, ggplot2::aes(x, estimate, colour = model, fill = model)) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                       alpha = 0.15, colour = NA) +
+  ggplot2::geom_line() +
+  ggplot2::facet_grid(classifier ~ covariate, scales = "free_x") +
+  ggplot2::labs(x = NULL, y = "Occupancy probability", colour = "Model",
+                fill = "Model") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position = "bottom")
+```
+
+Each curve is drawn only over the range of the covariate observed in the
+data.
+
+## References
+
+Kahl, S., Wood, C. M., Eibl, M., & Klinck, H. (2021). BirdNET: A deep
+learning solution for avian diversity monitoring. *Ecological Informatics*,
+61, 101236. https://doi.org/10.1016/j.ecoinf.2021.101236
+
+Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C., Bailey,
+L. L., & Weir, L. A. (2011). Improving occupancy estimation when two types of
+observational error occur: non-detection and species misidentification.
+*Ecology*, 92, 1422–1428. https://doi.org/10.1890/10-1396.1
+
+Piatti, L., de Sousa, D. L. H., Oliveira, B. S., de Melo, A. V., Sugai,
+L. S. M., & Provete, D. B. (2026). Methodological choices influence
+ecological inference in passive acoustic monitoring of a Neotropical
+nightjar. *Journal of Avian Biology*, in press.
+
+Piatti, L., de Sousa, D. L. H., Oliveira, B. S., de Melo, A. V., Sugai,
+L. S. M., & Provete, D. B. (2026). Data and code for: Methodological choices
+influence ecological inference in passive acoustic monitoring of a
+Neotropical nightjar. Zenodo. https://doi.org/10.5281/zenodo.21795898

@@ -688,6 +688,8 @@ combined: keep a verified method in `verified` and add confirmed occasions to
 
 - `vignette("calibration", package = "crywolf")`: check whether a model's
   credible intervals are calibrated for your design, and how much to verify.
+- `vignette("curiango", package = "crywolf")`: a case study with acoustic
+  monitoring of the Common Pauraque and two classifiers.
 
 ## References
 

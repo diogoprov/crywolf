@@ -653,14 +653,15 @@ assigned observations were false (1), all were true (2), or both kinds were
 found (3). Because false observations can now be seen directly, at occupied
 sites as well as at unoccupied ones, the model describes each occasion by
 two probabilities: $s_1$, of at least one true observation (at an occupied
-site), and $s_0$, of at least one false observation. The four states have
-probabilities
+site), and $s_0$, of at least one false observation. The probabilities of
+the four states $v = 0, 1, 2, 3$ are
 
 $$
-\Pr(v = 0, 1, 2, 3 \mid z = 1) =
-\left[(1 - s_1)(1 - s_0),\; (1 - s_1)\, s_0,\; s_1 (1 - s_0),\; s_1 s_0\right],
-\qquad
-\Pr(v = 0, 1, 2, 3 \mid z = 0) = \left[1 - s_0,\; s_0,\; 0,\; 0\right],
+\begin{aligned}
+\Pr(v \mid z = 1) &= \bigl[(1 - s_1)(1 - s_0),\; (1 - s_1)\, s_0,\\
+&\qquad s_1 (1 - s_0),\; s_1 s_0\bigr],\\
+\Pr(v \mid z = 0) &= \bigl[1 - s_0,\; s_0,\; 0,\; 0\bigr],
+\end{aligned}
 $$
 
 and an occasion that was not checked is a detection with probability

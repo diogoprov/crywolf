@@ -13,6 +13,7 @@ fp_occu(
   priors = fp_priors(),
   chains = 4,
   parallel_chains = chains,
+  threads_per_chain = 1,
   iter_warmup = 1000,
   iter_sampling = 1000,
   adapt_delta = 0.95,
@@ -50,6 +51,13 @@ causes divergent transitions.}
 \verb{$sample()} method of 'cmdstanr'.}
 
 \item{parallel_chains}{Number of chains run in parallel.}
+
+\item{threads_per_chain}{Number of threads each chain uses to compute the
+likelihood, which is summed over sites in parallel with Stan's
+\code{reduce_sum()}. The default, 1, runs each chain on one core. Larger
+values speed up fits with many sites or occasions; keep
+\code{parallel_chains * threads_per_chain} at or below the number of cores.
+The results do not depend on it beyond floating-point rounding.}
 
 \item{refresh}{How often each chain reports its progress, in iterations.
 The default, \code{NULL}, reports every 10\% of the iterations in interactive

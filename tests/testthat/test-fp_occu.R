@@ -27,3 +27,23 @@ test_that("fp_occu warns without verified data", {
   )
   expect_match(w, "No verified data", all = FALSE)
 })
+
+test_that("threads_per_chain is checked and does not change the fit", {
+  s <- simulate_fp(nsite = 80, nocc = 6, seed = 5)
+  expect_error(fp_occu(s$data, occ = ~ x, random_recorder = FALSE,
+                       threads_per_chain = 0), "positive integer")
+  skip_if_no_cmdstan()
+  expect_true(crywolf:::.has_threads(fp_compile()))
+  fit <- function(threads) {
+    suppressWarnings(fp_occu(s$data, occ = ~ x, random_recorder = FALSE,
+                             chains = 1, iter_warmup = 200,
+                             iter_sampling = 200, seed = 3,
+                             threads_per_chain = threads, refresh = 0))
+  }
+  m1 <- fit(1)
+  m2 <- fit(2)
+  # same seed and the same log density up to rounding: the first draws agree
+  d1 <- posterior::as_draws_matrix(m1$draws)[1:20, ]
+  d2 <- posterior::as_draws_matrix(m2$draws)[1:20, ]
+  expect_equal(unclass(d1), unclass(d2), tolerance = 1e-4, ignore_attr = TRUE)
+})

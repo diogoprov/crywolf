@@ -11,6 +11,10 @@
 #' directly to compile ahead of time, for example before launching parallel
 #' workers in [fp_calibrate()].
 #'
+#' The model is compiled with threading enabled (`stan_threads`), so that
+#' [fp_occu()] can split the likelihood of each chain among several threads
+#' (argument `threads_per_chain`).
+#'
 #' @param force Logical. Recompile even if a current executable exists.
 #' @param quiet Logical. Suppress compiler output.
 #'
@@ -32,7 +36,17 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
   if (!file.exists(dst) || !identical(readLines(src), readLines(dst))) {
     file.copy(src, dst, overwrite = TRUE)
   }
-  mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = force)
+  threads <- list(stan_threads = TRUE)
+  mod <- suppressWarnings(
+    cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = force,
+                            cpp_options = threads)
+  )
+  # an executable built without threading (by an earlier version of the
+  # package) is not rebuilt by cmdstanr unless asked
+  if (!.has_threads(mod)) {
+    mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = TRUE,
+                                   cpp_options = threads)
+  }
   .fp_env$model <- mod
   invisible(mod)
 }
@@ -46,6 +60,12 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
 #' fp_stan_file()
 fp_stan_file <- function() {
   system.file("stan", "fp_occu.stan", package = "crywolf", mustWork = TRUE)
+}
+
+.has_threads <- function(mod) {
+  opts <- mod$cpp_options()
+  v <- unlist(opts[tolower(names(opts)) == "stan_threads"])
+  isTRUE(as.logical(v[1]))
 }
 
 .has_cmdstan <- function() {

@@ -26,79 +26,117 @@
 // trials and much faster when detection covariates are constant within
 // sites. Rows must be sorted by site (fp_occu() does both), so that each
 // site's rows are contiguous and can be summed with segment().
+//
+// The sum over sites runs with reduce_sum(), which splits the sites among
+// threads when the model is compiled with stan_threads (threads_per_chain in
+// fp_occu()). Each slice of sites only touches its own rows of the automated
+// and confirmed occasions. With one thread the result is the same sum.
 // ============================================================================
 functions {
-  // linear predictor of true detection on the confirmed occasions
-  vector confirmed_lp11(matrix Z3, vector alpha, vector u, array[] int rec3,
-                int estimate_re) {
-    vector[rows(Z3)] lp = Z3 * alpha;
-    if (estimate_re == 1) lp += u[rec3];
-    return lp;
-  }
+  // Marginal log-likelihood of sites a to b, with the latent state z summed
+  // out. The automated (and confirmed) rows of these sites are contiguous.
+  vector site_loglik(int a, int b, matrix X, vector beta, matrix Z, vector alpha,
+                     real gamma0, matrix Xfp, vector gamma_fp, vector u,
+                     array[] int rec2, int estimate_re, int estimate_fp, int Kfp,
+                     vector y2v, vector n2v, array[] int site2,
+                     array[] int start2, array[] int len2, array[] int any_det2,
+                     vector n1v, vector s1v, real delta0,
+                     array[] int known_present, int obs_confirm,
+                     array[] int v3, array[] int site3, matrix Z3,
+                     array[] int rec3, array[] int start3, array[] int len3) {
+    int ns = b - a + 1;
+    vector[ns] lpsi = X[a:b] * beta;
+    vector[ns] lp10 = rep_vector(gamma0, ns);
+    if (Kfp > 0) lp10 += Xfp[a:b] * gamma_fp;
+    vector[ns] occ = rep_vector(0, ns);
+    vector[ns] unocc = rep_vector(0, ns);
 
-  // Marginal log-likelihood of each site, with the latent state z summed out.
-  vector site_loglik(vector lpsi, vector lp11_fixed, real gamma0, matrix Xfp,
-                     vector gamma_fp, vector u, array[] int rec2,
-                     int estimate_re, int estimate_fp, int Kfp,
-                     vector y2v, vector f2v, array[] int site2, array[] int start2,
-                     array[] int len2, array[] int any_det2,
-                     array[] int y1, array[] int site1, real delta0,
-                     array[] int known_present,
-                     int obs_confirm, array[] int v3, array[] int site3,
-                     vector lp11_3) {
-    int nsite = rows(lpsi);
-    int N2 = rows(y2v);
-    vector[N2] lp11 = lp11_fixed;
-    if (estimate_re == 1) lp11 += u[rec2];
-    vector[nsite] lp10 = rep_vector(gamma0, nsite);
-    if (Kfp > 0) lp10 += Xfp * gamma_fp;
-
-    // per-occasion log-likelihoods, vectorized
-    vector[N2] l11;
-    vector[N2] l10;
-    if (estimate_fp == 1) {
-      vector[N2] lp10_n = lp10[site2];
-      l10 = y2v .* log_inv_logit(lp10_n) + f2v .* log1m_inv_logit(lp10_n);
-    }
-    if (obs_confirm == 1) {
-      // log(1 - p11) = log(1 - s1) + log(1 - s0)
-      vector[N2] lq11 = log1m_inv_logit(lp11) + log1m_inv_logit(lp10[site2]);
-      l11 = y2v .* log1m_exp(lq11) + f2v .* lq11;
-    } else {
-      l11 = y2v .* log_inv_logit(lp11) + f2v .* log1m_inv_logit(lp11);
-    }
-
-    vector[nsite] occ = rep_vector(0, nsite);
-    vector[nsite] unocc = rep_vector(0, nsite);
-    for (i in 1:nsite) {
-      if (len2[i] > 0) {
-        occ[i] = sum(segment(l11, start2[i], len2[i]));
-        if (estimate_fp == 1) unocc[i] = sum(segment(l10, start2[i], len2[i]));
+    // automated occasions, as binomial rows; log_inv_logit(x) = x - log1p_exp(x)
+    // and log1m_inv_logit(x) = -log1p_exp(x)
+    int r0 = start2[a];
+    int nr = start2[b] + len2[b] - r0;
+    if (nr > 0) {
+      int r1 = r0 + nr - 1;
+      vector[nr] y = y2v[r0:r1];
+      vector[nr] n = n2v[r0:r1];
+      vector[nr] lp11 = Z[r0:r1] * alpha;
+      if (estimate_re == 1) lp11 += u[rec2[r0:r1]];
+      array[nr] int loc;
+      for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
+      vector[nr] l11;
+      vector[nr] l10;
+      if (estimate_fp == 1) {
+        vector[nr] lp10_n = lp10[loc];
+        l10 = y .* lp10_n - n .* log1p_exp(lp10_n);
+        if (obs_confirm == 1) {
+          // log(1 - p11) = log(1 - s1) + log(1 - s0)
+          vector[nr] lq11 = -log1p_exp(lp11) - log1p_exp(lp10_n);
+          l11 = y .* log1m_exp(lq11) + (n - y) .* lq11;
+        }
       }
-      if (estimate_fp == 0 && any_det2[i] == 1) unocc[i] = negative_infinity();
-    }
-    for (n in 1:size(y1))
-      occ[site1[n]] += bernoulli_logit_lpmf(y1[n] | delta0);
-    if (obs_confirm == 1) {
-      for (n in 1:size(v3)) {
-        int i = site3[n];
-        real ls1 = log_inv_logit(lp11_3[n]);
-        real lq1 = log1m_inv_logit(lp11_3[n]);
-        real ls0 = log_inv_logit(lp10[i]);
-        real lq0 = log1m_inv_logit(lp10[i]);
-        occ[i] += (v3[n] >= 2 ? ls1 : lq1) + (v3[n] % 2 == 1 ? ls0 : lq0);
-        unocc[i] += v3[n] >= 2 ? negative_infinity() : (v3[n] == 1 ? ls0 : lq0);
+      if (obs_confirm == 0) l11 = y .* lp11 - n .* log1p_exp(lp11);
+      for (i in 1:ns) {
+        int s = a + i - 1;
+        if (len2[s] > 0) {
+          occ[i] = sum(segment(l11, start2[s] - r0 + 1, len2[s]));
+          if (estimate_fp == 1) unocc[i] = sum(segment(l10, start2[s] - r0 + 1, len2[s]));
+        }
       }
     }
+    if (estimate_fp == 0) {
+      for (i in 1:ns) if (any_det2[a + i - 1] == 1) unocc[i] = negative_infinity();
+    }
 
-    vector[nsite] ll;
-    for (i in 1:nsite) {
+    // verified occasions, as counts per site
+    occ += s1v[a:b] * log_inv_logit(delta0) + (n1v[a:b] - s1v[a:b]) * log1m_inv_logit(delta0);
+
+    // confirmed occasions (observation-confirmation design)
+    if (obs_confirm == 1) {
+      int q0 = start3[a];
+      int nq = start3[b] + len3[b] - q0;
+      if (nq > 0) {
+        int q1 = q0 + nq - 1;
+        vector[nq] lp11_3 = Z3[q0:q1] * alpha;
+        if (estimate_re == 1) lp11_3 += u[rec3[q0:q1]];
+        for (k in 1:nq) {
+          int i = site3[q0 + k - 1] - a + 1;
+          int v = v3[q0 + k - 1];
+          real ls1 = log_inv_logit(lp11_3[k]);
+          real lq1 = log1m_inv_logit(lp11_3[k]);
+          real ls0 = log_inv_logit(lp10[i]);
+          real lq0 = log1m_inv_logit(lp10[i]);
+          occ[i] += (v >= 2 ? ls1 : lq1) + (v % 2 == 1 ? ls0 : lq0);
+          unocc[i] += v >= 2 ? negative_infinity() : (v == 1 ? ls0 : lq0);
+        }
+      }
+    }
+
+    vector[ns] ll;
+    for (i in 1:ns) {
       real occ_branch = log_inv_logit(lpsi[i]) + occ[i];
-      ll[i] = known_present[i] == 1
+      ll[i] = known_present[a + i - 1] == 1
               ? occ_branch
               : log_sum_exp(occ_branch, log1m_inv_logit(lpsi[i]) + unocc[i]);
     }
     return ll;
+  }
+
+  // partial sum over a slice of sites, for reduce_sum()
+  real partial_loglik(array[] int slice, int a, int b, matrix X, vector beta,
+                      matrix Z, vector alpha, real gamma0, matrix Xfp,
+                      vector gamma_fp, vector u, array[] int rec2,
+                      int estimate_re, int estimate_fp, int Kfp,
+                      vector y2v, vector n2v, array[] int site2,
+                      array[] int start2, array[] int len2, array[] int any_det2,
+                      vector n1v, vector s1v, real delta0,
+                      array[] int known_present, int obs_confirm,
+                      array[] int v3, array[] int site3, matrix Z3,
+                      array[] int rec3, array[] int start3, array[] int len3) {
+    return sum(site_loglik(a, b, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, u,
+                           rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
+                           start2, len2, any_det2, n1v, s1v, delta0,
+                           known_present, obs_confirm, v3, site3, Z3, rec3,
+                           start3, len3));
   }
 }
 
@@ -144,13 +182,31 @@ data {
 
 transformed data {
   vector[N2] y2v = to_vector(y2);
-  vector[N2] f2v = to_vector(n2) - y2v;      // non-detections
+  vector[N2] n2v = to_vector(n2);
   // sites with an automated detection cannot be unoccupied without false positives
   array[nsite] int any_det2 = rep_array(0, nsite);
   for (n in 1:N2) {
     if (y2[n] > n2[n]) reject("y2 cannot exceed n2");
     if (y2[n] > 0) any_det2[site2[n]] = 1;
   }
+  // verified occasions and detections per site
+  vector[nsite] n1v = rep_vector(0, nsite);
+  vector[nsite] s1v = rep_vector(0, nsite);
+  for (n in 1:N1) {
+    n1v[site1[n]] += 1;
+    s1v[site1[n]] += y1[n];
+  }
+  // first row and number of rows of each site among the confirmed occasions
+  array[nsite] int len3 = rep_array(0, nsite);
+  for (n in 1:N3) {
+    if (n > 1 && site3[n] < site3[n - 1]) reject("confirmed occasions must be sorted by site");
+    len3[site3[n]] += 1;
+  }
+  array[nsite] int start3;
+  start3[1] = 1;
+  for (i in 2:nsite) start3[i] = start3[i - 1] + len3[i - 1];
+  // sites, sliced among threads by reduce_sum()
+  array[nsite] int site_index = linspaced_int_array(nsite, 1, nsite);
 }
 
 parameters {
@@ -179,14 +235,11 @@ model {
   gamma_fp       ~ normal(0, prior_sd_slope);
   delta0         ~ normal(0, prior_sd_int);
 
-  {
-    vector[nsite] ll_site = site_loglik(X * beta, Z * alpha, gamma0, Xfp, gamma_fp,
-                                        u, rec2, estimate_re, estimate_fp, Kfp,
-                                        y2v, f2v, site2, start2, len2, any_det2,
-                                        y1, site1, delta0, known_present,
-                                        obs_confirm, v3, site3, confirmed_lp11(Z3, alpha, u, rec3, estimate_re));
-    target += sum(ll_site);
-  }
+  target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
+                       Xfp, gamma_fp, u, rec2, estimate_re, estimate_fp, Kfp,
+                       y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
+                       known_present, obs_confirm, v3, site3, Z3, rec3, start3,
+                       len3);
 }
 
 generated quantities {
@@ -201,10 +254,10 @@ generated quantities {
     vector[nsite] lp10 = rep_vector(gamma0, nsite);
     if (Kfp > 0) lp10 += Xfp * gamma_fp;
     if (estimate_fp == 1) p10_bar = mean(inv_logit(lp10));
-    log_lik = site_loglik(X * beta, Z * alpha, gamma0, Xfp, gamma_fp,
-                          u, rec2, estimate_re, estimate_fp, Kfp,
-                          y2v, f2v, site2, start2, len2, any_det2,
-                          y1, site1, delta0, known_present,
-                          obs_confirm, v3, site3, confirmed_lp11(Z3, alpha, u, rec3, estimate_re));
+    log_lik = site_loglik(1, nsite, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, u,
+                          rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
+                          start2, len2, any_det2, n1v, s1v, delta0,
+                          known_present, obs_confirm, v3, site3, Z3, rec3,
+                          start3, len3);
   }
 }

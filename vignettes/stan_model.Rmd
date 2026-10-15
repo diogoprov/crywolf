@@ -92,7 +92,8 @@ roles, and the sampler could visit either.
 ## Likelihood
 
 The occupancy state $z_i$ is discrete, so Stan cannot sample it. The
-function `site_loglik()` sums it out for each site:
+function `site_loglik()` sums it out for each site in a range of sites, from
+`a` to `b`:
 
 ```{r functions, echo = FALSE, comment = ""}
 stan_block("functions")
@@ -118,7 +119,37 @@ shortcut it:
   same way.
 
 The per-occasion terms are computed as vectors and summed by site with
-`segment()`, which works because the rows of each site are contiguous.
+`segment()`, which works because the rows of each site are contiguous. For
+the automated occasions the binomial log-likelihood is written as
+$y \eta - n \log(1 + e^{\eta})$, where $\eta$ is the linear predictor;
+this equals $y \log p + (n - y) \log(1 - p)$ with $p$ the inverse logit of
+$\eta$, but needs one transcendental function per row instead of two. The
+verified occasions enter as the number of occasions and detections of each
+site, which gives the same sum as one Bernoulli term per occasion.
+
+### Parallel likelihood
+
+Most of the computing time goes to the automated occasions: in the
+`vignette("curiango", package = "crywolf")` data, with 97,806 one-minute
+occasions and a recorder effect, they took about 90% of the time spent
+evaluating the log density. Because sites are independent given the
+parameters, the model block adds them up with `reduce_sum()`, which splits
+the sites into slices and evaluates the slices on different threads.
+`partial_loglik()` is the sum of `site_loglik()` over one slice; each slice
+reads only its own rows of the automated and confirmed occasions, located
+with `start2` and `len2` (and their counterparts for the confirmed
+occasions, built in `transformed data`).
+
+`fp_compile()` builds the model with threading enabled, and
+`fp_occu(threads_per_chain = )` sets the number of threads of each chain.
+With one thread the sum is computed serially, as before. With more, only
+the order of the additions changes, so the log density differs from the
+serial one by floating-point rounding (around $10^{-16}$ in relative
+terms). Chains with the same seed then follow the same path for a while
+and drift apart later, as they would on another computer, and the
+posterior is the same. The gain is largest when there are many occasions:
+keep `parallel_chains * threads_per_chain` at or below the number of
+physical cores.
 
 ## Priors and model block
 
@@ -127,8 +158,8 @@ stan_block("model")
 ```
 
 All priors are on the logit scale and are listed with their defaults in
-`?fp_priors`. The model block calls `site_loglik()` once and adds the sum
-over sites to the log density.
+`?fp_priors`. The model block adds the sum over sites, computed by
+`reduce_sum()`, to the log density.
 
 ## Generated quantities
 
@@ -161,7 +192,9 @@ my_fit <- my_model$sample(data = m$stan_data, chains = 4, parallel_chains = 4,
 my_fit$summary(c("beta", "alpha", "fp_gap", "p10_ref"))
 ```
 
-The result is a `CmdStanMCMC` object with the Stan names of the
+A copy compiled without `cpp_options = list(stan_threads = TRUE)` runs the
+likelihood on one thread per chain, which gives the same results. The
+result is a `CmdStanMCMC` object with the Stan names of the
 parameters (`beta`, `alpha`, `gamma0`, ...), not an `fp_occu` object, so the
 methods of crywolf do not apply to it. If the edit adds data, add the new
 elements to the list before sampling. `fp_ppc()` recomputes the likelihood

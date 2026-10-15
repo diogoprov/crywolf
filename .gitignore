@@ -15,3 +15,4 @@ inst/stan/*.exe
 CLAUDE.md
 .claude/
 dev/curiango-fits/
+dev/profile/fp_occu_profile

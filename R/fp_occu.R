@@ -33,6 +33,12 @@
 #'   usually slower than sampling ones, so the first half of the run takes
 #'   more than half of the time.
 #' @param parallel_chains Number of chains run in parallel.
+#' @param threads_per_chain Number of threads each chain uses to compute the
+#'   likelihood, which is summed over sites in parallel with Stan's
+#'   `reduce_sum()`. The default, 1, runs each chain on one core. Larger
+#'   values speed up fits with many sites or occasions; keep
+#'   `parallel_chains * threads_per_chain` at or below the number of cores.
+#'   The results do not depend on it beyond floating-point rounding.
 #' @param ... Further arguments passed to `$sample()`.
 #'
 #' @details
@@ -110,7 +116,7 @@
 fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     random_recorder = !is.null(data$recorder),
                     priors = fp_priors(),
-                    chains = 4, parallel_chains = chains,
+                    chains = 4, parallel_chains = chains, threads_per_chain = 1,
                     iter_warmup = 1000, iter_sampling = 1000,
                     adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
   if (!inherits(data, "fp_data")) {
@@ -122,6 +128,11 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     warning("No verified data: the false-positive rate is identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
+  threads_per_chain <- as.integer(threads_per_chain)
+  if (length(threads_per_chain) != 1 || is.na(threads_per_chain) ||
+      threads_per_chain < 1) {
+    stop("`threads_per_chain` must be a positive integer.", call. = FALSE)
+  }
   sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors)
   if (is.null(refresh)) {
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
@@ -129,6 +140,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   mod <- fp_compile()
   fit <- mod$sample(data = sd_list$stan_data, chains = chains,
                     parallel_chains = parallel_chains,
+                    threads_per_chain = threads_per_chain,
                     iter_warmup = iter_warmup, iter_sampling = iter_sampling,
                     adapt_delta = adapt_delta, seed = seed, refresh = refresh,
                     ...)

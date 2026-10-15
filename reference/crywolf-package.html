@@ -118,6 +118,21 @@ verification it needs.</p></li>
 
 
     <div class="section level2">
+    <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a></h2>
+
+
+<p>crywolf is distributed through R-universe, with binaries for Windows,
+macOS, and Linux. 'cmdstanr' comes from the Stan R-universe, and CmdStan
+itself is installed once:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"crywolf"</span>, <span class="at">repos =</span> <span class="fu">c</span>(<span class="st">"https://diogoprov.r-universe.dev"</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>                                      <span class="st">"https://stan-dev.r-universe.dev"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>                                      <span class="fu">getOption</span>(<span class="st">"repos"</span>)))</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">install_cmdstan</span>()</span></code></pre><p></p></div>
+<p>The model is compiled the first time <code><a href="fp_occu.html">fp_occu()</a></code> needs it, or ahead of
+time with <code><a href="fp_compile.html">fp_compile()</a></code>, and the executable is kept in the user cache
+directory for later sessions.</p>
+    </div>
+    <div class="section level2">
     <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a></h2>
 
 
@@ -141,7 +156,32 @@ $$\mathrm{logit}(p_{11,ik}) = Z_{ik}\alpha + u_{j[ik]}, \quad
 $$y^{ver}_{im} \sim \mathrm{Bernoulli}(z_i r_{11})$$
 The latent state \(z\) is marginalized. The positive gap \(\Delta\)
 keeps the true-detection probability above the false-positive probability
-at the reference values of the covariates, which prevents label switching.</p>
+at the reference values of the covariates, which prevents label switching.
+Priors are Normal on the logit scale for intercepts and slopes, Normal
+truncated at zero for \(\Delta\), and half-Normal for the standard
+deviation of the recorder effect; <code><a href="fp_priors.html">fp_priors()</a></code> lists the defaults and
+changes them without recompiling. <code><a href="../articles/stan_model.html">vignette("stan_model")</a></code> walks through
+the Stan program.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="computation">Computation<a class="anchor" aria-label="anchor" href="#computation"></a></h2>
+
+
+<p>Each chain runs on one core by default. The likelihood is summed over
+sites with Stan's <code>reduce_sum()</code>, so <code>threads_per_chain</code> in <code><a href="fp_occu.html">fp_occu()</a></code>
+splits each chain among several cores, which pays off with many sites or
+occasions. Keep <code>parallel_chains * threads_per_chain</code> at or below the
+number of physical cores. <code><a href="fp_calibrate.html">fp_calibrate()</a></code> fits many models, one chain per
+worker; compile the model with <code><a href="fp_compile.html">fp_compile()</a></code> before starting workers.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a></h2>
+
+
+<p><code>citation("crywolf")</code> gives the reference to the package. Every release
+is archived on Zenodo; <a href="https://doi.org/10.5281/zenodo.23385045" class="external-link">doi:10.5281/zenodo.23385045</a>
+ always resolves to
+the latest version.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

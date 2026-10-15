@@ -42,6 +42,24 @@ The package has three parts:
   so that users can see whether the correction holds for their design
   and how much verification it needs.
 
+## Installation
+
+crywolf is distributed through R-universe, with binaries for Windows,
+macOS, and Linux. 'cmdstanr' comes from the Stan R-universe, and CmdStan
+itself is installed once:
+
+    install.packages("crywolf", repos = c("https://diogoprov.r-universe.dev",
+                                          "https://stan-dev.r-universe.dev",
+                                          getOption("repos")))
+    cmdstanr::install_cmdstan()
+
+The model is compiled the first time
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) needs
+it, or ahead of time with
+[`fp_compile()`](https://provetelab.org/crywolf/reference/fp_compile.md),
+and the executable is kept in the user cache directory for later
+sessions.
+
 ## Getting started
 
 [`vignette("crywolf")`](https://provetelab.org/crywolf/articles/crywolf.md)
@@ -68,7 +86,34 @@ Z\_{ik}\alpha + u\_{j\[ik\]}, \quad \mathrm{logit}(p\_{10,i}) =
 \mathrm{Bernoulli}(z_i r\_{11})\$\$ The latent state \\z\\ is
 marginalized. The positive gap \\\Delta\\ keeps the true-detection
 probability above the false-positive probability at the reference values
-of the covariates, which prevents label switching.
+of the covariates, which prevents label switching. Priors are Normal on
+the logit scale for intercepts and slopes, Normal truncated at zero for
+\\\Delta\\, and half-Normal for the standard deviation of the recorder
+effect;
+[`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
+lists the defaults and changes them without recompiling.
+[`vignette("stan_model")`](https://provetelab.org/crywolf/articles/stan_model.md)
+walks through the Stan program.
+
+## Computation
+
+Each chain runs on one core by default. The likelihood is summed over
+sites with Stan's `reduce_sum()`, so `threads_per_chain` in
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+splits each chain among several cores, which pays off with many sites or
+occasions. Keep `parallel_chains * threads_per_chain` at or below the
+number of physical cores.
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
+fits many models, one chain per worker; compile the model with
+[`fp_compile()`](https://provetelab.org/crywolf/reference/fp_compile.md)
+before starting workers.
+
+## Citation
+
+`citation("crywolf")` gives the reference to the package. Every release
+is archived on Zenodo;
+[doi:10.5281/zenodo.23385045](https://doi.org/10.5281/zenodo.23385045)
+always resolves to the latest version.
 
 ## References
 

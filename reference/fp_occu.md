@@ -24,7 +24,7 @@ fp_occu(
   iter_sampling = 1000,
   adapt_delta = 0.95,
   seed = NULL,
-  refresh = 0,
+  refresh = NULL,
   ...
 )
 ```
@@ -68,13 +68,21 @@ fp_occu(
   Prior settings from
   [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md).
 
-- chains, iter_warmup, iter_sampling, adapt_delta, seed, refresh:
+- chains, iter_warmup, iter_sampling, adapt_delta, seed:
 
   Passed to the `$sample()` method of 'cmdstanr'.
 
 - parallel_chains:
 
   Number of chains run in parallel.
+
+- refresh:
+
+  How often each chain reports its progress, in iterations. The default,
+  `NULL`, reports every 10% of the iterations in interactive sessions
+  and nothing otherwise; `0` silences it. Warm-up iterations are usually
+  slower than sampling ones, so the first half of the run takes more
+  than half of the time.
 
 - ...:
 
@@ -106,6 +114,21 @@ already returns them standardized.
 rate. With none, the model still runs, but the rate is informed only by
 the priors and the gap, and the fit should not be trusted.
 
+**Observation-confirmation design.** When `data` has confirmed occasions
+(argument `confirmed` of
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)), the
+model follows the observation-confirmation design of Chambert et al.
+(2015): an expert checks every observation of some automated occasions
+and finds only false ones, only true ones, both, or none. False
+observations can then occur at occupied sites too, and `det` and `fp`
+model \\s_1\\ and \\s_0\\, the probabilities of at least one true and at
+least one false observation on an occasion; a site-level detection at an
+occupied site has probability \\p\_{11} = 1 - (1 - s_1)(1 - s_0)\\, and
+`p11_ref` reports it at the reference. The confirmed occasions identify
+\\s_0\\ directly, so verified data are optional; they can be combined
+with this design. The gap still applies, so that \\s_1 \> s_0\\ at the
+reference.
+
 **When to model the false-positive rate.** In the simulations behind
 this package, a constant rate gave calibrated intervals for the
 occupancy slope when false positives were homogeneous; random variation
@@ -127,6 +150,11 @@ probabilities at the reference), and `p10_bar` (false-positive
 probability averaged over the sites).
 
 ## References
+
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. *Ecology*, 96, 332–339.
+[doi:10.1890/14-1507.1](https://doi.org/10.1890/14-1507.1)
 
 Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when

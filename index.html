@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Bayesian False-Positive Occupancy Models with Calibration Checks • crywolf</title>
-<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
-  window.MathJax = {
-    chtml: {
-      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
-    }
-  };
-</script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="katex-auto.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -70,7 +70,7 @@
 <!-- badges: start -->
 
 <p>Bayesian false-positive occupancy models for data from automated detectors, with simulation-based checks of whether the correction is calibrated for your design.</p>
-<p>Acoustic classifiers and other automated detectors return false positives. <strong>crywolf</strong> fits the multiple-methods (site-confirmation) false-positive occupancy model of Miller et al. (2011) in Stan: the classifier output may be wrong, and a verified subset of detections is certain. The false-positive rate can be constant or depend on site covariates, which matters when false positives track the same environmental gradient as the species.</p>
+<p>Acoustic classifiers and other automated detectors return false positives. <strong>crywolf</strong> fits the multiple-methods (site-confirmation) false-positive occupancy model of Miller et al. (2011) in Stan: the classifier output may be wrong, and a verified subset of detections is certain. It also fits the observation-confirmation design of Chambert et al. (2015), in which an expert checks the observations of some automated occasions. The false-positive rate can be constant or depend on site covariates, which matters when false positives track the same environmental gradient as the species.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -121,12 +121,16 @@
 <td>
 <code><a href="reference/fp_data.html">fp_data()</a></code>, <code><a href="reference/fp_data_wide.html">fp_data_wide()</a></code>
 </td>
-<td>assemble automated and verified detections and site covariates</td>
+<td>assemble automated, verified, and confirmed detections and site covariates</td>
 </tr>
 <tr>
 <td><code><a href="reference/fp_occu.html">fp_occu()</a></code></td>
 <td>fit the model; methods <code>print</code>, <code>summary</code>, <code>coef</code>, <code>predict</code>, <code>loo</code>, <code>as_draws_df</code>
 </td>
+</tr>
+<tr>
+<td><code><a href="reference/fp_ppc.html">fp_ppc()</a></code></td>
+<td>posterior predictive check of the detections per site</td>
 </tr>
 <tr>
 <td><code><a href="reference/fp_priors.html">fp_priors()</a></code></td>
@@ -144,6 +148,14 @@
 <td><code><a href="reference/fp_verification_curve.html">fp_verification_curve()</a></code></td>
 <td>coverage against the fraction of sites verified</td>
 </tr>
+<tr>
+<td><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></td>
+<td>coverage or bias of a calibration run</td>
+</tr>
+<tr>
+<td><code>curiango</code></td>
+<td>acoustic monitoring of the Common Pauraque in the Pantanal (Piatti et al. 2026)</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -152,6 +164,12 @@
 </h2>
 <p>If you use crywolf, please cite the package (<code>citation("crywolf")</code>) and Miller et al. (2011).</p>
 <p>Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C., Bailey, L. L., &amp; Weir, L. A. (2011). Improving occupancy estimation when two types of observational error occur: non-detection and species misidentification. <em>Ecology</em>, 92, 1422–1428. <a href="https://doi.org/10.1890/10-1396.1" class="external-link uri">https://doi.org/10.1890/10-1396.1</a></p>
+</div>
+<div class="section level2">
+<h2 id="why-crywolf">Why “crywolf”?<a class="anchor" aria-label="anchor" href="#why-crywolf"></a>
+</h2>
+<p>The name comes from Aesop’s fable <em>The Boy Who Cried Wolf</em> (Perry Index 210), in which a shepherd boy raises the alarm about a wolf so many times when there is none that nobody believes him when the wolf finally comes (<a href="https://en.wikipedia.org/wiki/The_Boy_Who_Cried_Wolf" class="external-link">Wikipedia</a>). An automated detector is that boy: it sometimes cries “species!” when the species is absent. Ignoring the false alarms biases occupancy estimates, and discarding every alarm wastes the true ones. crywolf takes the middle path: it uses a verified subset of detections to estimate how often the detector cries wolf, and corrects for it.</p>
+<p>The logo is a nod to the 1980s and to <a href="https://en.wikipedia.org/wiki/Cry_Wolf_(A-ha_song)" class="external-link">“Cry Wolf”</a>, the 1986 single by the Norwegian band a-ha from the album <em>Scoundrel Days</em>. It borrows the synthwave look of the decade: a neon magenta frame on deep purple, a striped setting sun, and a rounded display typeface. The wolf howls in sound waves over a cyan audio equalizer, standing for the acoustic recordings behind the package. The package has no connection with the band, and the logo uses none of its artwork or lyrics.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>

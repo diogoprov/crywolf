@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Checking calibration and how much to verify • crywolf</title>
-<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
-  window.MathJax = {
-    chtml: {
-      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
-    }
-  };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -109,12 +109,48 @@ the occupancy slope.</li>
 <span>  occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, reps <span class="op">=</span> <span class="fl">50</span>, parallel <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span></code></pre></div>
+<p>The code above is not run when this vignette is built; the output
+below comes from the same call, saved in advance. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+prints, for the occupancy slope, the coverage of the 95% intervals, its
+Monte Carlo standard error, the bias, and a verdict:</p>
+<pre><code><span><span class="co">#&gt; Calibration summary (95% intervals)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Occupancy slope:</span></span>
+<span><span class="co">#&gt;  cell    model nsite nocc  p10 frac_verified conf_effect conf_cor  n failed</span></span>
+<span><span class="co">#&gt;     1 constant   300   20 0.05           0.3         0.0      0.7 50      0</span></span>
+<span><span class="co">#&gt;     1  fp_on_x   300   20 0.05           0.3         0.0      0.7 50      0</span></span>
+<span><span class="co">#&gt;     2 constant   300   20 0.05           0.3         0.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     2  fp_on_x   300   20 0.05           0.3         0.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     3 constant   300   20 0.05           0.3         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     3  fp_on_x   300   20 0.05           0.3         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;  coverage mc_se    bias rmse prop_divergent   verdict</span></span>
+<span><span class="co">#&gt;      1.00 0.000 0.06986 0.19           0.66        ok</span></span>
+<span><span class="co">#&gt;      0.98 0.020 0.00032 0.14           0.52        ok</span></span>
+<span><span class="co">#&gt;      0.96 0.028 0.07085 0.21           0.58        ok</span></span>
+<span><span class="co">#&gt;      0.96 0.028 0.01103 0.15           0.70        ok</span></span>
+<span><span class="co">#&gt;      0.22 0.059 0.42449 0.45           0.60 collapsed</span></span>
+<span><span class="co">#&gt;      0.62 0.069 0.24085 0.29           0.68 collapsed</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; All quantities: inspect the returned tibble.</span></span></code></pre>
+<div class="figure">
+<img src="calibration_files/figure-html/plot-confusion-1.png" class="r-plt" alt="Coverage of the 95% interval of the occupancy slope against the strength of the confusion, for the constant-rate model and for a false-positive rate that depends on the occupancy covariate. Bars span two Monte Carlo standard errors; the dashed line is the nominal coverage." width="100%"><p class="caption">
+Coverage of the 95% interval of the occupancy slope against the strength
+of the confusion, for the constant-rate model and for a false-positive
+rate that depends on the occupancy covariate. Bars span two Monte Carlo
+standard errors; the dashed line is the nominal coverage.
+</p>
+</div>
 <p>Each replicate costs one Stan fit per model, so this design needs 3
 cells × 50 replicates × 2 models = 300 fits. With 50 replicates, the
 Monte Carlo standard error of a coverage of 0.95 is about 0.03, enough
 to tell a calibrated model from a broken one; raise <code>reps</code>
 only to pin a borderline value. Every model is fitted to the same
 datasets, so comparisons between models are paired.</p>
+<p>The column <code>prop_divergent</code> is the share of fits with at
+least one divergent transition. In this run most fits had a few
+divergences (median 1 of 4000 draws), so check <code>max_rhat</code> and
+<code>divergences</code> in the returned tibble before trusting a cell
+whose fits had many.</p>
 </div>
 <div class="section level2">
 <h2 id="how-much-to-verify">How much to verify<a class="anchor" aria-label="anchor" href="#how-much-to-verify"></a>
@@ -122,13 +158,47 @@ datasets, so comparisons between models are paired.</p>
 <p>Verification anchors the false-positive rate. It is natural to think
 that verifying more sites will rescue a model that is not calibrated,
 and <code><a href="../reference/fp_verification_curve.html">fp_verification_curve()</a></code> tests that directly:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fp_verification_curve.html">fp_verification_curve</a></span><span class="op">(</span></span>
 <span>  nsite <span class="op">=</span> <span class="fl">300</span>, nocc <span class="op">=</span> <span class="fl">20</span>, p10 <span class="op">=</span> <span class="fl">0.05</span>, conf_effect <span class="op">=</span> <span class="fl">1.5</span>, conf_cor <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>  frac_verified <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span>, <span class="fl">0.9</span><span class="op">)</span>,</span>
 <span>  models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>constant <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp_on_x <span class="op">=</span> <span class="op">~</span> <span class="va">x</span><span class="op">)</span>,</span>
 <span>  reps <span class="op">=</span> <span class="fl">50</span>, parallel <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Calibration summary (95% intervals)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Occupancy slope:</span></span>
+<span><span class="co">#&gt;  cell    model frac_verified nsite nocc  p10 conf_effect conf_cor  n failed</span></span>
+<span><span class="co">#&gt;     1 constant           0.1   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     1  fp_on_x           0.1   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     2 constant           0.3   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     2  fp_on_x           0.3   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     3 constant           0.5   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     3  fp_on_x           0.5   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     4 constant           0.7   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     4  fp_on_x           0.7   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     5 constant           0.9   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;     5  fp_on_x           0.9   300   20 0.05         1.5      0.7 50      0</span></span>
+<span><span class="co">#&gt;  coverage mc_se bias rmse prop_divergent   verdict</span></span>
+<span><span class="co">#&gt;      0.06 0.034 0.55 0.57           0.82 collapsed</span></span>
+<span><span class="co">#&gt;      0.38 0.069 0.39 0.43           0.82 collapsed</span></span>
+<span><span class="co">#&gt;      0.12 0.046 0.45 0.48           0.64 collapsed</span></span>
+<span><span class="co">#&gt;      0.48 0.071 0.29 0.32           0.68 collapsed</span></span>
+<span><span class="co">#&gt;      0.22 0.059 0.40 0.42           0.58 collapsed</span></span>
+<span><span class="co">#&gt;      0.64 0.068 0.21 0.26           0.68 collapsed</span></span>
+<span><span class="co">#&gt;      0.10 0.042 0.40 0.42           0.62 collapsed</span></span>
+<span><span class="co">#&gt;      0.64 0.068 0.21 0.24           0.58 collapsed</span></span>
+<span><span class="co">#&gt;      0.24 0.060 0.39 0.42           0.64 collapsed</span></span>
+<span><span class="co">#&gt;      0.64 0.068 0.21 0.25           0.60 collapsed</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; All quantities: inspect the returned tibble.</span></span></code></pre>
+<div class="figure">
+<img src="calibration_files/figure-html/plot-verification-1.png" class="r-plt" alt="Coverage of the 95% interval of the occupancy slope against the fraction of sites verified, under structured confusion (effect 1.5, correlation 0.7)." width="100%"><p class="caption">
+Coverage of the 95% interval of the occupancy slope against the fraction
+of sites verified, under structured confusion (effect 1.5, correlation
+0.7).
+</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="what-to-expect">What to expect<a class="anchor" aria-label="anchor" href="#what-to-expect"></a>
@@ -168,7 +238,7 @@ and a dashed line at the nominal level. <code>type = "bias"</code> plots
 the bias instead, and <code>parameter</code> selects another scored
 quantity. The result is a ‘ggplot2’ object that can be modified as
 usual.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"bias"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, parameter <span class="op">=</span> <span class="st">"p10_bar"</span><span class="op">)</span></span></code></pre></div>

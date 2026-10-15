@@ -30,6 +30,7 @@ simulate_fp(
   a_aci = 0,
   sd_recorder = 0,
   nrec = 5,
+  frac_confirmed = 0,
   seed = NULL
 )
 ```
@@ -109,6 +110,12 @@ simulate_fp(
 
   Number of recorders.
 
+- frac_confirmed:
+
+  Probability that an automated occasion is checked under the
+  observation-confirmation design of Chambert et al. (2015). 0 (default)
+  for none. See Details.
+
 - seed:
 
   Optional integer seed.
@@ -133,6 +140,14 @@ same order as `simulate_fp()` of the fpcalib research compendium
 (v0.1.0), with `nsite`, `nocc`, `frac_verified`, `nver`, `sd_recorder`,
 and `nrec` corresponding to its `nsite`, `K`, `verified_coverage`,
 `n_verified`, `sig_u`, and `nobser`.
+
+With `frac_confirmed > 0`, false observations occur at occupied sites
+too: on each occasion, a true observation occurs with probability `p11`
+(and its covariate effects) at occupied sites, and a false one with the
+site's false-positive rate at any site, independently. The occasion is a
+detection if either occurs. Checked occasions get the columns `n_true`
+and `n_false` of `auto` (0 or 1; `NA` elsewhere). These draws come after
+all others, so the default design reproduces the same random numbers.
 
 ## See also
 

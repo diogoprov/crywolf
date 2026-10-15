@@ -18,7 +18,15 @@ The package has three parts:
   fits the model in Stan through 'cmdstanr'. The false-positive rate can
   be constant (`fp = ~ 1`) or depend on site covariates (`fp = ~ w`),
   and the true-detection process accepts observation covariates and a
-  recorder random effect.
+  recorder random effect. The observation-confirmation design of
+  Chambert et al. (2015), in which an expert checks the detections of
+  some automated occasions, is supported through the `confirmed`
+  argument of
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) runs
+  a posterior predictive check, and
+  [curiango](https://provetelab.org/crywolf/reference/curiango.md) holds
+  a real dataset.
 
 - **Simulation.**
   [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)

@@ -6,13 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Introduction to crywolf • crywolf</title>
-<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
-  window.MathJax = {
-    chtml: {
-      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
-    }
-  };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -121,7 +121,10 @@ covariates;</li>
 <code><a href="../reference/fp_ppc.html">fp_ppc()</a></code>;</li>
 <li>model comparison with leave-one-site-out cross-validation, and
 prediction (see <code>?fp_occu-methods</code>);</li>
-<li>detection covariates and recorder random effects.</li>
+<li>detection covariates and recorder random effects;</li>
+<li>the observation-confirmation design of Chambert et al. (2015), in
+which an expert checks the observations of some automated
+occasions.</li>
 </ul>
 <p><code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code>, which checks the calibration of a model
 for your own design, has its own vignette,
@@ -157,22 +160,21 @@ figures, and set a seed so that the results can be reproduced.</p>
 <div class="section level3">
 <h3 id="the-multiple-methods-design">The multiple-methods design<a class="anchor" aria-label="anchor" href="#the-multiple-methods-design"></a>
 </h3>
-<p>Each site <span class="math inline">\(i\)</span> is surveyed <span class="math inline">\(K_i\)</span> times by the automated method, for
-example <span class="math inline">\(K_i\)</span> recordings scanned by a
+<p>Each site <span class="math inline">i</span> is surveyed <span class="math inline">K_i</span> times by the automated method, for
+example <span class="math inline">K_i</span> recordings scanned by a
 classifier. These are the <em>automated</em> occasions; each gives a
-detection (<span class="math inline">\(y_{ik} = 1\)</span>) or not
-(<span class="math inline">\(y_{ik} = 0\)</span>), and a detection may
-be a false positive. At a subset of sites, an expert also checks <span class="math inline">\(M_i\)</span> occasions, for example by listening
-to clips. These are the <em>verified</em> occasions (<span class="math inline">\(v_{im}\)</span>). A verified detection is certain:
-the species was there.</p>
+detection (<span class="math inline">y_{ik} = 1</span>) or not (<span class="math inline">y_{ik} = 0</span>), and a detection may be a false
+positive. At a subset of sites, an expert also checks <span class="math inline">M_i</span> occasions, for example by listening to
+clips. These are the <em>verified</em> occasions (<span class="math inline">v_{im}</span>). A verified detection is certain: the
+species was there.</p>
 </div>
 <div class="section level3">
 <h3 id="simulated-data">Simulated data<a class="anchor" aria-label="anchor" href="#simulated-data"></a>
 </h3>
 <p>We simulate 300 sites with 20 automated occasions each, of which
 about 30% are verified on three occasions. Occupancy declines along a
-standardized covariate <code>x</code> (true slope <span class="math inline">\(-0.8\)</span>). False positives are rare on
-average (baseline rate 0.05), but they increase along a second gradient,
+standardized covariate <code>x</code> (true slope <span class="math inline">-0.8</span>). False positives are rare on average
+(baseline rate 0.05), but they increase along a second gradient,
 <code>w</code>, whose correlation with <code>x</code> is 0.7. This is
 what happens, for instance, when a soundalike species becomes more
 common where the target is rare. In real data, <code>w</code> is usually
@@ -275,76 +277,79 @@ your detections are stored as site-by-occasion matrices, as in
 <div class="section level3">
 <h3 id="basic-model-description">Basic model description<a class="anchor" aria-label="anchor" href="#basic-model-description"></a>
 </h3>
-<p>Let <span class="math inline">\(z_i\)</span> be the true occupancy
-state of site <span class="math inline">\(i\)</span> (<span class="math inline">\(z_i = 1\)</span> if the species is present). We
-model it as</p>
-<p><span class="math display">\[
+<p>Let <span class="math inline">z_i</span> be the true occupancy state
+of site <span class="math inline">i</span> (<span class="math inline">z_i = 1</span> if the species is present). We model
+it as</p>
+<p><span class="math display">
 z_i \sim \text{Bernoulli}(\psi_i), \qquad
 \text{logit}(\psi_i) = \mathbf{x}_i^\top \boldsymbol{\beta},
-\]</span></p>
-<p>where <span class="math inline">\(\psi_i\)</span> is the occupancy
-probability, <span class="math inline">\(\mathbf{x}_i\)</span> is the
-vector of site covariates (with a leading 1 for the intercept), and
-<span class="math inline">\(\boldsymbol{\beta}\)</span> the vector of
-occupancy coefficients.</p>
-<p>A detection by the automated method on occasion <span class="math inline">\(k\)</span> can come from an occupied site (a true
-detection, with probability <span class="math inline">\(p_{11,ik}\)</span>) or from an unoccupied site (a
-false positive, with probability <span class="math inline">\(p_{10,i}\)</span>):</p>
-<p><span class="math display">\[
+</span></p>
+<p>where <span class="math inline">\psi_i</span> is the occupancy
+probability, <span class="math inline">\mathbf{x}_i</span> is the vector
+of site covariates (with a leading 1 for the intercept), and <span class="math inline">\boldsymbol{\beta}</span> the vector of occupancy
+coefficients.</p>
+<p>A detection by the automated method on occasion <span class="math inline">k</span> can come from an occupied site (a true
+detection, with probability <span class="math inline">p_{11,ik}</span>)
+or from an unoccupied site (a false positive, with probability <span class="math inline">p_{10,i}</span>):</p>
+<p><span class="math display">
 y_{ik} \mid z_i \sim \text{Bernoulli}\left(z_i\, p_{11,ik} + (1 - z_i)\,
 p_{10,i}\right).
-\]</span></p>
+</span></p>
 <p>The true-detection probability depends on observation covariates
-<span class="math inline">\(\mathbf{d}_{ik}\)</span> (e.g. background
-noise on that recording) and, optionally, on a random intercept <span class="math inline">\(u_{r}\)</span> for the recorder <span class="math inline">\(r\)</span> used at the site:</p>
-<p><span class="math display">\[
+<span class="math inline">\mathbf{d}_{ik}</span> (e.g. background noise
+on that recording) and, optionally, on a random intercept <span class="math inline">u_{r}</span> for the recorder <span class="math inline">r</span> used at the site:</p>
+<p><span class="math display">
 \text{logit}(p_{11,ik}) = \mathbf{d}_{ik}^\top \boldsymbol{\alpha} +
 u_{r[i]},
 \qquad u_r \sim \text{Normal}(0, \sigma_u^2),
-\]</span></p>
-<p>where the first element of <span class="math inline">\(\boldsymbol{\alpha}\)</span>, <span class="math inline">\(\alpha_0\)</span>, is the intercept. The
-false-positive rate depends on site covariates <span class="math inline">\(\mathbf{f}_i\)</span>:</p>
-<p><span class="math display">\[
+</span></p>
+<p>where the first element of <span class="math inline">\boldsymbol{\alpha}</span>, <span class="math inline">\alpha_0</span>, is the intercept. The
+false-positive rate depends on site covariates <span class="math inline">\mathbf{f}_i</span>:</p>
+<p><span class="math display">
 \text{logit}(p_{10,i}) = \gamma_0 + \mathbf{f}_i^\top
 \boldsymbol{\gamma},
 \qquad \gamma_0 = \alpha_0 - \Delta, \quad \Delta &gt; 0.
-\]</span></p>
-<p>With no covariates in <span class="math inline">\(\mathbf{f}_i\)</span>, the rate is constant across
-sites.</p>
+</span></p>
+<p>With no covariates in <span class="math inline">\mathbf{f}_i</span>,
+the rate is constant across sites.</p>
 <p>The verified method cannot produce false positives. Its detection
-probability is <span class="math inline">\(r_{11}\)</span>:</p>
-<p><span class="math display">\[
+probability is <span class="math inline">r_{11}</span>:</p>
+<p><span class="math display">
 v_{im} \mid z_i \sim \text{Bernoulli}(z_i\, r_{11}),
 \qquad \text{logit}(r_{11}) = \delta_0.
-\]</span></p>
-<p><strong>The gap <span class="math inline">\(\Delta\)</span>.</strong>
+</span></p>
+<p><strong>The gap <span class="math inline">\Delta</span>.</strong>
 Without further constraints, the model has two equivalent solutions: one
 in which occupied sites are those with many detections, and one in which
 the labels of the two states are swapped. We write the false-positive
-intercept as the true-detection intercept minus a positive gap, <span class="math inline">\(\Delta\)</span>, so that at the reference values
-of the covariates (all zero) a true detection is always more likely than
-a false positive. This removes the label switching. Because the
-reference is the point where all covariates are zero, centre or
-standardize them, so that the constraint applies at an average site.</p>
+intercept as the true-detection intercept minus a positive gap, <span class="math inline">\Delta</span>, so that at the reference values of
+the covariates (all zero) a true detection is always more likely than a
+false positive. This removes the label switching. Because the reference
+is the point where all covariates are zero, centre or standardize them,
+so that the constraint applies at an average site.</p>
 <p><strong>The role of the verified data.</strong> A site with at least
 one verified detection is known to be occupied. Verified data at
 occupied and unoccupied sites separate the two sources of automated
-detections and anchor <span class="math inline">\(p_{10}\)</span>.
-Without any verified data the false-positive rate is informed only by
-the priors and the gap, and <code><a href="../reference/fp_occu.html">fp_occu()</a></code> warns about it.</p>
-<p><strong>Likelihood.</strong> The latent state <span class="math inline">\(z_i\)</span> is summed out, so the likelihood of
-site <span class="math inline">\(i\)</span> is</p>
-<p><span class="math display">\[
-L_i = \psi_i \prod_{k} p_{11,ik}^{y_{ik}} (1 - p_{11,ik})^{1 - y_{ik}}
-\prod_{m} r_{11}^{v_{im}} (1 - r_{11})^{1 - v_{im}}
-+ (1 - \psi_i) \prod_{k} p_{10,i}^{y_{ik}} (1 - p_{10,i})^{1 - y_{ik}}
+detections and anchor <span class="math inline">p_{10}</span>. Without
+any verified data the false-positive rate is informed only by the priors
+and the gap, and <code><a href="../reference/fp_occu.html">fp_occu()</a></code> warns about it.</p>
+<p><strong>Likelihood.</strong> The latent state <span class="math inline">z_i</span> is summed out, so the likelihood of site
+<span class="math inline">i</span> is</p>
+<p><span class="math display">
+\begin{aligned}
+L_i ={}&amp; \psi_i \prod_{k} p_{11,ik}^{y_{ik}} (1 - p_{11,ik})^{1 -
+y_{ik}}
+\prod_{m} r_{11}^{v_{im}} (1 - r_{11})^{1 - v_{im}} \\
+&amp;+ (1 - \psi_i) \prod_{k} p_{10,i}^{y_{ik}} (1 - p_{10,i})^{1 -
+y_{ik}}
 \prod_{m} (1 - v_{im}),
-\]</span></p>
+\end{aligned}
+</span></p>
 <p>where the last product is zero at sites with a verified detection and
-one elsewhere. Summing out <span class="math inline">\(z_i\)</span>
-makes sampling efficient in Stan and gives one log-likelihood value per
-site, which we use for cross-validation below. The Stan program itself
-is in the file returned by <code><a href="../reference/fp_stan_file.html">fp_stan_file()</a></code>.</p>
+one elsewhere. Summing out <span class="math inline">z_i</span> makes
+sampling efficient in Stan and gives one log-likelihood value per site,
+which we use for cross-validation below. The Stan program itself is in
+the file returned by <code><a href="../reference/fp_stan_file.html">fp_stan_file()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="priors">Priors<a class="anchor" aria-label="anchor" href="#priors"></a>
@@ -365,39 +370,38 @@ weakly informative when covariates are standardized:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Intercepts <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\alpha_0\)</span>, <span class="math inline">\(\delta_0\)</span>
+<td>Intercepts <span class="math inline">\beta_0</span>, <span class="math inline">\alpha_0</span>, <span class="math inline">\delta_0</span>
 </td>
-<td><span class="math inline">\(\text{Normal}(0, 1.5)\)</span></td>
+<td><span class="math inline">\text{Normal}(0, 1.5)</span></td>
 <td><code>intercept_sd</code></td>
 </tr>
 <tr class="even">
-<td>Slopes in <span class="math inline">\(\boldsymbol{\beta}\)</span>,
-<span class="math inline">\(\boldsymbol{\alpha}\)</span>, <span class="math inline">\(\boldsymbol{\gamma}\)</span>
+<td>Slopes in <span class="math inline">\boldsymbol{\beta}</span>, <span class="math inline">\boldsymbol{\alpha}</span>, <span class="math inline">\boldsymbol{\gamma}</span>
 </td>
-<td><span class="math inline">\(\text{Normal}(0, 2.5)\)</span></td>
+<td><span class="math inline">\text{Normal}(0, 2.5)</span></td>
 <td><code>slope_sd</code></td>
 </tr>
 <tr class="odd">
-<td>Gap <span class="math inline">\(\Delta\)</span>
+<td>Gap <span class="math inline">\Delta</span>
 </td>
 <td>
-<span class="math inline">\(\text{Normal}(2, 1.5)\)</span>,
-truncated at 0</td>
+<span class="math inline">\text{Normal}(2, 1.5)</span>, truncated at
+0</td>
 <td>
 <code>gap_mean</code>, <code>gap_sd</code>
 </td>
 </tr>
 <tr class="even">
-<td>Recorder SD <span class="math inline">\(\sigma_u\)</span>
+<td>Recorder SD <span class="math inline">\sigma_u</span>
 </td>
-<td><span class="math inline">\(\text{half-Normal}(0, 2)\)</span></td>
+<td><span class="math inline">\text{half-Normal}(0, 2)</span></td>
 <td><code>recorder_sd</code></td>
 </tr>
 </tbody>
 </table>
 <p>A Normal(0, 1.5) prior on an intercept is roughly flat on the
-probability scale between 0.05 and 0.95. The prior on <span class="math inline">\(\Delta\)</span> places the false-positive rate at
-the reference about an order of magnitude below true detection, while
+probability scale between 0.05 and 0.95. The prior on <span class="math inline">\Delta</span> places the false-positive rate at the
+reference about an order of magnitude below true detection, while
 leaving room for the data to move it. <code><a href="../reference/fp_priors.html">fp_priors()</a></code> prints
 the settings and lets you change them:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -426,47 +430,47 @@ of the design matrix it multiplies:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(\boldsymbol{\beta}\)</span></td>
+<td><span class="math inline">\boldsymbol{\beta}</span></td>
 <td>
 <code>occ_(Intercept)</code>, <code>occ_x</code>, …</td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(\boldsymbol{\alpha}\)</span></td>
+<td><span class="math inline">\boldsymbol{\alpha}</span></td>
 <td>
 <code>det_(Intercept)</code>, <code>det_bio</code>, …</td>
 </tr>
 <tr class="odd">
 <td>
-<span class="math inline">\(\gamma_0\)</span>, <span class="math inline">\(\boldsymbol{\gamma}\)</span>
+<span class="math inline">\gamma_0</span>, <span class="math inline">\boldsymbol{\gamma}</span>
 </td>
 <td>
 <code>fp_(Intercept)</code>, <code>fp_w</code>, …</td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(\Delta\)</span></td>
+<td><span class="math inline">\Delta</span></td>
 <td><code>fp_gap</code></td>
 </tr>
 <tr class="odd">
 <td>
-<span class="math inline">\(\delta_0\)</span>, <span class="math inline">\(r_{11}\)</span>
+<span class="math inline">\delta_0</span>, <span class="math inline">r_{11}</span>
 </td>
 <td>
 <code>verified_(Intercept)</code>, <code>p_verified</code>
 </td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(\sigma_u\)</span></td>
+<td><span class="math inline">\sigma_u</span></td>
 <td><code>sd_recorder</code></td>
 </tr>
 <tr class="odd">
 <td>
-<span class="math inline">\(p_{11}\)</span>, <span class="math inline">\(p_{10}\)</span> at the reference</td>
+<span class="math inline">p_{11}</span>, <span class="math inline">p_{10}</span> at the reference</td>
 <td>
 <code>p11_ref</code>, <code>p10_ref</code>
 </td>
 </tr>
 <tr class="even">
-<td>mean of <span class="math inline">\(p_{10,i}\)</span> over the
+<td>mean of <span class="math inline">p_{10,i}</span> over the
 sites</td>
 <td><code>p10_bar</code></td>
 </tr>
@@ -531,17 +535,16 @@ and that the model reproduces the data.</p>
 <h3 id="convergence">Convergence<a class="anchor" aria-label="anchor" href="#convergence"></a>
 </h3>
 <p><code><a href="../reference/fp_occu.html">fp_occu()</a></code> reports, for every parameter, the
-rank-normalized <span class="math inline">\(\hat{R}\)</span>
+rank-normalized <span class="math inline">\hat{R}</span>
 (<code>rhat</code>) and the bulk and tail effective sample sizes
 (<code>ess_bulk</code>, <code>ess_tail</code>), and summarizes the
 sampler diagnostics in the last line of the output: the number of
-divergent transitions, the largest <span class="math inline">\(\hat{R}\)</span>, and the smallest effective
-sample sizes. It warns when there are divergent transitions, when <span class="math inline">\(\hat{R} &gt; 1.01\)</span>, or when the bulk ESS
-is below 400. In this fit there were 0 divergent transitions, the
-largest <span class="math inline">\(\hat{R}\)</span> was 1.003, and the
-smallest bulk ESS was 4307, so the chains mixed well.
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns the same table, with an adjustable
-interval width:</p>
+divergent transitions, the largest <span class="math inline">\hat{R}</span>, and the smallest effective sample
+sizes. It warns when there are divergent transitions, when <span class="math inline">\hat{R} &gt; 1.01</span>, or when the bulk ESS is
+below 400. In this fit there were 0 divergent transitions, the largest
+<span class="math inline">\hat{R}</span> was 1.003, and the smallest
+bulk ESS was 4307, so the chains mixed well. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+returns the same table, with an adjustable interval width:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m_const</span>, prob <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Posterior summary (90% equal-tailed intervals)</span></span>
@@ -624,8 +627,8 @@ high at others. The next section shows why this matters.</p>
 <div class="section level3">
 <h3 id="why-the-occupancy-slope-is-biased">Why the occupancy slope is biased<a class="anchor" aria-label="anchor" href="#why-the-occupancy-slope-is-biased"></a>
 </h3>
-<p>The true occupancy slope is <span class="math inline">\(-0.8\)</span>. The constant-rate model estimates
-it at -0.26:</p>
+<p>The true occupancy slope is <span class="math inline">-0.8</span>.
+The constant-rate model estimates it at -0.26:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_const</span>, <span class="st">"occ"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; occ_(Intercept)           occ_x </span></span>
@@ -760,7 +763,7 @@ and on the gap, and compare the main parameters:</p>
 <span><span class="co">#&gt; 3    fp_gap   3.336  3.317</span></span></code></pre></div>
 <p>With 300 sites, the data dominate the priors and the estimates barely
 change. With smaller data sets, the priors, particularly the one on
-<span class="math inline">\(\Delta\)</span>, matter more, and this
+<span class="math inline">\Delta</span>, matter more, and this
 comparison is worth reporting.</p>
 </div>
 </div>
@@ -787,9 +790,9 @@ difference in elpd from it, with its standard error
 <code>se_diff</code>. Here the model with the confusing gradient
 predicts best, followed by the model with <code>fp = ~ x</code>, and the
 constant-rate model predicts worst; the differences are several times
-their standard errors. Check the Pareto <span class="math inline">\(k\)</span> diagnostics printed by
-<code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code>: values above 0.7 mean that the approximation is
-unreliable for those sites.</p>
+their standard errors. Check the Pareto <span class="math inline">k</span> diagnostics printed by <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code>:
+values above 0.7 mean that the approximation is unreliable for those
+sites.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loo_w</span></span>
 <span><span class="co">#&gt; Computed from 4000 by 300 log-likelihood matrix.</span></span>
@@ -871,8 +874,8 @@ sensitivity among devices or observers. Name the recorder column with
 the <code>recorder</code> argument of <code><a href="../reference/fp_data.html">fp_data()</a></code>.</p>
 <p>We simulate a second data set in which two acoustic indices,
 <code>bio</code> and <code>aci</code>, affect true detection (effects
-0.5 and <span class="math inline">\(-0.3\)</span>), and ten recorders
-differ in sensitivity (standard deviation 0.6 on the logit scale):</p>
+0.5 and <span class="math inline">-0.3</span>), and ten recorders differ
+in sensitivity (standard deviation 0.6 on the logit scale):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">300</span>, nocc <span class="op">=</span> <span class="fl">20</span>, a_bio <span class="op">=</span> <span class="fl">0.5</span>, a_aci <span class="op">=</span> <span class="op">-</span><span class="fl">0.3</span>,</span>
 <span>                       sd_recorder <span class="op">=</span> <span class="fl">0.6</span>, nrec <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -916,6 +919,95 @@ output of this fit:</p>
 intercept, the gap, and the recorder standard deviation have lower
 effective sample sizes than the other parameters, as is common with
 random intercepts, but all are above the threshold of 400.</p>
+</div>
+<div class="section level2">
+<h2 id="the-observation-confirmation-design">The observation-confirmation design<a class="anchor" aria-label="anchor" href="#the-observation-confirmation-design"></a>
+</h2>
+<p>In the design used so far, the verified method is separate from the
+automated one, and its detections identify occupied sites. In many
+acoustic studies, an expert instead listens to the clips that the
+classifier flagged and labels each one as the target species or not.
+Chambert et al. (2015) called this the <em>observation-confirmation</em>
+design. Each checked occasion ends in one of four states: nothing was
+assigned to the species (0), all assigned observations were false (1),
+all were true (2), or both kinds were found (3). Because false
+observations can now be seen directly, at occupied sites as well as at
+unoccupied ones, the model describes each occasion by two probabilities:
+<span class="math inline">s_1</span>, of at least one true observation
+(at an occupied site), and <span class="math inline">s_0</span>, of at
+least one false observation. The four states have probabilities</p>
+<p><span class="math display">
+\Pr(v = 0, 1, 2, 3 \mid z = 1) =
+\left[(1 - s_1)(1 - s_0),\; (1 - s_1)\, s_0,\; s_1 (1 - s_0),\; s_1
+s_0\right],
+\qquad
+\Pr(v = 0, 1, 2, 3 \mid z = 0) = \left[1 - s_0,\; s_0,\; 0,\; 0\right],
+</span></p>
+<p>and an occasion that was not checked is a detection with probability
+<span class="math inline">p_{11} = 1 - (1 - s_1)(1 - s_0)</span> at an
+occupied site and <span class="math inline">p_{10} = s_0</span> at an
+unoccupied one. The formulas <code>det</code> and <code>fp</code> of
+<code><a href="../reference/fp_occu.html">fp_occu()</a></code> then model <span class="math inline">\text{logit}(s_1)</span> and <span class="math inline">\text{logit}(s_0)</span>.</p>
+<p>To use this design, add two columns to <code>auto</code> with the
+number of observations confirmed as the species and as something else,
+<code>NA</code> on the occasions that were not checked, and name them in
+the <code>confirmed</code> argument of <code><a href="../reference/fp_data.html">fp_data()</a></code>. All
+observations of a checked occasion must be checked.
+<code><a href="../reference/simulate_fp.html">simulate_fp()</a></code> generates such data with
+<code>frac_confirmed</code>, the probability that an occasion is
+checked:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sim_conf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">200</span>, nocc <span class="op">=</span> <span class="fl">10</span>, p10 <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                        frac_confirmed <span class="op">=</span> <span class="fl">0.3</span>, frac_verified <span class="op">=</span> <span class="fl">0</span>, seed <span class="op">=</span> <span class="fl">2028</span><span class="op">)</span></span>
+<span><span class="va">sim_conf</span><span class="op">$</span><span class="va">data</span></span>
+<span><span class="co">#&gt; &lt;fp_data&gt;</span></span>
+<span><span class="co">#&gt;   sites:                  200</span></span>
+<span><span class="co">#&gt;   automated occasions:    2000 (naive occupancy 0.83)</span></span>
+<span><span class="co">#&gt;   verified sites:         0 (0 occasions, 83 with a confirmed detection)</span></span>
+<span><span class="co">#&gt;   confirmed occasions:    640 (188 with a true observation)</span></span>
+<span><span class="co">#&gt;   recorders:              5</span></span>
+<span><span class="co">#&gt;   site covariates:        x, w </span></span>
+<span><span class="co">#&gt;   observation covariates: bio, aci</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_conf</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">auto</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">sim_conf</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">auto</span><span class="op">$</span><span class="va">n_true</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    site occasion y         bio        aci recorder n_true n_false</span></span>
+<span><span class="co">#&gt; 8     8        1 1  1.12027961  0.1841090        3      1       1</span></span>
+<span><span class="co">#&gt; 10   10        1 1  1.65371742 -0.2411102        3      1       0</span></span>
+<span><span class="co">#&gt; 15   15        1 0 -0.62636703 -0.4718417        3      0       0</span></span>
+<span><span class="co">#&gt; 19   19        1 1  0.05759819 -0.3971310        4      1       0</span></span>
+<span><span class="co">#&gt; 20   20        1 1  1.13559334 -1.4427289        5      1       0</span></span>
+<span><span class="co">#&gt; 30   30        1 0 -0.02925409  0.7236518        5      0       0</span></span></code></pre></div>
+<p>Here no site has a separately verified survey: the confirmed
+occasions alone identify the false-positive rate, so
+<code><a href="../reference/fp_occu.html">fp_occu()</a></code> does not warn about missing verified data.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m_conf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim_conf</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>                  random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">m_conf</span></span>
+<span><span class="co">#&gt; Bayesian false-positive occupancy model (observation-confirmation design)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   occupancy:       ~x </span></span>
+<span><span class="co">#&gt;   true detection:  ~1  </span></span>
+<span><span class="co">#&gt;   false positive:  ~1 </span></span>
+<span><span class="co">#&gt;   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         variable    mean      sd   lower  upper rhat ess_bulk ess_tail</span></span>
+<span><span class="co">#&gt;  occ_(Intercept) -0.0370 0.15156 -0.3337  0.265    1     4207     2629</span></span>
+<span><span class="co">#&gt;            occ_x -0.7198 0.17092 -1.0665 -0.401    1     3851     2346</span></span>
+<span><span class="co">#&gt;  det_(Intercept)  0.3744 0.06927  0.2425  0.512    1     2890     2855</span></span>
+<span><span class="co">#&gt;          p11_ref  0.6307 0.01511  0.6016  0.660    1     3292     2876</span></span>
+<span><span class="co">#&gt;   fp_(Intercept) -2.2700 0.09320 -2.4530 -2.093    1     4518     3491</span></span>
+<span><span class="co">#&gt;           fp_gap  2.6445 0.12242  2.4119  2.890    1     2864     2551</span></span>
+<span><span class="co">#&gt;          p10_ref  0.0939 0.00792  0.0792  0.110    1     4518     3491</span></span>
+<span><span class="co">#&gt;          p10_bar  0.0939 0.00792  0.0792  0.110    1     4518     3491</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Sampler: 0 divergent transitions, max R-hat 1.002, min bulk/tail ESS 2864/2346</span></span></code></pre></div>
+<p>The occupancy slope (true value <span class="math inline">-0.8</span>), the probability of a false observation
+<code>p10_ref</code> (true value 0.1), and the detection intercept, now
+the logit of <span class="math inline">s_1</span> (true value 0.6, so
+0.41 on the logit scale), are all estimated without verified surveys.
+Both kinds of known truth can be combined: keep a verified method in
+<code>verified</code> and add confirmed occasions to
+<code>auto</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>

@@ -46,6 +46,13 @@ design.
 - [`plot(`*`<fp_calibration>`*`)`](https://provetelab.org/crywolf/reference/plot.fp_calibration.md)
   : Plot the results of a calibration check
 
+## Example data
+
+Passive acoustic monitoring of the Common Pauraque in the Pantanal.
+
+- [`curiango`](https://provetelab.org/crywolf/reference/curiango.md) :
+  Passive acoustic monitoring of the Common Pauraque in the Pantanal
+
 ## Package
 
 - [`crywolf`](https://provetelab.org/crywolf/reference/crywolf-package.md)

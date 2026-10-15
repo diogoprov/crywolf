@@ -11,7 +11,15 @@ if your data are detection matrices, as in 'unmarked'.
 ## Usage
 
 ``` r
-fp_data(auto, sites, verified = NULL, site = "site", y = "y", recorder = NULL)
+fp_data(
+  auto,
+  sites,
+  verified = NULL,
+  site = "site",
+  y = "y",
+  recorder = NULL,
+  confirmed = NULL
+)
 ```
 
 ## Arguments
@@ -50,11 +58,31 @@ fp_data(auto, sites, verified = NULL, site = "site", y = "y", recorder = NULL)
   Optional name of a column of `auto` that identifies the recorder or
   observer, used for a random intercept on true detection.
 
+- confirmed:
+
+  Optional names of two columns of `auto` holding, for the occasions
+  whose observations were checked by an expert, the number of
+  observations confirmed as the target species and the number confirmed
+  as something else, in that order (the observation-confirmation design
+  of Chambert et al. 2015). Use `NA` in both for occasions that were not
+  checked. All observations of a checked occasion must have been
+  checked, so an occasion with a detection has at least one confirmed
+  observation, and one without has none. See Details of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
+
 ## Value
 
 An object of class `fp_data`: a list with the three tables (rows with a
 missing detection dropped), the column names, and the vector
-`known_present`, which flags sites with at least one verified detection.
+`known_present`, which flags sites with at least one verified detection
+or confirmed true observation.
+
+## References
+
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. *Ecology*, 96, 332–339.
+[doi:10.1890/14-1507.1](https://doi.org/10.1890/14-1507.1)
 
 ## See also
 

@@ -51,7 +51,9 @@ This vignette walks through a complete analysis with simulated data:
   [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md);
 - model comparison with leave-one-site-out cross-validation, and
   prediction (see `?fp_occu-methods`);
-- detection covariates and recorder random effects.
+- detection covariates and recorder random effects;
+- the observation-confirmation design of Chambert et al. (2015), in
+  which an expert checks the observations of some automated occasions.
 
 [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
 which checks the calibration of a model for your own design, has its own
@@ -92,20 +94,20 @@ set.seed(2026)
 
 ### The multiple-methods design
 
-Each site \\i\\ is surveyed \\K_i\\ times by the automated method, for
-example \\K_i\\ recordings scanned by a classifier. These are the
-*automated* occasions; each gives a detection (\\y\_{ik} = 1\\) or not
-(\\y\_{ik} = 0\\), and a detection may be a false positive. At a subset
-of sites, an expert also checks \\M_i\\ occasions, for example by
-listening to clips. These are the *verified* occasions (\\v\_{im}\\). A
-verified detection is certain: the species was there.
+Each site i is surveyed K_i times by the automated method, for example
+K_i recordings scanned by a classifier. These are the *automated*
+occasions; each gives a detection (y\_{ik} = 1) or not (y\_{ik} = 0),
+and a detection may be a false positive. At a subset of sites, an expert
+also checks M_i occasions, for example by listening to clips. These are
+the *verified* occasions (v\_{im}). A verified detection is certain: the
+species was there.
 
 ### Simulated data
 
 We simulate 300 sites with 20 automated occasions each, of which about
 30% are verified on three occasions. Occupancy declines along a
-standardized covariate `x` (true slope \\-0.8\\). False positives are
-rare on average (baseline rate 0.05), but they increase along a second
+standardized covariate `x` (true slope -0.8). False positives are rare
+on average (baseline rate 0.05), but they increase along a second
 gradient, `w`, whose correlation with `x` is 0.7. This is what happens,
 for instance, when a soundalike species becomes more common where the
 target is rare. In real data, `w` is usually not measured;
@@ -221,55 +223,52 @@ instead.
 
 ### Basic model description
 
-Let \\z_i\\ be the true occupancy state of site \\i\\ (\\z_i = 1\\ if
-the species is present). We model it as
+Let z_i be the true occupancy state of site i (z_i = 1 if the species is
+present). We model it as
 
-\\ z_i \sim \text{Bernoulli}(\psi_i), \qquad \text{logit}(\psi_i) =
-\mathbf{x}\_i^\top \boldsymbol{\beta}, \\
+z_i \sim \text{Bernoulli}(\psi_i), \qquad \text{logit}(\psi_i) =
+\mathbf{x}\_i^\top \boldsymbol{\beta},
 
-where \\\psi_i\\ is the occupancy probability, \\\mathbf{x}\_i\\ is the
-vector of site covariates (with a leading 1 for the intercept), and
-\\\boldsymbol{\beta}\\ the vector of occupancy coefficients.
+where \psi_i is the occupancy probability, \mathbf{x}\_i is the vector
+of site covariates (with a leading 1 for the intercept), and
+\boldsymbol{\beta} the vector of occupancy coefficients.
 
-A detection by the automated method on occasion \\k\\ can come from an
-occupied site (a true detection, with probability \\p\_{11,ik}\\) or
-from an unoccupied site (a false positive, with probability
-\\p\_{10,i}\\):
+A detection by the automated method on occasion k can come from an
+occupied site (a true detection, with probability p\_{11,ik}) or from an
+unoccupied site (a false positive, with probability p\_{10,i}):
 
-\\ y\_{ik} \mid z_i \sim \text{Bernoulli}\left(z_i\\ p\_{11,ik} + (1 -
-z_i)\\ p\_{10,i}\right). \\
+y\_{ik} \mid z_i \sim \text{Bernoulli}\left(z_i\\ p\_{11,ik} + (1 -
+z_i)\\ p\_{10,i}\right).
 
 The true-detection probability depends on observation covariates
-\\\mathbf{d}\_{ik}\\ (e.g. background noise on that recording) and,
-optionally, on a random intercept \\u\_{r}\\ for the recorder \\r\\ used
-at the site:
+\mathbf{d}\_{ik} (e.g. background noise on that recording) and,
+optionally, on a random intercept u\_{r} for the recorder r used at the
+site:
 
-\\ \text{logit}(p\_{11,ik}) = \mathbf{d}\_{ik}^\top
-\boldsymbol{\alpha} + u\_{r\[i\]}, \qquad u_r \sim \text{Normal}(0,
-\sigma_u^2), \\
+\text{logit}(p\_{11,ik}) = \mathbf{d}\_{ik}^\top \boldsymbol{\alpha} +
+u\_{r\[i\]}, \qquad u_r \sim \text{Normal}(0, \sigma_u^2),
 
-where the first element of \\\boldsymbol{\alpha}\\, \\\alpha_0\\, is the
+where the first element of \boldsymbol{\alpha}, \alpha_0, is the
 intercept. The false-positive rate depends on site covariates
-\\\mathbf{f}\_i\\:
+\mathbf{f}\_i:
 
-\\ \text{logit}(p\_{10,i}) = \gamma_0 + \mathbf{f}\_i^\top
+\text{logit}(p\_{10,i}) = \gamma_0 + \mathbf{f}\_i^\top
 \boldsymbol{\gamma}, \qquad \gamma_0 = \alpha_0 - \Delta, \quad \Delta
-\> 0. \\
+\> 0.
 
-With no covariates in \\\mathbf{f}\_i\\, the rate is constant across
-sites.
+With no covariates in \mathbf{f}\_i, the rate is constant across sites.
 
 The verified method cannot produce false positives. Its detection
-probability is \\r\_{11}\\:
+probability is r\_{11}:
 
-\\ v\_{im} \mid z_i \sim \text{Bernoulli}(z_i\\ r\_{11}), \qquad
-\text{logit}(r\_{11}) = \delta_0. \\
+v\_{im} \mid z_i \sim \text{Bernoulli}(z_i\\ r\_{11}), \qquad
+\text{logit}(r\_{11}) = \delta_0.
 
-**The gap \\\Delta\\.** Without further constraints, the model has two
+**The gap \Delta.** Without further constraints, the model has two
 equivalent solutions: one in which occupied sites are those with many
 detections, and one in which the labels of the two states are swapped.
 We write the false-positive intercept as the true-detection intercept
-minus a positive gap, \\\Delta\\, so that at the reference values of the
+minus a positive gap, \Delta, so that at the reference values of the
 covariates (all zero) a true detection is always more likely than a
 false positive. This removes the label switching. Because the reference
 is the point where all covariates are zero, centre or standardize them,
@@ -278,21 +277,21 @@ so that the constraint applies at an average site.
 **The role of the verified data.** A site with at least one verified
 detection is known to be occupied. Verified data at occupied and
 unoccupied sites separate the two sources of automated detections and
-anchor \\p\_{10}\\. Without any verified data the false-positive rate is
+anchor p\_{10}. Without any verified data the false-positive rate is
 informed only by the priors and the gap, and
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) warns
 about it.
 
-**Likelihood.** The latent state \\z_i\\ is summed out, so the
-likelihood of site \\i\\ is
+**Likelihood.** The latent state z_i is summed out, so the likelihood of
+site i is
 
-\\ L_i = \psi_i \prod\_{k} p\_{11,ik}^{y\_{ik}} (1 - p\_{11,ik})^{1 -
-y\_{ik}} \prod\_{m} r\_{11}^{v\_{im}} (1 - r\_{11})^{1 - v\_{im}} + (1 -
-\psi_i) \prod\_{k} p\_{10,i}^{y\_{ik}} (1 - p\_{10,i})^{1 - y\_{ik}}
-\prod\_{m} (1 - v\_{im}), \\
+\begin{aligned} L_i ={}& \psi_i \prod\_{k} p\_{11,ik}^{y\_{ik}} (1 -
+p\_{11,ik})^{1 - y\_{ik}} \prod\_{m} r\_{11}^{v\_{im}} (1 -
+r\_{11})^{1 - v\_{im}} \\ &+ (1 - \psi_i) \prod\_{k} p\_{10,i}^{y\_{ik}}
+(1 - p\_{10,i})^{1 - y\_{ik}} \prod\_{m} (1 - v\_{im}), \end{aligned}
 
 where the last product is zero at sites with a verified detection and
-one elsewhere. Summing out \\z_i\\ makes sampling efficient in Stan and
+one elsewhere. Summing out z_i makes sampling efficient in Stan and
 gives one log-likelihood value per site, which we use for
 cross-validation below. The Stan program itself is in the file returned
 by
@@ -305,15 +304,15 @@ informative when covariates are standardized:
 
 | Parameter | Prior (default) | Argument of [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md) |
 |----|----|----|
-| Intercepts \\\beta_0\\, \\\alpha_0\\, \\\delta_0\\ | \\\text{Normal}(0, 1.5)\\ | `intercept_sd` |
-| Slopes in \\\boldsymbol{\beta}\\, \\\boldsymbol{\alpha}\\, \\\boldsymbol{\gamma}\\ | \\\text{Normal}(0, 2.5)\\ | `slope_sd` |
-| Gap \\\Delta\\ | \\\text{Normal}(2, 1.5)\\, truncated at 0 | `gap_mean`, `gap_sd` |
-| Recorder SD \\\sigma_u\\ | \\\text{half-Normal}(0, 2)\\ | `recorder_sd` |
+| Intercepts \beta_0, \alpha_0, \delta_0 | \text{Normal}(0, 1.5) | `intercept_sd` |
+| Slopes in \boldsymbol{\beta}, \boldsymbol{\alpha}, \boldsymbol{\gamma} | \text{Normal}(0, 2.5) | `slope_sd` |
+| Gap \Delta | \text{Normal}(2, 1.5), truncated at 0 | `gap_mean`, `gap_sd` |
+| Recorder SD \sigma_u | \text{half-Normal}(0, 2) | `recorder_sd` |
 
 A Normal(0, 1.5) prior on an intercept is roughly flat on the
-probability scale between 0.05 and 0.95. The prior on \\\Delta\\ places
-the false-positive rate at the reference about an order of magnitude
-below true detection, while leaving room for the data to move it.
+probability scale between 0.05 and 0.95. The prior on \Delta places the
+false-positive rate at the reference about an order of magnitude below
+true detection, while leaving room for the data to move it.
 [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
 prints the settings and lets you change them:
 
@@ -338,16 +337,16 @@ fp_priors(slope_sd = 1, gap_sd = 1)
 The output labels each coefficient by its process and by the column of
 the design matrix it multiplies:
 
-| Symbol | Output name |
-|----|----|
-| \\\boldsymbol{\beta}\\ | `occ_(Intercept)`, `occ_x`, … |
-| \\\boldsymbol{\alpha}\\ | `det_(Intercept)`, `det_bio`, … |
-| \\\gamma_0\\, \\\boldsymbol{\gamma}\\ | `fp_(Intercept)`, `fp_w`, … |
-| \\\Delta\\ | `fp_gap` |
-| \\\delta_0\\, \\r\_{11}\\ | `verified_(Intercept)`, `p_verified` |
-| \\\sigma_u\\ | `sd_recorder` |
-| \\p\_{11}\\, \\p\_{10}\\ at the reference | `p11_ref`, `p10_ref` |
-| mean of \\p\_{10,i}\\ over the sites | `p10_bar` |
+| Symbol                            | Output name                          |
+|-----------------------------------|--------------------------------------|
+| \boldsymbol{\beta}                | `occ_(Intercept)`, `occ_x`, …        |
+| \boldsymbol{\alpha}               | `det_(Intercept)`, `det_bio`, …      |
+| \gamma_0, \boldsymbol{\gamma}     | `fp_(Intercept)`, `fp_w`, …          |
+| \Delta                            | `fp_gap`                             |
+| \delta_0, r\_{11}                 | `verified_(Intercept)`, `p_verified` |
+| \sigma_u                          | `sd_recorder`                        |
+| p\_{11}, p\_{10} at the reference | `p11_ref`, `p10_ref`                 |
+| mean of p\_{10,i} over the sites  | `p10_bar`                            |
 
 ## Fitting the constant-rate model with fp_occu()
 
@@ -406,16 +405,16 @@ that the model reproduces the data.
 ### Convergence
 
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
-reports, for every parameter, the rank-normalized \\\hat{R}\\ (`rhat`)
-and the bulk and tail effective sample sizes (`ess_bulk`, `ess_tail`),
-and summarizes the sampler diagnostics in the last line of the output:
-the number of divergent transitions, the largest \\\hat{R}\\, and the
-smallest effective sample sizes. It warns when there are divergent
-transitions, when \\\hat{R} \> 1.01\\, or when the bulk ESS is below
-400. In this fit there were 0 divergent transitions, the largest
-\\\hat{R}\\ was 1.003, and the smallest bulk ESS was 4307, so the chains
-mixed well. [`summary()`](https://rdrr.io/r/base/summary.html) returns
-the same table, with an adjustable interval width:
+reports, for every parameter, the rank-normalized \hat{R} (`rhat`) and
+the bulk and tail effective sample sizes (`ess_bulk`, `ess_tail`), and
+summarizes the sampler diagnostics in the last line of the output: the
+number of divergent transitions, the largest \hat{R}, and the smallest
+effective sample sizes. It warns when there are divergent transitions,
+when \hat{R} \> 1.01, or when the bulk ESS is below 400. In this fit
+there were 0 divergent transitions, the largest \hat{R} was 1.003, and
+the smallest bulk ESS was 4307, so the chains mixed well.
+[`summary()`](https://rdrr.io/r/base/summary.html) returns the same
+table, with an adjustable interval width:
 
 ``` r
 
@@ -514,8 +513,8 @@ high at others. The next section shows why this matters.
 
 ### Why the occupancy slope is biased
 
-The true occupancy slope is \\-0.8\\. The constant-rate model estimates
-it at -0.26:
+The true occupancy slope is -0.8. The constant-rate model estimates it
+at -0.26:
 
 ``` r
 
@@ -673,7 +672,7 @@ data.frame(parameter = pars,
 
 With 300 sites, the data dominate the priors and the estimates barely
 change. With smaller data sets, the priors, particularly the one on
-\\\Delta\\, matter more, and this comparison is worth reporting.
+\Delta, matter more, and this comparison is worth reporting.
 
 ## Model comparison with LOO
 
@@ -701,9 +700,9 @@ The first row is the best model; `elpd_diff` is the difference in elpd
 from it, with its standard error `se_diff`. Here the model with the
 confusing gradient predicts best, followed by the model with `fp = ~ x`,
 and the constant-rate model predicts worst; the differences are several
-times their standard errors. Check the Pareto \\k\\ diagnostics printed
-by [`loo()`](https://mc-stan.org/loo/reference/loo.html): values above
-0.7 mean that the approximation is unreliable for those sites.
+times their standard errors. Check the Pareto k diagnostics printed by
+[`loo()`](https://mc-stan.org/loo/reference/loo.html): values above 0.7
+mean that the approximation is unreliable for those sites.
 
 ``` r
 
@@ -796,9 +795,8 @@ observers. Name the recorder column with the `recorder` argument of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
 
 We simulate a second data set in which two acoustic indices, `bio` and
-`aci`, affect true detection (effects 0.5 and \\-0.3\\), and ten
-recorders differ in sensitivity (standard deviation 0.6 on the logit
-scale):
+`aci`, affect true detection (effects 0.5 and -0.3), and ten recorders
+differ in sensitivity (standard deviation 0.6 on the logit scale):
 
 ``` r
 
@@ -847,6 +845,101 @@ confusing gradient (`fp_w`) are close to their true values. The
 true-detection intercept, the gap, and the recorder standard deviation
 have lower effective sample sizes than the other parameters, as is
 common with random intercepts, but all are above the threshold of 400.
+
+## The observation-confirmation design
+
+In the design used so far, the verified method is separate from the
+automated one, and its detections identify occupied sites. In many
+acoustic studies, an expert instead listens to the clips that the
+classifier flagged and labels each one as the target species or not.
+Chambert et al. (2015) called this the *observation-confirmation*
+design. Each checked occasion ends in one of four states: nothing was
+assigned to the species (0), all assigned observations were false (1),
+all were true (2), or both kinds were found (3). Because false
+observations can now be seen directly, at occupied sites as well as at
+unoccupied ones, the model describes each occasion by two probabilities:
+s_1, of at least one true observation (at an occupied site), and s_0, of
+at least one false observation. The four states have probabilities
+
+\Pr(v = 0, 1, 2, 3 \mid z = 1) = \left\[(1 - s_1)(1 - s_0),\\ (1 -
+s_1)\\ s_0,\\ s_1 (1 - s_0),\\ s_1 s_0\right\], \qquad \Pr(v = 0, 1, 2,
+3 \mid z = 0) = \left\[1 - s_0,\\ s_0,\\ 0,\\ 0\right\],
+
+and an occasion that was not checked is a detection with probability
+p\_{11} = 1 - (1 - s_1)(1 - s_0) at an occupied site and p\_{10} = s_0
+at an unoccupied one. The formulas `det` and `fp` of
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) then
+model \text{logit}(s_1) and \text{logit}(s_0).
+
+To use this design, add two columns to `auto` with the number of
+observations confirmed as the species and as something else, `NA` on the
+occasions that were not checked, and name them in the `confirmed`
+argument of
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md). All
+observations of a checked occasion must be checked.
+[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
+generates such data with `frac_confirmed`, the probability that an
+occasion is checked:
+
+``` r
+
+sim_conf <- simulate_fp(nsite = 200, nocc = 10, p10 = 0.1,
+                        frac_confirmed = 0.3, frac_verified = 0, seed = 2028)
+sim_conf$data
+#> <fp_data>
+#>   sites:                  200
+#>   automated occasions:    2000 (naive occupancy 0.83)
+#>   verified sites:         0 (0 occasions, 83 with a confirmed detection)
+#>   confirmed occasions:    640 (188 with a true observation)
+#>   recorders:              5
+#>   site covariates:        x, w 
+#>   observation covariates: bio, aci
+head(sim_conf$data$auto[!is.na(sim_conf$data$auto$n_true), ])
+#>    site occasion y         bio        aci recorder n_true n_false
+#> 8     8        1 1  1.12027961  0.1841090        3      1       1
+#> 10   10        1 1  1.65371742 -0.2411102        3      1       0
+#> 15   15        1 0 -0.62636703 -0.4718417        3      0       0
+#> 19   19        1 1  0.05759819 -0.3971310        4      1       0
+#> 20   20        1 1  1.13559334 -1.4427289        5      1       0
+#> 30   30        1 0 -0.02925409  0.7236518        5      0       0
+```
+
+Here no site has a separately verified survey: the confirmed occasions
+alone identify the false-positive rate, so
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) does
+not warn about missing verified data.
+
+``` r
+
+m_conf <- fp_occu(sim_conf$data, occ = ~ x, det = ~ 1, fp = ~ 1,
+                  random_recorder = FALSE, seed = 1)
+m_conf
+#> Bayesian false-positive occupancy model (observation-confirmation design)
+#> 
+#>   occupancy:       ~x 
+#>   true detection:  ~1  
+#>   false positive:  ~1 
+#>   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions
+#> 
+#>         variable    mean      sd   lower  upper rhat ess_bulk ess_tail
+#>  occ_(Intercept) -0.0370 0.15156 -0.3337  0.265    1     4207     2629
+#>            occ_x -0.7198 0.17092 -1.0665 -0.401    1     3851     2346
+#>  det_(Intercept)  0.3744 0.06927  0.2425  0.512    1     2890     2855
+#>          p11_ref  0.6307 0.01511  0.6016  0.660    1     3292     2876
+#>   fp_(Intercept) -2.2700 0.09320 -2.4530 -2.093    1     4518     3491
+#>           fp_gap  2.6445 0.12242  2.4119  2.890    1     2864     2551
+#>          p10_ref  0.0939 0.00792  0.0792  0.110    1     4518     3491
+#>          p10_bar  0.0939 0.00792  0.0792  0.110    1     4518     3491
+#> 
+#>   Sampler: 0 divergent transitions, max R-hat 1.002, min bulk/tail ESS 2864/2346
+```
+
+The occupancy slope (true value -0.8), the probability of a false
+observation `p10_ref` (true value 0.1), and the detection intercept, now
+the logit of s_1 (true value 0.6, so 0.41 on the logit scale), are all
+estimated without verified surveys. Both kinds of known truth can be
+combined: keep a verified method in `verified` and add confirmed
+occasions to `auto`.
 
 ## Next steps
 

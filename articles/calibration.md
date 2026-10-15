@@ -40,12 +40,54 @@ cal <- fp_calibrate(
 summary(cal)
 ```
 
+The code above is not run when this vignette is built; the output below
+comes from the same call, saved in advance.
+[`summary()`](https://rdrr.io/r/base/summary.html) prints, for the
+occupancy slope, the coverage of the 95% intervals, its Monte Carlo
+standard error, the bias, and a verdict:
+
+    #> Calibration summary (95% intervals)
+    #> 
+    #> Occupancy slope:
+    #>  cell    model nsite nocc  p10 frac_verified conf_effect conf_cor  n failed
+    #>     1 constant   300   20 0.05           0.3         0.0      0.7 50      0
+    #>     1  fp_on_x   300   20 0.05           0.3         0.0      0.7 50      0
+    #>     2 constant   300   20 0.05           0.3         0.5      0.7 50      0
+    #>     2  fp_on_x   300   20 0.05           0.3         0.5      0.7 50      0
+    #>     3 constant   300   20 0.05           0.3         1.5      0.7 50      0
+    #>     3  fp_on_x   300   20 0.05           0.3         1.5      0.7 50      0
+    #>  coverage mc_se    bias rmse prop_divergent   verdict
+    #>      1.00 0.000 0.06986 0.19           0.66        ok
+    #>      0.98 0.020 0.00032 0.14           0.52        ok
+    #>      0.96 0.028 0.07085 0.21           0.58        ok
+    #>      0.96 0.028 0.01103 0.15           0.70        ok
+    #>      0.22 0.059 0.42449 0.45           0.60 collapsed
+    #>      0.62 0.069 0.24085 0.29           0.68 collapsed
+    #> 
+    #> All quantities: inspect the returned tibble.
+
+![Coverage of the 95% interval of the occupancy slope against the
+strength of the confusion, for the constant-rate model and for a
+false-positive rate that depends on the occupancy covariate. Bars span
+two Monte Carlo standard errors; the dashed line is the nominal
+coverage.](calibration_files/figure-html/plot-confusion-1.png)
+
+Coverage of the 95% interval of the occupancy slope against the strength
+of the confusion, for the constant-rate model and for a false-positive
+rate that depends on the occupancy covariate. Bars span two Monte Carlo
+standard errors; the dashed line is the nominal coverage.
+
 Each replicate costs one Stan fit per model, so this design needs 3
 cells × 50 replicates × 2 models = 300 fits. With 50 replicates, the
 Monte Carlo standard error of a coverage of 0.95 is about 0.03, enough
 to tell a calibrated model from a broken one; raise `reps` only to pin a
 borderline value. Every model is fitted to the same datasets, so
 comparisons between models are paired.
+
+The column `prop_divergent` is the share of fits with at least one
+divergent transition. In this run most fits had a few divergences
+(median 1 of 4000 draws), so check `max_rhat` and `divergences` in the
+returned tibble before trusting a cell whose fits had many.
 
 ## How much to verify
 
@@ -64,6 +106,43 @@ fp_verification_curve(
   reps = 50, parallel = TRUE
 )
 ```
+
+    #> Calibration summary (95% intervals)
+    #> 
+    #> Occupancy slope:
+    #>  cell    model frac_verified nsite nocc  p10 conf_effect conf_cor  n failed
+    #>     1 constant           0.1   300   20 0.05         1.5      0.7 50      0
+    #>     1  fp_on_x           0.1   300   20 0.05         1.5      0.7 50      0
+    #>     2 constant           0.3   300   20 0.05         1.5      0.7 50      0
+    #>     2  fp_on_x           0.3   300   20 0.05         1.5      0.7 50      0
+    #>     3 constant           0.5   300   20 0.05         1.5      0.7 50      0
+    #>     3  fp_on_x           0.5   300   20 0.05         1.5      0.7 50      0
+    #>     4 constant           0.7   300   20 0.05         1.5      0.7 50      0
+    #>     4  fp_on_x           0.7   300   20 0.05         1.5      0.7 50      0
+    #>     5 constant           0.9   300   20 0.05         1.5      0.7 50      0
+    #>     5  fp_on_x           0.9   300   20 0.05         1.5      0.7 50      0
+    #>  coverage mc_se bias rmse prop_divergent   verdict
+    #>      0.06 0.034 0.55 0.57           0.82 collapsed
+    #>      0.38 0.069 0.39 0.43           0.82 collapsed
+    #>      0.12 0.046 0.45 0.48           0.64 collapsed
+    #>      0.48 0.071 0.29 0.32           0.68 collapsed
+    #>      0.22 0.059 0.40 0.42           0.58 collapsed
+    #>      0.64 0.068 0.21 0.26           0.68 collapsed
+    #>      0.10 0.042 0.40 0.42           0.62 collapsed
+    #>      0.64 0.068 0.21 0.24           0.58 collapsed
+    #>      0.24 0.060 0.39 0.42           0.64 collapsed
+    #>      0.64 0.068 0.21 0.25           0.60 collapsed
+    #> 
+    #> All quantities: inspect the returned tibble.
+
+![Coverage of the 95% interval of the occupancy slope against the
+fraction of sites verified, under structured confusion (effect 1.5,
+correlation
+0.7).](calibration_files/figure-html/plot-verification-1.png)
+
+Coverage of the 95% interval of the occupancy slope against the fraction
+of sites verified, under structured confusion (effect 1.5, correlation
+0.7).
 
 ## What to expect
 

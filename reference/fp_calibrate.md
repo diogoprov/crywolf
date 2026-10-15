@@ -70,7 +70,9 @@ fp_calibrate(
 
   Logical. Fit replicates in parallel with 'furrr'. Set the plan first,
   e.g. `future::plan(future::multisession, workers = 8)`, and keep
-  `parallel_chains = 1` in `fit_args`.
+  `parallel_chains = 1` in `fit_args`. In interactive sessions with
+  'progressr' installed, a progress bar shows the estimated time
+  remaining, also when fitting in parallel.
 
 - fit_args:
 

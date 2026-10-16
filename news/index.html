@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,14 @@
       <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<ul><li>
+<code><a href="../reference/fp_calibrate_fit.html">fp_calibrate_fit()</a></code> checks the calibration of candidate models on data simulated from a fitted model, which keep the design of the real data (sites, covariates, occasions, recorders, and verification).</li>
+<li>
+<code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> method for <code>fp_occu</code> fits, from the posterior means or from random posterior draws.</li>
+<li>The summary of a calibration prints every occupancy slope, not only <code>occ_x</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="crywolf-110">crywolf 1.1.0<a class="anchor" aria-label="anchor" href="#crywolf-110"></a></h2>
 <ul><li>The likelihood is summed over sites with Stan’s <code>reduce_sum()</code>, and the model is compiled with threading, so <code>fp_occu(threads_per_chain = )</code> can split each chain among several cores. On the curiango data (97,806 automated occasions) a fit with four chains of four threads each took 16.5 minutes instead of 70, and each gradient evaluation was 2.7 times faster than with the previous model in a short benchmark on the same computer. The log density and its gradient are unchanged up to floating-point rounding, and the automated occasions use <code>y * lp - n * log1p_exp(lp)</code>, an equivalent form of the binomial log-likelihood with half the transcendental functions. Executables compiled by earlier versions are rebuilt once.</li>

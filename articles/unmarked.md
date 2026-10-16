@@ -116,14 +116,14 @@ d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
 m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
 #> Running MCMC with 4 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 4 finished in 28.9 seconds.
-#> Chain 2 finished in 30.6 seconds.
-#> Chain 3 finished in 31.6 seconds.
-#> Chain 1 finished in 32.4 seconds.
+#> Chain 4 finished in 29.0 seconds.
+#> Chain 2 finished in 30.7 seconds.
+#> Chain 3 finished in 31.7 seconds.
+#> Chain 1 finished in 32.5 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 30.9 seconds.
-#> Total execution time: 32.5 seconds.
+#> Mean chain execution time: 31.0 seconds.
+#> Total execution time: 32.6 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
 #>           0.15522435          -0.77425011           0.42786246 

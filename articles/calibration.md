@@ -177,6 +177,41 @@ shows the constant-rate model stuck below nominal coverage, verifying
 more is not the remedy. Model the false-positive rate instead, and
 verify enough to tell its effect apart from the occupancy effect.
 
+## Calibrating a fitted model
+
+The checks above describe a planned design with simulated covariates.
+Once a model has been fitted to real data,
+[`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md)
+asks the same question for data like the real ones: it simulates
+datasets from the fit with
+[`simulate()`](https://rdrr.io/r/stats/simulate.html), keeping the
+sites, covariates, occasions, recorders, and verification of the real
+data, refits each candidate model to every dataset, and scores the
+coverage and bias of their intervals. The cost is that of refitting the
+real data `reps` times per model.
+
+A typical use pits the model you fitted against a simpler one. If a
+model in which the false-positive rate depends on humidity found a clear
+effect, data simulated from it show whether a constant rate would have
+biased the occupancy effects at your sample size and verification
+effort:
+
+``` r
+
+m_rh <- fp_occu(d, occ = ~ temp + rh, det = ~ bio, fp = ~ rh)
+cal_fit <- fp_calibrate_fit(m_rh, models = list(constant = ~ 1, fp_rh = ~ rh),
+                            reps = 50, parallel = TRUE)
+summary(cal_fit)
+plot(cal_fit, parameter = "occ_rh")
+```
+
+By default every dataset is simulated from the posterior means;
+`truth = "posterior"` draws a different set of parameter values from the
+posterior for each dataset, so that the check also reflects how
+uncertain the fit was. Either way, the check covers only the structure
+of the generating model: a dependence of the false-positive rate on a
+variable that was not measured is not part of it.
+
 ## Plotting
 
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws the

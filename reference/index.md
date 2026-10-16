@@ -43,6 +43,10 @@ design.
   : Simulation-based calibration check for a study design
 - [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
   : Coverage as a function of verification effort
+- [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md)
+  : Calibration of a fitted model on data like the real ones
+- [`simulate(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/simulate.fp_occu.md)
+  : Simulate data from a fitted model
 - [`plot(`*`<fp_calibration>`*`)`](https://provetelab.org/crywolf/reference/plot.fp_calibration.md)
   : Plot the results of a calibration check
 

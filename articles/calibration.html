@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -239,6 +239,37 @@ Model the false-positive rate instead, and verify enough to tell its
 effect apart from the occupancy effect.</p>
 </div>
 <div class="section level2">
+<h2 id="calibrating-a-fitted-model">Calibrating a fitted model<a class="anchor" aria-label="anchor" href="#calibrating-a-fitted-model"></a>
+</h2>
+<p>The checks above describe a planned design with simulated covariates.
+Once a model has been fitted to real data,
+<code><a href="../reference/fp_calibrate_fit.html">fp_calibrate_fit()</a></code> asks the same question for data like the
+real ones: it simulates datasets from the fit with
+<code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code>, keeping the sites, covariates, occasions,
+recorders, and verification of the real data, refits each candidate
+model to every dataset, and scores the coverage and bias of their
+intervals. The cost is that of refitting the real data <code>reps</code>
+times per model.</p>
+<p>A typical use pits the model you fitted against a simpler one. If a
+model in which the false-positive rate depends on humidity found a clear
+effect, data simulated from it show whether a constant rate would have
+biased the occupancy effects at your sample size and verification
+effort:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m_rh</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">temp</span> <span class="op">+</span> <span class="va">rh</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">rh</span><span class="op">)</span></span>
+<span><span class="va">cal_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_calibrate_fit.html">fp_calibrate_fit</a></span><span class="op">(</span><span class="va">m_rh</span>, models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>constant <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp_rh <span class="op">=</span> <span class="op">~</span> <span class="va">rh</span><span class="op">)</span>,</span>
+<span>                            reps <span class="op">=</span> <span class="fl">50</span>, parallel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cal_fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal_fit</span>, parameter <span class="op">=</span> <span class="st">"occ_rh"</span><span class="op">)</span></span></code></pre></div>
+<p>By default every dataset is simulated from the posterior means;
+<code>truth = "posterior"</code> draws a different set of parameter
+values from the posterior for each dataset, so that the check also
+reflects how uncertain the fit was. Either way, the check covers only
+the structure of the generating model: a dependence of the
+false-positive rate on a variable that was not measured is not part of
+it.</p>
+</div>
+<div class="section level2">
 <h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
 </h2>
 <p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws the coverage of the occupancy slope against
@@ -248,7 +279,7 @@ and a dashed line at the nominal level. <code>type = "bias"</code> plots
 the bias instead, and <code>parameter</code> selects another scored
 quantity. The result is a ‘ggplot2’ object that can be modified as
 usual.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"bias"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, parameter <span class="op">=</span> <span class="st">"p10_bar"</span><span class="op">)</span></span></code></pre></div>

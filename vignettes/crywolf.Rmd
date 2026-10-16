@@ -536,6 +536,30 @@ With 300 sites, the data dominate the priors and the estimates barely change.
 With smaller data sets, the priors, particularly the one on $\Delta$, matter
 more, and this comparison is worth reporting.
 
+### Variation that the covariates do not explain
+
+The false-positive rate can also vary among sites for reasons that no
+measured covariate captures, for instance because some recorders sit near a
+noise source that the classifier confuses with the target. `random_fp = TRUE`
+adds a site random intercept to the logit of the rate,
+$\text{logit}(p_{10,i}) = \gamma_0 + \mathbf{f}_i^\top \boldsymbol{\gamma} + e_i$
+with $e_i \sim \text{Normal}(0, \sigma_{fp})$, and reports $\sigma_{fp}$ as
+`sd_fp_site`:
+
+```{r random-fp, eval = FALSE}
+m_re <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+                random_fp = TRUE, seed = 1)
+```
+
+The random effect is off by default because it is costly: it adds one
+parameter per site, fits take several times longer, and its chains mix less
+well, so check the diagnostics and run longer chains when needed. It
+recovers the mean false-positive rate when the rate varies at random among
+sites, but it does not correct false positives that follow the occupancy
+gradient, as in the data above; for those, the remedy is the covariates in
+`fp`. Use covariates first, and the random effect for the variation that
+remains. `?fp_occu` gives the details.
+
 ## Model comparison with LOO
 
 Because the latent state is summed out, the pointwise log-likelihood is

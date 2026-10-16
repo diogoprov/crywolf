@@ -19,9 +19,14 @@
 #' @param ... Unused.
 #'
 #' @details
-#' The recorder effects, when the model has them, are kept at their values
-#' in the chosen draw (or their posterior means), so the simulated data have
-#' the same recorders with the same effects. Under the multiple-methods
+#' The recorder effects, when the model has them, are kept at their values in
+#' the chosen draw (or their posterior means), so the simulated data have the
+#' same recorders with the same effects. Site effects on the false-positive
+#' rate (`fp_occu(random_fp = TRUE)`) are kept at their values in the draw
+#' with `truth = "posterior"`; with `truth = "mean"`, whose site effects
+#' would be shrunk towards zero, new ones are drawn from a normal
+#' distribution with the posterior mean of `sd_fp_site` as standard
+#' deviation. Under the multiple-methods
 #' design, an automated occasion at an occupied site is a detection with
 #' probability \eqn{p_{11}} and at an unoccupied site with probability
 #' \eqn{p_{10}}; verified occasions are detections with probability
@@ -128,7 +133,8 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   gen <- .fit_generator(fit)
   fit_args <- utils::modifyList(
     list(show_messages = FALSE, show_exceptions = FALSE, refresh = 0,
-         random_recorder = fit$random_recorder, priors = fit$priors),
+         random_recorder = fit$random_recorder,
+         random_fp = isTRUE(fit$random_fp), priors = fit$priors),
     fit_args)
   jobs <- data.frame(rep = seq_len(reps), cell = 1L,
                      seed = as.integer(base_seed) + seq_len(reps))
@@ -159,7 +165,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
 .fit_generator <- function(fit) {
   f <- fit$formulas
   sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, fit$random_recorder,
-                         fit$priors)
+                         fit$priors, random_fp = isTRUE(fit$random_fp))
   list(data = fit$data, formulas = f, stan_data = sl$stan_data,
        design = sl$design, occasions = sl$occasions,
        draws = .ppc_pars(fit$fit, sl$stan_data, NULL))
@@ -173,7 +179,12 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     if (is.null(dim(m))) return(if (is.null(i)) mean(m) else unname(m[i]))
     unname(if (is.null(i)) colMeans(m) else m[i, ])
   }
-  purrr::map(draws, pick)
+  p <- purrr::map(draws, pick)
+  # posterior means of site effects are shrunk towards zero: with
+  # truth = "mean", the simulation draws new site effects from their
+  # distribution instead
+  if (truth == "mean" && !is.null(p$sigma_fp)) p$e_fp <- NULL
+  p
 }
 
 .simulate_from <- function(gen, p) {
@@ -187,6 +198,11 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   lp10 <- if (has_fp) {
     v <- rep(p$gamma0, nsite)
     if (sd$Kfp > 0) v <- v + drop(sd$Xfp %*% p$gamma_fp)
+    if (!is.null(p$e_fp)) {
+      v <- v + p$e_fp
+    } else if (!is.null(p$sigma_fp)) {
+      v <- v + stats::rnorm(nsite, 0, p$sigma_fp)
+    }
     v
   } else rep(-Inf, nsite)
   p10 <- stats::plogis(lp10)

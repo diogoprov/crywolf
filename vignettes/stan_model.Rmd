@@ -81,6 +81,11 @@ The recorder effects are written as `sigma_u * u_raw`, with `u_raw`
 standard normal (the non-centred parametrization), which samples better
 when there are few recorders or little information about their variance.
 
+With `random_fp = TRUE` (`estimate_fp_re = 1`), the site effects on the
+false-positive rate are written in the same way, `sigma_fp[1] * e_raw`, and
+are added to its linear predictor; with the option off, `e_raw` and
+`sigma_fp` have length zero and the model is the same as without them.
+
 The false-positive intercept is not a parameter of its own:
 `gamma0 = alpha[1] - fp_gap`, with `fp_gap` constrained to be positive.
 Because column 1 of `Z` is the intercept, `alpha[1]` is the logit of true

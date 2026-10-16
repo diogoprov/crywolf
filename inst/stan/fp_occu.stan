@@ -6,13 +6,14 @@
 //   z_i        ~ Bernoulli(psi_i),        logit(psi_i)  = X_i beta
 //   y2_ik      ~ Bernoulli(z_i p11_ik + (1 - z_i) p10_i)
 //                logit(p11_ik) = Z_ik alpha + u_rec[ik]
-//                logit(p10_i)  = (alpha_1 - fp_gap) + Xfp_i gamma_fp
+//                logit(p10_i)  = (alpha_1 - fp_gap) + Xfp_i gamma_fp [+ e_i]
 //   y1_im      ~ Bernoulli(z_i r11),      logit(r11) = delta0
 //
 // The latent z is marginalized. fp_gap > 0 keeps p11 > p10 at the reference
 // (all covariates at 0), which resolves label switching. Column 1 of Z must be
 // the intercept. Kfp = 0 gives the constant-rate model; estimate_fp = 0 gives
-// the standard occupancy model (no false positives).
+// the standard occupancy model (no false positives). estimate_fp_re = 1 adds a
+// site random effect e_i ~ Normal(0, sigma_fp) to the logit of p10.
 //
 // Observation-confirmation design (Chambert et al. 2015), when obs_confirm = 1:
 // the observations of some automated occasions are checked, giving a state
@@ -36,8 +37,9 @@ functions {
   // Marginal log-likelihood of sites a to b, with the latent state z summed
   // out. The automated (and confirmed) rows of these sites are contiguous.
   vector site_loglik(int a, int b, matrix X, vector beta, matrix Z, vector alpha,
-                     real gamma0, matrix Xfp, vector gamma_fp, vector u,
-                     array[] int rec2, int estimate_re, int estimate_fp, int Kfp,
+                     real gamma0, matrix Xfp, vector gamma_fp, vector e_fp,
+                     vector u, array[] int rec2, int estimate_re,
+                     int estimate_fp, int Kfp,
                      vector y2v, vector n2v, array[] int site2,
                      array[] int start2, array[] int len2, array[] int any_det2,
                      vector n1v, vector s1v, real delta0,
@@ -48,6 +50,7 @@ functions {
     vector[ns] lpsi = X[a:b] * beta;
     vector[ns] lp10 = rep_vector(gamma0, ns);
     if (Kfp > 0) lp10 += Xfp[a:b] * gamma_fp;
+    lp10 += e_fp[a:b];
     vector[ns] occ = rep_vector(0, ns);
     vector[ns] unocc = rep_vector(0, ns);
 
@@ -124,7 +127,7 @@ functions {
   // partial sum over a slice of sites, for reduce_sum()
   real partial_loglik(array[] int slice, int a, int b, matrix X, vector beta,
                       matrix Z, vector alpha, real gamma0, matrix Xfp,
-                      vector gamma_fp, vector u, array[] int rec2,
+                      vector gamma_fp, vector e_fp, vector u, array[] int rec2,
                       int estimate_re, int estimate_fp, int Kfp,
                       vector y2v, vector n2v, array[] int site2,
                       array[] int start2, array[] int len2, array[] int any_det2,
@@ -132,7 +135,7 @@ functions {
                       array[] int known_present, int obs_confirm,
                       array[] int v3, array[] int site3, matrix Z3,
                       array[] int rec3, array[] int start3, array[] int len3) {
-    return sum(site_loglik(a, b, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, u,
+    return sum(site_loglik(a, b, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
                            rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
                            start2, len2, any_det2, n1v, s1v, delta0,
                            known_present, obs_confirm, v3, site3, Z3, rec3,
@@ -178,6 +181,9 @@ data {
   real gap_mean;                             // Normal(gap_mean, gap_sd) prior on fp_gap, truncated at 0
   real<lower=0> gap_sd;
   real<lower=0> recorder_sd;                 // half-Normal(0, recorder_sd) on sigma_u
+
+  int<lower=0, upper=1> estimate_fp_re;      // site random effect on logit(p10)
+  real<lower=0> fp_site_sd;                  // half-Normal(0, fp_site_sd) on sigma_fp
 }
 
 transformed data {
@@ -217,6 +223,8 @@ parameters {
   real<lower=0> fp_gap;
   vector[Kfp] gamma_fp;
   real delta0;
+  vector[estimate_fp_re == 1 ? nsite : 0] e_raw;
+  array[estimate_fp_re] real<lower=0> sigma_fp;
 }
 
 transformed parameters {
@@ -234,9 +242,14 @@ model {
   fp_gap         ~ normal(gap_mean, gap_sd);
   gamma_fp       ~ normal(0, prior_sd_slope);
   delta0         ~ normal(0, prior_sd_int);
+  e_raw          ~ std_normal();
+  sigma_fp       ~ normal(0, fp_site_sd);
 
+  // site effects on the false-positive rate (zero when estimate_fp_re = 0)
+  vector[nsite] e_fp = rep_vector(0, nsite);
+  if (estimate_fp_re == 1) e_fp = sigma_fp[1] * e_raw;
   target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
-                       Xfp, gamma_fp, u, rec2, estimate_re, estimate_fp, Kfp,
+                       Xfp, gamma_fp, e_fp, u, rec2, estimate_re, estimate_fp, Kfp,
                        y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
                        known_present, obs_confirm, v3, site3, Z3, rec3, start3,
                        len3);
@@ -251,10 +264,13 @@ generated quantities {
   real p10_bar = 0;
   real r11 = inv_logit(delta0);
   {
+    vector[nsite] e_fp = rep_vector(0, nsite);
+    if (estimate_fp_re == 1) e_fp = sigma_fp[1] * e_raw;
     vector[nsite] lp10 = rep_vector(gamma0, nsite);
     if (Kfp > 0) lp10 += Xfp * gamma_fp;
+    lp10 += e_fp;
     if (estimate_fp == 1) p10_bar = mean(inv_logit(lp10));
-    log_lik = site_loglik(1, nsite, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, u,
+    log_lik = site_loglik(1, nsite, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
                           rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
                           start2, len2, any_det2, n1v, s1v, delta0,
                           known_present, obs_confirm, v3, site3, Z3, rec3,

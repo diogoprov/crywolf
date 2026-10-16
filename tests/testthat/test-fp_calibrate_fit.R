@@ -44,6 +44,23 @@ test_that("posterior draws keep clean names and targets fill absent slopes", {
   expect_false("p10_bar" %in% names(crywolf:::.fit_targets(r$truth, NULL, gen)))
 })
 
+test_that("site effects on false positives are drawn anew from posterior means", {
+  s <- simulate_fp(nsite = 4000, nocc = 4, seed = 1)
+  gen <- known_generator(s)
+  gen$draws$sigma_fp <- c(1, 1)
+  gen$draws$e_fp <- matrix(0, 2, 4000)        # shrunk means would be zero
+  set.seed(3)
+  p <- crywolf:::.pick_pars(gen$draws, "mean")
+  expect_null(p$e_fp)
+  r <- crywolf:::.simulate_from(gen, p)
+  # the new site effects have the posterior standard deviation (1)
+  lp <- qlogis(r$truth$p10_site) - mean(gen$draws$gamma0)
+  expect_equal(sd(lp), 1, tolerance = 0.05)
+  set.seed(3)
+  pp <- crywolf:::.pick_pars(gen$draws, "posterior")
+  expect_length(pp$e_fp, 4000)
+})
+
 test_that("simulate() and fp_calibrate_fit() work on fits of both designs", {
   skip_if_no_cmdstan()
   fa <- list(chains = 1, iter_warmup = 150, iter_sampling = 150)

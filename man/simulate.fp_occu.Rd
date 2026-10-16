@@ -36,9 +36,14 @@ observation-confirmation design. Only the latent occupancy states and the
 detections are drawn anew, from the fitted model.
 }
 \details{
-The recorder effects, when the model has them, are kept at their values
-in the chosen draw (or their posterior means), so the simulated data have
-the same recorders with the same effects. Under the multiple-methods
+The recorder effects, when the model has them, are kept at their values in
+the chosen draw (or their posterior means), so the simulated data have the
+same recorders with the same effects. Site effects on the false-positive
+rate (\code{fp_occu(random_fp = TRUE)}) are kept at their values in the draw
+with \code{truth = "posterior"}; with \code{truth = "mean"}, whose site effects
+would be shrunk towards zero, new ones are drawn from a normal
+distribution with the posterior mean of \code{sd_fp_site} as standard
+deviation. Under the multiple-methods
 design, an automated occasion at an occupied site is a detection with
 probability \eqn{p_{11}} and at an unoccupied site with probability
 \eqn{p_{10}}; verified occasions are detections with probability

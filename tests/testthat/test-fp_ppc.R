@@ -74,7 +74,7 @@ test_that("fp_ppc works on a fit", {
   expect_length(pv$site, ncol(pv$yrep))
 })
 
-test_that("the R likelihood matches the Stan log_lik in both designs", {
+test_that("the R likelihood matches the Stan log_lik in every design", {
   skip_if_no_cmdstan()
   same_ll <- function(s, ...) {
     m <- suppressWarnings(fp_occu(s$data, occ = ~ x, ..., chains = 1,
@@ -94,4 +94,9 @@ test_that("the R likelihood matches the Stan log_lik in both designs", {
   expect_no_warning(fp_ppc(m1, ndraws = 50, seed = 1))
   s2 <- simulate_fp(nsite = 80, nocc = 6, conf_effect = 1, conf_cor = 0.5, seed = 6)
   same_ll(s2, det = ~ 1, fp = ~ w, random_recorder = FALSE)
+  s3 <- simulate_fp(nsite = 80, nocc = 6, sigma_p10 = 1, seed = 7)
+  m3 <- same_ll(s3, det = ~ 1, fp = ~ 1, random_recorder = FALSE,
+                random_fp = TRUE)
+  expect_true("sd_fp_site" %in% posterior::variables(m3$draws))
+  expect_output(suppressWarnings(print(m3)), "\\(1 \\| site\\)")
 })

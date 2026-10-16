@@ -24,6 +24,10 @@
 #'   from [simulate_fp()] always have one; with its default `sd_recorder = 0`
 #'   set this to `FALSE`, because a random effect whose true variance is zero
 #'   causes divergent transitions.
+#' @param random_fp Logical. Add a site random intercept to the logit of the
+#'   false-positive rate, for rates that vary among sites in ways the
+#'   covariates in `fp` do not capture. `FALSE` by default; see the section
+#'   "Site random effect on the false-positive rate" before turning it on.
 #' @param priors Prior settings from [fp_priors()].
 #' @param chains,iter_warmup,iter_sampling,adapt_delta,seed Passed to the
 #'   `$sample()` method of 'cmdstanr'.
@@ -66,6 +70,31 @@
 #' reference. The confirmed occasions identify \eqn{s_0} directly, so verified
 #' data are optional; they can be combined with this design. The gap still
 #' applies, so that \eqn{s_1 > s_0} at the reference.
+#'
+#' **Site random effect on the false-positive rate.** With
+#' `random_fp = TRUE` the logit of the false-positive rate of site \eqn{i}
+#' gains a term \eqn{e_i \sim \mathrm{Normal}(0, \sigma_{fp})}, reported as
+#' `sd_fp_site`, with a half-Normal prior (`fp_priors(fp_site_sd = )`).
+#' In simulations with 300 sites, 20 automated occasions, and 30% of sites
+#' verified, it restored the coverage of the mean false-positive rate
+#' (`p10_bar`) when the rate varied among sites at random (from 0.00 and 0.55
+#' with a constant rate to 0.95) and cost nothing when the rate was
+#' homogeneous. Use it with care:
+#' * It adds one parameter per site, and fits took 6 to 9 times longer.
+#' * It mixes less well: in those simulations the largest R-hat exceeded 1.01
+#'   in a quarter to three quarters of the fits. Check the diagnostics, and
+#'   run longer chains (`iter_warmup`, `iter_sampling`) when they are poor.
+#' * Each site has a single latent state, so a site effect on false
+#'   positives is told apart from occupancy mainly by the verified data; with
+#'   few occasions or little verification it may be weakly identified.
+#' * It does not fix false positives that follow an environmental gradient.
+#'   Those bias the occupancy effects, and the remedy is to put the
+#'   occupancy covariates, and any measured correlate of the confusion, in
+#'   `fp` (see below). Prefer covariates, and add the random effect for the
+#'   variation that remains.
+#'
+#' Predictions with `predict(process = "fp")` are for a site with
+#' \eqn{e_i = 0}, a typical site.
 #'
 #' **When to model the false-positive rate.** In the simulations behind this
 #' package, a constant rate gave calibrated intervals for the occupancy slope
@@ -115,7 +144,7 @@
 #' }
 fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     random_recorder = !is.null(data$recorder),
-                    priors = fp_priors(),
+                    random_fp = FALSE, priors = fp_priors(),
                     chains = 4, parallel_chains = chains, threads_per_chain = 1,
                     iter_warmup = 1000, iter_sampling = 1000,
                     adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
@@ -133,7 +162,8 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
       threads_per_chain < 1) {
     stop("`threads_per_chain` must be a positive integer.", call. = FALSE)
   }
-  sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors)
+  sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
+                              random_fp = random_fp)
   if (is.null(refresh)) {
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
@@ -152,6 +182,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
          formulas = list(occ = occ, det = det, fp = fp),
          design = sd_list$design, data = data,
          random_recorder = isTRUE(sd_list$stan_data$estimate_re == 1),
+         random_fp = isTRUE(sd_list$stan_data$estimate_fp_re == 1),
          priors = priors, diagnostics = diag, call = match.call()),
     class = "fp_occu"
   )
@@ -175,6 +206,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #'   true detection, while leaving room for the data.
 #' @param recorder_sd Scale of the half-Normal(0, sd) prior on the standard
 #'   deviation of the recorder random intercept.
+#' @param fp_site_sd Scale of the half-Normal(0, sd) prior on the standard
+#'   deviation of the site random intercept on the false-positive rate
+#'   (`fp_occu(random_fp = TRUE)`).
 #'
 #' @return A list of class `fp_priors`.
 #' @export
@@ -182,10 +216,13 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #' fp_priors()
 #' fp_priors(slope_sd = 1)
 fp_priors <- function(intercept_sd = 1.5, slope_sd = 2.5,
-                      gap_mean = 2, gap_sd = 1.5, recorder_sd = 2) {
-  stopifnot(intercept_sd > 0, slope_sd > 0, gap_sd > 0, recorder_sd > 0)
+                      gap_mean = 2, gap_sd = 1.5, recorder_sd = 2,
+                      fp_site_sd = 1) {
+  stopifnot(intercept_sd > 0, slope_sd > 0, gap_sd > 0, recorder_sd > 0,
+            fp_site_sd > 0)
   structure(list(intercept_sd = intercept_sd, slope_sd = slope_sd,
-                 gap_mean = gap_mean, gap_sd = gap_sd, recorder_sd = recorder_sd),
+                 gap_mean = gap_mean, gap_sd = gap_sd, recorder_sd = recorder_sd,
+                 fp_site_sd = fp_site_sd),
             class = "fp_priors")
 }
 
@@ -196,6 +233,7 @@ print.fp_priors <- function(x, ...) {
   cat(sprintf("  slopes          ~ Normal(0, %g)\n", x$slope_sd))
   cat(sprintf("  fp_gap          ~ Normal(%g, %g), truncated at 0\n", x$gap_mean, x$gap_sd))
   cat(sprintf("  sd_recorder     ~ half-Normal(0, %g)\n", x$recorder_sd))
+  cat(sprintf("  sd_fp_site      ~ half-Normal(0, %g)\n", x$fp_site_sd))
   invisible(x)
 }
 
@@ -222,7 +260,8 @@ print.fp_priors <- function(x, ...) {
        intercept = attr(tt, "intercept") == 1)
 }
 
-.build_stan_data <- function(data, occ, det, fp, random_recorder, priors) {
+.build_stan_data <- function(data, occ, det, fp, random_recorder, priors,
+                             random_fp = FALSE) {
   s <- data$site
   sites <- data$sites
   auto <- data$auto
@@ -255,6 +294,11 @@ print.fp_priors <- function(x, ...) {
     Xfp <- matrix(0, nsite, 0)
   }
 
+  use_fp_re <- isTRUE(random_fp)
+  if (use_fp_re && !estimate_fp) {
+    stop("`random_fp = TRUE` needs a false-positive process; do not use ",
+         "`fp = NULL`.", call. = FALSE)
+  }
   use_re <- isTRUE(random_recorder)
   if (use_re && is.null(data$recorder)) {
     stop("`random_recorder = TRUE` but `data` has no recorder column.", call. = FALSE)
@@ -327,7 +371,10 @@ print.fp_priors <- function(x, ...) {
     site3 = as.integer(site3), Z3 = unname(Z3), rec3 = as.integer(rec3),
     prior_sd_int = priors$intercept_sd, prior_sd_slope = priors$slope_sd,
     gap_mean = priors$gap_mean, gap_sd = priors$gap_sd,
-    recorder_sd = priors$recorder_sd
+    recorder_sd = priors$recorder_sd,
+    estimate_fp_re = as.integer(use_fp_re),
+    # fits saved before this prior existed carry no value for it
+    fp_site_sd = if (is.null(priors$fp_site_sd)) 1 else priors$fp_site_sd
   )
   design <- list(occ = d_occ, det = d_det, fp = d_fp,
                  occ_names = colnames(d_occ$X), det_names = colnames(d_det$X),
@@ -338,7 +385,8 @@ print.fp_priors <- function(x, ...) {
 
 # internal: readable parameter names ------------------------------------------
 
-.name_map <- function(design, estimate_fp, use_re, has_verified = TRUE) {
+.name_map <- function(design, estimate_fp, use_re, has_verified = TRUE,
+                      use_fp_re = FALSE) {
   m <- c(
     stats::setNames(paste0("occ_", design$occ_names),
                     sprintf("beta[%d]", seq_along(design$occ_names))),
@@ -357,13 +405,15 @@ print.fp_priors <- function(x, ...) {
     m <- c(m, c("fp_gap" = "fp_gap", "p10_ref" = "p10_ref", "p10_bar" = "p10_bar"))
   }
   if (use_re) m <- c(m, c("sigma_u" = "sd_recorder"))
+  if (use_fp_re) m <- c(m, c("sigma_fp[1]" = "sd_fp_site"))
   m
 }
 
 .pretty_draws <- function(fit, sd_list) {
   sd <- sd_list$stan_data
   map <- .name_map(sd_list$design, sd$estimate_fp == 1, sd$estimate_re == 1,
-                   has_verified = sd$N1 > 0)
+                   has_verified = sd$N1 > 0,
+                   use_fp_re = isTRUE(sd$estimate_fp_re == 1))
   dr <- posterior::as_draws_df(fit$draws(variables = unique(sub("\\[.*", "", names(map)))))
   dr <- posterior::subset_draws(dr, variable = names(map))
   posterior::variables(dr) <- unname(map[posterior::variables(dr)])

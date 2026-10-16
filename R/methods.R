@@ -34,7 +34,7 @@ print.fp_occu <- function(x, digits = 3, ...) {
       if (x$random_recorder) "+ (1 | recorder)" else "", "\n")
   cat("  false positive: ",
       if (is.null(f$fp)) "none (standard occupancy model)" else .fmt_formula(f$fp),
-      "\n")
+      if (isTRUE(x$random_fp)) "+ (1 | site)" else "", "\n")
   if (isTRUE(sd$N3 > 0)) {
     cat(sprintf("  data:            %d sites, %d automated (%d confirmed) and %d verified occasions\n\n",
                 sd$nsite, sum(sd$n2) + sd$N3, sd$N3, sd$N1))

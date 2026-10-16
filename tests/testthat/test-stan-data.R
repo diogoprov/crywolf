@@ -101,3 +101,20 @@ test_that("confirmed occasions leave the binomial rows", {
   m <- crywolf:::.name_map(b$design, TRUE, FALSE, has_verified = FALSE)
   expect_false("p_verified" %in% m)
 })
+
+test_that("the site random effect on false positives is switched on and named", {
+  s <- simulate_fp(nsite = 30, nocc = 4, seed = 1)
+  b0 <- crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ 1, FALSE, fp_priors())
+  expect_equal(b0$stan_data$estimate_fp_re, 0L)
+  b1 <- crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ 1, FALSE,
+                                   fp_priors(fp_site_sd = 0.5), random_fp = TRUE)
+  expect_equal(b1$stan_data$estimate_fp_re, 1L)
+  expect_equal(b1$stan_data$fp_site_sd, 0.5)
+  expect_error(crywolf:::.build_stan_data(s$data, ~ x, ~ 1, NULL, FALSE,
+                                          fp_priors(), random_fp = TRUE),
+               "needs a false-positive process")
+  m <- crywolf:::.name_map(b1$design, TRUE, FALSE, use_fp_re = TRUE)
+  expect_equal(m[["sigma_fp[1]"]], "sd_fp_site")
+  expect_false("sigma_fp[1]" %in% names(crywolf:::.name_map(b1$design, TRUE, FALSE)))
+  expect_output(print(fp_priors()), "sd_fp_site")
+})

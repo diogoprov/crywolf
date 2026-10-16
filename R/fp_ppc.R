@@ -110,7 +110,8 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   vars <- c("beta", "alpha", "delta0",
             if (sd$estimate_re == 1) "u",
             if (sd$estimate_fp == 1) "gamma0",
-            if (sd$estimate_fp == 1 && sd$Kfp > 0) "gamma_fp")
+            if (sd$estimate_fp == 1 && sd$Kfp > 0) "gamma_fp",
+            if (isTRUE(sd$estimate_fp_re == 1)) c("e_raw", "sigma_fp"))
   dm <- posterior::as_draws_matrix(fit$draws(variables = vars))
   total <- nrow(dm)
   if (!is.null(ndraws) && ndraws < total) {
@@ -126,7 +127,11 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     u = if (sd$estimate_re == 1) cols("u") else NULL,
     gamma0 = if (sd$estimate_fp == 1) cols("gamma0")[, 1] else NULL,
     gamma_fp = if (sd$estimate_fp == 1 && sd$Kfp > 0) cols("gamma_fp") else
-      matrix(0, S, 0)
+      matrix(0, S, 0),
+    # site effects on the false-positive rate, S x nsite
+    e_fp = if (isTRUE(sd$estimate_fp_re == 1))
+      cols("e_raw") * cols("sigma_fp")[, 1] else NULL,
+    sigma_fp = if (isTRUE(sd$estimate_fp_re == 1)) cols("sigma_fp")[, 1] else NULL
   )
 }
 
@@ -152,6 +157,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   if (fp) {
     lp10 <- matrix(pars$gamma0, S, nsite)
     if (sd$Kfp > 0) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
+    if (!is.null(pars$e_fp)) lp10 <- lp10 + pars$e_fp
     lp10_row <- lp10[, sd$site2, drop = FALSE]           # S x N2
   }
   y2 <- sd$y2

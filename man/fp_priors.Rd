@@ -9,7 +9,8 @@ fp_priors(
   slope_sd = 2.5,
   gap_mean = 2,
   gap_sd = 1.5,
-  recorder_sd = 2
+  recorder_sd = 2,
+  fp_site_sd = 1
 )
 }
 \arguments{
@@ -27,6 +28,10 @@ true detection, while leaving room for the data.}
 
 \item{recorder_sd}{Scale of the half-Normal(0, sd) prior on the standard
 deviation of the recorder random intercept.}
+
+\item{fp_site_sd}{Scale of the half-Normal(0, sd) prior on the standard
+deviation of the site random intercept on the false-positive rate
+(\code{fp_occu(random_fp = TRUE)}).}
 }
 \value{
 A list of class \code{fp_priors}.

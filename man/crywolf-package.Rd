@@ -18,7 +18,8 @@ The package has three parts:
 \item \strong{Data and model.} \code{\link[=fp_data]{fp_data()}} (or \code{\link[=fp_data_wide]{fp_data_wide()}}) assembles the
 detections, and \code{\link[=fp_occu]{fp_occu()}} fits the model in Stan through 'cmdstanr'.
 The false-positive rate can be constant (\code{fp = ~ 1}) or depend on site
-covariates (\code{fp = ~ w}), and the true-detection process accepts
+covariates (\code{fp = ~ w}), with an optional site random effect
+(\code{random_fp = TRUE}), and the true-detection process accepts
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
@@ -74,7 +75,7 @@ keeps the true-detection probability above the false-positive probability
 at the reference values of the covariates, which prevents label switching.
 Priors are Normal on the logit scale for intercepts and slopes, Normal
 truncated at zero for \eqn{\Delta}, and half-Normal for the standard
-deviation of the recorder effect; \code{\link[=fp_priors]{fp_priors()}} lists the defaults and
+deviations of the random effects; \code{\link[=fp_priors]{fp_priors()}} lists the defaults and
 changes them without recompiling. \code{vignette("stan_model")} walks through
 the Stan program.
 }

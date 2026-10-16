@@ -10,6 +10,7 @@ fp_occu(
   det = ~1,
   fp = ~1,
   random_recorder = !is.null(data$recorder),
+  random_fp = FALSE,
   priors = fp_priors(),
   chains = 4,
   parallel_chains = chains,
@@ -44,6 +45,11 @@ detection? Defaults to \code{TRUE} when \code{data} has a recorder column. Data
 from \code{\link[=simulate_fp]{simulate_fp()}} always have one; with its default \code{sd_recorder = 0}
 set this to \code{FALSE}, because a random effect whose true variance is zero
 causes divergent transitions.}
+
+\item{random_fp}{Logical. Add a site random intercept to the logit of the
+false-positive rate, for rates that vary among sites in ways the
+covariates in \code{fp} do not capture. \code{FALSE} by default; see the section
+"Site random effect on the false-positive rate" before turning it on.}
 
 \item{priors}{Prior settings from \code{\link[=fp_priors]{fp_priors()}}.}
 
@@ -105,6 +111,33 @@ occasion; a site-level detection at an occupied site has probability
 reference. The confirmed occasions identify \eqn{s_0} directly, so verified
 data are optional; they can be combined with this design. The gap still
 applies, so that \eqn{s_1 > s_0} at the reference.
+
+\strong{Site random effect on the false-positive rate.} With
+\code{random_fp = TRUE} the logit of the false-positive rate of site \eqn{i}
+gains a term \eqn{e_i \sim \mathrm{Normal}(0, \sigma_{fp})}, reported as
+\code{sd_fp_site}, with a half-Normal prior (\code{fp_priors(fp_site_sd = )}).
+In simulations with 300 sites, 20 automated occasions, and 30\% of sites
+verified, it restored the coverage of the mean false-positive rate
+(\code{p10_bar}) when the rate varied among sites at random (from 0.00 and 0.55
+with a constant rate to 0.95) and cost nothing when the rate was
+homogeneous. Use it with care:
+\itemize{
+\item It adds one parameter per site, and fits took 6 to 9 times longer.
+\item It mixes less well: in those simulations the largest R-hat exceeded 1.01
+in a quarter to three quarters of the fits. Check the diagnostics, and
+run longer chains (\code{iter_warmup}, \code{iter_sampling}) when they are poor.
+\item Each site has a single latent state, so a site effect on false
+positives is told apart from occupancy mainly by the verified data; with
+few occasions or little verification it may be weakly identified.
+\item It does not fix false positives that follow an environmental gradient.
+Those bias the occupancy effects, and the remedy is to put the
+occupancy covariates, and any measured correlate of the confusion, in
+\code{fp} (see below). Prefer covariates, and add the random effect for the
+variation that remains.
+}
+
+Predictions with \code{predict(process = "fp")} are for a site with
+\eqn{e_i = 0}, a typical site.
 
 \strong{When to model the false-positive rate.} In the simulations behind this
 package, a constant rate gave calibrated intervals for the occupancy slope

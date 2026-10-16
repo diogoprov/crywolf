@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,8 +43,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.0" id="crywolf-120">crywolf 1.2.0<a class="anchor" aria-label="anchor" href="#crywolf-120"></a></h2>
 <ul><li>
+<code>fp_occu(random_fp = TRUE)</code> adds a site random intercept to the logit of the false-positive rate, for rates that vary among sites in ways the covariates do not capture; its prior scale is <code>fp_priors(fp_site_sd = )</code>. It is off by default: it slows the fits and mixes less well, and it does not replace covariates when false positives follow an environmental gradient (see <code><a href="../reference/fp_occu.html">?fp_occu</a></code>). With the option off, the draws are identical to those of crywolf 1.1.0.</li>
+<li>
 <code><a href="../reference/fp_calibrate_fit.html">fp_calibrate_fit()</a></code> checks the calibration of candidate models on data simulated from a fitted model, which keep the design of the real data (sites, covariates, occasions, recorders, and verification).</li>
 <li>
 <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> method for <code>fp_occu</code> fits, from the posterior means or from random posterior draws.</li>

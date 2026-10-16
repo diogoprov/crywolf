@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -178,7 +178,10 @@ unstructured regimes, both with a base rate of 0.05.
 sites, but it is not related to the occupancy covariate. In the
 simulation study it damaged the estimate of the false-positive rate much
 more than the occupancy slope, whose intervals still covered the truth
-in 81% of the Beta-regime datasets (Provete et al., in preparation).</p>
+in 81% of the Beta-regime datasets (Provete et al., in preparation). The
+site random effect of <code>fp_occu(random_fp = TRUE)</code> targets
+this regime: it estimates the spread of the rates among sites instead of
+forcing a single value.</p>
 </div>
 <div class="section level3">
 <h3 id="structured">Structured<a class="anchor" aria-label="anchor" href="#structured"></a>

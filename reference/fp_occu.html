@@ -17,7 +17,7 @@ false-positive rate is either constant or a function of site covariates."><meta 
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,6 +70,7 @@ false-positive rate is either constant or a function of site covariates.</p>
 <span>  det <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  fp <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  random_recorder <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">recorder</span><span class="op">)</span>,</span>
+<span>  random_fp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  priors <span class="op">=</span> <span class="fu"><a href="fp_priors.html">fp_priors</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  chains <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  parallel_chains <span class="op">=</span> <span class="va">chains</span>,</span>
@@ -117,6 +118,13 @@ detection? Defaults to <code>TRUE</code> when <code>data</code> has a recorder c
 from <code><a href="simulate_fp.html">simulate_fp()</a></code> always have one; with its default <code>sd_recorder = 0</code>
 set this to <code>FALSE</code>, because a random effect whose true variance is zero
 causes divergent transitions.</p></dd>
+
+
+<dt id="arg-random-fp">random_fp<a class="anchor" aria-label="anchor" href="#arg-random-fp"></a></dt>
+<dd><p>Logical. Add a site random intercept to the logit of the
+false-positive rate, for rates that vary among sites in ways the
+covariates in <code>fp</code> do not capture. <code>FALSE</code> by default; see the section
+"Site random effect on the false-positive rate" before turning it on.</p></dd>
 
 
 <dt id="arg-priors">priors<a class="anchor" aria-label="anchor" href="#arg-priors"></a></dt>
@@ -183,6 +191,28 @@ occasion; a site-level detection at an occupied site has probability
 reference. The confirmed occasions identify \(s_0\) directly, so verified
 data are optional; they can be combined with this design. The gap still
 applies, so that \(s_1 &gt; s_0\) at the reference.</p>
+<p><strong>Site random effect on the false-positive rate.</strong> With
+<code>random_fp = TRUE</code> the logit of the false-positive rate of site \(i\)
+gains a term \(e_i \sim \mathrm{Normal}(0, \sigma_{fp})\), reported as
+<code>sd_fp_site</code>, with a half-Normal prior (<code>fp_priors(fp_site_sd = )</code>).
+In simulations with 300 sites, 20 automated occasions, and 30% of sites
+verified, it restored the coverage of the mean false-positive rate
+(<code>p10_bar</code>) when the rate varied among sites at random (from 0.00 and 0.55
+with a constant rate to 0.95) and cost nothing when the rate was
+homogeneous. Use it with care:</p><ul><li><p>It adds one parameter per site, and fits took 6 to 9 times longer.</p></li>
+<li><p>It mixes less well: in those simulations the largest R-hat exceeded 1.01
+in a quarter to three quarters of the fits. Check the diagnostics, and
+run longer chains (<code>iter_warmup</code>, <code>iter_sampling</code>) when they are poor.</p></li>
+<li><p>Each site has a single latent state, so a site effect on false
+positives is told apart from occupancy mainly by the verified data; with
+few occasions or little verification it may be weakly identified.</p></li>
+<li><p>It does not fix false positives that follow an environmental gradient.
+Those bias the occupancy effects, and the remedy is to put the
+occupancy covariates, and any measured correlate of the confusion, in
+<code>fp</code> (see below). Prefer covariates, and add the random effect for the
+variation that remains.</p></li>
+</ul><p>Predictions with <code>predict(process = "fp")</code> are for a site with
+\(e_i = 0\), a typical site.</p>
 <p><strong>When to model the false-positive rate.</strong> In the simulations behind this
 package, a constant rate gave calibrated intervals for the occupancy slope
 when false positives were homogeneous; random variation of the rate among

@@ -9,7 +9,7 @@ standardized covariates."><meta property="og:image" content="https://provetelab.
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,8 @@ standardized covariates.</p>
 <span>  slope_sd <span class="op">=</span> <span class="fl">2.5</span>,</span>
 <span>  gap_mean <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  gap_sd <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  recorder_sd <span class="op">=</span> <span class="fl">2</span></span>
+<span>  recorder_sd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  fp_site_sd <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -87,6 +88,12 @@ true detection, while leaving room for the data.</p></dd>
 <dd><p>Scale of the half-Normal(0, sd) prior on the standard
 deviation of the recorder random intercept.</p></dd>
 
+
+<dt id="arg-fp-site-sd">fp_site_sd<a class="anchor" aria-label="anchor" href="#arg-fp-site-sd"></a></dt>
+<dd><p>Scale of the half-Normal(0, sd) prior on the standard
+deviation of the site random intercept on the false-positive rate
+(<code>fp_occu(random_fp = TRUE)</code>).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -101,12 +108,14 @@ deviation of the recorder random intercept.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   slopes          ~ Normal(0, 2.5)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   fp_gap          ~ Normal(2, 1.5), truncated at 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_recorder     ~ half-Normal(0, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd_fp_site      ~ half-Normal(0, 1)</span>
 <span class="r-in"><span><span class="fu">fp_priors</span><span class="op">(</span>slope_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fp_priors&gt; (logit scale)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   intercepts      ~ Normal(0, 1.5)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   slopes          ~ Normal(0, 1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   fp_gap          ~ Normal(2, 1.5), truncated at 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_recorder     ~ half-Normal(0, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd_fp_site      ~ half-Normal(0, 1)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

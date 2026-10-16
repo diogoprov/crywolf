@@ -11,7 +11,8 @@ fp_priors(
   slope_sd = 2.5,
   gap_mean = 2,
   gap_sd = 1.5,
-  recorder_sd = 2
+  recorder_sd = 2,
+  fp_site_sd = 1
 )
 ```
 
@@ -40,6 +41,12 @@ fp_priors(
   Scale of the half-Normal(0, sd) prior on the standard deviation of the
   recorder random intercept.
 
+- fp_site_sd:
+
+  Scale of the half-Normal(0, sd) prior on the standard deviation of the
+  site random intercept on the false-positive rate
+  (`fp_occu(random_fp = TRUE)`).
+
 ## Value
 
 A list of class `fp_priors`.
@@ -53,10 +60,12 @@ fp_priors()
 #>   slopes          ~ Normal(0, 2.5)
 #>   fp_gap          ~ Normal(2, 1.5), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
+#>   sd_fp_site      ~ half-Normal(0, 1)
 fp_priors(slope_sd = 1)
 #> <fp_priors> (logit scale)
 #>   intercepts      ~ Normal(0, 1.5)
 #>   slopes          ~ Normal(0, 1)
 #>   fp_gap          ~ Normal(2, 1.5), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
+#>   sd_fp_site      ~ half-Normal(0, 1)
 ```

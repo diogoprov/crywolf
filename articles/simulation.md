@@ -114,7 +114,10 @@ Unstructured variation makes a single rate a poor description of the
 sites, but it is not related to the occupancy covariate. In the
 simulation study it damaged the estimate of the false-positive rate much
 more than the occupancy slope, whose intervals still covered the truth
-in 81% of the Beta-regime datasets (Provete et al., in preparation).
+in 81% of the Beta-regime datasets (Provete et al., in preparation). The
+site random effect of `fp_occu(random_fp = TRUE)` targets this regime:
+it estimates the spread of the rates among sites instead of forcing a
+single value.
 
 ### Structured
 

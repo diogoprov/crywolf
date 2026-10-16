@@ -17,11 +17,11 @@ The package has three parts:
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   fits the model in Stan through 'cmdstanr'. The false-positive rate can
   be constant (`fp = ~ 1`) or depend on site covariates (`fp = ~ w`),
-  and the true-detection process accepts observation covariates and a
-  recorder random effect. The observation-confirmation design of
-  Chambert et al. (2015), in which an expert checks the detections of
-  some automated occasions, is supported through the `confirmed`
-  argument of
+  with an optional site random effect (`random_fp = TRUE`), and the
+  true-detection process accepts observation covariates and a recorder
+  random effect. The observation-confirmation design of Chambert et al.
+  (2015), in which an expert checks the detections of some automated
+  occasions, is supported through the `confirmed` argument of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
   [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) runs
   a posterior predictive check, and
@@ -88,8 +88,8 @@ marginalized. The positive gap \\\Delta\\ keeps the true-detection
 probability above the false-positive probability at the reference values
 of the covariates, which prevents label switching. Priors are Normal on
 the logit scale for intercepts and slopes, Normal truncated at zero for
-\\\Delta\\, and half-Normal for the standard deviation of the recorder
-effect;
+\\\Delta\\, and half-Normal for the standard deviations of the random
+effects;
 [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
 lists the defaults and changes them without recompiling.
 [`vignette("stan_model")`](https://provetelab.org/crywolf/articles/stan_model.md)

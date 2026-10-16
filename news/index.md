@@ -1,7 +1,16 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 1.2.0
 
+- `fp_occu(random_fp = TRUE)` adds a site random intercept to the logit
+  of the false-positive rate, for rates that vary among sites in ways
+  the covariates do not capture; its prior scale is
+  `fp_priors(fp_site_sd = )`. It is off by default: it slows the fits
+  and mixes less well, and it does not replace covariates when false
+  positives follow an environmental gradient (see
+  [`?fp_occu`](https://provetelab.org/crywolf/reference/fp_occu.md)).
+  With the option off, the draws are identical to those of crywolf
+  1.1.0.
 - [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md)
   checks the calibration of candidate models on data simulated from a
   fitted model, which keep the design of the real data (sites,

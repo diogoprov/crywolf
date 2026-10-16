@@ -116,23 +116,23 @@ d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
 m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
 #> Running MCMC with 4 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 4 finished in 29.0 seconds.
-#> Chain 2 finished in 30.7 seconds.
-#> Chain 3 finished in 31.7 seconds.
-#> Chain 1 finished in 32.5 seconds.
+#> Chain 2 finished in 37.8 seconds.
+#> Chain 3 finished in 38.0 seconds.
+#> Chain 4 finished in 39.1 seconds.
+#> Chain 1 finished in 41.0 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 31.0 seconds.
-#> Total execution time: 32.6 seconds.
+#> Mean chain execution time: 39.0 seconds.
+#> Total execution time: 41.2 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
-#>           0.15522435          -0.77425011           0.42786246 
+#>           0.15887315          -0.76977980           0.42722960 
 #> verified_(Intercept)           p_verified              p11_ref 
-#>           0.65954571           0.65820716           0.60529522 
+#>           0.66219155           0.65878164           0.60514411 
 #>       fp_(Intercept)               fp_gap              p10_ref 
-#>          -2.98644676           3.41430922           0.04837542 
+#>          -2.98190153           3.40913113           0.04860622 
 #>              p10_bar 
-#>           0.04837542
+#>           0.04860622
 ```
 
 Both fits recover the generating values (occupancy intercept 0, slope
@@ -146,7 +146,7 @@ estimates and the posterior means nearly coincide:
 | occupancy slope                   | -0.80 |    -0.77 |   -0.77 |
 | true detection, automated (logit) |  0.41 |     0.43 |    0.43 |
 | true detection, verified (logit)  |  0.41 |     0.66 |    0.66 |
-| false positive (logit)            | -2.94 |    -2.99 |   -2.99 |
+| false positive (logit)            | -2.94 |    -2.99 |   -2.98 |
 
 Maximum-likelihood estimates from occuFP() and posterior means from
 fp_occu(), logit scale. {.table}
@@ -221,9 +221,9 @@ predict(m_um, type = "state", newdata = nd)
 #> 3 0.3519150 0.04165223 0.2751642 0.4371623
 predict(m_cw, newdata = nd, process = "occ")
 #>    x  estimate     lower     upper
-#> 1 -1 0.7153759 0.6353726 0.7862628
-#> 2  0 0.5385834 0.4784579 0.5982293
-#> 3  1 0.3510890 0.2735747 0.4330131
+#> 1 -1 0.7152729 0.6394499 0.7873743
+#> 2  0 0.5394848 0.4822685 0.6003674
+#> 3  1 0.3529699 0.2733537 0.4364194
 ```
 
 ## References

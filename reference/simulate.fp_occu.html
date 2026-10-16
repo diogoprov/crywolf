@@ -17,7 +17,7 @@ detections are drawn anew, from the fitted model."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,9 +105,14 @@ states <code>z</code>, the false-positive rate of each site <code>p10_site</code
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The recorder effects, when the model has them, are kept at their values
-in the chosen draw (or their posterior means), so the simulated data have
-the same recorders with the same effects. Under the multiple-methods
+    <p>The recorder effects, when the model has them, are kept at their values in
+the chosen draw (or their posterior means), so the simulated data have the
+same recorders with the same effects. Site effects on the false-positive
+rate (<code>fp_occu(random_fp = TRUE)</code>) are kept at their values in the draw
+with <code>truth = "posterior"</code>; with <code>truth = "mean"</code>, whose site effects
+would be shrunk towards zero, new ones are drawn from a normal
+distribution with the posterior mean of <code>sd_fp_site</code> as standard
+deviation. Under the multiple-methods
 design, an automated occasion at an occupied site is a detection with
 probability \(p_{11}\) and at an unoccupied site with probability
 \(p_{10}\); verified occasions are detections with probability

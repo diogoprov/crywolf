@@ -13,10 +13,12 @@ S3method(print,fp_priors)
 S3method(print,fp_sim)
 S3method(print,summary.fp_calibration)
 S3method(print,summary.fp_occu)
+S3method(simulate,fp_occu)
 S3method(summary,fp_calibration)
 S3method(summary,fp_occu)
 export(as_draws_df)
 export(fp_calibrate)
+export(fp_calibrate_fit)
 export(fp_compile)
 export(fp_data)
 export(fp_data_wide)
@@ -42,5 +44,6 @@ importFrom(stats,
   rnorm,
   sd,
   setNames,
+  simulate,
   terms
 )

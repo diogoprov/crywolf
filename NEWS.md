@@ -1,3 +1,12 @@
+# crywolf (development version)
+
+* `fp_calibrate_fit()` checks the calibration of candidate models on data
+  simulated from a fitted model, which keep the design of the real data
+  (sites, covariates, occasions, recorders, and verification).
+* `simulate()` method for `fp_occu` fits, from the posterior means or from
+  random posterior draws.
+* The summary of a calibration prints every occupancy slope, not only `occ_x`.
+
 # crywolf 1.1.0
 
 * The likelihood is summed over sites with Stan's `reduce_sum()`, and the

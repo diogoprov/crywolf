@@ -36,6 +36,8 @@ reference:
       - simulate_fp
       - fp_calibrate
       - fp_verification_curve
+      - fp_calibrate_fit
+      - simulate.fp_occu
       - plot.fp_calibration
   - title: Example data
     desc: Passive acoustic monitoring of the Common Pauraque in the Pantanal.

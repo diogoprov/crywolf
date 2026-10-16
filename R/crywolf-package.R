@@ -94,7 +94,7 @@
 
 ## usethis namespace: start
 #' @importFrom stats model.frame model.matrix terms delete.response quantile
-#'   sd rnorm rbinom rbeta plogis qlogis setNames na.pass
+#'   sd rnorm rbinom rbeta plogis qlogis setNames na.pass simulate
 #' @importFrom posterior as_draws_df
 #' @importFrom loo loo
 ## usethis namespace: end

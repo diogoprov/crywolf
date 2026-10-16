@@ -284,6 +284,9 @@ print.fp_priors <- function(x, ...) {
     stop("The observation-confirmation design needs a false-positive ",
          "process; do not use `fp = NULL`.", call. = FALSE)
   }
+  # occasion-level structure, kept for simulating from a fit
+  occasions <- list(order = ord, site = site2, rec = rec2, Z = d_det$X,
+                    confirmed = is3)
   v3 <- if (obs_confirm) {
     as.integer(2L * (auto[[conf[1]]][is3] > 0) + (auto[[conf[2]]][is3] > 0))
   } else integer(0)
@@ -330,7 +333,7 @@ print.fp_priors <- function(x, ...) {
                  occ_names = colnames(d_occ$X), det_names = colnames(d_det$X),
                  fp_names = if (estimate_fp) colnames(d_fp$X) else character(0),
                  recorders = rec_levels)
-  list(stan_data = stan_data, design = design)
+  list(stan_data = stan_data, design = design, occasions = occasions)
 }
 
 # internal: readable parameter names ------------------------------------------

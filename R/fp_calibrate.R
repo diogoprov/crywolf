@@ -89,31 +89,7 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
       purrr::list_rbind()
   }
 
-  if (parallel && !requireNamespace("furrr", quietly = TRUE)) {
-    stop("`parallel = TRUE` needs the 'furrr' package.", call. = FALSE)
-  }
-  run_all <- function(tick) {
-    job <- function(...) {
-      out <- run_one(...)
-      tick()
-      out
-    }
-    if (parallel) {
-      furrr::future_pmap(jobs, job, .options = furrr::furrr_options(seed = TRUE))
-    } else {
-      purrr::pmap(jobs, job)
-    }
-  }
-  # progress bar with time remaining, also from parallel workers
-  res <- if (interactive() && requireNamespace("progressr", quietly = TRUE)) {
-    progressr::with_progress({
-      p <- progressr::progressor(steps = nrow(jobs))
-      run_all(function() p())
-    }, handlers = progressr::handler_cli(
-      format = "{cli::pb_current}/{cli::pb_total} replicates {cli::pb_bar} {cli::pb_percent} | ETA {cli::pb_eta}"))
-  } else {
-    run_all(function() NULL)
-  }
+  res <- .run_jobs(jobs, run_one, parallel)
   out <- purrr::list_rbind(res)
   out <- merge(out, design, by = "cell", sort = FALSE)
   out <- tibble::as_tibble(out)
@@ -216,11 +192,14 @@ print.fp_calibration <- function(x, ...) {
 #' @export
 print.summary.fp_calibration <- function(x, ...) {
   cat(sprintf("Calibration summary (%g%% intervals)\n\n", 100 * attr(x, "prob")))
-  slope <- as.data.frame(x)[x$parameter == "occ_x", , drop = FALSE]
+  is_slope <- grepl("^occ_", x$parameter) & x$parameter != "occ_(Intercept)"
+  slope <- as.data.frame(x)[is_slope, , drop = FALSE]
   if (nrow(slope)) {
-    cat("Occupancy slope:\n")
+    several <- length(unique(slope$parameter)) > 1
+    cat(if (several) "Occupancy slopes:\n" else "Occupancy slope:\n")
     slope$verdict <- vapply(slope$coverage, .verdict, character(1))
-    print(slope[, setdiff(names(slope), "parameter")], digits = 2, row.names = FALSE)
+    keep <- if (several) names(slope) else setdiff(names(slope), "parameter")
+    print(slope[, keep], digits = 2, row.names = FALSE)
     cat("\n")
   }
   cat("All quantities: inspect the returned tibble.\n")
@@ -242,15 +221,6 @@ print.summary.fp_calibration <- function(x, ...) {
                                      show_exceptions = FALSE, refresh = 0,
                                      random_recorder = tr$sd_recorder > 0),
                                 fit_args)
-  t0 <- Sys.time()
-  fit <- tryCatch(
-    suppressWarnings(do.call(fp_occu, c(list(data = sim$data, occ = occ,
-                                             det = det, fp = fp, seed = seed),
-                                        fit_args))),
-    error = function(e) NULL
-  )
-  secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-
   targets <- c(`occ_(Intercept)` = tr$b0, occ_x = tr$b1)
   if (tr$n_verified_sites > 0) targets <- c(targets, p_verified = tr$r11)
   if (!is.null(fp)) {
@@ -258,6 +228,22 @@ print.summary.fp_calibration <- function(x, ...) {
     if ("w" %in% all.vars(fp)) targets <- c(targets, fp_w = tr$conf_effect)
   }
   if (!"x" %in% all.vars(occ)) targets <- targets[names(targets) != "occ_x"]
+  .fit_and_score(sim$data, targets, fp = fp, occ = occ, det = det,
+                 model = model, prob = prob, seed = seed, fit_args = fit_args)
+}
+
+# fits one model and scores the posterior intervals of `targets`, a named
+# vector of true values of output parameters
+.fit_and_score <- function(data, targets, fp, occ, det, model, prob, seed,
+                           fit_args) {
+  t0 <- Sys.time()
+  fit <- tryCatch(
+    suppressWarnings(do.call(fp_occu, c(list(data = data, occ = occ,
+                                             det = det, fp = fp, seed = seed),
+                                        fit_args))),
+    error = function(e) NULL
+  )
+  secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
 
   if (is.null(fit)) {
     return(data.frame(model = model, parameter = names(targets),
@@ -368,3 +354,32 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
 }
 
 utils::globalVariables(c("y", "lo", "hi", "model"))
+
+# runs one replicate per row of `jobs`, sequentially or with 'furrr', with a
+# progress bar that shows the time remaining in interactive sessions
+.run_jobs <- function(jobs, run_one, parallel) {
+  if (parallel && !requireNamespace("furrr", quietly = TRUE)) {
+    stop("`parallel = TRUE` needs the 'furrr' package.", call. = FALSE)
+  }
+  run_all <- function(tick) {
+    job <- function(...) {
+      out <- run_one(...)
+      tick()
+      out
+    }
+    if (parallel) {
+      furrr::future_pmap(jobs, job, .options = furrr::furrr_options(seed = TRUE))
+    } else {
+      purrr::pmap(jobs, job)
+    }
+  }
+  if (interactive() && requireNamespace("progressr", quietly = TRUE)) {
+    progressr::with_progress({
+      p <- progressr::progressor(steps = nrow(jobs))
+      run_all(function() p())
+    }, handlers = progressr::handler_cli(
+      format = "{cli::pb_current}/{cli::pb_total} replicates {cli::pb_bar} {cli::pb_percent} | ETA {cli::pb_eta}"))
+  } else {
+    run_all(function() NULL)
+  }
+}

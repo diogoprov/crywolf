@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 1.3.0
 
 * Faster likelihood, with the same posterior: the unoccupied branch of each
   site is computed from its totals of automated occasions and detections,

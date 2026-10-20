@@ -1,6 +1,6 @@
 Package: crywolf
 Title: Bayesian False-Positive Occupancy Models with Calibration Checks
-Version: 1.2.0
+Version: 1.2.0.9000
 Authors@R: c(
     person("Diogo B.", "Provete", email = "dbprovete@gmail.com",
            role = c("aut", "cre"),
@@ -53,7 +53,7 @@ VignetteBuilder:
 Remotes:
     stan-dev/cmdstanr
 Additional_repositories: https://stan-dev.r-universe.dev
-SystemRequirements: CmdStan (https://mc-stan.org/users/interfaces/cmdstan)
+SystemRequirements: CmdStan (>= 2.34; https://mc-stan.org/users/interfaces/cmdstan)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

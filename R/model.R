@@ -77,5 +77,10 @@ fp_stan_file <- function() {
     stop("CmdStan was not found. Install it once with ",
          "`cmdstanr::install_cmdstan()` and try again.", call. = FALSE)
   }
+  v <- as.character(cmdstanr::cmdstan_version())
+  if (utils::compareVersion(v, "2.34.0") < 0) {
+    stop("crywolf needs CmdStan 2.34 or later (found ", v, "). Update it ",
+         "with `cmdstanr::install_cmdstan()`.", call. = FALSE)
+  }
   invisible(TRUE)
 }

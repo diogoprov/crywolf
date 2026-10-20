@@ -123,20 +123,36 @@ shortcut it:
   a true observation ($v_3 \geq 2$) rules out the unoccupied state in the
   same way.
 
-The per-occasion terms are computed as vectors and summed by site with
-`segment()`, which works because the rows of each site are contiguous. For
-the automated occasions the binomial log-likelihood is written as
-$y \eta - n \log(1 + e^{\eta})$, where $\eta$ is the linear predictor;
-this equals $y \log p + (n - y) \log(1 - p)$ with $p$ the inverse logit of
-$\eta$, but needs one transcendental function per row instead of two. The
+The two branches are computed differently. The false-positive rate is
+constant within a site, so the unoccupied branch needs only the totals of
+automated occasions and detections of each site (`Nsite`, `Ysite`, built in
+`transformed data`): $\text{unocc}_i = Y_i \eta_i - N_i \log(1 + e^{\eta_i})$,
+with $\eta_i$ the linear predictor of the rate. This is the binomial
+log-likelihood without its constant, written as
+$y \eta - n \log(1 + e^{\eta})$ rather than
+$y \log p + (n - y) \log(1 - p)$; the first form needs one transcendental
+function per term instead of two. In the occupied branch the detection probability can
+change from one occasion to the next, so when `det` has covariates each
+site's rows go through one call of Stan's `binomial_logit_glm_lpmf()`,
+which evaluates the linear predictor, the log-likelihood and its gradient
+in one pass without creating an autodiff variable per row (`lcc` removes
+the binomial constant that this function includes). When the rows are
+already collapsed (`det = ~ 1`), or under the observation-confirmation
+design, the per-row terms are computed as vectors and summed by site with
+`segment()`, which works because the rows of each site are contiguous. The
 verified occasions enter as the number of occasions and detections of each
 site, which gives the same sum as one Bernoulli term per occasion.
+
+On the `vignette("curiango", package = "crywolf")` data, these two changes
+made each gradient evaluation about four times faster than computing every
+row as a vector, with one thread. Threads, described below, shorten the
+fits further, though by less than their number.
 
 ### Parallel likelihood
 
 Most of the computing time goes to the automated occasions: in the
 `vignette("curiango", package = "crywolf")` data, with 97,806 one-minute
-occasions and a recorder effect, they took about 90% of the time spent
+occasions and a recorder effect, they take most of the time spent
 evaluating the log density. Because sites are independent given the
 parameters, the model block adds them up with `reduce_sum()`, which splits
 the sites into slices and evaluates the slices on different threads.

@@ -150,7 +150,10 @@ from `a` to `b`:
                          vector n1v, vector s1v, real delta0,
                          array[] int known_present, int obs_confirm,
                          array[] int v3, array[] int site3, matrix Z3,
-                         array[] int rec3, array[] int start3, array[] int len3) {
+                         array[] int rec3, array[] int start3, array[] int len3,
+                         vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
+                         array[] int y2, array[] int n2, vector lchoose_site,
+                         int rec_by_site, array[] int rec_site) {
         int ns = b - a + 1;
         vector[ns] lpsi = X[a:b] * beta;
         vector[ns] lp10 = rep_vector(gamma0, ns);
@@ -159,36 +162,62 @@ from `a` to `b`:
         vector[ns] occ = rep_vector(0, ns);
         vector[ns] unocc = rep_vector(0, ns);
 
-        // automated occasions, as binomial rows; log_inv_logit(x) = x - log1p_exp(x)
-        // and log1m_inv_logit(x) = -log1p_exp(x)
+        // unoccupied branch: the false-positive rate is constant within a site,
+        // so the automated rows of a site collapse into its totals of occasions
+        // (Nsite) and detections (Ysite); log1m_inv_logit(x) = -log1p_exp(x)
+        vector[ns] log1p_exp_lp10;
+        if (estimate_fp == 1) {
+          log1p_exp_lp10 = log1p_exp(lp10);
+          unocc = Ysite[a:b] .* lp10 - Nsite[a:b] .* log1p_exp_lp10;
+        }
+
+        // occupied branch, automated occasions
         int r0 = start2[a];
         int nr = start2[b] + len2[b] - r0;
-        if (nr > 0) {
+        if (nr > 0 && use_glm == 1) {
+          // one GLM call per site: the product Z * alpha, the binomial
+          // log-likelihood and its gradient are computed in C++ without
+          // intermediate autodiff variables; lchoose_site removes the binomial
+          // constant. When the recorder is constant within sites the intercept
+          // is a scalar, which avoids one autodiff variable per row (1.6 times
+          // faster per gradient on the curiango data than the vector form)
+          vector[rows(alpha) - 1] slopes = alpha[2:rows(alpha)];
+          for (i in 1:ns) {
+            int s = a + i - 1;
+            if (len2[s] > 0) {
+              int q0 = start2[s];
+              int q1 = q0 + len2[s] - 1;
+              if (estimate_re == 1 && rec_by_site == 0) {
+                occ[i] = binomial_logit_glm_lpmf(y2[q0:q1] | n2[q0:q1], Z_slopes[q0:q1],
+                                                 alpha[1] + u[rec2[q0:q1]], slopes)
+                         - lchoose_site[s];
+              } else {
+                real intercept = estimate_re == 1 ? alpha[1] + u[rec_site[s]] : alpha[1];
+                occ[i] = binomial_logit_glm_lpmf(y2[q0:q1] | n2[q0:q1], Z_slopes[q0:q1],
+                                                 intercept, slopes) - lchoose_site[s];
+              }
+            }
+          }
+        } else if (nr > 0) {
+          // vectorized rows; log_inv_logit(x) = x - log1p_exp(x)
           int r1 = r0 + nr - 1;
           vector[nr] y = y2v[r0:r1];
           vector[nr] n = n2v[r0:r1];
           vector[nr] lp11 = Z[r0:r1] * alpha;
           if (estimate_re == 1) lp11 += u[rec2[r0:r1]];
-          array[nr] int loc;
-          for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
           vector[nr] l11;
-          vector[nr] l10;
-          if (estimate_fp == 1) {
-            vector[nr] lp10_n = lp10[loc];
-            l10 = y .* lp10_n - n .* log1p_exp(lp10_n);
-            if (obs_confirm == 1) {
-              // log(1 - p11) = log(1 - s1) + log(1 - s0)
-              vector[nr] lq11 = -log1p_exp(lp11) - log1p_exp(lp10_n);
-              l11 = y .* log1m_exp(lq11) + (n - y) .* lq11;
-            }
+          if (obs_confirm == 1) {
+            // log(1 - p11) = log(1 - s1) + log(1 - s0), with s0 constant within a site
+            array[nr] int loc;
+            for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
+            vector[nr] lq11 = -log1p_exp(lp11) - log1p_exp_lp10[loc];
+            l11 = y .* log1m_exp(lq11) + (n - y) .* lq11;
+          } else {
+            l11 = y .* lp11 - n .* log1p_exp(lp11);
           }
-          if (obs_confirm == 0) l11 = y .* lp11 - n .* log1p_exp(lp11);
           for (i in 1:ns) {
             int s = a + i - 1;
-            if (len2[s] > 0) {
-              occ[i] = sum(segment(l11, start2[s] - r0 + 1, len2[s]));
-              if (estimate_fp == 1) unocc[i] = sum(segment(l10, start2[s] - r0 + 1, len2[s]));
-            }
+            if (len2[s] > 0) occ[i] = sum(segment(l11, start2[s] - r0 + 1, len2[s]));
           }
         }
         if (estimate_fp == 0) {
@@ -239,12 +268,16 @@ from `a` to `b`:
                           vector n1v, vector s1v, real delta0,
                           array[] int known_present, int obs_confirm,
                           array[] int v3, array[] int site3, matrix Z3,
-                          array[] int rec3, array[] int start3, array[] int len3) {
+                          array[] int rec3, array[] int start3, array[] int len3,
+                          vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
+                          array[] int y2, array[] int n2, vector lchoose_site,
+                          int rec_by_site, array[] int rec_site) {
         return sum(site_loglik(a, b, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
                                rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
                                start2, len2, any_det2, n1v, s1v, delta0,
                                known_present, obs_confirm, v3, site3, Z3, rec3,
-                               start3, len3));
+                               start3, len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
+                               rec_by_site, rec_site));
       }
     }
 
@@ -266,22 +299,41 @@ shortcut it:
   hold a true observation (v_3 \geq 2) rules out the unoccupied state in
   the same way.
 
-The per-occasion terms are computed as vectors and summed by site with
-`segment()`, which works because the rows of each site are contiguous.
-For the automated occasions the binomial log-likelihood is written as y
-\eta - n \log(1 + e^{\eta}), where \eta is the linear predictor; this
-equals y \log p + (n - y) \log(1 - p) with p the inverse logit of \eta,
-but needs one transcendental function per row instead of two. The
-verified occasions enter as the number of occasions and detections of
-each site, which gives the same sum as one Bernoulli term per occasion.
+The two branches are computed differently. The false-positive rate is
+constant within a site, so the unoccupied branch needs only the totals
+of automated occasions and detections of each site (`Nsite`, `Ysite`,
+built in `transformed data`): \text{unocc}\_i = Y_i \eta_i - N_i
+\log(1 + e^{\eta_i}), with \eta_i the linear predictor of the rate. This
+is the binomial log-likelihood without its constant, written as y \eta -
+n \log(1 + e^{\eta}) rather than y \log p + (n - y) \log(1 - p); the
+first form needs one transcendental function per term instead of two. In
+the occupied branch the detection probability can change from one
+occasion to the next, so when `det` has covariates each site’s rows go
+through one call of Stan’s `binomial_logit_glm_lpmf()`, which evaluates
+the linear predictor, the log-likelihood and its gradient in one pass
+without creating an autodiff variable per row (`lcc` removes the
+binomial constant that this function includes). When the rows are
+already collapsed (`det = ~ 1`), or under the observation-confirmation
+design, the per-row terms are computed as vectors and summed by site
+with `segment()`, which works because the rows of each site are
+contiguous. The verified occasions enter as the number of occasions and
+detections of each site, which gives the same sum as one Bernoulli term
+per occasion.
+
+On the
+[`vignette("curiango", package = "crywolf")`](https://provetelab.org/crywolf/articles/curiango.md)
+data, these two changes made each gradient evaluation about four times
+faster than computing every row as a vector, with one thread. Threads,
+described below, shorten the fits further, though by less than their
+number.
 
 ### Parallel likelihood
 
 Most of the computing time goes to the automated occasions: in the
 [`vignette("curiango", package = "crywolf")`](https://provetelab.org/crywolf/articles/curiango.md)
-data, with 97,806 one-minute occasions and a recorder effect, they took
-about 90% of the time spent evaluating the log density. Because sites
-are independent given the parameters, the model block adds them up with
+data, with 97,806 one-minute occasions and a recorder effect, they take
+most of the time spent evaluating the log density. Because sites are
+independent given the parameters, the model block adds them up with
 `reduce_sum()`, which splits the sites into slices and evaluates the
 slices on different threads. `partial_loglik()` is the sum of
 `site_loglik()` over one slice; each slice reads only its own rows of
@@ -316,14 +368,25 @@ number of physical cores.
       e_raw          ~ std_normal();
       sigma_fp       ~ normal(0, fp_site_sd);
 
-      // site effects on the false-positive rate (zero when estimate_fp_re = 0)
-      vector[nsite] e_fp = rep_vector(0, nsite);
-      if (estimate_fp_re == 1) e_fp = sigma_fp[1] * e_raw;
-      target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
-                           Xfp, gamma_fp, e_fp, u, rec2, estimate_re, estimate_fp, Kfp,
-                           y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
-                           known_present, obs_confirm, v3, site3, Z3, rec3, start3,
-                           len3);
+      // The two calls differ only in the site effects on the false-positive
+      // rate: parameters when estimated, otherwise the data vector zero_site,
+      // which reduce_sum() neither copies nor differentiates for each slice.
+      if (estimate_fp_re == 1) {
+        vector[nsite] e_fp = sigma_fp[1] * e_raw;
+        target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
+                             Xfp, gamma_fp, e_fp, u, rec2, estimate_re, estimate_fp, Kfp,
+                             y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
+                             known_present, obs_confirm, v3, site3, Z3, rec3, start3,
+                             len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
+                             rec_by_site, rec_site);
+      } else {
+        target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
+                             Xfp, gamma_fp, zero_site, u, rec2, estimate_re, estimate_fp, Kfp,
+                             y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
+                             known_present, obs_confirm, v3, site3, Z3, rec3, start3,
+                             len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
+                             rec_by_site, rec_site);
+      }
     }
 
 All priors are on the logit scale and are listed with their defaults in
@@ -352,7 +415,8 @@ the log density.
                               rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
                               start2, len2, any_det2, n1v, s1v, delta0,
                               known_present, obs_confirm, v3, site3, Z3, rec3,
-                              start3, len3);
+                              start3, len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
+                              rec_by_site, rec_site);
       }
     }
 

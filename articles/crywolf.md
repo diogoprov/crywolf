@@ -985,17 +985,17 @@ m_conf
 #>   false positive:  ~1  
 #>   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions
 #> 
-#>         variable    mean      sd   lower  upper rhat ess_bulk ess_tail
-#>  occ_(Intercept) -0.0367 0.14962 -0.3375  0.252    1     4144     3185
-#>            occ_x -0.7187 0.16417 -1.0511 -0.418    1     3584     2734
-#>  det_(Intercept)  0.3734 0.06893  0.2391  0.510    1     3151     2597
-#>          p11_ref  0.6306 0.01503  0.6006  0.660    1     3697     2670
-#>   fp_(Intercept) -2.2678 0.09272 -2.4549 -2.087    1     4444     3398
-#>           fp_gap  2.6412 0.12184  2.4082  2.877    1     2867     2782
-#>          p10_ref  0.0941 0.00789  0.0791  0.110    1     4444     3398
-#>          p10_bar  0.0941 0.00789  0.0791  0.110    1     4444     3398
+#>         variable   mean      sd   lower  upper rhat ess_bulk ess_tail
+#>  occ_(Intercept) -0.036 0.15006 -0.3294  0.262    1     3835     2618
+#>            occ_x -0.718 0.17062 -1.0590 -0.397    1     4367     2219
+#>  det_(Intercept)  0.376 0.07105  0.2335  0.513    1     3033     2810
+#>          p11_ref  0.631 0.01549  0.6006  0.660    1     3516     3085
+#>   fp_(Intercept) -2.270 0.09547 -2.4614 -2.086    1     5061     3332
+#>           fp_gap  2.646 0.12541  2.3969  2.892    1     3038     2797
+#>          p10_ref  0.094 0.00811  0.0786  0.110    1     5061     3332
+#>          p10_bar  0.094 0.00811  0.0786  0.110    1     5061     3332
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 2867/2597
+#>   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 3033/2219
 ```
 
 The occupancy slope (true value -0.8), the probability of a false

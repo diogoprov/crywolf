@@ -1,5 +1,20 @@
 # Changelog
 
+## crywolf (development version)
+
+- Faster likelihood, with the same posterior: the unoccupied branch of
+  each site is computed from its totals of automated occasions and
+  detections, the occupied branch uses one `binomial_logit_glm_lpmf()`
+  call per site when detection has covariates, and with
+  `random_fp = FALSE` the site effects enter as data rather than as
+  parameters fixed at zero. On the curiango data each gradient
+  evaluation is 4 times faster than in version 1.2.0 with one thread,
+  and a short run of the sampler with four chains took 2.3 times less
+  per leapfrog step with one thread and 2.6 times less with four. The
+  log density, its gradient and `log_lik` are unchanged up to
+  floating-point rounding. Executables compiled by earlier versions are
+  rebuilt once.
+
 ## crywolf 1.2.0
 
 - `fp_occu(random_fp = TRUE)` adds a site random intercept to the logit

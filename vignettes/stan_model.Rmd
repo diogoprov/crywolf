@@ -144,8 +144,8 @@ verified occasions enter as the number of occasions and detections of each
 site, which gives the same sum as one Bernoulli term per occasion.
 
 On the `vignette("curiango", package = "crywolf")` data, these two changes
-made each gradient evaluation about four times faster than computing every
-row as a vector, with one thread. Threads, described below, shorten the
+made each gradient evaluation three to four times faster than computing
+every row as a vector, with one thread. Threads, described below, shorten the
 fits further, though by less than their number.
 
 ### Parallel likelihood

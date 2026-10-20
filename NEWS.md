@@ -1,16 +1,35 @@
 # crywolf 1.3.0
 
-* Faster likelihood, with the same posterior: the unoccupied branch of each
-  site is computed from its totals of automated occasions and detections,
-  the occupied branch uses one `binomial_logit_glm_lpmf()` call per site
-  when detection has covariates, and with `random_fp = FALSE` the site
-  effects enter as data rather than as parameters fixed at zero. On the
-  curiango data each gradient evaluation is 4 times faster than in version
-  1.2.0 with one thread, and a short run of the sampler with four chains
-  took 2.3 times less per leapfrog step with one thread and 2.6 times less
-  with four. The log density, its gradient and `log_lik` are unchanged up
-  to floating-point rounding. Executables compiled by earlier versions are
-  rebuilt once.
+## Faster likelihood, same posterior
+
+The Stan program evaluates the likelihood up to three times faster, with
+the log density, its gradient and `log_lik` unchanged up to floating-point
+rounding (checked in nine designs; scripts and results in `dev/profile/`
+of the repository). Executables compiled by earlier versions are rebuilt
+once, and CmdStan 2.34 or later is now required.
+
+* The unoccupied branch of each site is computed from its totals of
+  automated occasions and detections, because the false-positive rate is
+  constant within a site.
+* When `det` has covariates, the occupied branch uses one
+  `binomial_logit_glm_lpmf()` call per site, which evaluates the linear
+  predictor, the log-likelihood and its gradient in one pass instead of
+  creating an autodiff variable per occasion.
+* With `random_fp = FALSE` the site effects on the false-positive rate enter
+  as data rather than as parameters fixed at zero.
+
+The gain grows with the number of occasion-level rows per site. Time per
+gradient evaluation with one thread, same parameter values:
+
+| Data | Rows | 1.2.0 | 1.3.0 | Gain |
+|---|---|---|---|---|
+| 300 sites x 20 occasions, `det = ~ 1` (rows collapsed) | 300 | 0.064 ms | 0.056 ms | 1.1x |
+| 300 sites x 20 occasions, `det = ~ bio + aci`, recorder effect | 6,000 | 0.58 ms | 0.23 ms | 2.5x |
+| `curiango`, `det = ~ bio + aci`, recorder effect | 97,806 | 8.5 ms | 2.6 ms | 3.3x |
+
+In a short run of the sampler on the `curiango` data (four chains), each
+leapfrog step took 2.3 times less with one thread and 2.6 times less with
+four threads per chain.
 
 # crywolf 1.2.0
 

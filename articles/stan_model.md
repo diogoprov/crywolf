@@ -322,10 +322,10 @@ per occasion.
 
 On the
 [`vignette("curiango", package = "crywolf")`](https://provetelab.org/crywolf/articles/curiango.md)
-data, these two changes made each gradient evaluation about four times
-faster than computing every row as a vector, with one thread. Threads,
-described below, shorten the fits further, though by less than their
-number.
+data, these two changes made each gradient evaluation three to four
+times faster than computing every row as a vector, with one thread.
+Threads, described below, shorten the fits further, though by less than
+their number.
 
 ### Parallel likelihood
 

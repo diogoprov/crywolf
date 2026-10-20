@@ -44,8 +44,37 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.0" id="crywolf-130">crywolf 1.3.0<a class="anchor" aria-label="anchor" href="#crywolf-130"></a></h2>
-<ul><li>Faster likelihood, with the same posterior: the unoccupied branch of each site is computed from its totals of automated occasions and detections, the occupied branch uses one <code>binomial_logit_glm_lpmf()</code> call per site when detection has covariates, and with <code>random_fp = FALSE</code> the site effects enter as data rather than as parameters fixed at zero. On the curiango data each gradient evaluation is 4 times faster than in version 1.2.0 with one thread, and a short run of the sampler with four chains took 2.3 times less per leapfrog step with one thread and 2.6 times less with four. The log density, its gradient and <code>log_lik</code> are unchanged up to floating-point rounding. Executables compiled by earlier versions are rebuilt once.</li>
-</ul></div>
+<div class="section level3">
+<h3 id="faster-likelihood-same-posterior-1-3-0">Faster likelihood, same posterior<a class="anchor" aria-label="anchor" href="#faster-likelihood-same-posterior-1-3-0"></a></h3>
+<p>The Stan program evaluates the likelihood up to three times faster, with the log density, its gradient and <code>log_lik</code> unchanged up to floating-point rounding (checked in nine designs; scripts and results in <code>dev/profile/</code> of the repository). Executables compiled by earlier versions are rebuilt once, and CmdStan 2.34 or later is now required.</p>
+<ul><li>The unoccupied branch of each site is computed from its totals of automated occasions and detections, because the false-positive rate is constant within a site.</li>
+<li>When <code>det</code> has covariates, the occupied branch uses one <code>binomial_logit_glm_lpmf()</code> call per site, which evaluates the linear predictor, the log-likelihood and its gradient in one pass instead of creating an autodiff variable per occasion.</li>
+<li>With <code>random_fp = FALSE</code> the site effects on the false-positive rate enter as data rather than as parameters fixed at zero.</li>
+</ul><p>The gain grows with the number of occasion-level rows per site. Time per gradient evaluation with one thread, same parameter values:</p>
+<table class="table"><colgroup><col width="20%"><col width="20%"><col width="20%"><col width="20%"><col width="20%"></colgroup><thead><tr><th>Data</th>
+<th>Rows</th>
+<th>1.2.0</th>
+<th>1.3.0</th>
+<th>Gain</th>
+</tr></thead><tbody><tr><td>300 sites x 20 occasions, <code>det = ~ 1</code> (rows collapsed)</td>
+<td>300</td>
+<td>0.064 ms</td>
+<td>0.056 ms</td>
+<td>1.1x</td>
+</tr><tr><td>300 sites x 20 occasions, <code>det = ~ bio + aci</code>, recorder effect</td>
+<td>6,000</td>
+<td>0.58 ms</td>
+<td>0.23 ms</td>
+<td>2.5x</td>
+</tr><tr><td>
+<code>curiango</code>, <code>det = ~ bio + aci</code>, recorder effect</td>
+<td>97,806</td>
+<td>8.5 ms</td>
+<td>2.6 ms</td>
+<td>3.3x</td>
+</tr></tbody></table><p>In a short run of the sampler on the <code>curiango</code> data (four chains), each leapfrog step took 2.3 times less with one thread and 2.6 times less with four threads per chain.</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="crywolf-120">crywolf 1.2.0<a class="anchor" aria-label="anchor" href="#crywolf-120"></a></h2>
 <ul><li>

@@ -18,8 +18,10 @@ The package has three parts:
 \item \strong{Data and model.} \code{\link[=fp_data]{fp_data()}} (or \code{\link[=fp_data_wide]{fp_data_wide()}}) assembles the
 detections, and \code{\link[=fp_occu]{fp_occu()}} fits the model in Stan through 'cmdstanr'.
 The false-positive rate can be constant (\code{fp = ~ 1}) or depend on site
-covariates (\code{fp = ~ w}), with an optional site random effect
-(\code{random_fp = TRUE}), and the true-detection process accepts
+covariates (\code{fp = ~ w}, site- or occasion-level), with an optional site
+random effect (\code{random_fp = TRUE}); the verified method can have
+covariates (\code{ver}), runs of detections can be modelled (\code{markov}), and
+the true-detection process accepts
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported

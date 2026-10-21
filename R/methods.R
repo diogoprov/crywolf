@@ -35,6 +35,13 @@ print.fp_occu <- function(x, digits = 3, ...) {
   cat("  false positive: ",
       if (is.null(f$fp)) "none (standard occupancy model)" else .fmt_formula(f$fp),
       if (isTRUE(x$random_fp)) "+ (1 | site)" else "", "\n")
+  if (!is.null(f$ver) && length(all.vars(f$ver))) {
+    cat("  verified:        ", .fmt_formula(f$ver), "\n")
+  }
+  if (!is.null(x$markov)) {
+    cat("  runs:             previous detection (y_prev), occasions ordered by",
+        x$markov, "\n")
+  }
   if (isTRUE(sd$N3 > 0)) {
     cat(sprintf("  data:            %d sites, %d automated (%d confirmed) and %d verified occasions\n\n",
                 sd$nsite, sum(sd$n2) + sd$N3, sd$N3, sd$N1))
@@ -92,7 +99,9 @@ coef.fp_occu <- function(object, type = c("all", "occ", "det", "fp"), ...) {
 
 #' @rdname fp_occu-methods
 #' @param newdata Data frame with the covariates of the requested process. If
-#'   missing, the sites used in the fit.
+#'   missing, the sites used in the fit; for a false-positive rate with
+#'   covariates measured on each occasion, the automated occasions, with the
+#'   covariates of their sites.
 #' @param process `"occ"` for the occupancy probability or `"fp"` for the
 #'   false-positive rate, both at the site level.
 #' @param summary Logical. Return a summary per row (`TRUE`) or the matrix of
@@ -107,7 +116,15 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
   if (process == "fp" && is.null(object$formulas$fp)) {
     stop("This model has no false-positive process.", call. = FALSE)
   }
-  if (missing(newdata)) newdata <- object$data$sites
+  if (missing(newdata)) {
+    d <- object$data
+    newdata <- d$sites
+    if (process == "fp" && isTRUE(object$stan_data$fp_by_row == 1)) {
+      site_only <- setdiff(names(d$sites), names(d$auto))
+      newdata <- cbind(d$auto, d$sites[match(d$auto[[d$site]], d$sites[[d$site]]),
+                                       site_only, drop = FALSE])
+    }
+  }
   des <- object$design[[process]]
   tt <- stats::delete.response(des$terms)
   mf <- stats::model.frame(tt, newdata, xlev = des$xlevels)
@@ -130,13 +147,126 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
 }
 
 #' @rdname fp_occu-methods
+#' @param reloo Logical. Refit the model without each site whose Pareto
+#'   \eqn{k} exceeds `k_threshold`, and replace the approximate
+#'   leave-one-out value of that site by the exact one. Each such site costs
+#'   one fit, with the sampler settings of `x`. A site that is the only one
+#'   with its recorder, or with a level of a factor covariate, cannot be
+#'   predicted from a fit without it; it keeps its approximate value, with a
+#'   warning.
+#' @param k_threshold Pareto \eqn{k} above which a site is refitted.
+#' @param seed Seed of the refits.
 #' @return `loo()` returns a `psis_loo` object from 'loo'. The pointwise
 #'   log-likelihood is computed per site, with the latent state marginalized,
-#'   so the comparison is leave-one-site-out.
+#'   so the comparison is leave-one-site-out. Pareto \eqn{k} above 0.7 marks
+#'   sites where the approximation is unreliable; `reloo = TRUE` computes
+#'   their values exactly, and their \eqn{k} is then set to 0.
 #' @export
-loo.fp_occu <- function(x, ...) {
-  x$fit$loo(variables = "log_lik", ...)
+loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL, ...) {
+  ll <- posterior::as_draws_array(x$fit$draws("log_lik"))
+  # each site scaled by its own maximum, so that no likelihood underflows
+  site_max <- purrr::map_dbl(seq_len(dim(ll)[3]), function(j) max(ll[, , j]))
+  r_eff <- loo::relative_eff(exp(sweep(ll, 3, site_max, "-")))
+  l <- loo::loo(ll, r_eff = r_eff, ...)
+  bad <- which(l$diagnostics$pareto_k > k_threshold)
+  if (!reloo || !length(bad)) return(l)
+  message("Refitting the model without each of ", length(bad), " site(s) ",
+          "with Pareto k > ", k_threshold, ".")
+  llm <- posterior::as_draws_matrix(ll)
+  elpd <- purrr::map_dbl(bad, function(i) .elpd_without_site(x, i, seed))
+  done <- bad[!is.na(elpd)]
+  elpd <- elpd[!is.na(elpd)]
+  if (!length(done)) return(l)
+  lpd <- purrr::map_dbl(done, function(i) .log_mean_exp(llm[, i]))
+  l$pointwise[done, "elpd_loo"] <- elpd
+  l$pointwise[done, "p_loo"] <- lpd - elpd
+  l$pointwise[done, "looic"] <- -2 * elpd
+  # exact values: no Monte Carlo error from importance sampling
+  l$pointwise[done, "mcse_elpd_loo"] <- 0
+  l$pointwise[done, "influence_pareto_k"] <- 0
+  l$diagnostics$pareto_k[done] <- 0
+  n <- nrow(l$pointwise)
+  cols <- c("elpd_loo", "p_loo", "looic")
+  l$estimates[cols, "Estimate"] <- colSums(l$pointwise[, cols])
+  l$estimates[cols, "SE"] <- sqrt(n * purrr::map_dbl(cols, function(cl) {
+    stats::var(l$pointwise[, cl])
+  }))
+  l
 }
+
+#' Model weights by stacking
+#'
+#' Weights of several fitted models for combining their predictions, by
+#' stacking of their leave-one-site-out predictive densities (Yao et al.
+#' 2018), or by pseudo-BMA. A thin wrapper of [loo::loo_model_weights()]
+#' that accepts fits or `loo()` results.
+#'
+#' @param ... Named `fp_occu` fits, or the results of [loo()] on them.
+#' @param method `"stacking"` (default) or `"pseudobma"`.
+#'
+#' @return A named vector of weights summing to one.
+#' @references Yao, Y., Vehtari, A., Simpson, D., & Gelman, A. (2018). Using
+#'   stacking to average Bayesian predictive distributions. *Bayesian
+#'   Analysis*, 13, 917–1007. \doi{10.1214/17-BA1091}
+#' @export
+#' @examples
+#' \dontrun{
+#' sim <- simulate_fp(nsite = 200, nocc = 10, conf_effect = 1.5,
+#'                    conf_cor = 0.7, seed = 1)
+#' m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' fp_loo_weights(constant = m0, fp_on_x = m1)
+#' }
+fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
+  method <- match.arg(method)
+  fits <- list(...)
+  if (is.null(names(fits)) || any(!nzchar(names(fits)))) {
+    stop("Name every model, e.g. fp_loo_weights(constant = m0, fp_x = m1).",
+         call. = FALSE)
+  }
+  loos <- purrr::map(fits, function(f) if (inherits(f, "fp_occu")) loo(f) else f)
+  w <- loo::loo_model_weights(loos, method = method)
+  stats::setNames(as.numeric(w), names(fits))
+}
+
+# exact leave-one-site-out log predictive density of site i
+.elpd_without_site <- function(x, i, seed) {
+  d <- x$data
+  id <- d$sites[[d$site]][i]
+  keep <- function(tb) if (is.null(tb)) NULL else tb[tb[[d$site]] != id, , drop = FALSE]
+  d_i <- withCallingHandlers(
+    fp_data(keep(d$auto), keep(d$sites), keep(d$verified), site = d$site,
+            y = d$y, recorder = d$recorder, confirmed = d$confirmed),
+    crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
+  # fits saved before crywolf 1.5.0 lack the sampler settings: use defaults
+  st <- purrr::compact(if (is.null(x$sampler)) list() else x$sampler)
+  refit <- suppressWarnings(do.call(fp_occu, c(list(
+    d_i, occ = x$formulas$occ, det = x$formulas$det, fp = x$formulas$fp,
+    random_recorder = x$random_recorder, random_fp = isTRUE(x$random_fp),
+    ver = if (is.null(x$formulas$ver)) ~ 1 else x$formulas$ver, markov = x$markov,
+    priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE), st)))
+  # the left-out site must not carry a recorder or a factor level of its own,
+  # or its prediction would need a parameter the refit lacks
+  same <- intersect(c("recorders", "occ_names", "det_names", "fp_names", "ver_names"),
+                    names(x$design))
+  if (!identical(refit$design[same], x$design[same])) {
+    warning("Site ", id, " is the only site with its recorder or with a level ",
+            "of a factor covariate; its approximate value is kept.", call. = FALSE)
+    return(NA_real_)
+  }
+  sd <- x$stan_data
+  pars <- .ppc_pars(refit$fit, refit$stan_data, NULL)
+  if (!is.null(pars$e_fp)) {
+    # the left-out site gets a new site effect from the fitted distribution
+    e <- matrix(0, nrow(pars$e_fp), sd$nsite)
+    e[, i] <- stats::rnorm(nrow(e), 0, pars$sigma_fp)
+    pars$e_fp <- e
+  }
+  ll <- .ppc_core(sd, pars, "automated", "freeman-tukey")$ll[, i]
+  .log_mean_exp(ll)
+}
+
+.log_mean_exp <- function(v) max(v) + log(mean(exp(v - max(v))))
 
 #' @rdname fp_occu-methods
 #' @return `as_draws_df()` returns the posterior draws with the readable

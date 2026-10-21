@@ -66,14 +66,17 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 | Function | Purpose |
 |---|---|
 | `fp_read_birdnet()`, `fp_read_validation()`, `fp_aggregate()` | read BirdNET selection tables and reviewed clips, and build the automated occasions |
+| `fp_threshold_sweep()` | fit the model at several classifier thresholds |
 | `fp_data()`, `fp_data_wide()` | assemble automated, verified, and confirmed detections and site covariates |
 | `fp_occu()` | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
-| `fp_priors()`, `fp_prior_predictive()` | prior settings, and what they imply for data like yours |
+| `fp_priors()`, `fp_gap_prior()`, `fp_prior_predictive()` | prior settings, a prior from validated detections, and what the priors imply for data like yours |
 | `fp_ppc()` | posterior predictive check of the detections per site |
 | `plot()`, `fp_effects()`, `fp_sites()` | coefficients and diagnostics, marginal effects, and the probability that each site is occupied |
 | `simulate_fp()` | simulate data under homogeneous, unstructured, or structured false positives |
 | `fp_calibrate()` | coverage and bias of the credible intervals for a design, by simulation |
 | `fp_verification_curve()` | coverage against the fraction of sites verified |
+| `fp_calibrate_fit()`, `fp_sbc()` | calibration on data simulated from a fit, and simulation-based calibration of the computation |
+| `loo()`, `fp_loo_weights()` | leave-one-site-out cross-validation (exact refits for unreliable sites) and stacking weights |
 | `plot()` | coverage or bias of a calibration run |
 | `curiango` | acoustic monitoring of the Common Pauraque in the Pantanal (Piatti et al. 2026) |
 

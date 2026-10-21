@@ -134,7 +134,9 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   fit_args <- utils::modifyList(
     list(show_messages = FALSE, show_exceptions = FALSE, refresh = 0,
          random_recorder = fit$random_recorder,
-         random_fp = isTRUE(fit$random_fp), priors = fit$priors),
+         random_fp = isTRUE(fit$random_fp), priors = fit$priors,
+         ver = if (is.null(fit$formulas$ver)) ~ 1 else fit$formulas$ver,
+         markov = fit$markov),
     fit_args)
   jobs <- data.frame(rep = seq_len(reps), cell = 1L,
                      seed = as.integer(base_seed) + seq_len(reps))
@@ -165,7 +167,9 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
 .fit_generator <- function(fit) {
   f <- fit$formulas
   sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, fit$random_recorder,
-                         fit$priors, random_fp = isTRUE(fit$random_fp))
+                         fit$priors, random_fp = isTRUE(fit$random_fp),
+                         ver = if (is.null(f$ver)) ~ 1 else f$ver,
+                         markov = fit$markov)
   list(data = fit$data, formulas = f, stan_data = sl$stan_data,
        design = sl$design, occasions = sl$occasions,
        draws = .ppc_pars(fit$fit, sl$stan_data, NULL))
@@ -193,11 +197,12 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   d <- gen$data
   nsite <- sd$nsite
   has_fp <- sd$estimate_fp == 1
+  by_row <- isTRUE(sd$fp_by_row == 1)
 
   z <- stats::rbinom(nsite, 1, stats::plogis(drop(sd$X %*% p$beta)))
   lp10 <- if (has_fp) {
     v <- rep(p$gamma0, nsite)
-    if (sd$Kfp > 0) v <- v + drop(sd$Xfp %*% p$gamma_fp)
+    if (sd$Kfp > 0 && !by_row) v <- v + drop(sd$Xfp %*% p$gamma_fp)
     if (!is.null(p$e_fp)) {
       v <- v + p$e_fp
     } else if (!is.null(p$sigma_fp)) {
@@ -205,34 +210,66 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     }
     v
   } else rep(-Inf, nsite)
-  p10 <- stats::plogis(lp10)
 
   # automated occasions, in the sorted order of the design
   lp11 <- drop(oc$Z %*% p$alpha)
   if (sd$estimate_re == 1) lp11 <- lp11 + p$u[oc$rec]
-  s1 <- stats::plogis(lp11)
   zi <- z[oc$site]
-  s0 <- p10[oc$site]
+  lp10_occ <- lp10[oc$site]
+  if (by_row) lp10_occ <- lp10_occ + drop(oc$Xfp %*% p$gamma_fp)
+  s0 <- stats::plogis(lp10_occ)
   n <- length(oc$site)
   auto <- d$auto[oc$order, , drop = FALSE]
-  if (sd$obs_confirm == 1) {
+  confirm <- sd$obs_confirm == 1
+  if (isTRUE(oc$markov)) {
+    # runs of detections: simulate the occasions of each site in time order,
+    # true detection depending on the simulated previous occasion
+    lag_col <- which(colnames(oc$Z) == "y_prev")
+    theta <- p$alpha[lag_col]
+    base <- lp11 - theta * oc$Z[, lag_col]
+    # position of each occasion within its site (rows are sorted by site)
+    pos <- seq_len(n) - match(oc$site, oc$site) + 1L
+    sims <- purrr::reduce(seq_len(max(pos)), function(acc, k) {
+      idx <- which(pos == k)
+      # as in the fit: no run carried over from before a gap in time
+      prev <- if (k == 1) 0 else acc$y[idx - 1] * oc$has_prev[idx]
+      s1 <- stats::plogis(base[idx] + theta * prev)
+      if (confirm) {
+        acc$true[idx] <- stats::rbinom(length(idx), 1, zi[idx] * s1)
+        acc$false[idx] <- stats::rbinom(length(idx), 1, s0[idx])
+        acc$y[idx] <- pmax(acc$true[idx], acc$false[idx])
+      } else {
+        acc$y[idx] <- stats::rbinom(length(idx), 1, ifelse(zi[idx] == 1, s1, s0[idx]))
+      }
+      acc
+    }, .init = list(y = integer(n), true = integer(n), false = integer(n)))
+    y <- sims$y
+    true_obs <- sims$true
+    false_obs <- sims$false
+  } else if (confirm) {
     # true and false observations occur independently on every occasion
-    true_obs <- stats::rbinom(n, 1, zi * s1)
+    true_obs <- stats::rbinom(n, 1, zi * stats::plogis(lp11))
     false_obs <- stats::rbinom(n, 1, s0)
     y <- pmax(true_obs, false_obs)
+  } else {
+    y <- stats::rbinom(n, 1, ifelse(zi == 1, stats::plogis(lp11), s0))
+  }
+  if (confirm) {
     conf <- d$confirmed
     auto[[conf[1]]] <- ifelse(oc$confirmed, true_obs, NA_integer_)
     auto[[conf[2]]] <- ifelse(oc$confirmed, false_obs, NA_integer_)
-  } else {
-    y <- stats::rbinom(n, 1, ifelse(zi == 1, s1, s0))
   }
   auto[[d$y]] <- as.integer(y)
 
   verified <- d$verified
   if (!is.null(verified) && nrow(verified) > 0) {
     vs <- match(verified[[d$site]], d$sites[[d$site]])
-    verified[[d$y]] <- stats::rbinom(nrow(verified), 1,
-                                     z[vs] * stats::plogis(p$delta0))
+    # verified detection of each occasion, back in the order of the data
+    eta <- rep(p$delta0, nrow(verified))
+    if (isTRUE(sd$Kver_s > 0)) {
+      eta[oc$verified_order] <- p$delta0 + drop(oc$X1s %*% p$delta_s)
+    }
+    verified[[d$y]] <- stats::rbinom(nrow(verified), 1, z[vs] * stats::plogis(eta))
   }
 
   # warnings about the design are for the user's data, not for every draw
@@ -245,13 +282,25 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     stats::setNames(p$beta, paste0("occ_", gen$design$occ_names)),
     stats::setNames(p$alpha, paste0("det_", gen$design$det_names)),
     `verified_(Intercept)` = p$delta0,
+    if (isTRUE(sd$Kver_s > 0))
+      stats::setNames(p$delta_s, paste0("verified_", gen$design$ver_names[-1])),
     if (has_fp) c(`fp_(Intercept)` = p$gamma0),
     if (has_fp && sd$Kfp > 0)
       stats::setNames(p$gamma_fp, paste0("fp_", gen$design$fp_names[-1]))
   )
+  # false-positive rate of each site: with occasion covariates, its mean over
+  # the site's automated occasions (confirmed ones excluded), as in the fit
+  auto_rows <- if (confirm) !oc$confirmed else rep(TRUE, n)
+  p10_site <- if (has_fp) {
+    if (by_row) {
+      purrr::map_dbl(split(s0[auto_rows], factor(oc$site[auto_rows],
+                                                 levels = seq_len(nsite))), mean)
+    } else stats::plogis(lp10)
+  }
   list(data = data,
-       truth = list(pars = truth, z = z, p10_site = if (has_fp) p10 else NULL,
-                    p10_bar = if (has_fp) mean(p10) else 0))
+       truth = list(pars = truth, z = z, p10_site = unname(p10_site),
+                    p10_bar = if (!has_fp) 0 else if (by_row) mean(s0[auto_rows])
+                              else mean(p10_site)))
 }
 
 # true values of the quantities scored for one refitted model
@@ -260,7 +309,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   keep <- grepl("^(occ_|det_)", names(tp))
   targets <- tp[keep]
   if (gen$stan_data$N1 > 0) {
-    targets <- c(targets, `verified_(Intercept)` = tp[["verified_(Intercept)"]])
+    targets <- c(targets, tp[grepl("^verified_", names(tp))])
   }
   if (!is.null(fp)) {
     if (gen$stan_data$estimate_fp == 1) {

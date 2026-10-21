@@ -1,0 +1,19 @@
+OFF Miller RE fp~w: 0 
+OFF Chambert: 0 
+OFF fp=NULL: 0 
+LL verified ~ listener                           max|R - Stan| = 4.63e-07  divergences 0
+LL fp ~ noise (occasion) + x (site), Miller      max|R - Stan| = 4.88e-07  divergences 0
+LL fp ~ noise, Chambert                          max|R - Stan| = 5.52e-07  divergences 0
+LL markov, det ~ bio (GLM)                       max|R - Stan| = 5.12e-07  divergences 0
+LL markov, det ~ 1, random_fp                    max|R - Stan| = 2.44e-07  divergences 0
+LL markov + fp ~ noise + ver, Chambert           max|R - Stan| = 5.10e-07  divergences 0
+verified covariate           verified_listener true   1.00  est   0.86 [  0.60,   1.13]  rhat 1.003 div 0
+verified covariate           occ_x            true  -0.80  est  -0.74 [ -0.98,  -0.51]  rhat 1.003 div 0
+fp occasion covariate        fp_noise         true   1.00  est   1.02 [  0.87,   1.17]  rhat 1.002 div 0
+fp occasion covariate        occ_x            true  -0.80  est  -0.74 [ -0.98,  -0.51]  rhat 1.002 div 0
+markov runs                  det_y_prev       true   2.00  est   1.97 [  1.82,   2.12]  rhat 1.003 div 0
+markov runs                  det_(Intercept)  true  -1.39  est  -1.39 [ -1.49,  -1.29]  rhat 1.003 div 0
+markov runs                  occ_x            true  -0.80  est  -0.76 [ -1.01,  -0.52]  rhat 1.003 div 0
+markov runs, gaps at 5 and 12 det_y_prev       true   2.00  est   2.01 [  1.85,   2.17]  rhat 1.002 div 0
+markov runs, gaps at 5 and 12 det_(Intercept)  true  -1.39  est  -1.44 [ -1.53,  -1.34]  rhat 1.002 div 0
+markov runs, gaps at 5 and 12 occ_x            true  -0.80  est  -0.81 [ -1.08,  -0.56]  rhat 1.002 div 0

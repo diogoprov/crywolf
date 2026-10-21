@@ -7,7 +7,8 @@
 #' priors (or the model) are at odds with the data before any fitting.
 #'
 #' @param data An `fp_data` object.
-#' @param occ,det,fp,random_recorder,random_fp,priors As in [fp_occu()].
+#' @param occ,det,fp,ver,markov,random_recorder,random_fp,priors As in
+#'   [fp_occu()].
 #' @param ndraws Number of prior draws, one simulated dataset each.
 #' @param seed Optional integer seed.
 #'
@@ -34,6 +35,7 @@
 #'                           random_recorder = FALSE, ndraws = 50, seed = 1)
 #' pp
 fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
+                                ver = ~ 1, markov = NULL,
                                 random_recorder = !is.null(data$recorder),
                                 random_fp = FALSE, priors = fp_priors(),
                                 ndraws = 200, seed = NULL) {
@@ -41,8 +43,8 @@ fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
   }
   sl <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
-                         random_fp = random_fp)
-  gen <- list(data = data, formulas = list(occ = occ, det = det, fp = fp),
+                         random_fp = random_fp, ver = ver, markov = markov)
+  gen <- list(data = data, formulas = list(occ = occ, det = det, fp = fp, ver = ver),
               stan_data = sl$stan_data, design = sl$design,
               occasions = sl$occasions)
   if (!is.null(seed)) set.seed(seed)
@@ -65,13 +67,18 @@ fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   lo <- stats::pnorm(0, priors$gap_mean, priors$gap_sd)
   gap <- stats::qnorm(stats::runif(1, lo, 1), priors$gap_mean, priors$gap_sd)
   alpha <- c(int(), slopes(sd$Kalpha - 1))
+  # drawn in the same order as in crywolf 1.4.0, so that seeds reproduce
+  beta <- c(int(), slopes(sd$Kbeta - 1))
+  delta0 <- int()
+  delta_s <- slopes(if (is.null(sd$Kver_s)) 0 else sd$Kver_s)
+  sigma_u <- if (sd$estimate_re == 1) abs(stats::rnorm(1, 0, priors$recorder_sd))
   list(
-    beta = c(int(), slopes(sd$Kbeta - 1)),
+    beta = beta,
     alpha = alpha,
-    delta0 = int(),
-    u = if (sd$estimate_re == 1) {
-      stats::rnorm(sd$nrec, 0, abs(stats::rnorm(1, 0, priors$recorder_sd)))
-    },
+    delta0 = delta0,
+    delta_s = delta_s,
+    sigma_u = sigma_u,
+    u = if (sd$estimate_re == 1) stats::rnorm(sd$nrec, 0, sigma_u),
     gamma0 = alpha[1] - gap,
     gamma_fp = slopes(sd$Kfp),
     sigma_fp = if (isTRUE(sd$estimate_fp_re == 1)) {

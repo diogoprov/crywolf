@@ -27,12 +27,15 @@ reference:
       - fp_read_birdnet
       - fp_read_validation
       - fp_aggregate
+      - fp_threshold_sweep
   - title: Fitting
     desc: Fit the model and inspect, summarize, predict, and compare fits.
     contents:
       - fp_occu
       - fp_priors
       - fp_occu-methods
+      - fp_loo_weights
+      - fp_gap_prior
       - fp_prior_predictive
       - fp_ppc
       - fp_compile
@@ -51,6 +54,7 @@ reference:
       - fp_calibrate
       - fp_verification_curve
       - fp_calibrate_fit
+      - fp_sbc
       - simulate.fp_occu
       - plot.fp_calibration
   - title: Example data

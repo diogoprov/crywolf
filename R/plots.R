@@ -136,7 +136,13 @@ fp_effects <- function(object, covariate, process = c("occ", "fp"),
   if (!covariate %in% vars) {
     stop("`", covariate, "` is not in the ", process, " formula.", call. = FALSE)
   }
+  # covariates measured on each occasion come from the automated table
   sites <- object$data$sites
+  if (!all(vars %in% names(sites))) {
+    a <- object$data$auto
+    sites <- cbind(a, sites[match(a[[object$data$site]], sites[[object$data$site]]),
+                            setdiff(names(sites), names(a)), drop = FALSE])
+  }
   if (is.null(values)) {
     v <- sites[[covariate]]
     values <- if (is.numeric(v)) {
@@ -239,7 +245,7 @@ fp_sites <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
     verified = sd$known_present == 1,
     row.names = NULL
   )
-  if (sd$estimate_fp == 1) out$p10 <- colMeans(stats::plogis(.lp10_draws(sd, pars)))
+  if (sd$estimate_fp == 1) out$p10 <- colMeans(.p10_site_draws(sd, pars))
   structure(out, class = c("fp_sites", "data.frame"), prob = prob)
 }
 

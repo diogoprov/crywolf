@@ -28,7 +28,7 @@
   ...
 )
 
-\method{loo}{fp_occu}(x, ...)
+\method{loo}{fp_occu}(x, reloo = FALSE, k_threshold = 0.7, seed = NULL, ...)
 
 \method{as_draws_df}{fp_occu}(x, ...)
 }
@@ -45,13 +45,27 @@
 \code{"det"}, or \code{"fp"}.}
 
 \item{newdata}{Data frame with the covariates of the requested process. If
-missing, the sites used in the fit.}
+missing, the sites used in the fit; for a false-positive rate with
+covariates measured on each occasion, the automated occasions, with the
+covariates of their sites.}
 
 \item{process}{\code{"occ"} for the occupancy probability or \code{"fp"} for the
 false-positive rate, both at the site level.}
 
 \item{summary}{Logical. Return a summary per row (\code{TRUE}) or the matrix of
 posterior draws (rows are draws, columns are rows of \code{newdata})?}
+
+\item{reloo}{Logical. Refit the model without each site whose Pareto
+\eqn{k} exceeds \code{k_threshold}, and replace the approximate
+leave-one-out value of that site by the exact one. Each such site costs
+one fit, with the sampler settings of \code{x}. A site that is the only one
+with its recorder, or with a level of a factor covariate, cannot be
+predicted from a fit without it; it keeps its approximate value, with a
+warning.}
+
+\item{k_threshold}{Pareto \eqn{k} above which a site is refitted.}
+
+\item{seed}{Seed of the refits.}
 }
 \value{
 \code{summary()} returns an object of class \code{summary.fp_occu} whose
@@ -66,7 +80,9 @@ matrix of draws.
 
 \code{loo()} returns a \code{psis_loo} object from 'loo'. The pointwise
 log-likelihood is computed per site, with the latent state marginalized,
-so the comparison is leave-one-site-out.
+so the comparison is leave-one-site-out. Pareto \eqn{k} above 0.7 marks
+sites where the approximation is unreliable; \code{reloo = TRUE} computes
+their values exactly, and their \eqn{k} is then set to 0.
 
 \code{as_draws_df()} returns the posterior draws with the readable
 parameter names.

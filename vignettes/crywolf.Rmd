@@ -304,6 +304,17 @@ fp_priors()
 fp_priors(slope_sd = 1, gap_sd = 1)
 ```
 
+When a random sample of detections has been reviewed, the precision of the
+classifier says something about the false-positive rate before any fitting.
+`fp_gap_prior()` turns the counts of true and false detections, with rough
+values of $p_{11}$ and $\psi$ (from a pilot fit or earlier work), into a prior
+for $\Delta$:
+
+```{r gap-prior, eval = TRUE}
+set.seed(1)
+fp_gap_prior(n_true = 46, n_false = 4, p11 = 0.6, psi = 0.5)
+```
+
 Before fitting, `fp_prior_predictive()` checks what the priors imply for
 data with the design at hand. It draws parameter values from the priors,
 simulates data with the sites, covariates, and verification of `sim$data`,
@@ -615,9 +626,19 @@ gradient predicts best, followed by the model with `fp = ~ x`, and the
 constant-rate model predicts worst; the differences are several times their
 standard errors. Check the Pareto $k$ diagnostics printed by `loo()`: values
 above 0.7 mean that the approximation is unreliable for those sites.
+`loo(m, reloo = TRUE)` then refits the model without each such site and
+replaces its approximate value by the exact one, at the cost of one fit per
+site.
 
 ```{r loo-print}
 loo_w
+```
+
+To combine the models rather than pick one, `fp_loo_weights()` gives their
+stacking weights (Yao et al., 2018):
+
+```{r loo-weights}
+fp_loo_weights(`fp = ~ 1` = loo_const, `fp = ~ x` = loo_x, `fp = ~ w` = loo_w)
 ```
 
 LOO measures predictive performance, not the bias of a particular
@@ -687,6 +708,29 @@ plot(st)
 
 With coordinates among the site columns, `plot(st, coords = c("lon", "lat"))`
 draws the same quantity as a map.
+
+## More model options
+
+Three further options of `fp_occu()` extend the model where the data call
+for it. Each is off by default, and with it off the model is the one above.
+
+- `ver = ~ ...` gives the verified method covariates of its own, for example
+  the person who listened or the length of the clip, taken from
+  `data$verified` or the site table.
+- A false-positive formula can use covariates measured on each occasion,
+  such as background noise in `data$auto`; the rate then varies among the
+  occasions of a site.
+- `markov = "time"` (a numeric, date, or date-time column that places the
+  occasions of a site in time) lets true detection depend on whether the
+  previous occasion was a detection, for species that are recorded in
+  runs, such as a bird calling for several minutes in a row. The effect is
+  reported as `det_y_prev`. The previous occasion must be one time step
+  earlier, so a run is not carried across a missing occasion.
+
+```{r options, eval = FALSE}
+fp_occu(data, occ = ~ x, det = ~ bio, fp = ~ x + noise, ver = ~ listener,
+        markov = "time")
+```
 
 ## Detection covariates and recorder effects
 
@@ -841,3 +885,7 @@ allowing for false positive and false negative errors. *Ecology*, 87,
 Vehtari, A., Gelman, A., & Gabry, J. (2017). Practical Bayesian model
 evaluation using leave-one-out cross-validation and WAIC. *Statistics and
 Computing*, 27, 1413–1432. https://doi.org/10.1007/s11222-016-9696-4
+
+Yao, Y., Vehtari, A., Simpson, D., & Gelman, A. (2018). Using stacking to
+average Bayesian predictive distributions. *Bayesian Analysis*, 13,
+917–1007. https://doi.org/10.1214/17-BA1091

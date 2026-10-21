@@ -10,6 +10,8 @@ fp_occu(
   det = ~1,
   fp = ~1,
   random_recorder = !is.null(data$recorder),
+  ver = ~1,
+  markov = NULL,
   random_fp = FALSE,
   priors = fp_priors(),
   chains = 4,
@@ -35,7 +37,9 @@ of the automated method. It may use columns of \code{data$auto} and of
 \code{data$sites}. It must keep the intercept.}
 
 \item{fp}{One-sided formula for the logit of the false-positive rate, using
-columns of \code{data$sites}. \code{~ 1} (the default) fits a constant rate; \code{~ w}
+columns of \code{data$sites} or, for covariates measured on each occasion
+(background noise, for instance), of \code{data$auto}; the rate then varies
+among the occasions of a site. \code{~ 1} (the default) fits a constant rate; \code{~ w}
 lets the rate change along \code{w}. Use \code{NULL} to fit a standard occupancy
 model without false positives. The intercept is fixed by the model (see
 Details) and cannot be removed.}
@@ -45,6 +49,19 @@ detection? Defaults to \code{TRUE} when \code{data} has a recorder column. Data
 from \code{\link[=simulate_fp]{simulate_fp()}} always have one; with its default \code{sd_recorder = 0}
 set this to \code{FALSE}, because a random effect whose true variance is zero
 causes divergent transitions.}
+
+\item{ver}{One-sided formula for the logit of the detection probability of
+the verified method, using columns of \code{data$verified} or \code{data$sites}
+(for example, who listened, or the length of the clip). The default,
+\code{~ 1}, keeps it constant.}
+
+\item{markov}{Optional name of a numeric, date, or date-time column of
+\code{data$auto} that places the occasions of each site in time (an occasion
+number or a recording time). With it,
+true detection depends on whether the previous occasion of the same site
+was a detection, through the covariate \code{y_prev} added to \code{det} (reported
+as \code{det_y_prev}): a first-order Markov term for runs of detections, such
+as a bird calling for several consecutive minutes. See Details.}
 
 \item{random_fp}{Logical. Add a site random intercept to the logit of the
 false-positive rate, for rates that vary among sites in ways the
@@ -138,6 +155,24 @@ variation that remains.
 
 Predictions with \code{predict(process = "fp")} are for a site with
 \eqn{e_i = 0}, a typical site.
+
+\strong{Detections that come in runs.} Occasions close in time are not
+independent when the species, once present, is active for a while: a
+calling bird is recorded in consecutive minutes, which makes detections
+more clustered among sites than independent occasions allow (a posterior
+predictive check flags it). \code{markov} adds the detection on the previous
+occasion as a covariate of true detection, so that \eqn{p_{11}} can be
+higher right after a detection. It acts on the occupied state only:
+false positives stay independent among occasions. \code{y_prev} is the
+detection on the occasion one time step earlier, where the step is the
+shortest interval between consecutive occasions of a site in the data
+(one occasion, or 15 minutes for recordings every 15 minutes). The first
+occasion of each site, and an occasion that follows a gap (for instance,
+a missing occasion), has \code{y_prev} = 0: its probability of detection is
+the one after no detection, so a run is not carried across a gap. Two
+occasions of a site at the same time are an error. \code{\link[=fp_ppc]{fp_ppc()}} checks one
+step ahead, replicating each occasion given the observed previous one;
+\code{\link[=simulate.fp_occu]{simulate.fp_occu()}} simulates the runs sequentially.
 
 \strong{When to model the false-positive rate.} In the simulations behind this
 package, a constant rate gave calibrated intervals for the occupancy slope

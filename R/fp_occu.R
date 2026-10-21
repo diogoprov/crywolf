@@ -15,7 +15,9 @@
 #'   of the automated method. It may use columns of `data$auto` and of
 #'   `data$sites`. It must keep the intercept.
 #' @param fp One-sided formula for the logit of the false-positive rate, using
-#'   columns of `data$sites`. `~ 1` (the default) fits a constant rate; `~ w`
+#'   columns of `data$sites` or, for covariates measured on each occasion
+#'   (background noise, for instance), of `data$auto`; the rate then varies
+#'   among the occasions of a site. `~ 1` (the default) fits a constant rate; `~ w`
 #'   lets the rate change along `w`. Use `NULL` to fit a standard occupancy
 #'   model without false positives. The intercept is fixed by the model (see
 #'   Details) and cannot be removed.
@@ -24,6 +26,17 @@
 #'   from [simulate_fp()] always have one; with its default `sd_recorder = 0`
 #'   set this to `FALSE`, because a random effect whose true variance is zero
 #'   causes divergent transitions.
+#' @param ver One-sided formula for the logit of the detection probability of
+#'   the verified method, using columns of `data$verified` or `data$sites`
+#'   (for example, who listened, or the length of the clip). The default,
+#'   `~ 1`, keeps it constant.
+#' @param markov Optional name of a numeric, date, or date-time column of
+#'   `data$auto` that places the occasions of each site in time (an occasion
+#'   number or a recording time). With it,
+#'   true detection depends on whether the previous occasion of the same site
+#'   was a detection, through the covariate `y_prev` added to `det` (reported
+#'   as `det_y_prev`): a first-order Markov term for runs of detections, such
+#'   as a bird calling for several consecutive minutes. See Details.
 #' @param random_fp Logical. Add a site random intercept to the logit of the
 #'   false-positive rate, for rates that vary among sites in ways the
 #'   covariates in `fp` do not capture. `FALSE` by default; see the section
@@ -96,6 +109,24 @@
 #' Predictions with `predict(process = "fp")` are for a site with
 #' \eqn{e_i = 0}, a typical site.
 #'
+#' **Detections that come in runs.** Occasions close in time are not
+#' independent when the species, once present, is active for a while: a
+#' calling bird is recorded in consecutive minutes, which makes detections
+#' more clustered among sites than independent occasions allow (a posterior
+#' predictive check flags it). `markov` adds the detection on the previous
+#' occasion as a covariate of true detection, so that \eqn{p_{11}} can be
+#' higher right after a detection. It acts on the occupied state only:
+#' false positives stay independent among occasions. `y_prev` is the
+#' detection on the occasion one time step earlier, where the step is the
+#' shortest interval between consecutive occasions of a site in the data
+#' (one occasion, or 15 minutes for recordings every 15 minutes). The first
+#' occasion of each site, and an occasion that follows a gap (for instance,
+#' a missing occasion), has `y_prev` = 0: its probability of detection is
+#' the one after no detection, so a run is not carried across a gap. Two
+#' occasions of a site at the same time are an error. [fp_ppc()] checks one
+#' step ahead, replicating each occasion given the observed previous one;
+#' [simulate.fp_occu()] simulates the runs sequentially.
+#'
 #' **When to model the false-positive rate.** In the simulations behind this
 #' package, a constant rate gave calibrated intervals for the occupancy slope
 #' when false positives were homogeneous; random variation of the rate among
@@ -144,7 +175,8 @@
 #' }
 fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     random_recorder = !is.null(data$recorder),
-                    random_fp = FALSE, priors = fp_priors(),
+                    ver = ~ 1, markov = NULL, random_fp = FALSE,
+                    priors = fp_priors(),
                     chains = 4, parallel_chains = chains, threads_per_chain = 1,
                     iter_warmup = 1000, iter_sampling = 1000,
                     adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
@@ -163,7 +195,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     stop("`threads_per_chain` must be a positive integer.", call. = FALSE)
   }
   sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
-                              random_fp = random_fp)
+                              random_fp = random_fp, ver = ver, markov = markov)
   if (is.null(refresh)) {
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
@@ -183,11 +215,16 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 
   out <- structure(
     list(fit = fit, draws = draws, stan_data = sd_list$stan_data,
-         formulas = list(occ = occ, det = det, fp = fp),
+         formulas = list(occ = occ, det = det, fp = fp, ver = ver),
+         markov = markov,
          design = sd_list$design, data = data,
          random_recorder = isTRUE(sd_list$stan_data$estimate_re == 1),
          random_fp = isTRUE(sd_list$stan_data$estimate_fp_re == 1),
-         priors = priors, diagnostics = diag, call = match.call()),
+         priors = priors,
+         sampler = list(chains = chains, parallel_chains = parallel_chains,
+                        threads_per_chain = threads_per_chain,
+                        iter_warmup = iter_warmup, iter_sampling = iter_sampling,
+                        adapt_delta = adapt_delta), diagnostics = diag, call = match.call()),
     class = "fp_occu"
   )
   .warn_diagnostics(diag)
@@ -265,7 +302,7 @@ print.fp_priors <- function(x, ...) {
 }
 
 .build_stan_data <- function(data, occ, det, fp, random_recorder, priors,
-                             random_fp = FALSE) {
+                             random_fp = FALSE, ver = ~ 1, markov = NULL) {
   s <- data$site
   sites <- data$sites
   auto <- data$auto
@@ -275,28 +312,48 @@ print.fp_priors <- function(x, ...) {
   if (!d_occ$intercept) stop("`occ` must keep the intercept.", call. = FALSE)
 
   site2 <- match(auto[[s]], sites[[s]])
-  # the likelihood sums each site's occasions over contiguous rows
-  ord <- order(site2)
+  # the likelihood sums each site's occasions over contiguous rows; with a
+  # Markov term they are also in time order within each site
+  if (!is.null(markov)) {
+    .check_df(auto, "data$auto", markov)
+    ord <- order(site2, auto[[markov]])
+  } else {
+    ord <- order(site2)
+  }
   auto <- auto[ord, , drop = FALSE]
   site2 <- site2[ord]
-  # det may use site covariates: bring them into the automated table
+  has_prev <- NULL
+  if (!is.null(markov)) {
+    has_prev <- .markov_adjacent(site2, auto[[markov]], markov)
+    # detection on the previous occasion of the same site; 0 on the first
+    # occasion and after a gap in time
+    prev <- c(0L, as.integer(auto[[data$y]])[-nrow(auto)])
+    prev[!has_prev] <- 0L
+    auto$y_prev <- prev
+    det <- stats::update(det, ~ . + y_prev)
+  }
+  # det and fp may use site covariates: bring them into the automated table
   site_only <- setdiff(names(sites), names(auto))
   auto_full <- cbind(auto, sites[site2, site_only, drop = FALSE])
   d_det <- .design(det, auto_full, "det")
   if (!d_det$intercept) stop("`det` must keep the intercept.", call. = FALSE)
 
   estimate_fp <- !is.null(fp)
+  # false-positive covariates measured on each occasion make the rate vary
+  # within sites; otherwise it is a property of the site
+  fp_by_row <- estimate_fp && !all(all.vars(fp) %in% names(sites))
   if (estimate_fp) {
-    d_fp <- .design(fp, sites, "fp")
+    d_fp <- .design(fp, if (fp_by_row) auto_full else sites, "fp")
     if (!d_fp$intercept) {
       stop("`fp` must keep the intercept; it is tied to the detection ",
            "intercept by the gap (see ?fp_occu).", call. = FALSE)
     }
-    Xfp <- d_fp$X[, -1, drop = FALSE]
+    Xfp_all <- d_fp$X[, -1, drop = FALSE]
   } else {
     d_fp <- NULL
-    Xfp <- matrix(0, nsite, 0)
+    Xfp_all <- matrix(0, nsite, 0)
   }
+  Xfp <- if (fp_by_row) matrix(0, nsite, 0) else Xfp_all
 
   use_fp_re <- isTRUE(random_fp)
   if (use_fp_re && !estimate_fp) {
@@ -316,11 +373,26 @@ print.fp_priors <- function(x, ...) {
     rec_levels <- character(0)
   }
 
-  ver <- data$verified
-  if (is.null(ver)) {
+  ver_data <- data$verified
+  if (is.null(ver_data) || nrow(ver_data) == 0) {
     y1 <- integer(0); site1 <- integer(0)
+    X1s <- matrix(0, 0, 0)
+    d_ver <- NULL
   } else {
-    y1 <- as.integer(ver[[data$y]]); site1 <- match(ver[[s]], sites[[s]])
+    site1 <- match(ver_data[[s]], sites[[s]])
+    # sorted by site, so that the rows of each site are contiguous
+    o1 <- order(site1)
+    ver_data <- ver_data[o1, , drop = FALSE]
+    site1 <- site1[o1]
+    y1 <- as.integer(ver_data[[data$y]])
+    ver_full <- cbind(ver_data, sites[site1, setdiff(names(sites), names(ver_data)),
+                                      drop = FALSE])
+    d_ver <- .design(ver, ver_full, "ver")
+    if (!d_ver$intercept) stop("`ver` must keep the intercept.", call. = FALSE)
+    X1s <- d_ver$X[, -1, drop = FALSE]
+  }
+  if (is.null(d_ver) && length(all.vars(ver))) {
+    stop("`ver` has covariates but the data have no verified occasions.", call. = FALSE)
   }
 
   # observation confirmation: checked occasions leave the automated rows and
@@ -333,24 +405,30 @@ print.fp_priors <- function(x, ...) {
          "process; do not use `fp = NULL`.", call. = FALSE)
   }
   # occasion-level structure, kept for simulating from a fit
+  Xfp_occ <- if (fp_by_row) Xfp_all else matrix(0, nrow(auto), 0)
   occasions <- list(order = ord, site = site2, rec = rec2, Z = d_det$X,
-                    confirmed = is3)
+                    confirmed = is3, Xfp = Xfp_occ,
+                    verified_order = if (length(y1)) o1 else integer(0),
+                    X1s = X1s, markov = !is.null(markov),
+                    has_prev = has_prev)
   v3 <- if (obs_confirm) {
     as.integer(2L * (auto[[conf[1]]][is3] > 0) + (auto[[conf[2]]][is3] > 0))
   } else integer(0)
   site3 <- site2[is3]
   rec3 <- rec2[is3]
   Z3 <- d_det$X[is3, , drop = FALSE]
+  Xfp3 <- Xfp_occ[is3, , drop = FALSE]
   auto <- auto[!is3, , drop = FALSE]
   site2 <- site2[!is3]
   rec2 <- rec2[!is3]
   X_det <- d_det$X[!is3, , drop = FALSE]
+  Xfp_rows <- Xfp_occ[!is3, , drop = FALSE]
 
   # collapse occasions with identical covariates within a site into
   # binomial rows (exact, and much faster when detection is site-level)
   y_raw <- as.integer(auto[[data$y]])
   key <- do.call(paste, c(list(site2, rec2), as.data.frame(X_det),
-                          list(sep = "\r")))
+                          as.data.frame(Xfp_rows), list(sep = "\r")))
   grp <- match(key, unique(key))
   first <- !duplicated(grp)
   n2 <- tabulate(grp)
@@ -358,6 +436,7 @@ print.fp_priors <- function(x, ...) {
   site2 <- site2[first]
   rec2 <- rec2[first]
   Z <- X_det[first, , drop = FALSE]
+  Xfp2 <- Xfp_rows[first, , drop = FALSE]
   len2 <- tabulate(site2, nbins = nsite)
   start2 <- cumsum(c(1L, len2))[seq_len(nsite)]
 
@@ -368,11 +447,14 @@ print.fp_priors <- function(x, ...) {
     Kalpha = ncol(Z), Z = unname(Z),
     nrec = max(1L, length(rec_levels)), rec2 = as.integer(rec2),
     estimate_re = as.integer(use_re),
-    Kfp = ncol(Xfp), Xfp = unname(Xfp), estimate_fp = as.integer(estimate_fp),
+    Kfp = ncol(Xfp_all), fp_by_row = as.integer(fp_by_row), Xfp = unname(Xfp),
+    Xfp2 = unname(Xfp2), estimate_fp = as.integer(estimate_fp),
     N1 = length(y1), y1 = y1, site1 = as.integer(site1),
+    Kver_s = ncol(X1s), X1s = unname(if (length(y1)) X1s else matrix(0, 0, 0)),
     known_present = as.integer(data$known_present),
     obs_confirm = as.integer(obs_confirm), N3 = length(v3), v3 = v3,
     site3 = as.integer(site3), Z3 = unname(Z3), rec3 = as.integer(rec3),
+    Xfp3 = unname(Xfp3),
     prior_sd_int = priors$intercept_sd, prior_sd_slope = priors$slope_sd,
     gap_mean = priors$gap_mean, gap_sd = priors$gap_sd,
     recorder_sd = priors$recorder_sd,
@@ -380,9 +462,10 @@ print.fp_priors <- function(x, ...) {
     # fits saved before this prior existed carry no value for it
     fp_site_sd = if (is.null(priors$fp_site_sd)) 1 else priors$fp_site_sd
   )
-  design <- list(occ = d_occ, det = d_det, fp = d_fp,
+  design <- list(occ = d_occ, det = d_det, fp = d_fp, ver = d_ver,
                  occ_names = colnames(d_occ$X), det_names = colnames(d_det$X),
                  fp_names = if (estimate_fp) colnames(d_fp$X) else character(0),
+                 ver_names = if (is.null(d_ver)) "(Intercept)" else colnames(d_ver$X),
                  recorders = rec_levels)
   list(stan_data = stan_data, design = design, occasions = occasions)
 }
@@ -397,6 +480,10 @@ print.fp_priors <- function(x, ...) {
     stats::setNames(paste0("det_", design$det_names),
                     sprintf("alpha[%d]", seq_along(design$det_names))),
     if (has_verified) c("delta0" = "verified_(Intercept)", "r11" = "p_verified"),
+    if (has_verified && length(design$ver_names) > 1) {
+      stats::setNames(paste0("verified_", design$ver_names[-1]),
+                      sprintf("delta_s[%d]", seq_along(design$ver_names[-1])))
+    },
     c("p11_ref" = "p11_ref")
   )
   if (estimate_fp) {
@@ -448,4 +535,28 @@ print.fp_priors <- function(x, ...) {
   )
   if (length(msgs)) warning(paste(msgs, collapse = "\n"), call. = FALSE)
   invisible(NULL)
+}
+
+# Is each occasion (sorted by site and time) one time step after the previous
+# row of the same site? The step is the smallest interval between consecutive
+# occasions in the data, so missing occasions (e.g. rows with NA dropped by
+# fp_data()) break the chain instead of joining non-adjacent occasions.
+.markov_adjacent <- function(site, time, name) {
+  if (!is.numeric(time) && !inherits(time, c("POSIXt", "Date"))) {
+    stop("The `markov` column '", name, "' must be numeric, a date, or a ",
+         "date-time.", call. = FALSE)
+  }
+  t <- as.numeric(time)
+  if (anyNA(t)) stop("The `markov` column '", name, "' has missing values.",
+                     call. = FALSE)
+  n <- length(t)
+  same <- c(FALSE, site[-1] == site[-n])
+  dt <- c(NA, diff(t))
+  if (any(same & dt == 0)) {
+    stop("Two occasions of the same site share the same `markov` value; ",
+         "their order in time is undefined.", call. = FALSE)
+  }
+  if (!any(same)) return(same)
+  step <- min(dt[same])
+  same & abs(dt - step) <= 1e-8 * step
 }

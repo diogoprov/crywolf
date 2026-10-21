@@ -162,6 +162,45 @@ the fit was. Either way, the check covers only the structure of the
 generating model: a dependence of the false-positive rate on a variable
 that was not measured is not part of it.
 
+## Is the computation right?
+
+All the checks above take for granted that the sampler finds the posterior
+of the model. Simulation-based calibration tests that assumption on its
+own (Talts et al., 2018; Modrák et al., 2025; Gelman et al., 2026, Ch. 31):
+`fp_sbc()` draws parameter values from the priors, simulates data with the
+design at hand, fits the model, and records the rank of each true value
+among the posterior draws. It also ranks the log-likelihood of the
+simulated data at the true values among its values at the draws
+(`log_lik`), a test quantity that depends on the data and catches problems
+the parameter ranks can miss (Modrák et al., 2025). When the computation
+is right, the ranks are uniform.
+
+```{r, eval = FALSE}
+sbc <- fp_sbc(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+              reps = 200, parallel = TRUE)
+summary(sbc)
+```
+
+```{r sbc, echo = FALSE}
+sbc <- readRDS("sbc-results.rds")
+summary(sbc)
+```
+
+```{r plot-sbc, echo = FALSE, fig.height = 4.5, fig.cap = "Ranks of the true values among 99 posterior draws in 200 replicates of simulation-based calibration (80 sites, 6 occasions, constant false-positive rate). The grey band is the 99% range of each bin's count under uniform ranks."}
+plot(sbc)
+```
+
+The ranks look uniform for every quantity. The gap has the lowest p-value,
+`r sprintf("%.3f", min(summary(sbc)$p_uniform))`, which is not small once
+`r nrow(summary(sbc))` quantities are tested at once (the Bonferroni
+threshold for a 5% level is
+`r sprintf("%.3f", 0.05 / nrow(summary(sbc)))`); a larger run would tell
+whether its slight excess of high ranks is real. The chi-squared test of
+binned ranks is coarse, so the histograms are worth a look as well. This
+differs from the coverage checks of `fp_calibrate()`: there, data come from
+fixed parameter values that may break the model's assumptions; here, they
+come from the model itself, so only the computation is under test.
+
 ## Plotting
 
 `plot()` draws the coverage of the occupancy slope against the design column
@@ -203,3 +242,12 @@ Gelman, A., Vehtari, A., McElreath, R., Simpson, D., Margossian, C. C.,
 Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., Modrák, M., & Leos Barajas,
 V. (2026). *Bayesian Workflow*. Chapman & Hall.
 https://avehtari.github.io/Bayesian-Workflow/
+
+Modrák, M., Moon, A. H., Kim, S., Bürkner, P., Huurre, N., Faltejsková, K.,
+Gelman, A., & Vehtari, A. (2025). Simulation-based calibration checking for
+Bayesian computation: the choice of test quantities shapes sensitivity.
+*Bayesian Analysis*, 20, 461–488. https://doi.org/10.1214/23-BA1404
+
+Talts, S., Betancourt, M., Simpson, D., Vehtari, A., & Gelman, A. (2018).
+Validating Bayesian inference algorithms with simulation-based calibration.
+arXiv:1804.06788.

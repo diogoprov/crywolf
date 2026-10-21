@@ -108,6 +108,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
 # one row per draw
 .ppc_pars <- function(fit, sd, ndraws) {
   vars <- c("beta", "alpha", "delta0",
+            if (isTRUE(sd$Kver_s > 0)) "delta_s",
             if (sd$estimate_re == 1) "u",
             if (sd$estimate_fp == 1) "gamma0",
             if (sd$estimate_fp == 1 && sd$Kfp > 0) "gamma_fp",
@@ -124,6 +125,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   S <- nrow(dm)
   list(
     beta = cols("beta"), alpha = cols("alpha"), delta0 = cols("delta0")[, 1],
+    delta_s = if (isTRUE(sd$Kver_s > 0)) cols("delta_s") else matrix(0, S, 0),
     u = if (sd$estimate_re == 1) cols("u") else NULL,
     gamma0 = if (sd$estimate_fp == 1) cols("gamma0")[, 1] else NULL,
     gamma_fp = if (sd$estimate_fp == 1 && sd$Kfp > 0) cols("gamma_fp") else
@@ -154,9 +156,11 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   lp11 <- pars$alpha %*% t(sd$Z)                         # S x N2
   if (sd$estimate_re == 1) lp11 <- lp11 + pars$u[, sd$rec2, drop = FALSE]
   fp <- sd$estimate_fp == 1
+  by_row <- isTRUE(sd$fp_by_row == 1)
   if (fp) {
-    lp10 <- .lp10_draws(sd, pars)
+    lp10 <- .lp10_draws(sd, pars)                        # S x nsite
     lp10_row <- lp10[, sd$site2, drop = FALSE]           # S x N2
+    if (by_row) lp10_row <- lp10_row + pars$gamma_fp %*% t(sd$Xfp2)
   }
   y2 <- sd$y2
   f2 <- sd$n2 - sd$y2
@@ -174,8 +178,9 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   }
   occ <- stats::plogis(lpsi, log.p = TRUE) + .site_sum(l11, sd$site2, nsite)
   if (sd$N1 > 0) {
-    l1 <- outer(stats::plogis(pars$delta0, log.p = TRUE), sd$y1) +
-      outer(stats::plogis(-pars$delta0, log.p = TRUE), 1 - sd$y1)
+    eta1 <- .eta_verified(sd, pars)                      # S x N1
+    l1 <- rows(sd$y1) * stats::plogis(eta1, log.p = TRUE) +
+      rows(1 - sd$y1) * stats::plogis(-eta1, log.p = TRUE)
     occ <- occ + .site_sum(l1, sd$site1, nsite)
   }
   unocc <- stats::plogis(-lpsi, log.p = TRUE)
@@ -192,6 +197,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     lp3 <- pars$alpha %*% t(sd$Z3)
     if (sd$estimate_re == 1) lp3 <- lp3 + pars$u[, sd$rec3, drop = FALSE]
     lp10_3 <- lp10[, sd$site3, drop = FALSE]
+    if (by_row) lp10_3 <- lp10_3 + pars$gamma_fp %*% t(sd$Xfp3)
     occ3 <- rows(v3 >= 2) * stats::plogis(lp3, log.p = TRUE) +
       rows(v3 < 2) * stats::plogis(-lp3, log.p = TRUE) +
       rows(v3 %% 2 == 1) * stats::plogis(lp10_3, log.p = TRUE) +
@@ -222,12 +228,12 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     E <- .site_sum(n_row * p_row, sd$site2, nsite)
     yrep <- .site_sum(yrep_row, sd$site2, nsite)
   } else {
-    nver <- tabulate(sd$site1, nbins = nsite)
-    keep <- nver > 0
+    keep <- tabulate(sd$site1, nbins = nsite) > 0
     y <- tabulate(sd$site1[sd$y1 == 1], nbins = nsite)
-    p <- z * stats::plogis(pars$delta0)
-    E <- p * rows(nver)
-    yrep <- matrix(stats::rbinom(length(p), rows(nver), p), S)
+    p_row <- z[, sd$site1, drop = FALSE] * stats::plogis(eta1)   # S x N1
+    E <- .site_sum(p_row, sd$site1, nsite)
+    yrep <- .site_sum(matrix(stats::rbinom(length(p_row), 1, p_row), S),
+                      sd$site1, nsite)
   }
   y <- y[keep]
   E <- E[, keep, drop = FALSE]
@@ -244,7 +250,25 @@ print.fp_ppc <- function(x, digits = 3, ...) {
 # logit of the false-positive rate of each site, S draws x nsite
 .lp10_draws <- function(sd, pars) {
   lp10 <- matrix(pars$gamma0, length(pars$gamma0), sd$nsite)
-  if (sd$Kfp > 0) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
+  if (sd$Kfp > 0 && !isTRUE(sd$fp_by_row == 1)) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
   if (!is.null(pars$e_fp)) lp10 <- lp10 + pars$e_fp
   lp10
+}
+
+# false-positive rate of each site, S x nsite: with occasion-level covariates,
+# its mean over the site's automated occasions
+.p10_site_draws <- function(sd, pars) {
+  if (!isTRUE(sd$fp_by_row == 1)) return(stats::plogis(.lp10_draws(sd, pars)))
+  lp <- .lp10_draws(sd, pars)[, sd$site2, drop = FALSE] + pars$gamma_fp %*% t(sd$Xfp2)
+  w <- matrix(sd$n2, nrow(lp), ncol(lp), byrow = TRUE)
+  .site_sum(w * stats::plogis(lp), sd$site2, sd$nsite) /
+    matrix(pmax(1, tabulate(rep(sd$site2, sd$n2), nbins = sd$nsite)),
+           nrow(lp), sd$nsite, byrow = TRUE)
+}
+
+# logit of the verified detection probability of each verified occasion, S x N1
+.eta_verified <- function(sd, pars) {
+  eta <- matrix(pars$delta0, length(pars$delta0), sd$N1)
+  if (isTRUE(sd$Kver_s > 0)) eta <- eta + pars$delta_s %*% t(sd$X1s)
+  eta
 }

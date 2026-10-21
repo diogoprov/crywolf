@@ -19,9 +19,9 @@ detection, \code{FALSE} for a false one, \code{NA} for clips not reviewed), and
 }
 \description{
 Reads \code{validation_by_clip.csv}, the clip-by-clip result of the review
-step of the 'sheepdog' package (the birdnet-validation-sampler pipeline),
-and returns the verdicts in a form that \code{\link[=fp_aggregate]{fp_aggregate()}} can attach to the
-occasions. Files written by the sampler up to version 1.2.0
+step of the 'sheepdog' package, and returns the verdicts in a form that
+\code{\link[=fp_aggregate]{fp_aggregate()}} can attach to the occasions. Files written by the
+sampler up to version 1.2.0
 (\code{validacao_por_clipe.csv}, with column names in Portuguese) are read as
 well.
 }

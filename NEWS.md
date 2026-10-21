@@ -1,3 +1,12 @@
+# crywolf (development version)
+
+* `fp_read_validation()` reads `validation_by_clip.csv` from 'sheepdog'
+  2.0.0 and later (English column names and verdicts: `site`,
+  `source_audio`, `clip_start`, `verdict = "positive"`, ...) as well as the
+  legacy `validacao_por_clipe.csv` of the sampler up to 1.2.0. The format is
+  detected from the columns, and both give the same output, which now
+  keeps `occasion_id` when the file has it.
+
 # crywolf 1.5.0
 
 ## Model options

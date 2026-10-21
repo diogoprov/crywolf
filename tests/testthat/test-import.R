@@ -63,17 +63,58 @@ test_that("verdicts become confirmation counts, with checks", {
   expect_s3_class(d, "fp_data")
 })
 
-test_that("fp_read_validation maps the sampler's verdicts", {
-  f <- tempfile(fileext = ".csv")
+test_that("fp_read_validation reads the sheepdog and the legacy formats alike", {
+  new_f <- tempfile(fileext = ".csv")
+  old_f <- tempfile(fileext = ".csv")
+  verdicts <- c("positive", "negative", "not_reviewed", "clip_missing")
+  utils::write.csv(data.frame(
+    site = "S1", species_code = "sp", source_audio = "D:\\rec\\S1_x.wav",
+    clip_start = c(1, 5, 9, 13), clip_end = c(4, 8, 12, 16),
+    confidence = c(0.9, 0.7, 0.6, 0.5), sampling_mode = "random_detections",
+    occasion_id = "S1_x", verdict = verdicts), new_f, row.names = FALSE)
   utils::write.csv(data.frame(
     local = "S1", species_code = "sp", audio_origem = "D:\\rec\\S1_x.wav",
-    inicio_clipe = c(1, 5), fim_clipe = c(4, 8), confidence = c(0.9, 0.7),
-    veredito = c("positivo", "nao_validado")), f, row.names = FALSE)
+    inicio_clipe = c(1, 5, 9, 13), fim_clipe = c(4, 8, 12, 16),
+    confidence = c(0.9, 0.7, 0.6, 0.5), modo_amostragem = "aleatorio_deteccoes",
+    ocasiao_id = "S1_x",
+    veredito = c("positivo", "negativo", "nao_validado", "clipe_ausente")),
+    old_f, row.names = FALSE)
+  v <- expect_no_warning(fp_read_validation(new_f))
+  expect_equal(v$verdict, c(TRUE, FALSE, NA, NA))
+  expect_equal(v$file, rep("S1_x.wav", 4))
+  expect_equal(v$start, c(1, 5, 9, 13))
+  expect_equal(v$occasion_id, rep("S1_x", 4))
+  expect_identical(fp_read_validation(old_f), v)
+
+  # identifiers that look like numbers stay text
+  utils::write.csv(data.frame(
+    site = "01", species_code = "sp", source_audio = "01_x.wav", clip_start = 0,
+    clip_end = 3, confidence = 0.8, occasion_id = "007", verdict = "positive"),
+    new_f, row.names = FALSE)
+  v <- fp_read_validation(new_f)
+  expect_identical(v$site, "01")
+  expect_identical(v$occasion_id, "007")
+
+  # unknown verdicts warn; a file of the other sort is an error
+  bad <- utils::read.csv(new_f)
+  bad$verdict[1] <- "maybe"
+  utils::write.csv(bad, new_f, row.names = FALSE)
+  expect_warning(fp_read_validation(new_f), "maybe")
+  utils::write.csv(data.frame(a = 1), new_f, row.names = FALSE)
+  expect_error(fp_read_validation(new_f), "validation_by_clip.csv")
+})
+
+test_that("fp_read_validation reads the example file of sheepdog", {
+  # sheepdog is not a dependency: the test runs only where it is installed
+  f <- system.file("extdata", "validation_by_clip.csv", package = "sheepdog")
+  skip_if(!nzchar(f), "sheepdog (>= 2.0.0) is not installed")
+  raw <- utils::read.csv(f, stringsAsFactors = FALSE)
   v <- fp_read_validation(f)
-  expect_equal(v$verdict, c(TRUE, NA))
-  expect_equal(v$file, c("S1_x.wav", "S1_x.wav"))
-  utils::write.csv(data.frame(a = 1), f, row.names = FALSE)
-  expect_error(fp_read_validation(f), "validacao_por_clipe")
+  expect_equal(v$site, raw$site)
+  expect_equal(v$file, basename(gsub("\\\\", "/", raw$source_audio)))
+  expect_equal(v$start, raw$clip_start)
+  expect_equal(v$verdict, ifelse(raw$verdict == "positive", TRUE,
+                                 ifelse(raw$verdict == "negative", FALSE, NA)))
 })
 
 test_that("fp_data warns about sites without occasions and constant data", {

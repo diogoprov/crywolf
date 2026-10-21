@@ -2,32 +2,50 @@
 % Please edit documentation in R/import.R
 \name{fp_read_validation}
 \alias{fp_read_validation}
-\title{Read the verdicts of the birdnet-validation-sampler}
+\title{Read the verdicts of a clip review}
 \usage{
 fp_read_validation(path)
 }
 \arguments{
-\item{path}{Path of \code{validacao_por_clipe.csv}.}
+\item{path}{Path of \code{validation_by_clip.csv} (or of the legacy
+\code{validacao_por_clipe.csv}).}
 }
 \value{
-A data frame with one row per clip: \code{site} (\code{local} in the
-sampler), \code{species_code}, \code{file} (the audio file the clip was cut from),
-\code{start} and \code{end} (in seconds within it), \code{confidence}, and \code{verdict}
-(\code{TRUE} for a true detection, \code{FALSE} for a false one, \code{NA} for clips
-not reviewed).
+A data frame with one row per clip: \code{site}, \code{species_code},
+\code{file} (the audio file the clip was cut from), \code{start} and \code{end} (in
+seconds within it), \code{confidence}, \code{verdict} (\code{TRUE} for a true
+detection, \code{FALSE} for a false one, \code{NA} for clips not reviewed), and
+\code{occasion_id} when the file has it.
 }
 \description{
-Reads \code{validacao_por_clipe.csv}, the clip-by-clip result of the review
-step of the birdnet-validation-sampler pipeline, and returns the verdicts
-in a form that \code{\link[=fp_aggregate]{fp_aggregate()}} can attach to the occasions.
+Reads \code{validation_by_clip.csv}, the clip-by-clip result of the review
+step of the 'sheepdog' package (the birdnet-validation-sampler pipeline),
+and returns the verdicts in a form that \code{\link[=fp_aggregate]{fp_aggregate()}} can attach to the
+occasions. Files written by the sampler up to version 1.2.0
+(\code{validacao_por_clipe.csv}, with column names in Portuguese) are read as
+well.
 }
 \details{
-The sampler picks clips among the detections of a species, by default
-the ones with the highest confidence. The models in crywolf treat the
-checked occasions as chosen independently of the classifier's score: clips
+The format is detected from the columns: \code{site} marks the format of
+'sheepdog' 2.0.0 and later, \code{local} the legacy one. The columns used are
+\code{site}, \code{species_code}, \code{source_audio}, \code{clip_start}, \code{clip_end},
+\code{confidence}, and \code{verdict} (legacy: \code{local}, \code{species_code},
+\code{audio_origem}, \code{inicio_clipe}, \code{fim_clipe}, \code{confidence}, \code{veredito}),
+and \code{occasion_id} (\code{ocasiao_id}) when present. Verdicts \code{positive} and
+\code{negative} (legacy: \code{positivo}, \code{negativo}) become \code{TRUE} and \code{FALSE};
+\code{not_reviewed} and \code{clip_missing} (\code{nao_validado}, \code{clipe_ausente})
+become \code{NA}, and any other value becomes \code{NA} with a warning.
+
+The sampler can pick clips among the detections of a species by their
+confidence or at random. The models in crywolf treat the checked
+occasions as chosen independently of the classifier's score: clips
 picked for their high scores hold fewer false positives than a random
 sample, and would make the false-positive rate look lower than it is. Use
-clips drawn at random among the detections for this purpose.
+clips drawn at random among the detections for this purpose. Clips of
+whole recordings (\code{sampling_mode = "random_recordings"}, with no
+confidence) are a second, manual method of detection: give them to
+\code{\link[=fp_data]{fp_data()}} as verified occasions, not to the \code{validation} argument of
+\code{\link[=fp_aggregate]{fp_aggregate()}}.
 }
 \seealso{
 \code{\link[=fp_aggregate]{fp_aggregate()}}

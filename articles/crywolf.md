@@ -362,6 +362,35 @@ fp_priors(slope_sd = 1, gap_sd = 1)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 ```
 
+Before fitting,
+[`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+checks what the priors imply for data with the design at hand. It draws
+parameter values from the priors, simulates data with the sites,
+covariates, and verification of `sim$data`, and compares simple
+summaries with the observed ones:
+
+``` r
+
+pp <- fp_prior_predictive(sim$data, occ = ~ x, fp = ~ 1,
+                          random_recorder = FALSE, ndraws = 200, seed = 1)
+pp
+#> Prior predictive check (200 draws)
+#> 
+#>          summary     q05 median   q95 observed share_below_observed
+#>  naive_occupancy 0.36000  0.973 1.000    0.867                0.315
+#>   automated_rate 0.04747  0.330 0.788    0.390                0.565
+#>    verified_rate 0.02725  0.220 0.625    0.278                0.575
+#>         mean_psi 0.17579  0.515 0.866       NA                   NA
+#>          p10_bar 0.00395  0.120 0.726       NA                   NA
+#> 
+#> Observed values near 0 or 1 in `share_below_observed` sit in the tails of the prior predictive distribution.
+```
+
+For each of the three summaries, between 0.32 and 0.57 of the simulated
+datasets lie below the observed value, so the observed data sit well
+inside what the priors produce, and the priors do not rule out data like
+these. `plot(pp)` shows the full distributions.
+
 ### Parameter names
 
 The output labels each coefficient by its process and by the column of
@@ -492,6 +521,23 @@ chains.](crywolf_files/figure-html/fig-trace-1.png)
 Trace plots of the occupancy slope and of the gap between the
 true-detection and false-positive intercepts, for the four chains.
 
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) gives a
+shortcut to the same diagnostics (`type = "trace"`, `"rank"`, or
+`"pairs"`, with divergent transitions marked) and, by default, the
+posterior intervals of every coefficient, one panel per process:
+
+``` r
+
+plot(m_const)
+```
+
+![Posterior medians with 50% (thick) and 95% (thin) intervals of the
+coefficients of the constant-rate model, on the logit
+scale.](crywolf_files/figure-html/fig-coef-1.png)
+
+Posterior medians with 50% (thick) and 95% (thin) intervals of the
+coefficients of the constant-rate model, on the logit scale.
+
 ### Posterior predictive check
 
 A posterior predictive check compares the observed data with data
@@ -537,6 +583,9 @@ with each number of automated detections, observed (bars) and replicated
 Posterior predictive check of the constant-rate model: number of sites
 with each number of automated detections, observed (bars) and replicated
 (points and intervals).
+
+The same figure is `plot(ppc_const, type = "counts")`; `plot(ppc_const)`
+plots the replicated against the observed discrepancy, draw by draw.
 
 The Bayesian p-value of the constant-rate model is 0.00. The check flags
 a lack of fit: the model does not reproduce how detections are
@@ -847,6 +896,62 @@ relationship.](crywolf_files/figure-html/fig-predict-1.png)
 Predicted occupancy probability (posterior mean and 95% credible
 interval) along the occupancy covariate under three models of the
 false-positive rate. The dashed line is the true relationship.
+
+For a single model,
+[`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md)
+builds such a curve directly, holding the other covariates of the
+process at their means; its `transform` argument puts the x axis back on
+the original scale of a covariate that was standardized before fitting:
+
+``` r
+
+plot(fp_effects(m_x, "x", process = "fp"))
+```
+
+![False-positive rate along the occupancy covariate in the model with fp
+= ~ x (posterior mean and 95%
+interval).](crywolf_files/figure-html/fig-effects-1.png)
+
+False-positive rate along the occupancy covariate in the model with fp =
+~ x (posterior mean and 95% interval).
+
+### Site-level estimates
+
+The occupancy probability \psi_i describes a site from its covariates
+alone. Once the data are in, what matters for a given site is the
+probability that it is occupied given its detections and verification.
+[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+returns both, with the false-positive rate of each site:
+
+``` r
+
+st <- fp_sites(m_x, seed = 1)
+head(st[, c("site", "psi", "occupied", "p10", "detections", "verified")])
+#>   site       psi     occupied         p10 detections verified
+#> 1    1 0.5031151 3.152959e-03 0.104818616          4    FALSE
+#> 2    2 0.7208509 1.000000e+00 0.021246759         16    FALSE
+#> 3    3 0.5589641 1.448243e-07 0.072510366          1    FALSE
+#> 4    4 0.5911767 6.463578e-09 0.058119852          0    FALSE
+#> 5    5 0.6703278 1.000000e+00 0.032369093         12     TRUE
+#> 6    6 0.8519751 1.000000e+00 0.004870278         13    FALSE
+```
+
+``` r
+
+plot(st)
+```
+
+![Posterior probability that each site is occupied under the model with
+fp = ~ x, sites ranked. Sites with automated detections only can still
+be unlikely to be occupied when their false-positive rate is
+high.](crywolf_files/figure-html/fig-sites-1.png)
+
+Posterior probability that each site is occupied under the model with fp
+= ~ x, sites ranked. Sites with automated detections only can still be
+unlikely to be occupied when their false-positive rate is high.
+
+With coordinates among the site columns,
+`plot(st, coords = c("lon", "lat"))` draws the same quantity as a map.
 
 ## Detection covariates and recorder effects
 

@@ -9,6 +9,17 @@ Assemble automated and verified detections and site covariates.
 - [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md)
   : Assemble data from detection matrices
 
+## Reading classifier output
+
+Read BirdNET selection tables and reviewed clips, and build occasions.
+
+- [`fp_read_birdnet()`](https://provetelab.org/crywolf/reference/fp_read_birdnet.md)
+  : Read BirdNET selection tables
+- [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
+  : Read the verdicts of the birdnet-validation-sampler
+- [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
+  : Detections and confirmations per occasion
+
 ## Fitting
 
 Fit the model and inspect, summarize, predict, and compare fits.
@@ -25,12 +36,30 @@ Fit the model and inspect, summarize, predict, and compare fits.
   [`loo(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
   [`as_draws_df(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
   : Methods for fp_occu fits
+- [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+  [`plot(`*`<fp_prior_predictive>`*`)`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+  : Prior predictive check
 - [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) :
   Posterior predictive check for a false-positive occupancy model
 - [`fp_compile()`](https://provetelab.org/crywolf/reference/fp_compile.md)
   : Compile (or load) the Stan model
 - [`fp_stan_file()`](https://provetelab.org/crywolf/reference/fp_stan_file.md)
   : Path to the Stan program
+
+## Plots and site-level estimates
+
+Coefficients, diagnostics, marginal effects, and occupancy of each site.
+
+- [`plot(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/plot.fp_occu.md)
+  : Plot a fitted model
+- [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md)
+  [`plot(`*`<fp_effects>`*`)`](https://provetelab.org/crywolf/reference/fp_effects.md)
+  : Marginal effect of a covariate
+- [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  [`plot(`*`<fp_sites>`*`)`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  : Site-level estimates
+- [`plot(`*`<fp_ppc>`*`)`](https://provetelab.org/crywolf/reference/plot.fp_ppc.md)
+  : Plot a posterior predictive check
 
 ## Simulation and calibration
 

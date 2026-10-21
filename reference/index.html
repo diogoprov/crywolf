@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,6 +65,36 @@
         </dt>
         <dd>Assemble data from detection matrices</dd>
       </dl></div><div class="section level2">
+      <h2 id="reading-classifier-output">Reading classifier output<a class="anchor" aria-label="anchor" href="#reading-classifier-output"></a></h2>
+
+      <div class="section-desc"><p>Read BirdNET selection tables and reviewed clips, and build occasions.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="fp_read_birdnet.html">fp_read_birdnet()</a></code>
+
+        </dt>
+        <dd>Read BirdNET selection tables</dd>
+
+        <dt>
+
+          <code><a href="fp_read_validation.html">fp_read_validation()</a></code>
+
+        </dt>
+        <dd>Read the verdicts of the birdnet-validation-sampler</dd>
+
+        <dt>
+
+          <code><a href="fp_aggregate.html">fp_aggregate()</a></code>
+
+        </dt>
+        <dd>Detections and confirmations per occasion</dd>
+      </dl></div><div class="section level2">
       <h2 id="fitting">Fitting<a class="anchor" aria-label="anchor" href="#fitting"></a></h2>
 
       <div class="section-desc"><p>Fit the model and inspect, summarize, predict, and compare fits.</p></div>
@@ -97,6 +127,13 @@
 
         <dt>
 
+          <code><a href="fp_prior_predictive.html">fp_prior_predictive()</a></code> <code><a href="fp_prior_predictive.html">plot(<i>&lt;fp_prior_predictive&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Prior predictive check</dd>
+
+        <dt>
+
           <code><a href="fp_ppc.html">fp_ppc()</a></code>
 
         </dt>
@@ -115,6 +152,43 @@
 
         </dt>
         <dd>Path to the Stan program</dd>
+      </dl></div><div class="section level2">
+      <h2 id="plots-and-site-level-estimates">Plots and site-level estimates<a class="anchor" aria-label="anchor" href="#plots-and-site-level-estimates"></a></h2>
+
+      <div class="section-desc"><p>Coefficients, diagnostics, marginal effects, and occupancy of each site.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="plot.fp_occu.html">plot(<i>&lt;fp_occu&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot a fitted model</dd>
+
+        <dt>
+
+          <code><a href="fp_effects.html">fp_effects()</a></code> <code><a href="fp_effects.html">plot(<i>&lt;fp_effects&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Marginal effect of a covariate</dd>
+
+        <dt>
+
+          <code><a href="fp_sites.html">fp_sites()</a></code> <code><a href="fp_sites.html">plot(<i>&lt;fp_sites&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Site-level estimates</dd>
+
+        <dt>
+
+          <code><a href="plot.fp_ppc.html">plot(<i>&lt;fp_ppc&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot a posterior predictive check</dd>
       </dl></div><div class="section level2">
       <h2 id="simulation-and-calibration">Simulation and calibration<a class="anchor" aria-label="anchor" href="#simulation-and-calibration"></a></h2>
 

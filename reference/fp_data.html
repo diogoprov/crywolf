@@ -15,7 +15,7 @@ detection matrices, as in 'unmarked'."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ detection matrices, as in 'unmarked'."><meta property="og:image" content="https:
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Assemble data for a false-positive occupancy model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.3.0/R/fp_data.R" class="external-link"><code>R/fp_data.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/fp_data.R" class="external-link"><code>R/fp_data.R</code></a></small>
       <div class="d-none name"><code>fp_data.Rd</code></div>
     </div>
 
@@ -125,6 +125,17 @@ and one without has none. See Details of <code><a href="fp_occu.html">fp_occu()<
 with a missing detection dropped), the column names, and the vector
 <code>known_present</code>, which flags sites with at least one verified detection
 or confirmed true observation.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Besides errors for data that cannot be fitted, <code>fp_data()</code> warns about
+data that can be fitted but are probably not what was meant: sites with
+no automated occasion (often a failed join of <code>auto</code> and <code>sites</code>), very
+unequal automated effort among sites (ten times or more), automated
+occasions that are all detections or all non-detections, verified data
+without any detection, and confirmed occasions without any false
+observation.
+<code><a href="fp_aggregate.html">fp_aggregate()</a></code> builds <code>auto</code> from classifier output.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

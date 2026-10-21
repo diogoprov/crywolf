@@ -62,10 +62,12 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 | Function | Purpose |
 |----|----|
+| [`fp_read_birdnet()`](https://provetelab.org/crywolf/reference/fp_read_birdnet.md), [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md), [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md) | read BirdNET selection tables and reviewed clips, and build the automated occasions |
 | [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md), [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md) | assemble automated, verified, and confirmed detections and site covariates |
 | [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
+| [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md), [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md) | prior settings, and what they imply for data like yours |
 | [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) | posterior predictive check of the detections per site |
-| [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md) | prior settings |
+| [`plot()`](https://rdrr.io/r/graphics/plot.default.html), [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md), [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md) | coefficients and diagnostics, marginal effects, and the probability that each site is occupied |
 | [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md) | simulate data under homogeneous, unstructured, or structured false positives |
 | [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md) | coverage and bias of the credible intervals for a design, by simulation |
 | [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md) | coverage against the fraction of sites verified |

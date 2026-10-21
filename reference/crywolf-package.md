@@ -23,10 +23,25 @@ The package has three parts:
   (2015), in which an expert checks the detections of some automated
   occasions, is supported through the `confirmed` argument of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
-  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) runs
-  a posterior predictive check, and
+  [`fp_read_birdnet()`](https://provetelab.org/crywolf/reference/fp_read_birdnet.md),
+  [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md),
+  and
+  [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
+  build the data from classifier output, and
   [curiango](https://provetelab.org/crywolf/reference/curiango.md) holds
   a real dataset.
+
+- **Checking and plotting.**
+  [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+  checks the priors against the data,
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) runs
+  a posterior predictive check, and
+  [`plot.fp_occu()`](https://provetelab.org/crywolf/reference/plot.fp_occu.md),
+  [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md),
+  and
+  [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  show the coefficients, the effect of a covariate, and the probability
+  that each site is occupied.
 
 - **Simulation.**
   [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)

@@ -1,5 +1,54 @@
 # Changelog
 
+## crywolf 1.4.0
+
+### Plots and site-level estimates
+
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) for fits
+  draws the posterior intervals of the coefficients, one panel per
+  process, or sampler diagnostics (`type = "trace"`, `"rank"`,
+  `"pairs"`, via ‘bayesplot’, with divergent transitions marked).
+- [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md)
+  gives the occupancy probability or the false-positive rate along one
+  covariate, with the others at their means, and a `transform` argument
+  for covariates standardized before fitting;
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws it.
+- [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  returns, for every site, the occupancy probability, the posterior
+  probability that it is occupied given its data, and its false-positive
+  rate; [`plot()`](https://rdrr.io/r/graphics/plot.default.html) ranks
+  the sites or, with coordinates, maps them.
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) for
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md)
+  results: replicated against observed discrepancy, or the distribution
+  of detections per site.
+- [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+  simulates data from the priors with the design of the real data and
+  compares simple summaries with the observed ones.
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) for
+  calibrations can show verification effort as the expected number of
+  verified sites or occasions, and mark a target coverage.
+
+### Reading classifier output
+
+- [`fp_read_birdnet()`](https://provetelab.org/crywolf/reference/fp_read_birdnet.md)
+  reads BirdNET selection tables (Raven format).
+- [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
+  reads the clip verdicts of the birdnet-validation-sampler.
+- [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
+  turns detections into automated occasions at a confidence threshold,
+  and verdicts into counts for the observation-confirmation design,
+  warning when a checked occasion has detections that were not reviewed.
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  warns about sites without automated occasions and about automated data
+  that are all detections or all non-detections.
+
+### Other changes
+
+- Fits keep every draw in memory, so a fit saved with
+  [`saveRDS()`](https://rdrr.io/r/base/readRDS.html) works in later
+  sessions, after CmdStan’s temporary files are gone.
+
 ## crywolf 1.3.0
 
 ### Faster likelihood, same posterior

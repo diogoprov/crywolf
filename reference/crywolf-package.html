@@ -14,8 +14,14 @@ covariates (fp = ~ w), with an optional site random effect
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
-through the confirmed argument of fp_data(). fp_ppc() runs a
-posterior predictive check, and curiango holds a real dataset.
+through the confirmed argument of fp_data(). fp_read_birdnet(),
+fp_read_validation(), and fp_aggregate() build the data from
+classifier output, and curiango holds a real dataset.
+Checking and plotting. fp_prior_predictive() checks the priors
+against the data, fp_ppc() runs a posterior predictive check, and
+plot.fp_occu(), fp_effects(), and fp_sites() show the
+coefficients, the effect of a covariate, and the probability that each
+site is occupied.
 Simulation. simulate_fp() generates data under homogeneous,
 unstructured, and structured (&quot;confusion&quot;) false-positive regimes.
 Calibration. fp_calibrate() and fp_verification_curve() fit the
@@ -39,8 +45,14 @@ covariates (fp = ~ w), with an optional site random effect
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
-through the confirmed argument of fp_data(). fp_ppc() runs a
-posterior predictive check, and curiango holds a real dataset.
+through the confirmed argument of fp_data(). fp_read_birdnet(),
+fp_read_validation(), and fp_aggregate() build the data from
+classifier output, and curiango holds a real dataset.
+Checking and plotting. fp_prior_predictive() checks the priors
+against the data, fp_ppc() runs a posterior predictive check, and
+plot.fp_occu(), fp_effects(), and fp_sites() show the
+coefficients, the effect of a covariate, and the probability that each
+site is occupied.
 Simulation. simulate_fp() generates data under homogeneous,
 unstructured, and structured (&quot;confusion&quot;) false-positive regimes.
 Calibration. fp_calibrate() and fp_verification_curve() fit the
@@ -57,7 +69,7 @@ verification it needs.
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +101,7 @@ verification it needs.
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>crywolf: Bayesian false-positive occupancy models with calibration checks</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.3.0/R/crywolf-package.R" class="external-link"><code>R/crywolf-package.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/crywolf-package.R" class="external-link"><code>R/crywolf-package.R</code></a></small>
       <div class="d-none name"><code>crywolf-package.Rd</code></div>
     </div>
 
@@ -108,8 +120,14 @@ covariates (<code>fp = ~ w</code>), with an optional site random effect
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
-through the <code>confirmed</code> argument of <code><a href="fp_data.html">fp_data()</a></code>. <code><a href="fp_ppc.html">fp_ppc()</a></code> runs a
-posterior predictive check, and <a href="curiango.html">curiango</a> holds a real dataset.</p></li>
+through the <code>confirmed</code> argument of <code><a href="fp_data.html">fp_data()</a></code>. <code><a href="fp_read_birdnet.html">fp_read_birdnet()</a></code>,
+<code><a href="fp_read_validation.html">fp_read_validation()</a></code>, and <code><a href="fp_aggregate.html">fp_aggregate()</a></code> build the data from
+classifier output, and <a href="curiango.html">curiango</a> holds a real dataset.</p></li>
+<li><p><strong>Checking and plotting.</strong> <code><a href="fp_prior_predictive.html">fp_prior_predictive()</a></code> checks the priors
+against the data, <code><a href="fp_ppc.html">fp_ppc()</a></code> runs a posterior predictive check, and
+<code><a href="plot.fp_occu.html">plot.fp_occu()</a></code>, <code><a href="fp_effects.html">fp_effects()</a></code>, and <code><a href="fp_sites.html">fp_sites()</a></code> show the
+coefficients, the effect of a covariate, and the probability that each
+site is occupied.</p></li>
 <li><p><strong>Simulation.</strong> <code><a href="simulate_fp.html">simulate_fp()</a></code> generates data under homogeneous,
 unstructured, and structured ("confusion") false-positive regimes.</p></li>
 <li><p><strong>Calibration.</strong> <code><a href="fp_calibrate.html">fp_calibrate()</a></code> and <code><a href="fp_verification_curve.html">fp_verification_curve()</a></code> fit the

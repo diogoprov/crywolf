@@ -77,6 +77,18 @@ missing detection dropped), the column names, and the vector
 `known_present`, which flags sites with at least one verified detection
 or confirmed true observation.
 
+## Details
+
+Besides errors for data that cannot be fitted, `fp_data()` warns about
+data that can be fitted but are probably not what was meant: sites with
+no automated occasion (often a failed join of `auto` and `sites`), very
+unequal automated effort among sites (ten times or more), automated
+occasions that are all detections or all non-detections, verified data
+without any detection, and confirmed occasions without any false
+observation.
+[`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
+builds `auto` from classifier output.
+
 ## References
 
 Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false

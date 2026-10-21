@@ -9,7 +9,15 @@ nominal level; bias, with a dashed line at zero.
 
 ``` r
 # S3 method for class 'fp_calibration'
-plot(x, parameter = "occ_x", type = c("coverage", "bias"), by = NULL, ...)
+plot(
+  x,
+  parameter = "occ_x",
+  type = c("coverage", "bias"),
+  by = NULL,
+  verified = c("fraction", "sites", "occasions"),
+  target = NULL,
+  ...
+)
 ```
 
 ## Arguments
@@ -37,6 +45,19 @@ plot(x, parameter = "occ_x", type = c("coverage", "bias"), by = NULL, ...)
   Name of the design column for the horizontal axis. By default, the
   first design column that varies among cells; further varying columns
   become panels. With no varying column, the models are on the axis.
+
+- verified:
+
+  How to show the verification effort when `by` is `"frac_verified"`: as
+  the fraction of sites (default), as the expected number of verified
+  sites (`"sites"`, `frac_verified * nsite`), or as the expected number
+  of verified occasions, e.g. clips listened to (`"occasions"`, times
+  `nver`), which is closer to the cost of the design.
+
+- target:
+
+  Optional coverage to mark with a second line, for instance the lowest
+  coverage you are willing to accept (0.90).
 
 - ...:
 

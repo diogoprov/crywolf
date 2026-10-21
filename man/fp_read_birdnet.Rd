@@ -27,7 +27,7 @@ name has none).
 \description{
 Reads the selection tables that BirdNET writes in the Raven format (one
 tab-separated \code{.txt} file per recording or per site), with the column
-names standardized as in the birdnet-validation-sampler pipeline:
+names standardized as in the 'sheepdog' package:
 lower case, without units, and with spaces replaced by underscores
 (\verb{Begin Time (s)} becomes \code{begin_time}).
 }

@@ -4,7 +4,7 @@
 #'
 #' Reads the selection tables that BirdNET writes in the Raven format (one
 #' tab-separated `.txt` file per recording or per site), with the column
-#' names standardized as in the birdnet-validation-sampler pipeline:
+#' names standardized as in the 'sheepdog' package:
 #' lower case, without units, and with spaces replaced by underscores
 #' (`Begin Time (s)` becomes `begin_time`).
 #'
@@ -77,9 +77,9 @@ fp_read_birdnet <- function(path, pattern = "\\.txt$", recursive = TRUE,
 #' Read the verdicts of a clip review
 #'
 #' Reads `validation_by_clip.csv`, the clip-by-clip result of the review
-#' step of the 'sheepdog' package (the birdnet-validation-sampler pipeline),
-#' and returns the verdicts in a form that [fp_aggregate()] can attach to the
-#' occasions. Files written by the sampler up to version 1.2.0
+#' step of the 'sheepdog' package, and returns the verdicts in a form that
+#' [fp_aggregate()] can attach to the occasions. Files written by the
+#' sampler up to version 1.2.0
 #' (`validacao_por_clipe.csv`, with column names in Portuguese) are read as
 #' well.
 #'

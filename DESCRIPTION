@@ -46,12 +46,14 @@ Suggests:
     knitr,
     progressr,
     rmarkdown,
+    sheepdog,
     testthat (>= 3.0.0),
     unmarked
 VignetteBuilder:
     knitr
 Remotes:
-    stan-dev/cmdstanr
+    stan-dev/cmdstanr,
+    diogoprov/sheepdog
 Additional_repositories: https://stan-dev.r-universe.dev
 SystemRequirements: CmdStan (>= 2.34; https://mc-stan.org/users/interfaces/cmdstan)
 Config/testthat/edition: 3

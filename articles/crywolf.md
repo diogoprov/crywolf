@@ -362,6 +362,26 @@ fp_priors(slope_sd = 1, gap_sd = 1)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 ```
 
+When a random sample of detections has been reviewed, the precision of
+the classifier says something about the false-positive rate before any
+fitting.
+[`fp_gap_prior()`](https://provetelab.org/crywolf/reference/fp_gap_prior.md)
+turns the counts of true and false detections, with rough values of
+p\_{11} and \psi (from a pilot fit or earlier work), into a prior for
+\Delta:
+
+``` r
+
+set.seed(1)
+fp_gap_prior(n_true = 46, n_false = 4, p11 = 0.6, psi = 0.5)
+#> <fp_priors> (logit scale)
+#>   intercepts      ~ Normal(0, 1.5)
+#>   slopes          ~ Normal(0, 2.5)
+#>   fp_gap          ~ Normal(3.58586, 0.490575), truncated at 0
+#>   sd_recorder     ~ half-Normal(0, 2)
+#>   sd_fp_site      ~ half-Normal(0, 1)
+```
+
 Before fitting,
 [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
 checks what the priors imply for data with the design at hand. It draws
@@ -815,6 +835,9 @@ and the constant-rate model predicts worst; the differences are several
 times their standard errors. Check the Pareto k diagnostics printed by
 [`loo()`](https://mc-stan.org/loo/reference/loo.html): values above 0.7
 mean that the approximation is unreliable for those sites.
+`loo(m, reloo = TRUE)` then refits the model without each such site and
+replaces its approximate value by the exact one, at the cost of one fit
+per site.
 
 ``` r
 
@@ -827,10 +850,21 @@ loo_w
 #> looic      6619.7 170.2
 #> ------
 #> MCSE of elpd_loo is 0.0.
-#> MCSE and ESS estimates assume independent draws (r_eff=1).
+#> MCSE and ESS estimates assume MCMC draws (r_eff in [0.8, 1.4]).
 #> 
 #> All Pareto k estimates are good (k < 0.7).
 #> See help('pareto-k-diagnostic') for details.
+```
+
+To combine the models rather than pick one,
+[`fp_loo_weights()`](https://provetelab.org/crywolf/reference/fp_loo_weights.md)
+gives their stacking weights (Yao et al., 2018):
+
+``` r
+
+fp_loo_weights(`fp = ~ 1` = loo_const, `fp = ~ x` = loo_x, `fp = ~ w` = loo_w)
+#>     fp = ~ 1     fp = ~ x     fp = ~ w 
+#> 1.407193e-06 5.157799e-06 9.999934e-01
 ```
 
 LOO measures predictive performance, not the bias of a particular
@@ -952,6 +986,32 @@ unlikely to be occupied when their false-positive rate is high.
 
 With coordinates among the site columns,
 `plot(st, coords = c("lon", "lat"))` draws the same quantity as a map.
+
+## More model options
+
+Three further options of
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+extend the model where the data call for it. Each is off by default, and
+with it off the model is the one above.
+
+- `ver = ~ ...` gives the verified method covariates of its own, for
+  example the person who listened or the length of the clip, taken from
+  `data$verified` or the site table.
+- A false-positive formula can use covariates measured on each occasion,
+  such as background noise in `data$auto`; the rate then varies among
+  the occasions of a site.
+- `markov = "time"` (a numeric, date, or date-time column that places
+  the occasions of a site in time) lets true detection depend on whether
+  the previous occasion was a detection, for species that are recorded
+  in runs, such as a bird calling for several minutes in a row. The
+  effect is reported as `det_y_prev`. The previous occasion must be one
+  time step earlier, so a run is not carried across a missing occasion.
+
+``` r
+
+fp_occu(data, occ = ~ x, det = ~ bio, fp = ~ x + noise, ver = ~ listener,
+        markov = "time")
+```
 
 ## Detection covariates and recorder effects
 
@@ -1174,3 +1234,7 @@ Vehtari, A., Gelman, A., & Gabry, J. (2017). Practical Bayesian model
 evaluation using leave-one-out cross-validation and WAIC. *Statistics
 and Computing*, 27, 1413–1432.
 <https://doi.org/10.1007/s11222-016-9696-4>
+
+Yao, Y., Vehtari, A., Simpson, D., & Gelman, A. (2018). Using stacking
+to average Bayesian predictive distributions. *Bayesian Analysis*, 13,
+917–1007. <https://doi.org/10.1214/17-BA1091>

@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Checking calibration and how much to verify</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.4.0/vignettes/calibration.Rmd" class="external-link"><code>vignettes/calibration.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/vignettes/calibration.Rmd" class="external-link"><code>vignettes/calibration.Rmd</code></a></small>
       <div class="d-none name"><code>calibration.Rmd</code></div>
     </div>
 
@@ -270,6 +270,54 @@ false-positive rate on a variable that was not measured is not part of
 it.</p>
 </div>
 <div class="section level2">
+<h2 id="is-the-computation-right">Is the computation right?<a class="anchor" aria-label="anchor" href="#is-the-computation-right"></a>
+</h2>
+<p>All the checks above take for granted that the sampler finds the
+posterior of the model. Simulation-based calibration tests that
+assumption on its own (Talts et al., 2018; Modrák et al., 2025; Gelman
+et al., 2026, Ch. 31): <code><a href="../reference/fp_sbc.html">fp_sbc()</a></code> draws parameter values from
+the priors, simulates data with the design at hand, fits the model, and
+records the rank of each true value among the posterior draws. It also
+ranks the log-likelihood of the simulated data at the true values among
+its values at the draws (<code>log_lik</code>), a test quantity that
+depends on the data and catches problems the parameter ranks can miss
+(Modrák et al., 2025). When the computation is right, the ranks are
+uniform.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sbc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_sbc.html">fp_sbc</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>              reps <span class="op">=</span> <span class="fl">200</span>, parallel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sbc</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; Simulation-based calibration</span></span>
+<span><span class="co">#&gt;   mean_rank: near 0.5 when the posterior is unbiased; p_uniform: chi-squared</span></span>
+<span><span class="co">#&gt;   test of uniform ranks (small values flag a problem).</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             parameter   n mean_rank p_uniform divergent</span></span>
+<span><span class="co">#&gt;       det_(Intercept) 200     0.484    0.1969         0</span></span>
+<span><span class="co">#&gt;        fp_(Intercept) 200     0.466    0.2622         0</span></span>
+<span><span class="co">#&gt;                fp_gap 200     0.528    0.0156         0</span></span>
+<span><span class="co">#&gt;               log_lik 200     0.495    0.3753         0</span></span>
+<span><span class="co">#&gt;       occ_(Intercept) 200     0.519    0.2689         0</span></span>
+<span><span class="co">#&gt;                 occ_x 200     0.487    0.3838         0</span></span>
+<span><span class="co">#&gt;  verified_(Intercept) 200     0.480    0.3586         0</span></span></code></pre>
+<div class="figure">
+<img src="calibration_files/figure-html/plot-sbc-1.png" class="r-plt" alt="Ranks of the true values among 99 posterior draws in 200 replicates of simulation-based calibration (80 sites, 6 occasions, constant false-positive rate). The grey band is the 99% range of each bin's count under uniform ranks." width="100%"><p class="caption">
+Ranks of the true values among 99 posterior draws in 200 replicates of
+simulation-based calibration (80 sites, 6 occasions, constant
+false-positive rate). The grey band is the 99% range of each bin’s count
+under uniform ranks.
+</p>
+</div>
+<p>The ranks look uniform for every quantity. The gap has the lowest
+p-value, 0.016, which is not small once 7 quantities are tested at once
+(the Bonferroni threshold for a 5% level is 0.007); a larger run would
+tell whether its slight excess of high ranks is real. The chi-squared
+test of binned ranks is coarse, so the histograms are worth a look as
+well. This differs from the coverage checks of
+<code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code>: there, data come from fixed parameter
+values that may break the model’s assumptions; here, they come from the
+model itself, so only the computation is under test.</p>
+</div>
+<div class="section level2">
 <h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
 </h2>
 <p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws the coverage of the occupancy slope against
@@ -279,7 +327,7 @@ and a dashed line at the nominal level. <code>type = "bias"</code> plots
 the bias instead, and <code>parameter</code> selects another scored
 quantity. The result is a ‘ggplot2’ object that can be modified as
 usual.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"bias"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, parameter <span class="op">=</span> <span class="st">"p10_bar"</span><span class="op">)</span></span></code></pre></div>
@@ -315,6 +363,14 @@ by <code>x</code>.</p>
 C., Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., Modrák, M., &amp;
 Leos Barajas, V. (2026). <em>Bayesian Workflow</em>. Chapman &amp; Hall.
 <a href="https://avehtari.github.io/Bayesian-Workflow/" class="external-link uri">https://avehtari.github.io/Bayesian-Workflow/</a></p>
+<p>Modrák, M., Moon, A. H., Kim, S., Bürkner, P., Huurre, N.,
+Faltejsková, K., Gelman, A., &amp; Vehtari, A. (2025). Simulation-based
+calibration checking for Bayesian computation: the choice of test
+quantities shapes sensitivity. <em>Bayesian Analysis</em>, 20, 461–488.
+<a href="https://doi.org/10.1214/23-BA1404" class="external-link uri">https://doi.org/10.1214/23-BA1404</a></p>
+<p>Talts, S., Betancourt, M., Simpson, D., Vehtari, A., &amp; Gelman, A.
+(2018). Validating Bayesian inference algorithms with simulation-based
+calibration. arXiv:1804.06788.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

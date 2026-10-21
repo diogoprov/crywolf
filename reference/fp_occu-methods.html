@@ -9,7 +9,7 @@ returned by fp_occu()."><meta property="og:image" content="https://provetelab.or
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ returned by fp_occu()."><meta property="og:image" content="https://provetelab.or
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Methods for fp_occu fits</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.4.0/R/methods.R" class="external-link"><code>R/methods.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/methods.R" class="external-link"><code>R/methods.R</code></a></small>
       <div class="d-none name"><code>fp_occu-methods.Rd</code></div>
     </div>
 
@@ -75,7 +75,7 @@ returned by <code><a href="fp_occu.html">fp_occu()</a></code>.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'fp_occu'</span></span>
-<span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">x</span>, reloo <span class="op">=</span> <span class="cn">FALSE</span>, k_threshold <span class="op">=</span> <span class="fl">0.7</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'fp_occu'</span></span>
 <span><span class="fu"><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
@@ -108,7 +108,9 @@ returned by <code><a href="fp_occu.html">fp_occu()</a></code>.</p>
 
 <dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>
 <dd><p>Data frame with the covariates of the requested process. If
-missing, the sites used in the fit.</p></dd>
+missing, the sites used in the fit; for a false-positive rate with
+covariates measured on each occasion, the automated occasions, with the
+covariates of their sites.</p></dd>
 
 
 <dt id="arg-process">process<a class="anchor" aria-label="anchor" href="#arg-process"></a></dt>
@@ -119,6 +121,24 @@ false-positive rate, both at the site level.</p></dd>
 <dt id="arg-summary">summary<a class="anchor" aria-label="anchor" href="#arg-summary"></a></dt>
 <dd><p>Logical. Return a summary per row (<code>TRUE</code>) or the matrix of
 posterior draws (rows are draws, columns are rows of <code>newdata</code>)?</p></dd>
+
+
+<dt id="arg-reloo">reloo<a class="anchor" aria-label="anchor" href="#arg-reloo"></a></dt>
+<dd><p>Logical. Refit the model without each site whose Pareto
+\(k\) exceeds <code>k_threshold</code>, and replace the approximate
+leave-one-out value of that site by the exact one. Each such site costs
+one fit, with the sampler settings of <code>x</code>. A site that is the only one
+with its recorder, or with a level of a factor covariate, cannot be
+predicted from a fit without it; it keeps its approximate value, with a
+warning.</p></dd>
+
+
+<dt id="arg-k-threshold">k_threshold<a class="anchor" aria-label="anchor" href="#arg-k-threshold"></a></dt>
+<dd><p>Pareto \(k\) above which a site is refitted.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Seed of the refits.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -132,7 +152,9 @@ credible interval of the probability for each row of <code>newdata</code>, or a
 matrix of draws.</p>
 <p><code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> returns a <code>psis_loo</code> object from 'loo'. The pointwise
 log-likelihood is computed per site, with the latent state marginalized,
-so the comparison is leave-one-site-out.</p>
+so the comparison is leave-one-site-out. Pareto \(k\) above 0.7 marks
+sites where the approximation is unreliable; <code>reloo = TRUE</code> computes
+their values exactly, and their \(k\) is then set to 0.</p>
 <p><code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code> returns the posterior draws with the readable
 parameter names.</p>
     </div>

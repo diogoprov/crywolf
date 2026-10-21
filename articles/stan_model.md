@@ -44,12 +44,16 @@ declares it:
       int<lower=0, upper=1> estimate_re;         // recorder random intercept on p11
 
       int<lower=0> Kfp;
-      matrix[nsite, Kfp] Xfp;                    // false-positive design (no intercept)
+      int<lower=0, upper=1> fp_by_row;           // false-positive covariates vary by occasion
+      matrix[nsite, fp_by_row == 1 ? 0 : Kfp] Xfp;  // false-positive design (no intercept)
+      matrix[N2, fp_by_row == 1 ? Kfp : 0] Xfp2;    // ... by automated row
       int<lower=0, upper=1> estimate_fp;
 
       int<lower=0> N1;                           // verified occasions (long format)
       array[N1] int<lower=0, upper=1> y1;
       array[N1] int<lower=1, upper=nsite> site1;
+      int<lower=0> Kver_s;                       // slopes of the verified detection
+      matrix[N1, Kver_s] X1s;                    // their design (verified rows sorted by site)
       array[nsite] int<lower=0, upper=1> known_present;
 
       int<lower=0, upper=1> obs_confirm;         // observation-confirmation design
@@ -58,6 +62,7 @@ declares it:
       array[N3] int<lower=1, upper=nsite> site3;
       matrix[N3, Kalpha] Z3;                     // detection design of confirmed occasions
       array[N3] int<lower=1, upper=nrec> rec3;
+      matrix[N3, fp_by_row == 1 ? Kfp : 0] Xfp3; // false-positive design of confirmed occasions
 
       real<lower=0> prior_sd_int;                // sd of Normal priors on intercepts
       real<lower=0> prior_sd_slope;              // sd of Normal priors on slopes
@@ -107,6 +112,7 @@ site.
       real<lower=0> fp_gap;
       vector[Kfp] gamma_fp;
       real delta0;
+      vector[Kver_s] delta_s;
       vector[estimate_fp_re == 1 ? nsite : 0] e_raw;
       array[estimate_fp_re] real<lower=0> sigma_fp;
     }
@@ -153,11 +159,14 @@ from `a` to `b`:
                          array[] int rec3, array[] int start3, array[] int len3,
                          vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
                          array[] int y2, array[] int n2, vector lchoose_site,
-                         int rec_by_site, array[] int rec_site) {
+                         int rec_by_site, array[] int rec_site,
+                         int Kver_s, matrix X1s, vector delta_s, vector y1v,
+                         array[] int start1, array[] int len1,
+                         int fp_by_row, matrix Xfp2, matrix Xfp3) {
         int ns = b - a + 1;
         vector[ns] lpsi = X[a:b] * beta;
         vector[ns] lp10 = rep_vector(gamma0, ns);
-        if (Kfp > 0) lp10 += Xfp[a:b] * gamma_fp;
+        if (Kfp > 0 && fp_by_row == 0) lp10 += Xfp[a:b] * gamma_fp;
         lp10 += e_fp[a:b];
         vector[ns] occ = rep_vector(0, ns);
         vector[ns] unocc = rep_vector(0, ns);
@@ -166,14 +175,27 @@ from `a` to `b`:
         // so the automated rows of a site collapse into its totals of occasions
         // (Nsite) and detections (Ysite); log1m_inv_logit(x) = -log1p_exp(x)
         vector[ns] log1p_exp_lp10;
-        if (estimate_fp == 1) {
+        int r0 = start2[a];
+        int nr = start2[b] + len2[b] - r0;
+        // with occasion-level false-positive covariates, the rate of each row
+        vector[fp_by_row == 1 ? nr : 0] log1p_exp_lp10_row;
+        if (estimate_fp == 1 && fp_by_row == 0) {
           log1p_exp_lp10 = log1p_exp(lp10);
           unocc = Ysite[a:b] .* lp10 - Nsite[a:b] .* log1p_exp_lp10;
+        } else if (estimate_fp == 1 && nr > 0) {
+          int r1 = r0 + nr - 1;
+          array[nr] int loc;
+          for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
+          vector[nr] lp10_row = lp10[loc] + Xfp2[r0:r1] * gamma_fp;
+          log1p_exp_lp10_row = log1p_exp(lp10_row);
+          vector[nr] l10 = y2v[r0:r1] .* lp10_row - n2v[r0:r1] .* log1p_exp_lp10_row;
+          for (i in 1:ns) {
+            int s = a + i - 1;
+            if (len2[s] > 0) unocc[i] = sum(segment(l10, start2[s] - r0 + 1, len2[s]));
+          }
         }
 
         // occupied branch, automated occasions
-        int r0 = start2[a];
-        int nr = start2[b] + len2[b] - r0;
         if (nr > 0 && use_glm == 1) {
           // one GLM call per site: the product Z * alpha, the binomial
           // log-likelihood and its gradient are computed in C++ without
@@ -207,10 +229,15 @@ from `a` to `b`:
           if (estimate_re == 1) lp11 += u[rec2[r0:r1]];
           vector[nr] l11;
           if (obs_confirm == 1) {
-            // log(1 - p11) = log(1 - s1) + log(1 - s0), with s0 constant within a site
-            array[nr] int loc;
-            for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
-            vector[nr] lq11 = -log1p_exp(lp11) - log1p_exp_lp10[loc];
+            // log(1 - p11) = log(1 - s1) + log(1 - s0)
+            vector[nr] lq11;
+            if (fp_by_row == 1) {
+              lq11 = -log1p_exp(lp11) - log1p_exp_lp10_row;
+            } else {
+              array[nr] int loc;
+              for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
+              lq11 = -log1p_exp(lp11) - log1p_exp_lp10[loc];
+            }
             l11 = y .* log1m_exp(lq11) + (n - y) .* lq11;
           } else {
             l11 = y .* lp11 - n .* log1p_exp(lp11);
@@ -224,8 +251,23 @@ from `a` to `b`:
           for (i in 1:ns) if (any_det2[a + i - 1] == 1) unocc[i] = negative_infinity();
         }
 
-        // verified occasions, as counts per site
-        occ += s1v[a:b] * log_inv_logit(delta0) + (n1v[a:b] - s1v[a:b]) * log1m_inv_logit(delta0);
+        // verified occasions: counts per site, or rows when the verified method
+        // has covariates (sorted by site, like the automated rows)
+        if (Kver_s == 0) {
+          occ += s1v[a:b] * log_inv_logit(delta0) + (n1v[a:b] - s1v[a:b]) * log1m_inv_logit(delta0);
+        } else {
+          int w0 = start1[a];
+          int nw = start1[b] + len1[b] - w0;
+          if (nw > 0) {
+            int w1 = w0 + nw - 1;
+            vector[nw] eta1 = delta0 + X1s[w0:w1] * delta_s;
+            vector[nw] l1 = y1v[w0:w1] .* eta1 - log1p_exp(eta1);
+            for (i in 1:ns) {
+              int s = a + i - 1;
+              if (len1[s] > 0) occ[i] += sum(segment(l1, start1[s] - w0 + 1, len1[s]));
+            }
+          }
+        }
 
         // confirmed occasions (observation-confirmation design)
         if (obs_confirm == 1) {
@@ -240,8 +282,9 @@ from `a` to `b`:
               int v = v3[q0 + k - 1];
               real ls1 = log_inv_logit(lp11_3[k]);
               real lq1 = log1m_inv_logit(lp11_3[k]);
-              real ls0 = log_inv_logit(lp10[i]);
-              real lq0 = log1m_inv_logit(lp10[i]);
+              real lp10_k = fp_by_row == 1 ? lp10[i] + Xfp3[q0 + k - 1] * gamma_fp : lp10[i];
+              real ls0 = log_inv_logit(lp10_k);
+              real lq0 = log1m_inv_logit(lp10_k);
               occ[i] += (v >= 2 ? ls1 : lq1) + (v % 2 == 1 ? ls0 : lq0);
               unocc[i] += v >= 2 ? negative_infinity() : (v == 1 ? ls0 : lq0);
             }
@@ -271,13 +314,17 @@ from `a` to `b`:
                           array[] int rec3, array[] int start3, array[] int len3,
                           vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
                           array[] int y2, array[] int n2, vector lchoose_site,
-                          int rec_by_site, array[] int rec_site) {
+                          int rec_by_site, array[] int rec_site,
+                          int Kver_s, matrix X1s, vector delta_s, vector y1v,
+                          array[] int start1, array[] int len1,
+                          int fp_by_row, matrix Xfp2, matrix Xfp3) {
         return sum(site_loglik(a, b, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
                                rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
                                start2, len2, any_det2, n1v, s1v, delta0,
                                known_present, obs_confirm, v3, site3, Z3, rec3,
                                start3, len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                               rec_by_site, rec_site));
+                               rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
+                               start1, len1, fp_by_row, Xfp2, Xfp3));
       }
     }
 
@@ -365,6 +412,7 @@ number of physical cores.
       fp_gap         ~ normal(gap_mean, gap_sd);
       gamma_fp       ~ normal(0, prior_sd_slope);
       delta0         ~ normal(0, prior_sd_int);
+      delta_s        ~ normal(0, prior_sd_slope);
       e_raw          ~ std_normal();
       sigma_fp       ~ normal(0, fp_site_sd);
 
@@ -378,14 +426,16 @@ number of physical cores.
                              y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
                              known_present, obs_confirm, v3, site3, Z3, rec3, start3,
                              len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                             rec_by_site, rec_site);
+                             rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
+                             start1, len1, fp_by_row, Xfp2, Xfp3);
       } else {
         target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
                              Xfp, gamma_fp, zero_site, u, rec2, estimate_re, estimate_fp, Kfp,
                              y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
                              known_present, obs_confirm, v3, site3, Z3, rec3, start3,
                              len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                             rec_by_site, rec_site);
+                             rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
+                             start1, len1, fp_by_row, Xfp2, Xfp3);
       }
     }
 
@@ -408,15 +458,20 @@ the log density.
         vector[nsite] e_fp = rep_vector(0, nsite);
         if (estimate_fp_re == 1) e_fp = sigma_fp[1] * e_raw;
         vector[nsite] lp10 = rep_vector(gamma0, nsite);
-        if (Kfp > 0) lp10 += Xfp * gamma_fp;
+        if (Kfp > 0 && fp_by_row == 0) lp10 += Xfp * gamma_fp;
         lp10 += e_fp;
-        if (estimate_fp == 1) p10_bar = mean(inv_logit(lp10));
+        if (estimate_fp == 1 && fp_by_row == 0) p10_bar = mean(inv_logit(lp10));
+        // with occasion-level covariates: mean rate over the automated occasions
+        if (estimate_fp == 1 && fp_by_row == 1 && N2 > 0) {
+          p10_bar = dot_product(n2v, inv_logit(lp10[site2] + Xfp2 * gamma_fp)) / sum(n2v);
+        }
         log_lik = site_loglik(1, nsite, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
                               rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
                               start2, len2, any_det2, n1v, s1v, delta0,
                               known_present, obs_confirm, v3, site3, Z3, rec3,
                               start3, len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                              rec_by_site, rec_site);
+                              rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
+                              start1, len1, fp_by_row, Xfp2, Xfp3);
       }
     }
 

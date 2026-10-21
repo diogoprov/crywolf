@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,6 +131,10 @@
 <td>read BirdNET selection tables and reviewed clips, and build the automated occasions</td>
 </tr>
 <tr>
+<td><code><a href="reference/fp_threshold_sweep.html">fp_threshold_sweep()</a></code></td>
+<td>fit the model at several classifier thresholds</td>
+</tr>
+<tr>
 <td>
 <code><a href="reference/fp_data.html">fp_data()</a></code>, <code><a href="reference/fp_data_wide.html">fp_data_wide()</a></code>
 </td>
@@ -143,9 +147,9 @@
 </tr>
 <tr>
 <td>
-<code><a href="reference/fp_priors.html">fp_priors()</a></code>, <code><a href="reference/fp_prior_predictive.html">fp_prior_predictive()</a></code>
+<code><a href="reference/fp_priors.html">fp_priors()</a></code>, <code><a href="reference/fp_gap_prior.html">fp_gap_prior()</a></code>, <code><a href="reference/fp_prior_predictive.html">fp_prior_predictive()</a></code>
 </td>
-<td>prior settings, and what they imply for data like yours</td>
+<td>prior settings, a prior from validated detections, and what the priors imply for data like yours</td>
 </tr>
 <tr>
 <td><code><a href="reference/fp_ppc.html">fp_ppc()</a></code></td>
@@ -168,6 +172,18 @@
 <tr>
 <td><code><a href="reference/fp_verification_curve.html">fp_verification_curve()</a></code></td>
 <td>coverage against the fraction of sites verified</td>
+</tr>
+<tr>
+<td>
+<code><a href="reference/fp_calibrate_fit.html">fp_calibrate_fit()</a></code>, <code><a href="reference/fp_sbc.html">fp_sbc()</a></code>
+</td>
+<td>calibration on data simulated from a fit, and simulation-based calibration of the computation</td>
+</tr>
+<tr>
+<td>
+<code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code>, <code><a href="reference/fp_loo_weights.html">fp_loo_weights()</a></code>
+</td>
+<td>leave-one-site-out cross-validation (exact refits for unreliable sites) and stacking weights</td>
 </tr>
 <tr>
 <td><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></td>

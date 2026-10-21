@@ -17,6 +17,8 @@ fp_occu(
   det = ~1,
   fp = ~1,
   random_recorder = !is.null(data$recorder),
+  ver = ~1,
+  markov = NULL,
   random_fp = FALSE,
   priors = fp_priors(),
   chains = 4,
@@ -55,10 +57,12 @@ fp_occu(
 - fp:
 
   One-sided formula for the logit of the false-positive rate, using
-  columns of `data$sites`. `~ 1` (the default) fits a constant rate;
-  `~ w` lets the rate change along `w`. Use `NULL` to fit a standard
-  occupancy model without false positives. The intercept is fixed by the
-  model (see Details) and cannot be removed.
+  columns of `data$sites` or, for covariates measured on each occasion
+  (background noise, for instance), of `data$auto`; the rate then varies
+  among the occasions of a site. `~ 1` (the default) fits a constant
+  rate; `~ w` lets the rate change along `w`. Use `NULL` to fit a
+  standard occupancy model without false positives. The intercept is
+  fixed by the model (see Details) and cannot be removed.
 
 - random_recorder:
 
@@ -68,6 +72,23 @@ fp_occu(
   always have one; with its default `sd_recorder = 0` set this to
   `FALSE`, because a random effect whose true variance is zero causes
   divergent transitions.
+
+- ver:
+
+  One-sided formula for the logit of the detection probability of the
+  verified method, using columns of `data$verified` or `data$sites` (for
+  example, who listened, or the length of the clip). The default, `~ 1`,
+  keeps it constant.
+
+- markov:
+
+  Optional name of a numeric, date, or date-time column of `data$auto`
+  that places the occasions of each site in time (an occasion number or
+  a recording time). With it, true detection depends on whether the
+  previous occasion of the same site was a detection, through the
+  covariate `y_prev` added to `det` (reported as `det_y_prev`): a
+  first-order Markov term for runs of detections, such as a bird calling
+  for several consecutive minutes. See Details.
 
 - random_fp:
 
@@ -180,6 +201,27 @@ homogeneous. Use it with care:
 
 Predictions with `predict(process = "fp")` are for a site with \\e_i =
 0\\, a typical site.
+
+**Detections that come in runs.** Occasions close in time are not
+independent when the species, once present, is active for a while: a
+calling bird is recorded in consecutive minutes, which makes detections
+more clustered among sites than independent occasions allow (a posterior
+predictive check flags it). `markov` adds the detection on the previous
+occasion as a covariate of true detection, so that \\p\_{11}\\ can be
+higher right after a detection. It acts on the occupied state only:
+false positives stay independent among occasions. `y_prev` is the
+detection on the occasion one time step earlier, where the step is the
+shortest interval between consecutive occasions of a site in the data
+(one occasion, or 15 minutes for recordings every 15 minutes). The first
+occasion of each site, and an occasion that follows a gap (for instance,
+a missing occasion), has `y_prev` = 0: its probability of detection is
+the one after no detection, so a run is not carried across a gap. Two
+occasions of a site at the same time are an error.
+[`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) checks
+one step ahead, replicating each occasion given the observed previous
+one;
+[`simulate.fp_occu()`](https://provetelab.org/crywolf/reference/simulate.fp_occu.md)
+simulates the runs sequentially.
 
 **When to model the false-positive rate.** In the simulations behind
 this package, a constant rate gave calibrated intervals for the

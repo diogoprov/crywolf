@@ -20,6 +20,8 @@
 <url><loc>https://provetelab.org/crywolf/reference/fp_data.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_data_wide.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_effects.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/fp_gap_prior.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/fp_loo_weights.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_occu-methods.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_occu.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_ppc.html</loc></url>
@@ -27,8 +29,10 @@
 <url><loc>https://provetelab.org/crywolf/reference/fp_priors.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_read_birdnet.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_read_validation.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/fp_sbc.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_sites.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_stan_file.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/fp_threshold_sweep.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_verification_curve.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/index.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/plot.fp_calibration.html</loc></url>

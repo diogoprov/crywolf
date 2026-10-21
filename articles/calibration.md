@@ -212,6 +212,62 @@ uncertain the fit was. Either way, the check covers only the structure
 of the generating model: a dependence of the false-positive rate on a
 variable that was not measured is not part of it.
 
+## Is the computation right?
+
+All the checks above take for granted that the sampler finds the
+posterior of the model. Simulation-based calibration tests that
+assumption on its own (Talts et al., 2018; Modrák et al., 2025; Gelman
+et al., 2026, Ch. 31):
+[`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md) draws
+parameter values from the priors, simulates data with the design at
+hand, fits the model, and records the rank of each true value among the
+posterior draws. It also ranks the log-likelihood of the simulated data
+at the true values among its values at the draws (`log_lik`), a test
+quantity that depends on the data and catches problems the parameter
+ranks can miss (Modrák et al., 2025). When the computation is right, the
+ranks are uniform.
+
+``` r
+
+sbc <- fp_sbc(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+              reps = 200, parallel = TRUE)
+summary(sbc)
+```
+
+    #> Simulation-based calibration
+    #>   mean_rank: near 0.5 when the posterior is unbiased; p_uniform: chi-squared
+    #>   test of uniform ranks (small values flag a problem).
+    #> 
+    #>             parameter   n mean_rank p_uniform divergent
+    #>       det_(Intercept) 200     0.484    0.1969         0
+    #>        fp_(Intercept) 200     0.466    0.2622         0
+    #>                fp_gap 200     0.528    0.0156         0
+    #>               log_lik 200     0.495    0.3753         0
+    #>       occ_(Intercept) 200     0.519    0.2689         0
+    #>                 occ_x 200     0.487    0.3838         0
+    #>  verified_(Intercept) 200     0.480    0.3586         0
+
+![Ranks of the true values among 99 posterior draws in 200 replicates of
+simulation-based calibration (80 sites, 6 occasions, constant
+false-positive rate). The grey band is the 99% range of each bin's count
+under uniform ranks.](calibration_files/figure-html/plot-sbc-1.png)
+
+Ranks of the true values among 99 posterior draws in 200 replicates of
+simulation-based calibration (80 sites, 6 occasions, constant
+false-positive rate). The grey band is the 99% range of each bin’s count
+under uniform ranks.
+
+The ranks look uniform for every quantity. The gap has the lowest
+p-value, 0.016, which is not small once 7 quantities are tested at once
+(the Bonferroni threshold for a 5% level is 0.007); a larger run would
+tell whether its slight excess of high ranks is real. The chi-squared
+test of binned ranks is coarse, so the histograms are worth a look as
+well. This differs from the coverage checks of
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md):
+there, data come from fixed parameter values that may break the model’s
+assumptions; here, they come from the model itself, so only the
+computation is under test.
+
 ## Plotting
 
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws the
@@ -263,3 +319,13 @@ Gelman, A., Vehtari, A., McElreath, R., Simpson, D., Margossian, C. C.,
 Yao, Y., Kennedy, L., Gabry, J., Bürkner, P.-C., Modrák, M., & Leos
 Barajas, V. (2026). *Bayesian Workflow*. Chapman & Hall.
 <https://avehtari.github.io/Bayesian-Workflow/>
+
+Modrák, M., Moon, A. H., Kim, S., Bürkner, P., Huurre, N., Faltejsková,
+K., Gelman, A., & Vehtari, A. (2025). Simulation-based calibration
+checking for Bayesian computation: the choice of test quantities shapes
+sensitivity. *Bayesian Analysis*, 20, 461–488.
+<https://doi.org/10.1214/23-BA1404>
+
+Talts, S., Betancourt, M., Simpson, D., Vehtari, A., & Gelman, A.
+(2018). Validating Bayesian inference algorithms with simulation-based
+calibration. arXiv:1804.06788.

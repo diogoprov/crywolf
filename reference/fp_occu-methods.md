@@ -30,7 +30,7 @@ predict(
 )
 
 # S3 method for class 'fp_occu'
-loo(x, ...)
+loo(x, reloo = FALSE, k_threshold = 0.7, seed = NULL, ...)
 
 # S3 method for class 'fp_occu'
 as_draws_df(x, ...)
@@ -62,7 +62,9 @@ as_draws_df(x, ...)
 - newdata:
 
   Data frame with the covariates of the requested process. If missing,
-  the sites used in the fit.
+  the sites used in the fit; for a false-positive rate with covariates
+  measured on each occasion, the automated occasions, with the
+  covariates of their sites.
 
 - process:
 
@@ -73,6 +75,23 @@ as_draws_df(x, ...)
 
   Logical. Return a summary per row (`TRUE`) or the matrix of posterior
   draws (rows are draws, columns are rows of `newdata`)?
+
+- reloo:
+
+  Logical. Refit the model without each site whose Pareto \\k\\ exceeds
+  `k_threshold`, and replace the approximate leave-one-out value of that
+  site by the exact one. Each such site costs one fit, with the sampler
+  settings of `x`. A site that is the only one with its recorder, or
+  with a level of a factor covariate, cannot be predicted from a fit
+  without it; it keeps its approximate value, with a warning.
+
+- k_threshold:
+
+  Pareto \\k\\ above which a site is refitted.
+
+- seed:
+
+  Seed of the refits.
 
 ## Value
 
@@ -91,7 +110,9 @@ each row of `newdata`, or a matrix of draws.
 [`loo()`](https://mc-stan.org/loo/reference/loo.html) returns a
 `psis_loo` object from 'loo'. The pointwise log-likelihood is computed
 per site, with the latent state marginalized, so the comparison is
-leave-one-site-out.
+leave-one-site-out. Pareto \\k\\ above 0.7 marks sites where the
+approximation is unreliable; `reloo = TRUE` computes their values
+exactly, and their \\k\\ is then set to 0.
 
 [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)
 returns the posterior draws with the readable parameter names.

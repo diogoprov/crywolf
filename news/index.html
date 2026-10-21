@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,9 +39,37 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.4.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.0" id="crywolf-150">crywolf 1.5.0<a class="anchor" aria-label="anchor" href="#crywolf-150"></a></h2>
+<div class="section level3">
+<h3 id="model-options-1-5-0">Model options<a class="anchor" aria-label="anchor" href="#model-options-1-5-0"></a></h3>
+<p>All three are off by default; with them off, the draws are identical to those of crywolf 1.4.0.</p>
+<ul><li>
+<code>fp_occu(ver = ~ ...)</code> gives the verified method covariates of its own (from the verified table or the sites), reported as <code>verified_*</code>.</li>
+<li>False-positive formulas can use covariates measured on each occasion (columns of the automated table), so the rate varies among the occasions of a site.</li>
+<li>
+<code>fp_occu(markov = "time")</code> adds the detection on the previous occasion of the same site as a covariate of true detection (<code>det_y_prev</code>), for species recorded in runs. The previous occasion must be one time step earlier: after a gap (a missing occasion) a new run starts. <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> simulates the runs in order, and <code><a href="../reference/fp_ppc.html">fp_ppc()</a></code> checks them one step ahead.</li>
+</ul><p><code>dev/validate-model-options.R</code> checks the identity with 1.4.0 in three designs, compares the R likelihood used by <code><a href="../reference/fp_ppc.html">fp_ppc()</a></code>, <code><a href="../reference/fp_sites.html">fp_sites()</a></code>, and <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> with the Stan <code>log_lik</code> in six combinations of the options, and checks in simulations that each option’s effect is recovered; its output is in <code>dev/validate-model-options.txt</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="checking-and-comparing-models-1-5-0">Checking and comparing models<a class="anchor" aria-label="anchor" href="#checking-and-comparing-models-1-5-0"></a></h3>
+<ul><li>
+<code><a href="../reference/fp_sbc.html">fp_sbc()</a></code>: simulation-based calibration of the computation (Talts et al. 2018; Modrák et al. 2025), with the log-likelihood of the data as a test quantity besides the parameters, and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
+<li>
+<code>loo(reloo = TRUE)</code> refits the model without each site whose Pareto k exceeds a threshold and uses the exact leave-one-out value for it. A site that is the only one with its recorder, or with a level of a factor, keeps its approximate value, with a warning.</li>
+<li>
+<code><a href="../reference/fp_loo_weights.html">fp_loo_weights()</a></code>: stacking or pseudo-BMA weights of several fits.</li>
+<li>
+<code><a href="../reference/fp_gap_prior.html">fp_gap_prior()</a></code> turns the precision measured on a random sample of reviewed detections into a prior for the gap.</li>
+<li>
+<code>predict(process = "fp")</code> predicts for the automated occasions by default when the false-positive rate has occasion covariates.</li>
+<li>
+<code><a href="../reference/fp_threshold_sweep.html">fp_threshold_sweep()</a></code> fits the same model at several classifier thresholds and plots the estimates against the threshold.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.0" id="crywolf-140">crywolf 1.4.0<a class="anchor" aria-label="anchor" href="#crywolf-140"></a></h2>
 <div class="section level3">

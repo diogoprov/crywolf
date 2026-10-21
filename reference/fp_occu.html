@@ -17,7 +17,7 @@ false-positive rate is either constant or a function of site covariates."><meta 
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,7 @@ false-positive rate is either constant or a function of site covariates."><meta 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Fit a Bayesian false-positive occupancy model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.4.0/R/fp_occu.R" class="external-link"><code>R/fp_occu.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/fp_occu.R" class="external-link"><code>R/fp_occu.R</code></a></small>
       <div class="d-none name"><code>fp_occu.Rd</code></div>
     </div>
 
@@ -70,6 +70,8 @@ false-positive rate is either constant or a function of site covariates.</p>
 <span>  det <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  fp <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  random_recorder <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">recorder</span><span class="op">)</span>,</span>
+<span>  ver <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
+<span>  markov <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  random_fp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  priors <span class="op">=</span> <span class="fu"><a href="fp_priors.html">fp_priors</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  chains <span class="op">=</span> <span class="fl">4</span>,</span>
@@ -106,7 +108,9 @@ of the automated method. It may use columns of <code>data$auto</code> and of
 
 <dt id="arg-fp">fp<a class="anchor" aria-label="anchor" href="#arg-fp"></a></dt>
 <dd><p>One-sided formula for the logit of the false-positive rate, using
-columns of <code>data$sites</code>. <code>~ 1</code> (the default) fits a constant rate; <code>~ w</code>
+columns of <code>data$sites</code> or, for covariates measured on each occasion
+(background noise, for instance), of <code>data$auto</code>; the rate then varies
+among the occasions of a site. <code>~ 1</code> (the default) fits a constant rate; <code>~ w</code>
 lets the rate change along <code>w</code>. Use <code>NULL</code> to fit a standard occupancy
 model without false positives. The intercept is fixed by the model (see
 Details) and cannot be removed.</p></dd>
@@ -118,6 +122,23 @@ detection? Defaults to <code>TRUE</code> when <code>data</code> has a recorder c
 from <code><a href="simulate_fp.html">simulate_fp()</a></code> always have one; with its default <code>sd_recorder = 0</code>
 set this to <code>FALSE</code>, because a random effect whose true variance is zero
 causes divergent transitions.</p></dd>
+
+
+<dt id="arg-ver">ver<a class="anchor" aria-label="anchor" href="#arg-ver"></a></dt>
+<dd><p>One-sided formula for the logit of the detection probability of
+the verified method, using columns of <code>data$verified</code> or <code>data$sites</code>
+(for example, who listened, or the length of the clip). The default,
+<code>~ 1</code>, keeps it constant.</p></dd>
+
+
+<dt id="arg-markov">markov<a class="anchor" aria-label="anchor" href="#arg-markov"></a></dt>
+<dd><p>Optional name of a numeric, date, or date-time column of
+<code>data$auto</code> that places the occasions of each site in time (an occasion
+number or a recording time). With it,
+true detection depends on whether the previous occasion of the same site
+was a detection, through the covariate <code>y_prev</code> added to <code>det</code> (reported
+as <code>det_y_prev</code>): a first-order Markov term for runs of detections, such
+as a bird calling for several consecutive minutes. See Details.</p></dd>
 
 
 <dt id="arg-random-fp">random_fp<a class="anchor" aria-label="anchor" href="#arg-random-fp"></a></dt>
@@ -213,6 +234,23 @@ occupancy covariates, and any measured correlate of the confusion, in
 variation that remains.</p></li>
 </ul><p>Predictions with <code>predict(process = "fp")</code> are for a site with
 \(e_i = 0\), a typical site.</p>
+<p><strong>Detections that come in runs.</strong> Occasions close in time are not
+independent when the species, once present, is active for a while: a
+calling bird is recorded in consecutive minutes, which makes detections
+more clustered among sites than independent occasions allow (a posterior
+predictive check flags it). <code>markov</code> adds the detection on the previous
+occasion as a covariate of true detection, so that \(p_{11}\) can be
+higher right after a detection. It acts on the occupied state only:
+false positives stay independent among occasions. <code>y_prev</code> is the
+detection on the occasion one time step earlier, where the step is the
+shortest interval between consecutive occasions of a site in the data
+(one occasion, or 15 minutes for recordings every 15 minutes). The first
+occasion of each site, and an occasion that follows a gap (for instance,
+a missing occasion), has <code>y_prev</code> = 0: its probability of detection is
+the one after no detection, so a run is not carried across a gap. Two
+occasions of a site at the same time are an error. <code><a href="fp_ppc.html">fp_ppc()</a></code> checks one
+step ahead, replicating each occasion given the observed previous one;
+<code><a href="simulate.fp_occu.html">simulate.fp_occu()</a></code> simulates the runs sequentially.</p>
 <p><strong>When to model the false-positive rate.</strong> In the simulations behind this
 package, a constant rate gave calibrated intervals for the occupancy slope
 when false positives were homogeneous; random variation of the rate among

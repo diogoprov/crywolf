@@ -1,5 +1,58 @@
 # Changelog
 
+## crywolf 1.5.0
+
+### Model options
+
+All three are off by default; with them off, the draws are identical to
+those of crywolf 1.4.0.
+
+- `fp_occu(ver = ~ ...)` gives the verified method covariates of its own
+  (from the verified table or the sites), reported as `verified_*`.
+- False-positive formulas can use covariates measured on each occasion
+  (columns of the automated table), so the rate varies among the
+  occasions of a site.
+- `fp_occu(markov = "time")` adds the detection on the previous occasion
+  of the same site as a covariate of true detection (`det_y_prev`), for
+  species recorded in runs. The previous occasion must be one time step
+  earlier: after a gap (a missing occasion) a new run starts.
+  [`simulate()`](https://rdrr.io/r/stats/simulate.html) simulates the
+  runs in order, and
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md)
+  checks them one step ahead.
+
+`dev/validate-model-options.R` checks the identity with 1.4.0 in three
+designs, compares the R likelihood used by
+[`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md),
+[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md),
+and [`simulate()`](https://rdrr.io/r/stats/simulate.html) with the Stan
+`log_lik` in six combinations of the options, and checks in simulations
+that each option’s effect is recovered; its output is in
+`dev/validate-model-options.txt`.
+
+### Checking and comparing models
+
+- [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md):
+  simulation-based calibration of the computation (Talts et al. 2018;
+  Modrák et al. 2025), with the log-likelihood of the data as a test
+  quantity besides the parameters, and
+  [`summary()`](https://rdrr.io/r/base/summary.html) and
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
+- `loo(reloo = TRUE)` refits the model without each site whose Pareto k
+  exceeds a threshold and uses the exact leave-one-out value for it. A
+  site that is the only one with its recorder, or with a level of a
+  factor, keeps its approximate value, with a warning.
+- [`fp_loo_weights()`](https://provetelab.org/crywolf/reference/fp_loo_weights.md):
+  stacking or pseudo-BMA weights of several fits.
+- [`fp_gap_prior()`](https://provetelab.org/crywolf/reference/fp_gap_prior.md)
+  turns the precision measured on a random sample of reviewed detections
+  into a prior for the gap.
+- `predict(process = "fp")` predicts for the automated occasions by
+  default when the false-positive rate has occasion covariates.
+- [`fp_threshold_sweep()`](https://provetelab.org/crywolf/reference/fp_threshold_sweep.md)
+  fits the same model at several classifier thresholds and plots the
+  estimates against the threshold.
+
 ## crywolf 1.4.0
 
 ### Plots and site-level estimates

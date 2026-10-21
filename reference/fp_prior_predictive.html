@@ -15,7 +15,7 @@ priors (or the model) are at odds with the data before any fitting."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ priors (or the model) are at odds with the data before any fitting."><meta prope
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Prior predictive check</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.4.0/R/fp_prior_predictive.R" class="external-link"><code>R/fp_prior_predictive.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/fp_prior_predictive.R" class="external-link"><code>R/fp_prior_predictive.R</code></a></small>
       <div class="d-none name"><code>fp_prior_predictive.Rd</code></div>
     </div>
 
@@ -66,6 +66,8 @@ priors (or the model) are at odds with the data before any fitting.</p>
 <span>  occ <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  det <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  fp <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
+<span>  ver <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
+<span>  markov <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  random_recorder <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">recorder</span><span class="op">)</span>,</span>
 <span>  random_fp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  priors <span class="op">=</span> <span class="fu"><a href="fp_priors.html">fp_priors</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -85,8 +87,9 @@ priors (or the model) are at odds with the data before any fitting.</p>
 <dd><p>An <code>fp_data</code> object.</p></dd>
 
 
-<dt id="arg-occ-det-fp-random-recorder-random-fp-priors">occ, det, fp, random_recorder, random_fp, priors<a class="anchor" aria-label="anchor" href="#arg-occ-det-fp-random-recorder-random-fp-priors"></a></dt>
-<dd><p>As in <code><a href="fp_occu.html">fp_occu()</a></code>.</p></dd>
+<dt id="arg-occ-det-fp-ver-markov-random-recorder-random-fp-priors">occ, det, fp, ver, markov, random_recorder, random_fp, priors<a class="anchor" aria-label="anchor" href="#arg-occ-det-fp-ver-markov-random-recorder-random-fp-priors"></a></dt>
+<dd><p>As in
+<code><a href="fp_occu.html">fp_occu()</a></code>.</p></dd>
 
 
 <dt id="arg-ndraws">ndraws<a class="anchor" aria-label="anchor" href="#arg-ndraws"></a></dt>

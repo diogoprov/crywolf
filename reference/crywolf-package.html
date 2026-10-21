@@ -9,8 +9,10 @@ The package has three parts:
 Data and model. fp_data() (or fp_data_wide()) assembles the
 detections, and fp_occu() fits the model in Stan through 'cmdstanr'.
 The false-positive rate can be constant (fp = ~ 1) or depend on site
-covariates (fp = ~ w), with an optional site random effect
-(random_fp = TRUE), and the true-detection process accepts
+covariates (fp = ~ w, site- or occasion-level), with an optional site
+random effect (random_fp = TRUE); the verified method can have
+covariates (ver), runs of detections can be modelled (markov), and
+the true-detection process accepts
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
@@ -40,8 +42,10 @@ The package has three parts:
 Data and model. fp_data() (or fp_data_wide()) assembles the
 detections, and fp_occu() fits the model in Stan through 'cmdstanr'.
 The false-positive rate can be constant (fp = ~ 1) or depend on site
-covariates (fp = ~ w), with an optional site random effect
-(random_fp = TRUE), and the true-detection process accepts
+covariates (fp = ~ w, site- or occasion-level), with an optional site
+random effect (random_fp = TRUE); the verified method can have
+covariates (ver), runs of detections can be modelled (markov), and
+the true-detection process accepts
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
@@ -69,7 +73,7 @@ verification it needs.
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,7 +105,7 @@ verification it needs.
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>crywolf: Bayesian false-positive occupancy models with calibration checks</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.4.0/R/crywolf-package.R" class="external-link"><code>R/crywolf-package.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/crywolf-package.R" class="external-link"><code>R/crywolf-package.R</code></a></small>
       <div class="d-none name"><code>crywolf-package.Rd</code></div>
     </div>
 
@@ -115,8 +119,10 @@ correction is calibrated for a given study design.</p>
 <p>The package has three parts:</p><ul><li><p><strong>Data and model.</strong> <code><a href="fp_data.html">fp_data()</a></code> (or <code><a href="fp_data_wide.html">fp_data_wide()</a></code>) assembles the
 detections, and <code><a href="fp_occu.html">fp_occu()</a></code> fits the model in Stan through 'cmdstanr'.
 The false-positive rate can be constant (<code>fp = ~ 1</code>) or depend on site
-covariates (<code>fp = ~ w</code>), with an optional site random effect
-(<code>random_fp = TRUE</code>), and the true-detection process accepts
+covariates (<code>fp = ~ w</code>, site- or occasion-level), with an optional site
+random effect (<code>random_fp = TRUE</code>); the verified method can have
+covariates (<code>ver</code>), runs of detections can be modelled (<code>markov</code>), and
+the true-detection process accepts
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported

@@ -155,9 +155,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   if (sd$estimate_re == 1) lp11 <- lp11 + pars$u[, sd$rec2, drop = FALSE]
   fp <- sd$estimate_fp == 1
   if (fp) {
-    lp10 <- matrix(pars$gamma0, S, nsite)
-    if (sd$Kfp > 0) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
-    if (!is.null(pars$e_fp)) lp10 <- lp10 + pars$e_fp
+    lp10 <- .lp10_draws(sd, pars)
     lp10_row <- lp10[, sd$site2, drop = FALSE]           # S x N2
   }
   y2 <- sd$y2
@@ -240,5 +238,13 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     "chi-squared"   = function(obs) rowSums((obs - E)^2 / (E + 1e-6))
   )
   list(y = y, yrep = yrep, fit_obs = disc(Y), fit_rep = disc(yrep),
-       z = z, ll = ll, keep = which(keep))
+       z = z, pz = pz, ll = ll, keep = which(keep))
+}
+
+# logit of the false-positive rate of each site, S draws x nsite
+.lp10_draws <- function(sd, pars) {
+  lp10 <- matrix(pars$gamma0, length(pars$gamma0), sd$nsite)
+  if (sd$Kfp > 0) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
+  if (!is.null(pars$e_fp)) lp10 <- lp10 + pars$e_fp
+  lp10
 }

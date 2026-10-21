@@ -12,7 +12,8 @@ test_that("missing detections are dropped and known_present is set", {
   sites <- data.frame(site = 1:3)
   auto <- data.frame(site = 1:3, y = c(1, NA, 0))
   ver <- data.frame(site = c(1, 1, 3), y = c(0, 1, 0))
-  d <- fp_data(auto, sites, verified = ver)
+  # site 2 keeps no automated occasion once its missing detection is dropped
+  expect_warning(d <- fp_data(auto, sites, verified = ver), "no automated occasion")
   expect_equal(nrow(d$auto), 2)
   expect_equal(d$known_present, c(1L, 0L, 0L))
 })

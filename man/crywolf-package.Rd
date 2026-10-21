@@ -23,8 +23,14 @@ covariates (\code{fp = ~ w}), with an optional site random effect
 observation covariates and a recorder random effect. The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
-through the \code{confirmed} argument of \code{\link[=fp_data]{fp_data()}}. \code{\link[=fp_ppc]{fp_ppc()}} runs a
-posterior predictive check, and \link{curiango} holds a real dataset.
+through the \code{confirmed} argument of \code{\link[=fp_data]{fp_data()}}. \code{\link[=fp_read_birdnet]{fp_read_birdnet()}},
+\code{\link[=fp_read_validation]{fp_read_validation()}}, and \code{\link[=fp_aggregate]{fp_aggregate()}} build the data from
+classifier output, and \link{curiango} holds a real dataset.
+\item \strong{Checking and plotting.} \code{\link[=fp_prior_predictive]{fp_prior_predictive()}} checks the priors
+against the data, \code{\link[=fp_ppc]{fp_ppc()}} runs a posterior predictive check, and
+\code{\link[=plot.fp_occu]{plot.fp_occu()}}, \code{\link[=fp_effects]{fp_effects()}}, and \code{\link[=fp_sites]{fp_sites()}} show the
+coefficients, the effect of a covariate, and the probability that each
+site is occupied.
 \item \strong{Simulation.} \code{\link[=simulate_fp]{simulate_fp()}} generates data under homogeneous,
 unstructured, and structured ("confusion") false-positive regimes.
 \item \strong{Calibration.} \code{\link[=fp_calibrate]{fp_calibrate()}} and \code{\link[=fp_verification_curve]{fp_verification_curve()}} fit the

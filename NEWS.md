@@ -1,3 +1,41 @@
+# crywolf 1.4.0
+
+## Plots and site-level estimates
+
+* `plot()` for fits draws the posterior intervals of the coefficients, one
+  panel per process, or sampler diagnostics (`type = "trace"`, `"rank"`,
+  `"pairs"`, via 'bayesplot', with divergent transitions marked).
+* `fp_effects()` gives the occupancy probability or the false-positive rate
+  along one covariate, with the others at their means, and a `transform`
+  argument for covariates standardized before fitting; `plot()` draws it.
+* `fp_sites()` returns, for every site, the occupancy probability, the
+  posterior probability that it is occupied given its data, and its
+  false-positive rate; `plot()` ranks the sites or, with coordinates, maps
+  them.
+* `plot()` for `fp_ppc()` results: replicated against observed discrepancy,
+  or the distribution of detections per site.
+* `fp_prior_predictive()` simulates data from the priors with the design of
+  the real data and compares simple summaries with the observed ones.
+* `plot()` for calibrations can show verification effort as the expected
+  number of verified sites or occasions, and mark a target coverage.
+
+## Reading classifier output
+
+* `fp_read_birdnet()` reads BirdNET selection tables (Raven format).
+* `fp_read_validation()` reads the clip verdicts of the
+  birdnet-validation-sampler.
+* `fp_aggregate()` turns detections into automated occasions at a
+  confidence threshold, and verdicts into counts for the
+  observation-confirmation design, warning when a checked occasion has
+  detections that were not reviewed.
+* `fp_data()` warns about sites without automated occasions and about
+  automated data that are all detections or all non-detections.
+
+## Other changes
+
+* Fits keep every draw in memory, so a fit saved with `saveRDS()` works in
+  later sessions, after CmdStan's temporary files are gone.
+
 # crywolf 1.3.0
 
 ## Faster likelihood, same posterior

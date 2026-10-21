@@ -65,10 +65,12 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 | Function | Purpose |
 |---|---|
+| `fp_read_birdnet()`, `fp_read_validation()`, `fp_aggregate()` | read BirdNET selection tables and reviewed clips, and build the automated occasions |
 | `fp_data()`, `fp_data_wide()` | assemble automated, verified, and confirmed detections and site covariates |
 | `fp_occu()` | fit the model; methods `print`, `summary`, `coef`, `predict`, `loo`, `as_draws_df` |
+| `fp_priors()`, `fp_prior_predictive()` | prior settings, and what they imply for data like yours |
 | `fp_ppc()` | posterior predictive check of the detections per site |
-| `fp_priors()` | prior settings |
+| `plot()`, `fp_effects()`, `fp_sites()` | coefficients and diagnostics, marginal effects, and the probability that each site is occupied |
 | `simulate_fp()` | simulate data under homogeneous, unstructured, or structured false positives |
 | `fp_calibrate()` | coverage and bias of the credible intervals for a design, by simulation |
 | `fp_verification_curve()` | coverage against the fraction of sites verified |

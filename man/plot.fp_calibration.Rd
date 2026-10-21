@@ -4,7 +4,15 @@
 \alias{plot.fp_calibration}
 \title{Plot the results of a calibration check}
 \usage{
-\method{plot}{fp_calibration}(x, parameter = "occ_x", type = c("coverage", "bias"), by = NULL, ...)
+\method{plot}{fp_calibration}(
+  x,
+  parameter = "occ_x",
+  type = c("coverage", "bias"),
+  by = NULL,
+  verified = c("fraction", "sites", "occasions"),
+  target = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{An \code{fp_calibration} object from \code{\link[=fp_calibrate]{fp_calibrate()}} or
@@ -18,6 +26,16 @@
 \item{by}{Name of the design column for the horizontal axis. By default, the
 first design column that varies among cells; further varying columns
 become panels. With no varying column, the models are on the axis.}
+
+\item{verified}{How to show the verification effort when \code{by} is
+\code{"frac_verified"}: as the fraction of sites (default), as the expected
+number of verified sites (\code{"sites"}, \code{frac_verified * nsite}), or as the
+expected number of verified occasions, e.g. clips listened to
+(\code{"occasions"}, times \code{nver}), which is closer to the cost of the
+design.}
+
+\item{target}{Optional coverage to mark with a second line, for instance
+the lowest coverage you are willing to accept (0.90).}
 
 \item{...}{Unused.}
 }

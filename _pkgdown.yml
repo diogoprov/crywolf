@@ -21,15 +21,29 @@ reference:
     contents:
       - fp_data
       - fp_data_wide
+  - title: Reading classifier output
+    desc: Read BirdNET selection tables and reviewed clips, and build occasions.
+    contents:
+      - fp_read_birdnet
+      - fp_read_validation
+      - fp_aggregate
   - title: Fitting
     desc: Fit the model and inspect, summarize, predict, and compare fits.
     contents:
       - fp_occu
       - fp_priors
       - fp_occu-methods
+      - fp_prior_predictive
       - fp_ppc
       - fp_compile
       - fp_stan_file
+  - title: Plots and site-level estimates
+    desc: Coefficients, diagnostics, marginal effects, and occupancy of each site.
+    contents:
+      - plot.fp_occu
+      - fp_effects
+      - fp_sites
+      - plot.fp_ppc
   - title: Simulation and calibration
     desc: Simulate false-positive regimes and check interval calibration for a design.
     contents:

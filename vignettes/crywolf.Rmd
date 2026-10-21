@@ -304,6 +304,28 @@ fp_priors()
 fp_priors(slope_sd = 1, gap_sd = 1)
 ```
 
+Before fitting, `fp_prior_predictive()` checks what the priors imply for
+data with the design at hand. It draws parameter values from the priors,
+simulates data with the sites, covariates, and verification of `sim$data`,
+and compares simple summaries with the observed ones:
+
+```{r prior-predictive, eval = TRUE}
+pp <- fp_prior_predictive(sim$data, occ = ~ x, fp = ~ 1,
+                          random_recorder = FALSE, ndraws = 200, seed = 1)
+pp
+```
+
+```{r prior-predictive-share, include = FALSE}
+obs <- attr(pp, "observed")
+below <- purrr::map_dbl(c("naive_occupancy", "automated_rate", "verified_rate"),
+                        function(v) mean(pp[[v]] < obs[[v]]))
+```
+
+For each of the three summaries, between `r num(min(below))` and
+`r num(max(below))` of the simulated datasets lie below the observed value,
+so the observed data sit well inside what the priors produce, and the priors
+do not rule out data like these. `plot(pp)` shows the full distributions.
+
 ### Parameter names
 
 The output labels each coefficient by its process and by the column of the
@@ -384,6 +406,14 @@ color_scheme_set("purple")
 mcmc_trace(draws_const, pars = c("occ_x", "fp_gap"))
 ```
 
+`plot()` gives a shortcut to the same diagnostics (`type = "trace"`,
+`"rank"`, or `"pairs"`, with divergent transitions marked) and, by default,
+the posterior intervals of every coefficient, one panel per process:
+
+```{r fig-coef, fig.height = 4.5, fig.cap = "Posterior medians with 50% (thick) and 95% (thin) intervals of the coefficients of the constant-rate model, on the logit scale."}
+plot(m_const)
+```
+
 ### Posterior predictive check
 
 A posterior predictive check compares the observed data with data replicated
@@ -409,6 +439,9 @@ number of detections per site in the observed and replicated data:
 ppc_bars(ppc_const$y, ppc_const$yrep) +
   labs(x = "Automated detections per site", y = "Number of sites")
 ```
+
+The same figure is `plot(ppc_const, type = "counts")`; `plot(ppc_const)`
+plots the replicated against the observed discrepancy, draw by draw.
 
 The Bayesian p-value of the constant-rate model is
 `r num(ppc_const$p_value)`. The check flags a lack of fit: the model does not
@@ -626,6 +659,34 @@ ggplot(pred, aes(x, estimate)) +
        colour = NULL, fill = NULL) +
   theme_minimal()
 ```
+
+For a single model, `fp_effects()` builds such a curve directly, holding the
+other covariates of the process at their means; its `transform` argument
+puts the x axis back on the original scale of a covariate that was
+standardized before fitting:
+
+```{r fig-effects, fig.height = 3, fig.cap = "False-positive rate along the occupancy covariate in the model with fp = ~ x (posterior mean and 95% interval)."}
+plot(fp_effects(m_x, "x", process = "fp"))
+```
+
+### Site-level estimates
+
+The occupancy probability $\psi_i$ describes a site from its covariates
+alone. Once the data are in, what matters for a given site is the
+probability that it is occupied given its detections and verification.
+`fp_sites()` returns both, with the false-positive rate of each site:
+
+```{r sites}
+st <- fp_sites(m_x, seed = 1)
+head(st[, c("site", "psi", "occupied", "p10", "detections", "verified")])
+```
+
+```{r fig-sites, fig.height = 3.5, fig.cap = "Posterior probability that each site is occupied under the model with fp = ~ x, sites ranked. Sites with automated detections only can still be unlikely to be occupied when their false-positive rate is high."}
+plot(st)
+```
+
+With coordinates among the site columns, `plot(st, coords = c("lon", "lat"))`
+draws the same quantity as a map.
 
 ## Detection covariates and recorder effects
 

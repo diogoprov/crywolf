@@ -174,6 +174,10 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     iter_warmup = iter_warmup, iter_sampling = iter_sampling,
                     adapt_delta = adapt_delta, seed = seed, refresh = refresh,
                     ...)
+  # read every draw and the sampler diagnostics into memory, so that a fit
+  # saved with saveRDS() still works after CmdStan's temporary files are gone
+  fit$draws()
+  fit$sampler_diagnostics()
   draws <- .pretty_draws(fit, sd_list)
   diag <- .diagnostics(fit, draws)
 

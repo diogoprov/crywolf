@@ -18,8 +18,14 @@
 #'   observation covariates and a recorder random effect. The
 #'   observation-confirmation design of Chambert et al. (2015), in which an
 #'   expert checks the detections of some automated occasions, is supported
-#'   through the `confirmed` argument of [fp_data()]. [fp_ppc()] runs a
-#'   posterior predictive check, and [curiango] holds a real dataset.
+#'   through the `confirmed` argument of [fp_data()]. [fp_read_birdnet()],
+#'   [fp_read_validation()], and [fp_aggregate()] build the data from
+#'   classifier output, and [curiango] holds a real dataset.
+#' * **Checking and plotting.** [fp_prior_predictive()] checks the priors
+#'   against the data, [fp_ppc()] runs a posterior predictive check, and
+#'   [plot.fp_occu()], [fp_effects()], and [fp_sites()] show the
+#'   coefficients, the effect of a covariate, and the probability that each
+#'   site is occupied.
 #' * **Simulation.** [simulate_fp()] generates data under homogeneous,
 #'   unstructured, and structured ("confusion") false-positive regimes.
 #' * **Calibration.** [fp_calibrate()] and [fp_verification_curve()] fit the

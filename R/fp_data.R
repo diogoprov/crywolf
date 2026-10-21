@@ -32,6 +32,16 @@
 #'   so an occasion with a detection has at least one confirmed observation,
 #'   and one without has none. See Details of [fp_occu()].
 #'
+#' @details
+#' Besides errors for data that cannot be fitted, `fp_data()` warns about
+#' data that can be fitted but are probably not what was meant: sites with
+#' no automated occasion (often a failed join of `auto` and `sites`), very
+#' unequal automated effort among sites (ten times or more), automated
+#' occasions that are all detections or all non-detections, verified data
+#' without any detection, and confirmed occasions without any false
+#' observation.
+#' [fp_aggregate()] builds `auto` from classifier output.
+#'
 #' @return An object of class `fp_data`: a list with the three tables (rows
 #'   with a missing detection dropped), the column names, and the vector
 #'   `known_present`, which flags sites with at least one verified detection
@@ -73,6 +83,7 @@ fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
   }
 
   if (!is.null(confirmed)) .check_confirmed(auto, confirmed, y)
+  .warn_design(auto, sites, verified, site, y, confirmed)
 
   known_present <- rep(0L, nrow(sites))
   if (!is.null(verified) && nrow(verified) > 0) {
@@ -202,6 +213,43 @@ print.fp_data <- function(x, ...) {
 .check_binary <- function(v, what) {
   if (!all(v %in% c(0, 1))) {
     stop("Detections in `", what, "` must be coded 0/1.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+# warnings about data that fit but are unlikely to be what the user meant;
+# their class lets the simulation functions silence them
+.warn_design <- function(auto, sites, verified, site, y, confirmed) {
+  warn <- function(...) {
+    msg <- paste0(...)
+    warning(structure(class = c("crywolf_design_warning", "warning", "condition"),
+                      list(message = msg, call = NULL)))
+  }
+  n_occ <- table(factor(auto[[site]], levels = sites[[site]]))
+  if (any(n_occ == 0)) {
+    warn(sum(n_occ == 0), " site(s) have no automated occasion; they inform ",
+         "only the occupancy model, through their covariates. Check the join ",
+         "of `auto` and `sites` if this is unexpected.")
+  }
+  if (any(n_occ > 0) && max(n_occ) >= 10 * min(n_occ[n_occ > 0])) {
+    warn("Automated effort is very unequal among sites (", min(n_occ[n_occ > 0]),
+         " to ", max(n_occ), " occasions); check that occasions were not lost ",
+         "or duplicated.")
+  }
+  if (nrow(auto) > 0 && length(unique(auto[[y]])) == 1) {
+    warn("Every automated occasion is ",
+         if (auto[[y]][1] == 1) "a detection" else "a non-detection",
+         "; the detection and false-positive rates cannot be estimated.")
+  }
+  if (!is.null(verified) && nrow(verified) > 0 && all(verified[[y]] == 0)) {
+    warn("No verified occasion is a detection, so the verified data never ",
+         "prove occupancy and anchor the false-positive rate only weakly.")
+  }
+  if (!is.null(confirmed) && any(!is.na(auto[[confirmed[2]]])) &&
+      sum(auto[[confirmed[2]]], na.rm = TRUE) == 0) {
+    warn("No confirmed occasion holds a false observation; the false-positive ",
+         "rate will be estimated close to zero. Check that the checked ",
+         "occasions were chosen independently of the classifier's score.")
   }
   invisible(TRUE)
 }

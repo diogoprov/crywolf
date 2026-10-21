@@ -59,6 +59,16 @@ format, one row per occasion, which accommodates unequal numbers of
 occasions per site without padding. Use \code{\link[=fp_data_wide]{fp_data_wide()}} if your data are
 detection matrices, as in 'unmarked'.
 }
+\details{
+Besides errors for data that cannot be fitted, \code{fp_data()} warns about
+data that can be fitted but are probably not what was meant: sites with
+no automated occasion (often a failed join of \code{auto} and \code{sites}), very
+unequal automated effort among sites (ten times or more), automated
+occasions that are all detections or all non-detections, verified data
+without any detection, and confirmed occasions without any false
+observation.
+\code{\link[=fp_aggregate]{fp_aggregate()}} builds \code{auto} from classifier output.
+}
 \examples{
 sim <- simulate_fp(nsite = 50, nocc = 5, seed = 1)
 sim$data

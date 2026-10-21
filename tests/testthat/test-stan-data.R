@@ -62,7 +62,8 @@ test_that("the constant-rate model has no slope names", {
 test_that("automated rows are sorted by site with correct segments", {
   sites <- data.frame(site = c("a", "b", "c"))
   auto <- data.frame(site = c("c", "a", "c", "a", "a"), y = c(1, 0, 0, 1, 0))
-  d <- fp_data(auto, sites)
+  # site b has no automated occasion on purpose (len2 = 0)
+  d <- suppressWarnings(fp_data(auto, sites))
   b <- crywolf:::.build_stan_data(d, ~ 1, ~ 1, ~ 1, FALSE, fp_priors())$stan_data
   # no detection covariates: one binomial row per site
   expect_equal(b$site2, c(1L, 3L))

@@ -279,6 +279,14 @@ print.summary.fp_calibration <- function(x, ...) {
 #' @param by Name of the design column for the horizontal axis. By default, the
 #'   first design column that varies among cells; further varying columns
 #'   become panels. With no varying column, the models are on the axis.
+#' @param verified How to show the verification effort when `by` is
+#'   `"frac_verified"`: as the fraction of sites (default), as the expected
+#'   number of verified sites (`"sites"`, `frac_verified * nsite`), or as the
+#'   expected number of verified occasions, e.g. clips listened to
+#'   (`"occasions"`, times `nver`), which is closer to the cost of the
+#'   design.
+#' @param target Optional coverage to mark with a second line, for instance
+#'   the lowest coverage you are willing to accept (0.90).
 #' @param ... Unused.
 #'
 #' @return A 'ggplot2' object, which can be modified with the usual `+`
@@ -293,7 +301,9 @@ print.summary.fp_calibration <- function(x, ...) {
 #' plot(cal, type = "bias")
 #' }
 plot.fp_calibration <- function(x, parameter = "occ_x",
-                                 type = c("coverage", "bias"), by = NULL, ...) {
+                                 type = c("coverage", "bias"), by = NULL,
+                                 verified = c("fraction", "sites", "occasions"),
+                                 target = NULL, ...) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("plot() needs the 'ggplot2' package.", call. = FALSE)
   }
@@ -311,6 +321,21 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
     stop("`by` must be a column of the design.", call. = FALSE)
   }
   panels <- setdiff(varying, by)
+  verified <- match.arg(verified)
+  xlab <- by
+  if (verified != "fraction" && by != "frac_verified") {
+    stop("`verified` applies only when the axis is `frac_verified`.", call. = FALSE)
+  }
+  if (by == "frac_verified" && verified != "fraction") {
+    # design values, or the defaults of simulate_fp() when not in the design
+    design_value <- function(nm) {
+      if (nm %in% names(s)) s[[nm]] else eval(formals(simulate_fp)[[nm]])
+    }
+    s$frac_verified <- s$frac_verified * design_value("nsite") *
+      if (verified == "occasions") design_value("nver") else 1
+    xlab <- if (verified == "sites") "Expected number of verified sites" else
+      "Expected number of verified occasions"
+  }
 
   df <- data.frame(
     x = s[[by]], model = s$model,
@@ -328,6 +353,10 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
   p <- ggplot2::ggplot(df, ggplot2::aes(x, y, colour = model, group = model)) +
     ggplot2::geom_hline(yintercept = ref, linetype = "dashed", colour = "grey40")
   if (is.numeric(df$x)) p <- p + ggplot2::geom_line(position = dodge, alpha = 0.6)
+  if (!is.null(target) && type == "coverage") {
+    p <- p + ggplot2::geom_hline(yintercept = target, linetype = "dotted",
+                                 colour = "#FF3EA5")
+  }
   p <- if (type == "coverage") {
     p + ggplot2::geom_pointrange(ggplot2::aes(ymin = lo, ymax = hi),
                                  position = dodge) +
@@ -337,7 +366,7 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
   }
   if (length(panels)) p <- p + ggplot2::facet_wrap(~ panel)
   p + ggplot2::labs(
-    x = by, colour = "Model",
+    x = xlab, colour = "Model",
     y = if (type == "coverage")
       sprintf("Coverage of the %g%% interval of %s", 100 * attr(x, "prob"), parameter)
     else sprintf("Bias of %s", parameter)

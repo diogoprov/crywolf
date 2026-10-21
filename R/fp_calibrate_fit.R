@@ -235,9 +235,12 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
                                      z[vs] * stats::plogis(p$delta0))
   }
 
-  data <- fp_data(auto = auto, sites = d$sites, verified = verified,
-                  site = d$site, y = d$y, recorder = d$recorder,
-                  confirmed = d$confirmed)
+  # warnings about the design are for the user's data, not for every draw
+  data <- withCallingHandlers(
+    fp_data(auto = auto, sites = d$sites, verified = verified,
+            site = d$site, y = d$y, recorder = d$recorder,
+            confirmed = d$confirmed),
+    crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
   truth <- c(
     stats::setNames(p$beta, paste0("occ_", gen$design$occ_names)),
     stats::setNames(p$alpha, paste0("det_", gen$design$det_names)),

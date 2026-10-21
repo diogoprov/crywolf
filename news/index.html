@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,9 +39,14 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.5.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<ul><li>
+<code><a href="../reference/fp_read_validation.html">fp_read_validation()</a></code> reads <code>validation_by_clip.csv</code> from ‘sheepdog’ 2.0.0 and later (English column names and verdicts: <code>site</code>, <code>source_audio</code>, <code>clip_start</code>, <code>verdict = "positive"</code>, …) as well as the legacy <code>validacao_por_clipe.csv</code> of the sampler up to 1.2.0. The format is detected from the columns, and both give the same output, which now keeps <code>occasion_id</code> when the file has it.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="crywolf-150">crywolf 1.5.0<a class="anchor" aria-label="anchor" href="#crywolf-150"></a></h2>
 <div class="section level3">

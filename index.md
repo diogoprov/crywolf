@@ -88,11 +88,16 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
   BirdNET predictions for manual review and records the verdict on each
   clip, which can feed the verified or confirmed data of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
-  The models in crywolf treat the checked recordings as chosen
-  independently of the classifier’s confidence score. Clips picked
-  because they have the highest scores contain fewer false positives
-  than a random sample and would understate the false-positive rate, so
-  draw the clips at random for this use.
+  From version 2.0.0 it is the R package ‘sheepdog’, which writes
+  `clip_manifest.csv` and `validation_by_clip.csv` with English column
+  names;
+  [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
+  reads these and the files of earlier versions
+  (`validacao_por_clipe.csv`). The models in crywolf treat the checked
+  recordings as chosen independently of the classifier’s confidence
+  score. Clips picked because they have the highest scores contain fewer
+  false positives than a random sample and would understate the
+  false-positive rate, so draw the clips at random for this use.
 
 ## Citation
 

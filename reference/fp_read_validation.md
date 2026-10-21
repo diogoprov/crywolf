@@ -1,8 +1,7 @@
 # Read the verdicts of a clip review
 
 Reads `validation_by_clip.csv`, the clip-by-clip result of the review
-step of the 'sheepdog' package (the birdnet-validation-sampler
-pipeline), and returns the verdicts in a form that
+step of the 'sheepdog' package, and returns the verdicts in a form that
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 can attach to the occasions. Files written by the sampler up to version
 1.2.0 (`validacao_por_clipe.csv`, with column names in Portuguese) are

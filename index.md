@@ -83,14 +83,14 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
   compendium of the simulation study behind the calibration checks
   (<https://doi.org/10.5281/zenodo.23379100>). `simulate_fp(seed = s)`
   reproduces its datasets exactly.
-- [birdnet-validation-sampler](https://github.com/diogoprov/birdnet-validation-sampler)
-  (<https://doi.org/10.5281/zenodo.22696210>) cuts audio clips from
-  BirdNET predictions for manual review and records the verdict on each
-  clip, which can feed the verified or confirmed data of
+- [sheepdog](https://github.com/diogoprov/sheepdog)
+  (<https://provetelab.org/sheepdog/>,
+  <https://doi.org/10.5281/zenodo.22696210>) is an R package that cuts
+  audio clips from BirdNET predictions for manual review and records the
+  verdict on each clip, which can feed the verified or confirmed data of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
-  From version 2.0.0 it is the R package ‘sheepdog’, which writes
-  `clip_manifest.csv` and `validation_by_clip.csv` with English column
-  names;
+  From version 2.0.0 it writes `clip_manifest.csv` and
+  `validation_by_clip.csv` with English column names;
   [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
   reads these and the files of earlier versions
   (`validacao_por_clipe.csv`). The models in crywolf treat the checked

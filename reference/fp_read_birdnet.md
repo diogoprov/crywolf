@@ -2,9 +2,9 @@
 
 Reads the selection tables that BirdNET writes in the Raven format (one
 tab-separated `.txt` file per recording or per site), with the column
-names standardized as in the birdnet-validation-sampler pipeline: lower
-case, without units, and with spaces replaced by underscores
-(`Begin Time (s)` becomes `begin_time`).
+names standardized as in the 'sheepdog' package: lower case, without
+units, and with spaces replaced by underscores (`Begin Time (s)` becomes
+`begin_time`).
 
 ## Usage
 
@@ -62,7 +62,7 @@ fp_read_birdnet(tab)
 #>                       begin_path file_offset species_code     common_name
 #> 1 /rec/SITE1_20240101_200000.wav           0       compau Common Pauraque
 #>   confidence                                table                      file
-#> 1       0.81 /tmp/Rtmpu3C1Yu/file1c1f4e526b78.txt SITE1_20240101_200000.wav
+#> 1       0.81 /tmp/RtmpXdcg3L/file1d1e2249c708.txt SITE1_20240101_200000.wav
 #>   start                time
 #> 1     0 2024-01-01 20:00:00
 ```

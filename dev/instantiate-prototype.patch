@@ -1,0 +1,284 @@
+diff --git a/DESCRIPTION b/DESCRIPTION
+index 4700939..3af0ad3 100644
+--- a/DESCRIPTION
++++ b/DESCRIPTION
+@@ -30,7 +30,7 @@ BugReports: https://github.com/diogoprov/crywolf/issues
+ Depends:
+     R (>= 4.2)
+ Imports:
+-    cmdstanr (>= 0.8.0),
++    instantiate (>= 0.2.4),
+     loo,
+     parallel,
+     posterior,
+@@ -41,6 +41,7 @@ Imports:
+     utils
+ Suggests:
+     bayesplot,
++    cmdstanr (>= 0.8.0),
+     furrr,
+     future,
+     ggplot2,
+@@ -52,8 +53,6 @@ Suggests:
+     unmarked
+ VignetteBuilder:
+     knitr
+-Remotes:
+-    stan-dev/cmdstanr
+ Additional_repositories: https://stan-dev.r-universe.dev,
+     https://diogoprov.r-universe.dev
+ SystemRequirements: CmdStan (>= 2.34; https://mc-stan.org/users/interfaces/cmdstan)
+diff --git a/R/model.R b/R/model.R
+index 9c324ac..695307c 100644
+--- a/R/model.R
++++ b/R/model.R
+@@ -27,25 +27,30 @@
+ fp_compile <- function(force = FALSE, quiet = TRUE) {
+   if (!force && !is.null(.fp_env$model)) return(invisible(.fp_env$model))
+   .check_cmdstan()
+-  src <- system.file("stan", "fp_occu.stan", package = "crywolf", mustWork = TRUE)
+-  dir <- tools::R_user_dir("crywolf", which = "cache")
+-  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+-  dst <- file.path(dir, "fp_occu.stan")
+-  # copy only when the source changed, so the executable stays up to date
+-  # without triggering a recompile in every session
+-  if (!file.exists(dst) || !identical(readLines(src), readLines(dst))) {
+-    file.copy(src, dst, overwrite = TRUE)
++  # the executable compiled when the package was installed from source
++  mod <- if (!force) {
++    tryCatch(instantiate::stan_package_model(name = "fp_occu", package = "crywolf"),
++             error = function(e) NULL)
+   }
+-  threads <- list(stan_threads = TRUE)
+-  mod <- suppressWarnings(
+-    cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = force,
+-                            cpp_options = threads)
+-  )
+-  # an executable built without threading (by an earlier version of the
+-  # package) is not rebuilt by cmdstanr unless asked
+-  if (!.has_threads(mod)) {
+-    mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = TRUE,
+-                                   cpp_options = threads)
++  if (is.null(mod) || !.has_threads(mod)) {
++    # binary packages (such as those on CRAN) come without it: compile once
++    # into the user cache
++    src <- fp_stan_file()
++    dir <- tools::R_user_dir("crywolf", which = "cache")
++    dir.create(dir, recursive = TRUE, showWarnings = FALSE)
++    dst <- file.path(dir, "fp_occu.stan")
++    if (!file.exists(dst) || !identical(readLines(src), readLines(dst))) {
++      file.copy(src, dst, overwrite = TRUE)
++    }
++    threads <- list(stan_threads = TRUE)
++    mod <- suppressWarnings(
++      cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = force,
++                              cpp_options = threads)
++    )
++    if (!.has_threads(mod)) {
++      mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = TRUE,
++                                     cpp_options = threads)
++    }
+   }
+   .fp_env$model <- mod
+   invisible(mod)
+@@ -59,7 +64,7 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
+ #' @examples
+ #' fp_stan_file()
+ fp_stan_file <- function() {
+-  system.file("stan", "fp_occu.stan", package = "crywolf", mustWork = TRUE)
++  system.file("bin", "stan", "fp_occu.stan", package = "crywolf", mustWork = TRUE)
+ }
+ 
+ .has_threads <- function(mod) {
+@@ -69,13 +74,15 @@ fp_stan_file <- function() {
+ }
+ 
+ .has_cmdstan <- function() {
+-  isTRUE(tryCatch(nzchar(cmdstanr::cmdstan_path()), error = function(e) FALSE))
++  requireNamespace("cmdstanr", quietly = TRUE) &&
++    isTRUE(tryCatch(nzchar(cmdstanr::cmdstan_path()), error = function(e) FALSE))
+ }
+ 
+ .check_cmdstan <- function() {
+   if (!.has_cmdstan()) {
+-    stop("CmdStan was not found. Install it once with ",
+-         "`cmdstanr::install_cmdstan()` and try again.", call. = FALSE)
++    stop("crywolf needs the R package 'cmdstanr' and CmdStan. Install them with\n",
++         "  install.packages(\"cmdstanr\", repos = c(\"https://stan-dev.r-universe.dev\", ",
++         "getOption(\"repos\")))\n  cmdstanr::install_cmdstan()", call. = FALSE)
+   }
+   v <- as.character(cmdstanr::cmdstan_version())
+   if (utils::compareVersion(v, "2.34.0") < 0) {
+diff --git a/cleanup b/cleanup
+new file mode 100755
+index 0000000..1e9fd15
+--- /dev/null
++++ b/cleanup
+@@ -0,0 +1,30 @@
++#!/usr/bin/env sh
++#
++# This script was copied and modified from the source code of the {configure}
++# R package by Kevin Ushey. License and copyright are in the comment below.
++#
++# MIT License
++# =====================
++# 
++# Copyright 2021 Kevin Ushey
++# 
++# Permission is hereby granted, free of charge, to any person obtaining a copy
++# of this software and associated documentation files (the “Software”), to deal
++# in the Software without restriction, including without limitation the rights
++# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++# copies of the Software, and to permit persons to whom the Software is
++# furnished to do so, subject to the following conditions:
++# 
++# The above copyright notice and this permission notice shall be included
++# in all copies or substantial portions of the Software.
++# 
++# THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++# THE SOFTWARE.
++if [ -d "bin" ]; then
++  rm -rf bin
++fi
+diff --git a/cleanup.win b/cleanup.win
+new file mode 100755
+index 0000000..db713b0
+--- /dev/null
++++ b/cleanup.win
+@@ -0,0 +1,31 @@
++#!/usr/bin/env sh
++#
++# This script was copied and modified from the source code of the {configure}
++# R package by Kevin Ushey. License and copyright are in the comment below.
++#
++# MIT License
++# =====================
++# 
++# Copyright 2021 Kevin Ushey
++# 
++# Permission is hereby granted, free of charge, to any person obtaining a copy
++# of this software and associated documentation files (the “Software”), to deal
++# in the Software without restriction, including without limitation the rights
++# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++# copies of the Software, and to permit persons to whom the Software is
++# furnished to do so, subject to the following conditions:
++# 
++# The above copyright notice and this permission notice shall be included
++# in all copies or substantial portions of the Software.
++# 
++# THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
++# THE SOFTWARE.
++if [ -d "bin" ]; then
++  rm -rf bin
++fi
++
+diff --git a/src/Makevars b/src/Makevars
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/src/Makevars
+@@ -0,0 +1 @@
++
+diff --git a/src/Makevars.win b/src/Makevars.win
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/src/Makevars.win
+@@ -0,0 +1 @@
++
+diff --git a/src/install.libs.R b/src/install.libs.R
+new file mode 100755
+index 0000000..7d3d3b3
+--- /dev/null
++++ b/src/install.libs.R
+@@ -0,0 +1,37 @@
++libs <- file.path(R_PACKAGE_DIR, "libs", R_ARCH)
++dir.create(libs, recursive = TRUE, showWarnings = FALSE)
++for (file in c("symbols.rds", Sys.glob(paste0("*", SHLIB_EXT)))) {
++  if (file.exists(file)) {
++    file.copy(file, file.path(libs, file))
++  }
++}
++inst_stan <- file.path("..", "inst", "stan")
++if (dir.exists(inst_stan)) {
++  warning(
++    "Stan models in inst/stan/ are deprecated in {instantiate} ",
++    ">= 0.0.4.9001 (2024-01-03). Please put them in src/stan/ instead."
++  )
++  if (file.exists("stan")) {
++    warning("src/stan/ already exists. Not copying models from inst/stan/.")
++  } else {
++    message("Copying inst/stan/ to src/stan/.")
++    fs::dir_copy(path = inst_stan, new_path = "stan")
++  }
++}
++bin <- file.path(R_PACKAGE_DIR, "bin")
++if (!file.exists(bin)) {
++  dir.create(bin, recursive = TRUE, showWarnings = FALSE)
++}
++bin_stan <- file.path(bin, "stan")
++fs::dir_copy(path = "stan", new_path = bin_stan)
++callr::r(
++  func = function(bin_stan) {
++    instantiate::stan_package_compile(
++      models = instantiate::stan_package_model_files(path = bin_stan),
++      cpp_options = list(stan_threads = TRUE)
++    )
++  },
++  args = list(bin_stan = bin_stan),
++  show = TRUE,
++  stderr = "2>&1"
++)
+diff --git a/inst/stan/fp_occu.stan b/src/stan/fp_occu.stan
+similarity index 100%
+rename from inst/stan/fp_occu.stan
+rename to src/stan/fp_occu.stan
+diff --git a/vignettes/unmarked.Rmd b/vignettes/unmarked.Rmd
+index 78d11e3..bdc9a88 100644
+--- a/vignettes/unmarked.Rmd
++++ b/vignettes/unmarked.Rmd
+@@ -9,6 +9,7 @@ vignette: >
+ 
+ ```{r setup, include = FALSE}
+ has_unmarked <- requireNamespace("unmarked", quietly = TRUE)
++has_stan <- crywolf:::.has_cmdstan()   # crywolf fits run only with CmdStan
+ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+ ```
+ 
+@@ -89,7 +90,7 @@ m_um
+ In crywolf the verified method has its own detection probability, so no
+ method covariate is needed:
+ 
+-```{r crywolf}
++```{r crywolf, eval = has_stan}
+ d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
+ m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
+ coef(m_cw)
+@@ -100,7 +101,7 @@ Both fits recover the generating values (occupancy intercept 0, slope
+ logit(0.05) = −2.94), and with this much data the maximum-likelihood
+ estimates and the posterior means nearly coincide:
+ 
+-```{r compare, eval = has_unmarked, echo = FALSE}
++```{r compare, eval = has_unmarked && has_stan, echo = FALSE}
+ cu <- coef(m_um)
+ ci_um <- rbind(confint(m_um, type = "state"), confint(m_um, type = "det"),
+                confint(m_um, type = "fp"))
+@@ -174,7 +175,7 @@ larger workflow built on its other models.
+ 
+ Predictions follow the same logic in both packages:
+ 
+-```{r predict, eval = has_unmarked}
++```{r predict, eval = has_unmarked && has_stan}
+ nd <- data.frame(x = c(-1, 0, 1))
+ predict(m_um, type = "state", newdata = nd)
+ predict(m_cw, newdata = nd, process = "occ")

@@ -82,12 +82,11 @@ Depreciações com `lifecycle::deprecate_warn()` no 1.9 e remoção no 2.0.
 
 ## 2.0.0: lançamento e CRAN
 
-- Backend via `instantiate`: o modelo compilado na instalação do pacote.
-  Conferir antes de tudo:
-  - se `stan_threads` e `reduce_sum()` funcionam pelo `instantiate`;
-  - o tempo de instalação e de check no CRAN;
-  - o que acontece com `fp_stan_file()` e com cópias modificadas do modelo
-    (vinheta `stan_model`).
+- Backend via `instantiate`: **conferido em 22/10/2026**
+  (`dev/cran-instantiate-check.md`, patch em
+  `dev/instantiate-prototype.patch`). `stan_threads` funciona, os draws são
+  idênticos, e o `--as-cran` sem CmdStan dá só a NOTE esperada. Falta rodar
+  o check nas três plataformas no CI.
 - `R CMD check --as-cran` limpo nas três plataformas; exemplos e vinhetas
   dentro dos limites de tempo e de núcleos do CRAN (as vinhetas longas já
   são pré-computadas).

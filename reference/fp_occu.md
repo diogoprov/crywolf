@@ -115,9 +115,14 @@ fp_occu(
   Number of threads each chain uses to compute the likelihood, which is
   summed over sites in parallel with Stan's `reduce_sum()`. The default,
   1, runs each chain on one core. Larger values speed up fits with many
-  sites or occasions; keep `parallel_chains * threads_per_chain` at or
-  below the number of cores. The results do not depend on it beyond
-  floating-point rounding.
+  sites or occasions (on the `curiango` data, 4 threads made each chain
+  3.4 times faster); keep `parallel_chains * threads_per_chain` at or
+  below the number of cores. `"auto"` uses the physical cores divided
+  among the parallel chains of this fit (not among other processes, such
+  as calibration workers). With more than one thread the partial sums
+  are added in an order that varies from run to run, so a fit is not
+  reproduced exactly by its `seed`; the posterior is the same. Keep 1
+  when exact reproduction matters.
 
 - refresh:
 

@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,7 +152,13 @@ cells × 50 replicates × 2 models = 300 fits. With 50 replicates, the
 Monte Carlo standard error of a coverage of 0.95 is about 0.03, enough
 to tell a calibrated model from a broken one; raise <code>reps</code>
 only to pin a borderline value. Every model is fitted to the same
-datasets, so comparisons between models are paired.</p>
+datasets, so comparisons between models are paired. Inside each worker
+the chains of a fit run one after another, so
+<code>fit_args = list(chains = 2, parallel_chains = 1)</code> takes half
+the time of four chains; two chains of 1000 draws gave an effective
+sample size of about 2000 per parameter in the default design, enough to
+place the bounds of a 95% interval. The fixed cost of starting CmdStan
+and reading its output was 0.4 to 1.1 seconds per fit.</p>
 <p>The column <code>prop_divergent</code> is the share of fits with at
 least one divergent transition. In this run only 2 of the 800 fits had
 one, and the largest R-hat was 1.01. Check <code>max_rhat</code> and

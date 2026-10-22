@@ -84,7 +84,13 @@ cells × 50 replicates × 2 models = 300 fits. With 50 replicates, the
 Monte Carlo standard error of a coverage of 0.95 is about 0.03, enough
 to tell a calibrated model from a broken one; raise `reps` only to pin a
 borderline value. Every model is fitted to the same datasets, so
-comparisons between models are paired.
+comparisons between models are paired. Inside each worker the chains of
+a fit run one after another, so
+`fit_args = list(chains = 2, parallel_chains = 1)` takes half the time
+of four chains; two chains of 1000 draws gave an effective sample size
+of about 2000 per parameter in the default design, enough to place the
+bounds of a 95% interval. The fixed cost of starting CmdStan and reading
+its output was 0.4 to 1.1 seconds per fit.
 
 The column `prop_divergent` is the share of fits with at least one
 divergent transition. In this run only 2 of the 800 fits had one, and

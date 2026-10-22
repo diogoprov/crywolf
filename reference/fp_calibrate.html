@@ -19,7 +19,7 @@ the confusion you suspect."><meta property="og:image" content="https://provetela
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,7 +131,13 @@ also when fitting in parallel.</p></dd>
 <dd><p>List of further arguments for <code><a href="fp_occu.html">fp_occu()</a></code>. Unless set
 here, <code>random_recorder</code> is <code>TRUE</code> only when the design simulates a
 recorder effect (<code>sd_recorder &gt; 0</code>): fitting one whose true standard
-deviation is zero produces divergent transitions.</p></dd>
+deviation is zero produces divergent transitions. With the chains of
+each fit run one after another, the cost is proportional to <code>chains</code>:
+<code>chains = 2</code> takes half the time of four and still gives an effective
+sample size of about 2000 per parameter in designs like the default
+one, ample for the 95% intervals that are scored. Keep
+<code>threads_per_chain = 1</code> (the default) when fitting in parallel: <code>"auto"</code>
+divides the cores among the chains of one fit, not among workers.</p></dd>
 
 </dl></div>
     <div class="section level2">

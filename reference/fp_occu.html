@@ -17,7 +17,7 @@ false-positive rate is either constant or a function of site covariates."><meta 
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -165,9 +165,15 @@ covariates in <code>fp</code> do not capture. <code>FALSE</code> by default; see
 <dd><p>Number of threads each chain uses to compute the
 likelihood, which is summed over sites in parallel with Stan's
 <code>reduce_sum()</code>. The default, 1, runs each chain on one core. Larger
-values speed up fits with many sites or occasions; keep
+values speed up fits with many sites or occasions (on the <code>curiango</code>
+data, 4 threads made each chain 3.4 times faster); keep
 <code>parallel_chains * threads_per_chain</code> at or below the number of cores.
-The results do not depend on it beyond floating-point rounding.</p></dd>
+<code>"auto"</code> uses the physical cores divided among the parallel chains of
+this fit (not among other processes, such as calibration workers).
+With more than one thread the partial sums are added in an order that
+varies from run to run, so a fit is not reproduced exactly by its
+<code>seed</code>; the posterior is the same. Keep 1 when exact reproduction
+matters.</p></dd>
 
 
 <dt id="arg-refresh">refresh<a class="anchor" aria-label="anchor" href="#arg-refresh"></a></dt>

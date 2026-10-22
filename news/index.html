@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +43,22 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.6.0" id="crywolf-160">crywolf 1.6.0<a class="anchor" aria-label="anchor" href="#crywolf-160"></a></h2>
+<div class="section level3">
+<h3 id="speed-1-6-0">Speed<a class="anchor" aria-label="anchor" href="#speed-1-6-0"></a></h3>
+<ul><li>
+<code>fp_occu(threads_per_chain = "auto")</code> uses the physical cores divided among the parallel chains. On the <code>curiango</code> data, 150 iterations of one chain took 55 s with one thread, 16 s with four, and 10 s with eight. The default stays at one thread, because with more the order of the partial sums varies from run to run and a fit is no longer reproduced exactly by its <code>seed</code> (the posterior is the same). A fit whose chains took over a minute on one core now says so and suggests <code>"auto"</code>.</li>
+<li>
+<code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code> documents that two chains per fit give an effective sample size of about 2000 and, with the chains of a fit run one after another as in a parallel calibration, half the cost of four.</li>
+<li>Measured and not adopted (<code>dev/profile/rejected-2026-10-21.md</code>): a dense mass matrix, sampling the false-positive intercept with the gap, a centred recorder effect, and <code>reduce_sum_static()</code>. Considered and not pursued, from the same measurements: initialization by Pathfinder (warm-up is 40% of the time) and a QR decomposition (no posterior correlation among covariate effects above 0.5). The confirmation design keeps its current likelihood path, for lack of a large dataset to measure it on.</li>
+<li>With <code>random_fp = TRUE</code>, 3 of 20 fits of the unstructured regime had an R-hat above 1.01 with the default settings; a warm-up of 2000 (2 of 20) or <code>adapt_delta = 0.99</code> (3 of 20) took longer for no clear gain, so the defaults stay.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="data-1-6-0">Data<a class="anchor" aria-label="anchor" href="#data-1-6-0"></a></h3>
 <ul><li>
 <code><a href="../reference/fp_read_validation.html">fp_read_validation()</a></code> reads <code>validation_by_clip.csv</code> from ‘sheepdog’ 2.0.0 and later (English column names and verdicts: <code>site</code>, <code>source_audio</code>, <code>clip_start</code>, <code>verdict = "positive"</code>, …) as well as the legacy <code>validacao_por_clipe.csv</code> of the sampler up to 1.2.0. The format is detected from the columns, and both give the same output, which now keeps <code>occasion_id</code> when the file has it.</li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="crywolf-150">crywolf 1.5.0<a class="anchor" aria-label="anchor" href="#crywolf-150"></a></h2>
 <div class="section level3">

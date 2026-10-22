@@ -80,7 +80,14 @@ fp_calibrate(
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
   Unless set here, `random_recorder` is `TRUE` only when the design
   simulates a recorder effect (`sd_recorder > 0`): fitting one whose
-  true standard deviation is zero produces divergent transitions.
+  true standard deviation is zero produces divergent transitions. With
+  the chains of each fit run one after another, the cost is proportional
+  to `chains`: `chains = 2` takes half the time of four and still gives
+  an effective sample size of about 2000 per parameter in designs like
+  the default one, ample for the 95% intervals that are scored. Keep
+  `threads_per_chain = 1` (the default) when fitting in parallel:
+  `"auto"` divides the cores among the chains of one fit, not among
+  workers.
 
 ## Value
 

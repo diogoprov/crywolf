@@ -1,0 +1,215 @@
+---
+title: "False-positive rates that vary among sites and occasions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{False-positive rates that vary among sites and occasions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+# The fits below were run by dev/precompute-fp-variation.R and are read from
+# fp-variation-results.rds, so that the article builds without Stan.
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
+                      fig.width = 6.5, fig.height = 4, out.width = "100%")
+library(crywolf)
+res <- readRDS("fp-variation-results.rds")
+est <- function(fit, var, digits = 2) {
+  r <- fit$table[fit$table$variable == var, ]
+  sprintf(paste0("%.", digits, "f [%.", digits, "f, %.", digits, "f]"),
+          r$mean, r$lower, r$upper)
+}
+tab <- function(fits, vars) {
+  out <- purrr::imap(fits, function(f, nm) {
+    t <- f$table[f$table$variable %in% vars, c("variable", "mean", "lower", "upper", "rhat")]
+    data.frame(model = nm, t)
+  }) |> purrr::list_rbind()
+  out[c("mean", "lower", "upper")] <- round(out[c("mean", "lower", "upper")], 3)
+  out$rhat <- round(out$rhat, 3)
+  out
+}
+```
+
+The basic model has one false-positive rate for all sites and occasions,
+or a rate that depends on site covariates through `fp = ~ ...`. Two other
+patterns are common in acoustic data. The rate can differ among sites for
+reasons nobody measured: a stream at one site, a frog chorus at another.
+And it can change from one occasion to the next with conditions that are
+measured on each recording, such as wind or rain noise. This article fits
+both patterns to simulated data whose truth is known, and compares the
+results with the constant-rate model.
+
+The fitting code is shown but not run when the article is built; the
+results come from `dev/precompute-fp-variation.R`.
+
+## Unexplained variation among sites
+
+### The model
+
+With `random_fp = TRUE`, the logit of the false-positive rate of site $i$
+gets a site effect,
+
+$$
+\mathrm{logit}(p_{10,i}) = \gamma_0 + \mathbf{x}_i^\top \boldsymbol{\gamma} + e_i,
+\qquad e_i \sim \mathrm{Normal}(0, \sigma_{\mathrm{fp}}),
+$$
+
+where $\gamma_0$ is the intercept of the rate, $\mathbf{x}_i$ are the site
+covariates of `fp` (none here), and $\sigma_{\mathrm{fp}}$, reported as
+`sd_fp_site`, measures how much the rate varies among sites. Its prior is
+half-Normal with scale `fp_priors()$fp_site_sd` (1 by default). Each site
+effect is informed only by the automated detections of its own site, so with
+few occasions per site the estimates are pulled towards the mean.
+
+### The data
+
+```{r among-data, eval = FALSE}
+sim <- simulate_fp(nsite = 200, nocc = 10, sigma_p10 = 1, frac_verified = 0.3,
+                   seed = 1)
+m_const <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m_rand <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+                  random_fp = TRUE)
+```
+
+The rate of each site is drawn on the logit scale around a base rate of
+`r res$among$truth$p10` with a standard deviation of
+`r res$among$truth$sigma_p10`, which gives a mean rate over sites of
+`r round(res$among$truth$p10_marginal, 3)`. The true occupancy slope is -0.8.
+
+### Results
+
+```{r among-table}
+tab(list(constant = res$among$constant, random_fp = res$among$random),
+    c("occ_x", "fp_(Intercept)", "p10_bar", "sd_fp_site"))
+```
+
+The constant-rate model estimates the occupancy slope at
+`r est(res$among$constant, "occ_x")`, which misses the true value of -0.8.
+With the site effect the estimate is
+`r est(res$among$random, "occ_x")`, still below the truth but with an
+interval that contains it, and the standard deviation of the site
+effects, `r est(res$among$random, "sd_fp_site")`, covers the true value of 1.
+Unexplained variation among sites is not harmless: in this dataset it pulled
+the occupancy slope towards zero, as sites with a high false-positive rate
+look occupied whatever their covariate. One dataset shows that it can
+happen; `fp_calibrate()` with `sigma_p10` in the design measures how often.
+
+`fp_sites()` gives the rate of each site, which with the site effect is a
+compromise between the site's own data and the mean:
+
+```{r among-sites, fig.cap = "False-positive rate of each site estimated with the site effect against the true rate used in the simulation, on log scales. The dashed line marks equality."}
+s <- res$among$random$sites
+s$truth <- res$among$truth$p10_site
+ggplot2::ggplot(s, ggplot2::aes(truth, p10)) +
+  ggplot2::geom_abline(linetype = "dashed", colour = "grey50") +
+  ggplot2::geom_point(alpha = 0.6, colour = "#241042") +
+  ggplot2::scale_x_log10() + ggplot2::scale_y_log10() +
+  ggplot2::labs(x = "True false-positive rate", y = "Estimated rate (posterior mean)") +
+  ggplot2::theme_minimal()
+```
+
+The estimates fall into two groups. The
+`r sum(s$detections == 0)` sites without any automated detection all get a
+low rate, between `r sprintf("%.3f", min(s$p10[s$detections == 0]))` and
+`r sprintf("%.3f", max(s$p10[s$detections == 0]))`, whatever their true
+rate; the sites with detections get higher rates, which track the truth
+only loosely (correlation over all sites
+`r round(cor(s$p10, s$truth), 2)`). Ten occasions per site say little about
+one site's rate, and at a site that may be occupied a detection can be true
+or false. The site effect matters for the occupancy slope through the sites
+as a whole, not as a way to rank sites by their false-positive rate.
+
+### Costs and caveats
+
+* **Mixing.** The fit with the site effect took
+  `r round(60 * res$among$random$minutes)` seconds against
+  `r round(60 * res$among$constant$minutes)` for the constant rate, and its
+  smallest bulk effective sample size was
+  `r round(res$among$random$diagnostics$min_ess_bulk)` (largest R-hat
+  `r round(res$among$random$diagnostics$max_rhat, 3)`). In 20 simulated
+  datasets of the same kind with 300 sites and 20 occasions, 3 fits had an
+  R-hat above 1.01 with the default
+  settings (`dev/profile/rejected-2026-10-21.md`). Check the diagnostics, and
+  run more iterations when they flag a problem.
+* **Model comparison.** LOO favours the site effect here, but
+  `r sum(res$among$random$loo$diagnostics$pareto_k > 0.7)` sites have Pareto
+  $k$ above 0.7 in that fit, because each site carries its own parameter. The
+  approximate leave-one-out values of those sites are unreliable;
+  `loo(m_rand, reloo = TRUE)` refits the model without each of them.
+
+```{r among-loo}
+loo::loo_compare(list(constant = res$among$constant$loo,
+                      random_fp = res$among$random$loo))
+```
+
+* **Confounding.** The site effect is independent of the covariates by
+  construction. It does not fix a false-positive rate that tracks the
+  occupancy gradient: for that, model the rate on the covariates
+  (`vignette("crywolf")`).
+
+## Variation among occasions
+
+### The model
+
+A false-positive formula can use covariates of the automated table. The
+rate then varies among the occasions of a site:
+
+$$
+\mathrm{logit}(p_{10,ik}) = \gamma_0 + \gamma_{\mathrm{noise}}\, \mathrm{noise}_{ik},
+$$
+
+where $\mathrm{noise}_{ik}$ is a measurement on occasion $k$ of site $i$,
+standardized. The prior on $\gamma_{\mathrm{noise}}$ is the slope prior of
+`fp_priors()`. Site and occasion covariates can be mixed in one formula.
+
+### The data
+
+The data were simulated with a background-noise covariate, drawn at random
+for every occasion, that raises the logit of the false-positive rate by 1
+per standard deviation, from a base rate of 0.05. In practice the covariate
+is a column of the automated table:
+
+```{r within-fit, eval = FALSE}
+m_const <- fp_occu(d, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m_noise <- fp_occu(d, occ = ~ x, fp = ~ noise, random_recorder = FALSE)
+```
+
+### Results
+
+```{r within-table}
+tab(list(constant = res$within$constant, noise = res$within$noise),
+    c("occ_x", "fp_(Intercept)", "fp_noise", "p10_bar"))
+```
+
+The noise effect is estimated at `r est(res$within$noise, "fp_noise")`
+(true value 1), and the mean rate over occasions at
+`r est(res$within$noise, "p10_bar", 3)` (true value
+`r round(res$within$truth[["p10_bar"]], 3)`). Because the noise was drawn
+independently of the occupancy covariate, the constant-rate model still
+estimates the occupancy slope well, at `r est(res$within$constant, "occ_x")`.
+What it cannot do is say which detections are suspect: under the noise
+model, a detection in a noisy recording counts as weaker evidence of
+presence. LOO prefers the noise model clearly:
+
+```{r within-loo}
+loo::loo_compare(list(constant = res$within$constant$loo,
+                      noise = res$within$noise$loo))
+```
+
+If noise were correlated with the occupancy covariate, as when noisy sites
+are also those with less habitat, leaving it out would bias the slope as in
+`vignette("calibration")`.
+
+## Which to use
+
+* A measured cause of false positives, at the site or the occasion level,
+  belongs in the `fp` formula. It adds one coefficient per covariate rather
+  than one effect per site, and modelling the measured cause is what
+  restored calibrated intervals in the simulations of
+  `vignette("calibration")` when the cause was correlated with occupancy.
+* `random_fp = TRUE` is for variation among sites that no covariate
+  explains. It costs time and mixing, and its leave-one-out comparison needs
+  `reloo = TRUE`. It is off by default.
+* With neither, the false-positive rate is assumed equal everywhere. A
+  posterior predictive check (`fp_ppc()`) that flags sites with more
+  detections than the model expects is a sign that this is wrong.

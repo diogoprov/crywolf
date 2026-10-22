@@ -71,11 +71,27 @@ articles:
     navbar: ~
     contents:
       - crywolf
-  - title: Guides
-    navbar: Guides
+  - title: From data to results
+    navbar: From data to results
     contents:
+      - birdnet_workflow
+      - threshold
+      - reporting
+      - curiango
+  - title: Modelling
+    navbar: Modelling
+    contents:
+      - markov
+      - fp_variation
+  - title: Design and checks
+    navbar: Design and checks
+    contents:
+      - planning
       - simulation
       - calibration
-      - curiango
+  - title: Background
+    navbar: Background
+    contents:
       - unmarked
       - stan_model
+      - performance

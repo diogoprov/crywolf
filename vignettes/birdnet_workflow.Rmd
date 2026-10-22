@@ -1,0 +1,216 @@
+---
+title: "From BirdNET output to an occupancy model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{From BirdNET output to an occupancy model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
+                      fig.width = 6.5, fig.height = 4, out.width = "100%")
+has_stan <- crywolf:::.has_cmdstan()   # the model fit runs only with CmdStan
+```
+
+A classifier such as BirdNET (Kahl et al., 2021) lists detections: for each
+audio file, the time windows where it found a species, with a confidence
+score. An occupancy model needs something else: one row per sampling
+occasion, including the occasions where nothing was found, and a separate
+record of which detections a person checked. This article goes from the
+first to the second with `fp_read_birdnet()`, `fp_read_validation()`, and
+`fp_aggregate()`, and fits the model to the result.
+
+The example data are made up so that the article runs anywhere, but they
+have the layout of real files: BirdNET selection tables in the Raven format,
+and the clip-by-clip verdicts written by the 'sheepdog' package
+(https://provetelab.org/sheepdog/), which cuts clips from BirdNET detections
+for review.
+
+## Two kinds of checking
+
+Two designs use checked data, and they need different files.
+
+* In the **observation-confirmation design** (Chambert et al., 2015), a
+  person listens to clips that the classifier flagged and says whether each
+  holds the species. The verdicts refer to detections, so they enter as
+  counts of confirmed true and false detections per occasion. This is what
+  `fp_read_validation()` and the `validation` argument of `fp_aggregate()`
+  produce.
+* In the **multiple-methods design** (Miller et al., 2011), a person
+  annotates whole recordings, whether or not the classifier flagged them.
+  These are a second detection method, entered as the `verified` table of
+  `fp_data()`. In 'sheepdog', clips of whole recordings
+  (`sampling_mode = "random_recordings"`) are of this kind and must not be
+  passed to `fp_aggregate()`.
+
+Either way, the clips must be chosen without regard to the classifier's
+score. Clips picked because they have the highest scores contain fewer false
+positives than the average detection and make the false-positive rate look
+lower than it is. In 'sheepdog', draw them at random among the detections
+(`sampling_mode = "random_detections"`).
+
+## Example files
+
+We start from a simulated dataset with known structure: 60 sites, each
+recorded on 8 nights, with observation confirmation on about 40% of the
+occasions.
+
+```{r simulate}
+library(crywolf)
+sim <- simulate_fp(nsite = 60, nocc = 8, frac_confirmed = 0.4,
+                   frac_verified = 0, seed = 1)
+truth <- sim$data$auto
+truth$file <- sprintf("S%02d_202401%02d_200000.wav", truth$site, truth$occasion)
+head(truth[, c("site", "occasion", "file", "y", "n_true", "n_false")])
+```
+
+From it we write what the field data would look like. Each occasion with a
+detection gets a BirdNET row with a high confidence, and some occasions
+without one get a row below the threshold of 0.5 that we will use. One
+selection table per site goes into a folder.
+
+```{r write-tables}
+set.seed(2)
+dir_tables <- file.path(tempdir(), "birdnet")
+dir.create(dir_tables, showWarnings = FALSE)
+low <- truth$y == 0 & stats::runif(nrow(truth)) < 0.2
+det <- truth[truth$y == 1 | low, ]
+det$confidence <- ifelse(det$y == 1, stats::runif(nrow(det), 0.5, 1),
+                         stats::runif(nrow(det), 0.1, 0.5))
+det$start <- 3 * sample(0:199, nrow(det), replace = TRUE)
+purrr::walk(split(det, det$site), function(d) {
+  tab <- data.frame(
+    Selection = seq_len(nrow(d)), View = "Spectrogram 1", Channel = 1,
+    `Begin Time (s)` = d$start, `End Time (s)` = d$start + 3,
+    `Begin Path` = file.path("/audio", d$file), `File Offset (s)` = d$start,
+    `Species Code` = "compau", `Common Name` = "Common Pauraque",
+    Confidence = round(d$confidence, 4), check.names = FALSE)
+  utils::write.table(tab, file.path(dir_tables, sprintf("S%02d.BirdNET.selection.table.txt",
+                                                       d$site[1])),
+                     sep = "\t", row.names = FALSE, quote = FALSE)
+})
+list.files(dir_tables)[1:3]
+```
+
+The verdicts follow the layout of `validation_by_clip.csv`: one row per
+reviewed clip. A confirmed occasion contributes one positive clip if the
+species was there and one negative clip if the classifier also fired on
+something else.
+
+```{r write-validation}
+conf <- truth[!is.na(truth$n_true) & truth$y == 1, ]
+clips <- rbind(
+  data.frame(conf[conf$n_true > 0, c("site", "file")], verdict = "positive"),
+  data.frame(conf[conf$n_false > 0, c("site", "file")], verdict = "negative"))
+clips <- merge(clips, det[, c("file", "start", "confidence")], by = "file")
+validation <- data.frame(
+  site = sprintf("S%02d", clips$site), species_code = "compau",
+  source_audio = file.path("/audio", clips$file), clip_start = clips$start,
+  clip_end = clips$start + 3, confidence = clips$confidence,
+  sampling_mode = "random_detections", occasion_id = sub("\\.wav$", "", clips$file),
+  verdict = clips$verdict)
+f_validation <- file.path(tempdir(), "validation_by_clip.csv")
+utils::write.csv(validation, f_validation, row.names = FALSE)
+table(validation$verdict)
+```
+
+## Reading the files
+
+`fp_read_birdnet()` reads every selection table in the folder, standardizes
+the column names (`Begin Time (s)` becomes `begin_time`), and adds the name
+of the audio file and, when the file name carries a `YYYYMMDD_HHMMSS`
+stamp, the time of each detection.
+
+```{r read-birdnet}
+detections <- fp_read_birdnet(dir_tables)
+head(detections[, c("file", "start", "species_code", "confidence", "time")])
+```
+
+`fp_read_validation()` reads the verdicts, in the format of 'sheepdog' 2.0.0
+or in the Portuguese format of the sampler up to version 1.2.0
+(`validacao_por_clipe.csv`), and returns `TRUE` for a positive clip, `FALSE`
+for a negative one, and `NA` for a clip not reviewed.
+
+```{r read-validation}
+verdicts <- fp_read_validation(f_validation)
+head(verdicts)
+```
+
+## Building the occasions
+
+The classifier lists detections only, so the occasions come from a table
+of all recordings: here, one per site and night, with the site covariate.
+
+```{r occasions}
+occasions <- data.frame(site = truth$site, file = truth$file)
+sites <- sim$data$sites
+```
+
+`fp_aggregate()` marks an occasion as a detection when it has a detection
+at or above the threshold, and turns the verdicts into the counts `n_true`
+and `n_false` of the occasions that were checked. Verdicts on clips below
+the threshold are dropped, since those clips are not detections at this
+threshold.
+
+```{r aggregate}
+auto <- fp_aggregate(occasions, detections, threshold = 0.5,
+                     validation = verdicts)
+head(auto)
+c(detections = sum(auto$y), checked = sum(!is.na(auto$n_true)))
+all(auto$y == truth$y)
+```
+
+The occasions are the same as in the simulated truth. `fp_aggregate()`
+warns when an occasion has more detections at or above the threshold than
+reviewed clips, because the confirmation design assumes that every detection
+of a checked occasion was checked.
+
+## Fitting the model
+
+The result goes to `fp_data()` as the automated table, with the names of the
+confirmation counts.
+
+```{r fp-data}
+d <- fp_data(auto, sites, confirmed = c("n_true", "n_false"))
+d
+```
+
+```{r fit, eval = has_stan, message = FALSE}
+m <- fp_occu(d, occ = ~ x, fp = ~ 1, random_recorder = FALSE, seed = 1,
+             refresh = 0, show_messages = FALSE)
+summary(m)
+```
+
+The simulation used an occupancy slope of `r sim$truth$b1` and a
+false-positive rate of `r sim$truth$p10`; both lie inside the 95% intervals. The rest of the analysis, from
+convergence checks to predictions, is the same as in `vignette("crywolf")`.
+
+## With real files
+
+Real data differ from this example in a few ways that matter.
+
+* The occasion table must list every recording, including those where
+  BirdNET found nothing, with the site and any covariates. A list of the
+  audio files on disk is a good start.
+* An occasion can be shorter than a file. With one-minute occasions, add a
+  column for the minute to both tables and pass `by = c("file", "minute")`.
+* BirdNET tables hold every species; give `species` to `fp_aggregate()` to
+  keep one.
+* The threshold changes which occasions are detections, and with them the
+  estimates. `vignette("threshold")` shows how to check that.
+
+## References
+
+Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false
+positive detections in species occurrence data under different study
+designs. *Ecology*, 96, 332–339. https://doi.org/10.1890/14-1507.1
+
+Kahl, S., Wood, C. M., Eibl, M., & Klinck, H. (2021). BirdNET: A deep
+learning solution for avian diversity monitoring. *Ecological Informatics*,
+61, 101236. https://doi.org/10.1016/j.ecoinf.2021.101236
+
+Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C., Bailey,
+L. L., & Weir, L. A. (2011). Improving occupancy estimation when two types of
+observational error occur: non-detection and species misidentification.
+*Ecology*, 92, 1422–1428. https://doi.org/10.1890/10-1396.1

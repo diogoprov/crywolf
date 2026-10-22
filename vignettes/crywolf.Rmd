@@ -831,6 +831,19 @@ combined: keep a verified method in `verified` and add confirmed occasions to
 
 ## Next steps
 
+- `vignette("birdnet_workflow", package = "crywolf")`: from BirdNET
+  selection tables and reviewed clips to the data of `fp_data()`.
+- `vignette("threshold", package = "crywolf")`: how the estimates change
+  with the classifier threshold.
+- `vignette("reporting", package = "crywolf")`: what to report, with a
+  template for the methods and results.
+- `vignette("markov", package = "crywolf")`: detections that come in runs.
+- `vignette("fp_variation", package = "crywolf")`: false-positive rates that
+  vary among sites and occasions.
+- `vignette("planning", package = "crywolf")`: decisions to make before
+  recording starts.
+- `vignette("performance", package = "crywolf")`: computing time, threads,
+  and what was tried to reduce it.
 - `vignette("simulation", package = "crywolf")`: the false-positive regimes
   and observation options of `simulate_fp()`.
 - `vignette("calibration", package = "crywolf")`: check whether a model's

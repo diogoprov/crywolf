@@ -124,7 +124,8 @@ sim$data
 #> <fp_data>
 #>   sites:                  300
 #>   automated occasions:    6000 (naive occupancy 0.87)
-#>   verified sites:         85 (255 occasions, 39 with a confirmed detection)
+#>   verified sites:         85 (255 occasions; verified detections at 39 sites)
+#>   sites known occupied:   39
 #>   recorders:              5
 #>   site covariates:        x, w 
 #>   observation covariates: bio, aci
@@ -208,7 +209,8 @@ fp_data(auto, sites, verified)
 #> <fp_data>
 #>   sites:                  3
 #>   automated occasions:    8 (naive occupancy 0.67)
-#>   verified sites:         2 (3 occasions, 1 with a confirmed detection)
+#>   verified sites:         2 (3 occasions; verified detections at 1 sites)
+#>   sites known occupied:   1
 #>   site covariates:        forest 
 #>   observation covariates: wind
 ```
@@ -1118,8 +1120,9 @@ sim_conf$data
 #> <fp_data>
 #>   sites:                  200
 #>   automated occasions:    2000 (naive occupancy 0.83)
-#>   verified sites:         0 (0 occasions, 83 with a confirmed detection)
-#>   confirmed occasions:    640 (188 with a true observation)
+#>   verified sites:         0 (0 occasions; verified detections at 0 sites)
+#>   confirmed occasions:    640 (188 with a true observation, at 83 sites)
+#>   sites known occupied:   83
 #>   recorders:              5
 #>   site covariates:        x, w 
 #>   observation covariates: bio, aci

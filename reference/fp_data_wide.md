@@ -63,6 +63,7 @@ fp_data_wide(ya, yv, site_covs = data.frame(x = rnorm(10)))
 #> <fp_data>
 #>   sites:                  10
 #>   automated occasions:    40 (naive occupancy 0.80)
-#>   verified sites:         3 (6 occasions, 3 with a confirmed detection)
+#>   verified sites:         3 (6 occasions; verified detections at 3 sites)
+#>   sites known occupied:   3
 #>   site covariates:        x 
 ```

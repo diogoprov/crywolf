@@ -68,7 +68,8 @@ d_custom
 #> <fp_data>
 #>   sites:                  1753
 #>   automated occasions:    97806 (naive occupancy 0.25)
-#>   verified sites:         784 (1199 occasions, 130 with a confirmed detection)
+#>   verified sites:         784 (1199 occasions; verified detections at 130 sites)
+#>   sites known occupied:   130
 #>   recorders:              7
 #>   site covariates:        temp, rh, moon 
 #>   observation covariates: bio, aci

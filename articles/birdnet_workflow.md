@@ -232,8 +232,9 @@ d
 #> <fp_data>
 #>   sites:                  60
 #>   automated occasions:    480 (naive occupancy 0.65)
-#>   verified sites:         0 (0 occasions, 24 with a confirmed detection)
-#>   confirmed occasions:    60 (56 with a true observation)
+#>   verified sites:         0 (0 occasions; verified detections at 0 sites)
+#>   confirmed occasions:    60 (56 with a true observation, at 24 sites)
+#>   sites known occupied:   24
 #>   site covariates:        x, w 
 #>   observation covariates: file, n_detections, score
 ```

@@ -4,6 +4,12 @@
 
 ### Bug fixes
 
+- [`print()`](https://rdrr.io/r/base/print.html) of an `fp_data` object
+  counted the sites known to be occupied (from verified detections and
+  confirmed true observations together) on the line of verified sites,
+  so data with only confirmations showed “0 verified sites … 24 with a
+  confirmed detection”. Verified sites, confirmed occasions, and sites
+  known to be occupied now have their own lines.
 - With `parallel = TRUE`, the workers of ‘furrr’ use the L’Ecuyer-CMRG
   generator, so `simulate_fp(seed = s)` inside
   [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),

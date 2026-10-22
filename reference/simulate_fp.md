@@ -169,7 +169,8 @@ s0
 #> <fp_data>
 #>   sites:                  100
 #>   automated occasions:    1000 (naive occupancy 0.70)
-#>   verified sites:         32 (96 occasions, 12 with a confirmed detection)
+#>   verified sites:         32 (96 occasions; verified detections at 12 sites)
+#>   sites known occupied:   12
 #>   recorders:              5
 #>   site covariates:        x, w 
 #>   observation covariates: bio, aci 

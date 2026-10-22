@@ -35,7 +35,8 @@ sim$data
 #> <fp_data>
 #>   sites:                  300
 #>   automated occasions:    6000 (naive occupancy 0.83)
-#>   verified sites:         96 (288 occasions, 44 with a confirmed detection)
+#>   verified sites:         96 (288 occasions; verified detections at 44 sites)
+#>   sites known occupied:   44
 #>   recorders:              5
 #>   site covariates:        x, w 
 #>   observation covariates: bio, aci
@@ -233,8 +234,9 @@ sim_obs$data
 #> <fp_data>
 #>   sites:                  200
 #>   automated occasions:    2000 (naive occupancy 0.69)
-#>   verified sites:         0 (0 occasions, 68 with a confirmed detection)
-#>   confirmed occasions:    408 (97 with a true observation)
+#>   verified sites:         0 (0 occasions; verified detections at 0 sites)
+#>   confirmed occasions:    408 (97 with a true observation, at 68 sites)
+#>   sites known occupied:   68
 #>   recorders:              6
 #>   site covariates:        x, w 
 #>   observation covariates: bio, aci

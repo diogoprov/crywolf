@@ -2,6 +2,14 @@
 
 ## Bug fixes
 
+* With `parallel = TRUE`, the workers of 'furrr' use the L'Ecuyer-CMRG
+  generator, so `simulate_fp(seed = s)` inside `fp_calibrate()`,
+  `fp_verification_curve()`, `fp_calibrate_fit()`, and `fp_sbc()` simulated
+  other datasets than a sequential run with the same seeds. Every function
+  that takes a `seed` now sets R's default generators along with it, so the
+  two modes give identical results. In a session with the default
+  generators nothing changes: `simulate_fp()` still reproduces the datasets
+  of the fpcalib compendium exactly.
 * Two fits made within the same minute after the same `set.seed()` could
   share CmdStan's output file names, which 'cmdstanr' draws from R's random
   numbers; discarding the first fit then deleted the files of the second,

@@ -48,3 +48,14 @@ test_that("frac_confirmed adds confirmations without changing the default draws"
   expect_true(all(b$data$auto$n_true[conf & unocc] == 0))
   expect_equal(b$data$confirmed, c("n_true", "n_false"))
 })
+
+test_that("a seed gives the same data under any random number generator", {
+  old <- RNGkind()
+  on.exit(RNGkind(old[1], old[2], old[3]))
+  RNGkind("L'Ecuyer-CMRG")           # as in the workers of 'furrr'
+  a <- simulate_fp(nsite = 30, nocc = 4, frac_verified = 0.3, seed = 7)
+  expect_identical(RNGkind()[1], "L'Ecuyer-CMRG")   # the user's kind is back
+  RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+  b <- simulate_fp(nsite = 30, nocc = 4, frac_verified = 0.3, seed = 7)
+  expect_identical(a, b)
+})

@@ -47,7 +47,7 @@ fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   gen <- list(data = data, formulas = list(occ = occ, det = det, fp = fp, ver = ver),
               stan_data = sl$stan_data, design = sl$design,
               occasions = sl$occasions)
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) .set_seed(seed)
   out <- purrr::map(seq_len(ndraws), function(i) {
     p <- .prior_draw(sl$stan_data, priors)
     sim <- .simulate_from(gen, p)

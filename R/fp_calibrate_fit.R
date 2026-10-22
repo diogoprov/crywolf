@@ -53,7 +53,7 @@ simulate.fp_occu <- function(object, nsim = 1, seed = NULL,
                              truth = c("mean", "posterior"), ...) {
   truth <- match.arg(truth)
   gen <- .fit_generator(object)
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) .set_seed(seed)
   purrr::map(seq_len(nsim), function(i) {
     .simulate_from(gen, .pick_pars(gen$draws, truth))
   })
@@ -144,7 +144,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   fp_compile()   # compile once, before any worker starts
 
   run_one <- function(rep, cell, seed) {
-    set.seed(seed)
+    .set_seed(seed)
     sim <- .simulate_from(gen, .pick_pars(gen$draws, truth))
     purrr::imap(models, function(fp, model) {
       .fit_and_score(sim$data, .fit_targets(sim$truth, fp, gen),

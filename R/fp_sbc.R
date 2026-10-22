@@ -92,7 +92,7 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
   fp_compile()
 
   run_one <- function(rep, seed) {
-    set.seed(seed)
+    .set_seed(seed)
     p <- .prior_draw(sl$stan_data, priors)
     sim <- .simulate_from(gen, p)
     truth <- .sbc_truth(p, sl$design, sl$stan_data)

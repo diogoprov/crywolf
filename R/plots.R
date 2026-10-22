@@ -223,7 +223,7 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #' }
 fp_sites <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   sd <- object$stan_data
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) .set_seed(seed)
   pars <- .ppc_pars(object$fit, sd, ndraws)
   r <- .ppc_core(sd, pars, "automated", "freeman-tukey")
   psi <- stats::plogis(pars$beta %*% t(sd$X))

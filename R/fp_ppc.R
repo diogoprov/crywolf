@@ -74,7 +74,7 @@ fp_ppc <- function(object, method = c("automated", "verified"),
   if (method == "verified" && sd$N1 == 0) {
     stop("The data have no verified occasions.", call. = FALSE)
   }
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) .set_seed(seed)
   pars <- .ppc_pars(object$fit, sd, ndraws)
   res <- .ppc_core(sd, pars, method, fit_stat)
   site_ids <- object$data$sites[[object$data$site]]

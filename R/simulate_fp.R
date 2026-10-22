@@ -87,7 +87,7 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
             r11 > 0, r11 <= 1, frac_verified >= 0, frac_verified <= 1,
             abs(conf_cor) <= 1, sigma_p10 >= 0, sd_recorder >= 0,
             frac_confirmed >= 0, frac_confirmed <= 1)
-  if (!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) .set_seed(seed)
   b0 <- stats::qlogis(psi)
   a0 <- stats::qlogis(p11)
 
@@ -202,4 +202,20 @@ print.fp_sim <- function(x, ...) {
   cat(sprintf("  realized occupancy: %.2f\n", mean(t$z)))
   print(x$data)
   invisible(x)
+}
+
+# set.seed() with R's default generators whatever kind is active: the
+# workers of 'furrr' use L'Ecuyer-CMRG, under which the same seed would give
+# other draws than in a sequential run (and than the fpcalib compendium).
+# The caller's generator kinds are restored when the caller returns.
+.set_seed <- function(seed, envir = parent.frame()) {
+  default <- c("Mersenne-Twister", "Inversion", "Rejection")
+  old <- RNGkind()
+  set.seed(seed, kind = default[1], normal.kind = default[2],
+           sample.kind = default[3])
+  if (!identical(old, default)) {
+    restore <- call("RNGkind", old[1], old[2], old[3])
+    do.call(base::on.exit, list(restore, add = TRUE), envir = envir)
+  }
+  invisible(NULL)
 }

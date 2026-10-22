@@ -1,5 +1,10 @@
 # Case study: the Common Pauraque in the Pantanal
 
+*The precomputed results on this page (`curiango-fits.rds`) were made
+with another version of the Stan program than the one in this version of
+crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 This article fits the models of
 [`vignette("crywolf")`](https://provetelab.org/crywolf/articles/crywolf.md)
 to real data: passive acoustic monitoring of the Common Pauraque

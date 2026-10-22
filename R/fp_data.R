@@ -179,14 +179,18 @@ print.fp_data <- function(x, ...) {
   cat(sprintf("  sites:                  %d\n", ns))
   cat(sprintf("  automated occasions:    %d (naive occupancy %.2f)\n",
               nrow(x$auto), naive_auto))
-  cat(sprintf("  verified sites:         %d (%d occasions, %d with a confirmed detection)\n",
+  ver_det <- if (is.null(x$verified)) character(0) else
+    unique(x$verified[[x$site]][x$verified[[x$y]] == 1])
+  cat(sprintf("  verified sites:         %d (%d occasions; verified detections at %d sites)\n",
               nver_sites, if (is.null(x$verified)) 0L else nrow(x$verified),
-              sum(x$known_present)))
+              length(ver_det)))
   if (!is.null(x$confirmed)) {
     n_true <- x$auto[[x$confirmed[1]]]
-    cat(sprintf("  confirmed occasions:    %d (%d with a true observation)\n",
-                sum(!is.na(n_true)), sum(n_true > 0, na.rm = TRUE)))
+    true_sites <- unique(x$auto[[x$site]][!is.na(n_true) & n_true > 0])
+    cat(sprintf("  confirmed occasions:    %d (%d with a true observation, at %d sites)\n",
+                sum(!is.na(n_true)), sum(n_true > 0, na.rm = TRUE), length(true_sites)))
   }
+  cat(sprintf("  sites known occupied:   %d\n", sum(x$known_present)))
   if (!is.null(x$recorder)) {
     cat(sprintf("  recorders:              %d\n", length(unique(x$auto[[x$recorder]]))))
   }

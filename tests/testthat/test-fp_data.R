@@ -48,3 +48,13 @@ test_that("confirmed occasions are validated and mark sites as occupied", {
   expect_error(fp_data(bad, sites, confirmed = c("n_true", "n_false")), "non-negative")
   expect_error(fp_data(auto, sites, confirmed = "n_true"), "two columns")
 })
+
+test_that("print separates verified sites, confirmed occasions, and known occupancy", {
+  s <- simulate_fp(nsite = 60, nocc = 8, frac_confirmed = 0.4, frac_verified = 0, seed = 1)
+  out <- capture.output(print(s$data))
+  expect_true(any(grepl("verified sites: +0 \\(0 occasions; verified detections at 0 sites\\)", out)))
+  n_true <- s$data$auto$n_true
+  true_sites <- length(unique(s$data$auto$site[!is.na(n_true) & n_true > 0]))
+  expect_true(any(grepl(paste0("at ", true_sites, " sites\\)"), out)))
+  expect_true(any(grepl(paste0("sites known occupied: +", sum(s$data$known_present)), out)))
+})

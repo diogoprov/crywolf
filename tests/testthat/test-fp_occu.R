@@ -66,3 +66,19 @@ test_that("the advice on threads is muffled inside crywolf", {
   expect_message(msg(), "1.5 min on one core")
   expect_no_message(crywolf:::.quiet_threads(msg()))
 })
+
+test_that("fits after the same seed get their own output files", {
+  skip_if_no_cmdstan()
+  s <- simulate_fp(nsite = 30, nocc = 3, seed = 1)
+  fit <- function() {
+    set.seed(1)
+    suppressWarnings(fp_occu(s$data, occ = ~ x, random_recorder = FALSE, chains = 1,
+                             iter_warmup = 50, iter_sampling = 50, seed = 1,
+                             refresh = 0, show_messages = FALSE))
+  }
+  f1 <- fit()
+  f2 <- fit()
+  expect_length(intersect(f1$fit$output_files(), f2$fit$output_files()), 0)
+  b <- crywolf:::.output_basename()
+  expect_false(identical(b, crywolf:::.output_basename()))
+})

@@ -208,12 +208,19 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
   mod <- fp_compile()
-  fit <- mod$sample(data = sd_list$stan_data, chains = chains,
-                    parallel_chains = parallel_chains,
-                    threads_per_chain = threads_per_chain,
-                    iter_warmup = iter_warmup, iter_sampling = iter_sampling,
-                    adapt_delta = adapt_delta, seed = seed, refresh = refresh,
-                    ...)
+  # cmdstanr names output files by the minute plus a suffix drawn from R's
+  # random numbers: after the same set.seed(), two fits in one minute share
+  # file names, and discarding the first deletes the files of the second.
+  # A name of our own unless the user gives one in `...`.
+  run_sampler <- function(..., output_basename = .output_basename()) {
+    mod$sample(..., output_basename = output_basename)
+  }
+  fit <- run_sampler(data = sd_list$stan_data, chains = chains,
+                     parallel_chains = parallel_chains,
+                     threads_per_chain = threads_per_chain,
+                     iter_warmup = iter_warmup, iter_sampling = iter_sampling,
+                     adapt_delta = adapt_delta, seed = seed, refresh = refresh,
+                     ...)
   # read every draw and the sampler diagnostics into memory, so that a fit
   # saved with saveRDS() still works after CmdStan's temporary files are gone
   fit$draws()
@@ -258,6 +265,14 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   withCallingHandlers(expr, crywolf_threads_message = function(m) {
     invokeRestart("muffleMessage")
   })
+}
+
+# a name for CmdStan's output files that no other fit in any session shares,
+# made without R's random numbers so that the user's stream is untouched
+.output_basename <- function() {
+  .fp_env$n_fits <- if (is.null(.fp_env$n_fits)) 1L else .fp_env$n_fits + 1L
+  paste0("fp_occu-", gsub("[^0-9]", "", format(Sys.time(), "%Y%m%d%H%M%OS6")),
+         "-", Sys.getpid(), "-", .fp_env$n_fits)
 }
 
 # physical cores divided among the parallel chains

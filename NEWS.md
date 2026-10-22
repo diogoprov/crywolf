@@ -1,5 +1,22 @@
 # crywolf (development version)
 
+## Bug fixes
+
+* Two fits made within the same minute after the same `set.seed()` could
+  share CmdStan's output file names, which 'cmdstanr' draws from R's random
+  numbers; discarding the first fit then deleted the files of the second,
+  and reading its draws failed with "File does not exist" or "Supplied CSV
+  file is corrupt". `fp_occu()` now gives every fit its own file names,
+  without using R's random numbers.
+
+## Tests
+
+* A posterior regression test checks, in four designs, that the
+  log-likelihood at saved parameter values is unchanged and that posterior
+  means stay within Monte Carlo error of saved references
+  (`tests/testthat/test-regression.R`; references made by
+  `dev/make-regression-refs.R`).
+
 ## New articles
 
 * "From BirdNET output to an occupancy model": BirdNET selection tables and

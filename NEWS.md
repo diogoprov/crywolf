@@ -18,6 +18,12 @@
 Results that need long fits are precomputed by `dev/precompute-markov.R`,
 `dev/precompute-threshold.R`, and `dev/precompute-fp-variation.R`.
 
+## Installation
+
+* 'sheepdog', suggested for reading clip reviews, is now installed from
+  https://diogoprov.r-universe.dev (listed in `Additional_repositories`)
+  instead of from GitHub through `Remotes`. The README says how.
+
 # crywolf 1.6.0
 
 ## Speed

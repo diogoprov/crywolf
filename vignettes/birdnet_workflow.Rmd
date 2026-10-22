@@ -25,7 +25,8 @@ The example data are made up so that the article runs anywhere, but they
 have the layout of real files: BirdNET selection tables in the Raven format,
 and the clip-by-clip verdicts written by the 'sheepdog' package
 (https://provetelab.org/sheepdog/), which cuts clips from BirdNET detections
-for review.
+for review and is installed from the same R-universe as crywolf
+(https://diogoprov.r-universe.dev).
 
 ## Two kinds of checking
 

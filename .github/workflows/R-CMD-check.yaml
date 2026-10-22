@@ -27,6 +27,8 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
+          # sheepdog (Suggests) is published there, not on CRAN
+          extra-repositories: https://diogoprov.r-universe.dev
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck

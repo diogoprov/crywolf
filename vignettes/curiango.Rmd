@@ -24,6 +24,10 @@ row_of <- function(f, var) f$table[f$table$variable == var, ]
 pct <- function(x) sprintf("%.2f%%", 100 * x)
 ```
 
+```{r stale, echo = FALSE, results = "asis"}
+cat(crywolf:::.stale_note(fits, "curiango-fits.rds"))
+```
+
 This article fits the models of `vignette("crywolf")` to real data: passive
 acoustic monitoring of the Common Pauraque (*Nyctidromus albicollis*) at
 seven sites in the Pantanal and adjacent Cerrado, Brazil (Piatti et al.,

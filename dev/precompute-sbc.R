@@ -10,4 +10,4 @@ sbc <- fp_sbc(s$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE, reps = 200,
               parallel = TRUE,
               fit_args = list(chains = 2, parallel_chains = 1, iter_warmup = 400,
                               iter_sampling = 500))
-saveRDS(sbc, file.path("vignettes", "sbc-results.rds"), compress = "xz")
+saveRDS(crywolf:::.stamp(sbc), file.path("vignettes", "sbc-results.rds"), compress = "xz")

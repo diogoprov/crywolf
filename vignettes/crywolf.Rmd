@@ -764,6 +764,10 @@ rec_fit <- readRDS("crywolf-recorder-fit.rds")
 cat(rec_fit$printed, sep = "\n")
 ```
 
+```{r stale-recorder, echo = FALSE, results = "asis", eval = TRUE}
+cat(crywolf:::.stale_note(rec_fit, "crywolf-recorder-fit.rds"))
+```
+
 The effects of the acoustic indices (`det_bio`, `det_aci`), the standard
 deviation among recorders (`sd_recorder`), and the effect of the confusing
 gradient (`fp_w`) are close to their true values. The true-detection intercept, the gap, and the recorder standard deviation

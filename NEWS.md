@@ -19,6 +19,13 @@
 
 ## Tests
 
+* The precomputed results of the vignettes carry the MD5 of the Stan
+  program that made them, and a vignette shows a note when its results come
+  from another version of the program. `dev/precompute-all.R` refreshes them
+  all; `dev/restamp-precomputed.R` marks them current without recomputing,
+  only after the posterior regression test passes. The MD5 is of the whole
+  file, so even an edit to a comment in the Stan program shows the note
+  until the results are restamped.
 * A posterior regression test checks, in four designs, that the
   log-likelihood at saved parameter values is unchanged and that posterior
   means stay within Monte Carlo error of saved references

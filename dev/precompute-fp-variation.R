@@ -37,5 +37,5 @@ within <- list(truth = c(occ_x = -0.8, `fp_(Intercept)` = stats::qlogis(0.05), f
                          p10_bar = sim2$truth$p10_bar),
                constant = fit(sim2$data, fp = ~ 1),
                noise = fit(sim2$data, fp = ~ noise))
-saveRDS(list(among = among, within = within),
+saveRDS(crywolf:::.stamp(list(among = among, within = within)),
         file.path("vignettes", "fp-variation-results.rds"), compress = "xz")

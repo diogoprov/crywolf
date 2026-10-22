@@ -26,6 +26,10 @@ ci <- function(model, var, digits = 2) {
 }
 ```
 
+```{r stale, echo = FALSE, results = "asis"}
+cat(crywolf:::.stale_note(res, "markov-results.rds"))
+```
+
 The occupancy model treats the occasions of a site as independent given
 whether the site is occupied. With short occasions this is often false. A
 Common Pauraque that starts calling at dusk is recorded in several

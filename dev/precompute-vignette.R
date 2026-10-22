@@ -24,4 +24,4 @@ rec_fit <- list(
               crywolf = as.character(utils::packageVersion("crywolf")),
               cmdstan = as.character(cmdstanr::cmdstan_version()))
 )
-saveRDS(rec_fit, "vignettes/crywolf-recorder-fit.rds")
+saveRDS(crywolf:::.stamp(rec_fit), "vignettes/crywolf-recorder-fit.rds")

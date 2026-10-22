@@ -25,8 +25,9 @@ cal_verification <- fp_verification_curve(
   models = models, reps = 50, parallel = TRUE
 )
 
-saveRDS(list(confusion = cal_confusion, verification = cal_verification,
-             info = list(date = Sys.Date(),
-                         crywolf = as.character(utils::packageVersion("crywolf")),
-                         cmdstan = as.character(cmdstanr::cmdstan_version()))),
-        file.path("vignettes", "calibration-results.rds"), compress = "xz")
+saveRDS(crywolf:::.stamp(list(
+  confusion = cal_confusion, verification = cal_verification,
+  info = list(date = Sys.Date(),
+              crywolf = as.character(utils::packageVersion("crywolf")),
+              cmdstan = as.character(cmdstanr::cmdstan_version())))),
+  file.path("vignettes", "calibration-results.rds"), compress = "xz")

@@ -30,6 +30,10 @@ tab <- function(fits, vars) {
 }
 ```
 
+```{r stale, echo = FALSE, results = "asis"}
+cat(crywolf:::.stale_note(res, "fp-variation-results.rds"))
+```
+
 The basic model has one false-positive rate for all sites and occasions,
 or a rate that depends on site covariates through `fp = ~ ...`. Two other
 patterns are common in acoustic data. The rate can differ among sites for

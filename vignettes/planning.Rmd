@@ -24,6 +24,10 @@ cov_range <- function(model) {
 }
 ```
 
+```{r stale, echo = FALSE, results = "asis"}
+cat(crywolf:::.stale_note(results, "calibration-results.rds"))
+```
+
 Before recording starts, three decisions shape what a false-positive
 occupancy analysis can deliver: how many sites and occasions, how much to
 check by hand, and what to assume about the classifier. This article walks

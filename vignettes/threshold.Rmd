@@ -29,6 +29,10 @@ rate <- function(th) {
 }
 ```
 
+```{r stale, echo = FALSE, results = "asis"}
+cat(crywolf:::.stale_note(sweep, "threshold-results.rds"))
+```
+
 A classifier gives each recording a confidence score, and the analyst picks
 the score above which a recording counts as a detection. A low threshold
 keeps more true detections and more false ones; a high threshold loses

@@ -52,4 +52,4 @@ out <- list(
                                           markov = "time")$occasions$has_prev) -
     nrow(d$sites)
 )
-saveRDS(out, file.path("vignettes", "markov-results.rds"), compress = "xz")
+saveRDS(crywolf:::.stamp(out), file.path("vignettes", "markov-results.rds"), compress = "xz")

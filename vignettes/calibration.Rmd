@@ -17,6 +17,11 @@ library(crywolf)
 results <- readRDS("calibration-results.rds")
 ```
 
+```{r stale, echo = FALSE, results = "asis"}
+cat(crywolf:::.stale_note(results, "calibration-results.rds"),
+    crywolf:::.stale_note(readRDS("sbc-results.rds"), "sbc-results.rds"), sep = "")
+```
+
 A 95% credible interval should contain the true value in about 95% of
 datasets. When the model is misspecified, it may not, and nothing in a
 single fit will warn you. Simulation-based calibration answers the question

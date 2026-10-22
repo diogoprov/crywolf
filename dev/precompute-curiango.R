@@ -76,7 +76,7 @@ if (identical(args[1], "combine")) {
   attr(fits, "info") <- list(
     date = Sys.Date(), crywolf = as.character(utils::packageVersion("crywolf")),
     cmdstan = as.character(cmdstanr::cmdstan_version()))
-  saveRDS(fits, file.path("vignettes", "curiango-fits.rds"), compress = "xz")
+  saveRDS(crywolf:::.stamp(fits), file.path("vignettes", "curiango-fits.rds"), compress = "xz")
 } else {
   classifier <- match.arg(args[1], names(thresholds))
   # an optional second argument points to a pre-compiled copy of the model,

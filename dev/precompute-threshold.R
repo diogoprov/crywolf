@@ -13,4 +13,4 @@ sweep <- fp_threshold_sweep(cur_occasions, cur_detections,
                             chains = 4, parallel_chains = 4, threads_per_chain = 4,
                             seed = 1, refresh = 0, show_messages = FALSE)
 attr(sweep, "minutes") <- as.numeric(difftime(Sys.time(), t0, units = "mins"))
-saveRDS(sweep, file.path("vignettes", "threshold-results.rds"), compress = "xz")
+saveRDS(crywolf:::.stamp(sweep), file.path("vignettes", "threshold-results.rds"), compress = "xz")

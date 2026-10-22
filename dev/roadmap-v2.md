@@ -21,8 +21,9 @@ sheepdog via R-universe). Decisões do Diogo em 22/10/2026 marcadas com
 Fora do escopo do 2.0.0 (decidido em 14/10/2026): multiestação/dinâmico,
 multiespécies, efeitos aleatórios em todos os submodelos. O efeito
 aleatório na detecção (abaixo) é uma exceção pontual, decidida pelo Diogo
-por ser comum em ecoacústica. **Decidido em 22/10/2026:** multiespécies
-volta ao plano, mas depois do 2.0.0 (seção "Depois do 2.0.0" no fim).
+por ser comum em ecoacústica. **Decidido em 22/10/2026:** o modelo
+dinâmico (multiestação) e o multiespécies voltam ao plano, depois do
+2.0.0 e nessa ordem de prioridade (seções "Depois do 2.0.0" no fim).
 
 ## Ordem dos marcos
 
@@ -107,13 +108,59 @@ Depreciações com `lifecycle::deprecate_warn()` no 1.9 e remoção no 2.0.
   antigas com a mesma semente; o NEWS e a mensagem do 1.9 precisam dizer
   isso com clareza.
 
-## Depois do 2.0.0: modelo multiespécies (MSO)
+## Depois do 2.0.0, prioridade 1: modelo dinâmico (multiestação)
+
+**Decidido em 22/10/2026:** vem antes do multiespécies, por exigir menos
+esforço e reaproveitar mais do que já existe. Função nova,
+`fp_occu_dyn()`; a API do `fp_occu()` congelada no 2.0 não muda.
+
+### O modelo
+
+O estado de cada sítio muda entre temporadas como uma cadeia de Markov de
+dois estados: ocupação inicial $\psi_1$, colonização $\gamma_{it}$ e
+extinção $\epsilon_{it}$ (ou persistência $\phi = 1 - \epsilon$), com
+covariáveis de sítio e de temporada. Dentro de cada temporada, a
+observação é a do `fp_occu()`: desenhos de Miller e de Chambert,
+verificação, gravador, covariáveis de falso positivo, termo de Markov
+dentro da temporada.
+
+A verossimilhança marginaliza os estados pelo algoritmo forward de um
+modelo oculto de Markov. As emissões são as log-verossimilhanças dos ramos
+ocupado e desocupado de cada sítio-temporada, que o Stan atual já calcula
+por sítio. Como a transição muda com as covariáveis, o forward é escrito à
+mão (dois estados, `log_sum_exp`), em vez do `hmm_marginal()`, que exige
+transição fixa. O `reduce_sum` continua sobre sítios, cada fatia com sua
+sequência de temporadas.
+
+### Passos
+
+| Passo | Pronto quando |
+|---|---|
+| Dados: coluna de temporada no `fp_data()` (automatizados, verificados e confirmados); sítios sem dados numa temporada contribuem só com a transição | `print()` e os avisos de desenho mostram sítios por temporada |
+| Stan: emissões por sítio-temporada reaproveitando `site_loglik()`; forward com transições por sítio-temporada | com uma temporada, log-densidade igual à do `fp_occu()` (~1e-12); verossimilhança em R igual ao `log_lik` do Stan |
+| Fórmulas `psi1`, `col` e `ext`, com nomes fixados antes do primeiro release que as contenha | saídas `psi1_*`, `col_*`, `ext_*` documentadas na página de nomes da saída |
+| Estados latentes: forward-filter backward-sample em R para ocupação por temporada | `fp_sites()` por temporada; `simulate()` e `fp_ppc()` com dinâmica |
+| Quantidades derivadas: ocupação por temporada, rotatividade, ocupação de equilíbrio quando a transição é constante | na saída de `summary()` |
+| Identificação com falsos positivos: um falso positivo isolado parece colonização seguida de extinção | simulação mostrando quanta verificação por temporada é preciso para recuperar colonização e extinção; resultado na vinheta |
+| Validação | recuperação em simulação, SBC uniforme, calibração por `fp_calibrate()` com desenho dinâmico |
+| Vinheta | curiango com as noites de cada sítio como temporadas (uso noite a noite), comparada por LOO com o modelo de sítio-noites independentes |
+
+### Riscos
+
+- Tempo: a observação domina o custo hoje, e ela não muda; o forward
+  acrescenta pouco. Medir mesmo assim.
+- Com poucas temporadas e pouca verificação por temporada, colonização e
+  extinção podem ficar mal identificadas diante dos falsos positivos.
+- Na curiango, a dinâmica noite a noite e o efeito aleatório de noite na
+  detecção (1.8.0) disputam a mesma variação; comparar os dois.
+
+## Depois do 2.0.0, prioridade 2: modelo multiespécies (MSO)
 
 **Decidido em 22/10/2026:** fica para um 2.x ou para o 3.0.0, sem entrar no
 caminho do 2.0. A API do `fp_occu()` congelada no 2.0 não muda; o modelo
 multiespécies é uma função nova.
 
-### Fase A (2.x): comunidade com falsos positivos por espécie
+### Fase A (2.x, depois do dinâmico): comunidade com falsos positivos por espécie
 
 `fp_occu_ms()`: cada espécie tem ocupação, detecção verdadeira e taxa de
 falso positivo próprias, com os coeficientes sorteados de distribuições da

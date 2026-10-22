@@ -4,6 +4,18 @@
 
 ### Bug fixes
 
+- With `parallel = TRUE`, the workers of ‘furrr’ use the L’Ecuyer-CMRG
+  generator, so `simulate_fp(seed = s)` inside
+  [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
+  [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md),
+  [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md),
+  and [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md)
+  simulated other datasets than a sequential run with the same seeds.
+  Every function that takes a `seed` now sets R’s default generators
+  along with it, so the two modes give identical results. In a session
+  with the default generators nothing changes:
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
+  still reproduces the datasets of the fpcalib compendium exactly.
 - Two fits made within the same minute after the same
   [`set.seed()`](https://rdrr.io/r/base/Random.html) could share
   CmdStan’s output file names, which ‘cmdstanr’ draws from R’s random

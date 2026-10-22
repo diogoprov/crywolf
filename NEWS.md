@@ -1,4 +1,31 @@
-# crywolf (development version)
+# crywolf 1.6.0
+
+## Speed
+
+* `fp_occu(threads_per_chain = "auto")` uses the physical cores divided
+  among the parallel chains. On the `curiango` data, 150 iterations of one
+  chain took 55 s with one thread, 16 s with four, and 10 s with eight. The default stays at
+  one thread, because with more the order of the partial sums varies from
+  run to run and a fit is no longer reproduced exactly by its `seed` (the
+  posterior is the same). A fit whose chains took over a minute on one core
+  now says so and suggests `"auto"`.
+* `fp_calibrate()` documents that two chains per fit give an effective
+  sample size of about 2000 and, with the chains of a fit run one after
+  another as in a parallel calibration, half the cost of four.
+* Measured and not adopted (`dev/profile/rejected-2026-10-21.md`): a dense
+  mass matrix, sampling the false-positive intercept with the gap, a
+  centred recorder effect, and `reduce_sum_static()`. Considered and not
+  pursued, from the same measurements: initialization by Pathfinder
+  (warm-up is 40% of the time) and a QR decomposition (no posterior
+  correlation among covariate effects above 0.5). The confirmation design
+  keeps its current likelihood path, for lack of a large dataset to
+  measure it on.
+* With `random_fp = TRUE`, 3 of 20 fits of the unstructured regime had an
+  R-hat above 1.01 with the default settings; a warm-up of 2000 (2 of 20)
+  or `adapt_delta = 0.99` (3 of 20) took longer for no clear gain, so the
+  defaults stay.
+
+## Data
 
 * `fp_read_validation()` reads `validation_by_clip.csv` from 'sheepdog'
   2.0.0 and later (English column names and verdicts: `site`,

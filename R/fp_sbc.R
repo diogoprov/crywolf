@@ -98,10 +98,10 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
     truth <- .sbc_truth(p, sl$design, sl$stan_data)
     with_ll <- !isTRUE(sl$stan_data$estimate_fp_re == 1)
     if (with_ll) truth <- c(truth, log_lik = NA_real_)
-    fit <- tryCatch(suppressWarnings(do.call(fp_occu, c(list(
+    fit <- tryCatch(.quiet_threads(suppressWarnings(do.call(fp_occu, c(list(
       data = sim$data, occ = occ, det = det, fp = fp, ver = ver, markov = markov,
       random_recorder = random_recorder, random_fp = random_fp,
-      priors = priors, seed = seed), fit_args))), error = function(e) NULL)
+      priors = priors, seed = seed), fit_args)))), error = function(e) NULL)
     if (is.null(fit)) {
       return(data.frame(rep = rep, parameter = names(truth), truth = unname(truth),
                         rank = NA_integer_, divergences = NA_integer_, ok = FALSE))

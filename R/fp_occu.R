@@ -53,9 +53,15 @@
 #' @param threads_per_chain Number of threads each chain uses to compute the
 #'   likelihood, which is summed over sites in parallel with Stan's
 #'   `reduce_sum()`. The default, 1, runs each chain on one core. Larger
-#'   values speed up fits with many sites or occasions; keep
+#'   values speed up fits with many sites or occasions (on the `curiango`
+#'   data, 4 threads made each chain 3.4 times faster); keep
 #'   `parallel_chains * threads_per_chain` at or below the number of cores.
-#'   The results do not depend on it beyond floating-point rounding.
+#'   `"auto"` uses the physical cores divided among the parallel chains of
+#'   this fit (not among other processes, such as calibration workers).
+#'   With more than one thread the partial sums are added in an order that
+#'   varies from run to run, so a fit is not reproduced exactly by its
+#'   `seed`; the posterior is the same. Keep 1 when exact reproduction
+#'   matters.
 #' @param ... Further arguments passed to `$sample()`.
 #'
 #' @details
@@ -189,10 +195,12 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     warning("No verified data: the false-positive rate is identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
-  threads_per_chain <- as.integer(threads_per_chain)
+  auto_threads <- .auto_threads(parallel_chains)
+  if (identical(threads_per_chain, "auto")) threads_per_chain <- auto_threads
+  threads_per_chain <- suppressWarnings(as.integer(threads_per_chain))
   if (length(threads_per_chain) != 1 || is.na(threads_per_chain) ||
       threads_per_chain < 1) {
-    stop("`threads_per_chain` must be a positive integer.", call. = FALSE)
+    stop("`threads_per_chain` must be a positive integer or \"auto\".", call. = FALSE)
   }
   sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
                               random_fp = random_fp, ver = ver, markov = markov)
@@ -228,7 +236,35 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     class = "fp_occu"
   )
   .warn_diagnostics(diag)
+  slowest <- tryCatch(max(fit$time()$chains$total), error = function(e) NA_real_)
+  if (threads_per_chain == 1 && auto_threads > 1 && isTRUE(slowest > 60)) {
+    message(.threads_message(slowest, auto_threads))
+  }
   out
+}
+
+# advice after a slow fit on one thread; a classed condition, so that
+# .quiet_threads() can drop it
+.threads_message <- function(seconds, threads) {
+  msg <- paste0("Each chain took up to ", round(seconds / 60, 1), " min on one core. ",
+                "`threads_per_chain = \"auto\"` (", threads, " threads here) ",
+                "would be faster, at the cost of exact reproduction by `seed`.\n")
+  structure(class = c("crywolf_threads_message", "message", "condition"),
+            list(message = msg, call = NULL))
+}
+
+# repeated fits inside crywolf (calibration, SBC, refits) skip the advice
+.quiet_threads <- function(expr) {
+  withCallingHandlers(expr, crywolf_threads_message = function(m) {
+    invokeRestart("muffleMessage")
+  })
+}
+
+# physical cores divided among the parallel chains
+.auto_threads <- function(parallel_chains) {
+  cores <- parallel::detectCores(logical = FALSE)
+  if (is.na(cores)) cores <- 1L
+  max(1L, as.integer(cores %/% max(1L, parallel_chains)))
 }
 
 #' Prior settings for fp_occu()

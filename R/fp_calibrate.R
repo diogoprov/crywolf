@@ -32,7 +32,13 @@
 #' @param fit_args List of further arguments for [fp_occu()]. Unless set
 #'   here, `random_recorder` is `TRUE` only when the design simulates a
 #'   recorder effect (`sd_recorder > 0`): fitting one whose true standard
-#'   deviation is zero produces divergent transitions.
+#'   deviation is zero produces divergent transitions. With the chains of
+#'   each fit run one after another, the cost is proportional to `chains`:
+#'   `chains = 2` takes half the time of four and still gives an effective
+#'   sample size of about 2000 per parameter in designs like the default
+#'   one, ample for the 95% intervals that are scored. Keep
+#'   `threads_per_chain = 1` (the default) when fitting in parallel: `"auto"`
+#'   divides the cores among the chains of one fit, not among workers.
 #'
 #' @details
 #' The scored quantities are the occupancy intercept and slope
@@ -238,9 +244,9 @@ print.summary.fp_calibration <- function(x, ...) {
                            fit_args) {
   t0 <- Sys.time()
   fit <- tryCatch(
-    suppressWarnings(do.call(fp_occu, c(list(data = data, occ = occ,
+    .quiet_threads(suppressWarnings(do.call(fp_occu, c(list(data = data, occ = occ,
                                              det = det, fp = fp, seed = seed),
-                                        fit_args))),
+                                        fit_args)))),
     error = function(e) NULL
   )
   secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))

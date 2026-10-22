@@ -49,7 +49,13 @@ also when fitting in parallel.}
 \item{fit_args}{List of further arguments for \code{\link[=fp_occu]{fp_occu()}}. Unless set
 here, \code{random_recorder} is \code{TRUE} only when the design simulates a
 recorder effect (\code{sd_recorder > 0}): fitting one whose true standard
-deviation is zero produces divergent transitions.}
+deviation is zero produces divergent transitions. With the chains of
+each fit run one after another, the cost is proportional to \code{chains}:
+\code{chains = 2} takes half the time of four and still gives an effective
+sample size of about 2000 per parameter in designs like the default
+one, ample for the 95\% intervals that are scored. Keep
+\code{threads_per_chain = 1} (the default) when fitting in parallel: \code{"auto"}
+divides the cores among the chains of one fit, not among workers.}
 }
 \value{
 A tibble of class \code{fp_calibration}, one row per replicate, model,

@@ -105,7 +105,7 @@ test_that("fp_read_validation reads the sheepdog and the legacy formats alike", 
 })
 
 test_that("fp_read_validation reads the example file of sheepdog", {
-  # sheepdog is not a dependency: the test runs only where it is installed
+  # sheepdog is only suggested: the test runs where it is installed
   f <- system.file("extdata", "validation_by_clip.csv", package = "sheepdog")
   skip_if(!nzchar(f), "sheepdog (>= 2.0.0) is not installed")
   raw <- utils::read.csv(f, stringsAsFactors = FALSE)

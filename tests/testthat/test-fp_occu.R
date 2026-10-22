@@ -47,3 +47,22 @@ test_that("threads_per_chain is checked and does not change the fit", {
   d2 <- posterior::as_draws_matrix(m2$draws)[1:20, ]
   expect_equal(unclass(d1), unclass(d2), tolerance = 1e-4, ignore_attr = TRUE)
 })
+
+test_that("threads_per_chain resolves \"auto\" and rejects other text", {
+  expect_gte(crywolf:::.auto_threads(4), 1L)
+  expect_equal(crywolf:::.auto_threads(1e6), 1L)
+  s <- simulate_fp(nsite = 20, nocc = 3, seed = 1)
+  expect_error(suppressWarnings(fp_occu(s$data, threads_per_chain = "many")),
+               "positive integer or \"auto\"")
+  expect_error(suppressWarnings(fp_occu(s$data, threads_per_chain = 0)),
+               "positive integer")
+})
+
+test_that("the advice on threads is muffled inside crywolf", {
+  msg <- function() {
+    message(crywolf:::.threads_message(90, 4))
+    "done"
+  }
+  expect_message(msg(), "1.5 min on one core")
+  expect_no_message(crywolf:::.quiet_threads(msg()))
+})

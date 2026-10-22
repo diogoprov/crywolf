@@ -1,6 +1,6 @@
 Package: crywolf
 Title: Bayesian False-Positive Occupancy Models with Calibration Checks
-Version: 1.5.0.9000
+Version: 1.6.0
 Authors@R: c(
     person("Diogo B.", "Provete", email = "dbprovete@gmail.com",
            role = c("aut", "cre"),
@@ -32,6 +32,7 @@ Depends:
 Imports:
     cmdstanr (>= 0.8.0),
     loo,
+    parallel,
     posterior,
     purrr (>= 1.0.0),
     stats,

@@ -18,10 +18,11 @@ sheepdog via R-universe). Decisões do Diogo em 22/10/2026 marcadas com
   3. **Pronto para CRAN**: `R CMD check --as-cran` limpo com o backend do
      `instantiate`.
 
-Fora do escopo (decidido em 14/10/2026): multiestação/dinâmico,
+Fora do escopo do 2.0.0 (decidido em 14/10/2026): multiestação/dinâmico,
 multiespécies, efeitos aleatórios em todos os submodelos. O efeito
 aleatório na detecção (abaixo) é uma exceção pontual, decidida pelo Diogo
-por ser comum em ecoacústica.
+por ser comum em ecoacústica. **Decidido em 22/10/2026:** multiespécies
+volta ao plano, mas depois do 2.0.0 (seção "Depois do 2.0.0" no fim).
 
 ## Ordem dos marcos
 
@@ -105,3 +106,61 @@ Depreciações com `lifecycle::deprecate_warn()` no 1.9 e remoção no 2.0.
 - Mudar o padrão de threads altera resultados de quem reexecuta análises
   antigas com a mesma semente; o NEWS e a mensagem do 1.9 precisam dizer
   isso com clareza.
+
+## Depois do 2.0.0: modelo multiespécies (MSO)
+
+**Decidido em 22/10/2026:** fica para um 2.x ou para o 3.0.0, sem entrar no
+caminho do 2.0. A API do `fp_occu()` congelada no 2.0 não muda; o modelo
+multiespécies é uma função nova.
+
+### Fase A (2.x): comunidade com falsos positivos por espécie
+
+`fp_occu_ms()`: cada espécie tem ocupação, detecção verdadeira e taxa de
+falso positivo próprias, com os coeficientes sorteados de distribuições da
+comunidade (hierárquico, parametrização não centrada). O falso positivo de
+cada espécie é independente das outras: o classificador erra ao marcar a
+espécie, não ao trocá-la por outra.
+
+| Passo | Pronto quando |
+|---|---|
+| Dados: `fp_data()` com coluna de espécie (formato longo), verificação por espécie | `print()` e os avisos de desenho funcionam por espécie |
+| Stan: z marginalizado por par sítio × espécie; `reduce_sum` sobre os pares; reaproveitar a verossimilhança por sítio do `fp_occu()` | com uma espécie, a log-densidade é igual à do `fp_occu()` (diferença ~1e-12) |
+| Hierarquia: médias e desvios da comunidade para occ, det e fp; gap por espécie (`alpha_1s - gamma_0s > 0`) | recuperação em simulação com 5, 20 e 50 espécies; SBC uniforme |
+| Saídas: riqueza por sítio, ocupação condicional por espécie e sítio, `p10` por espécie | `fp_sites()`, `fp_ppc()`, `simulate()` e `predict()` com espécie |
+| Custo e mixing: medir antes de documentar | tempo e R-hat em 20 espécies num conjunto do tamanho da curiango; documentar `threads_per_chain` |
+| Vinheta com dados simulados e, se houver, dados reais de várias espécies classificadas pelo BirdNET | resultados pré-computados como nas vinhetas atuais |
+
+Riscos: o tempo cresce mais ou menos linearmente com o número de espécies;
+os desvios da comunidade podem misturar mal com poucas espécies (como o
+`random_fp`); a verificação por espécie pode ser rara demais para as
+espécies raras, e o empréstimo de informação da comunidade é justamente o
+que se quer medir.
+
+### Fase B (3.0.0): modelo conjunto (JSDM) com fatores latentes
+
+Acrescentar fatores latentes na ocupação, para capturar a coocorrência
+residual entre espécies (o "J" dos modelos conjuntos de distribuição de
+espécies).
+
+- Referência de implementação: o jsdmstan (Fiona Seaton, NERC-CEH,
+  https://nerc-ceh.github.io/jsdmstan/, GPL >= 3, Zenodo
+  10.5281/zenodo.13356516) ajusta GLLVM e MGLMM em Stan, mas sem modelo de
+  observação: não tem ocupação com detecção imperfeita, falsos positivos
+  nem verificação, e usa rstan (o crywolf usa cmdstanr). Serve de
+  referência para a parametrização dos fatores latentes, não como
+  dependência. A licença é compatível com a do crywolf; reaproveitar código
+  exige crédito explícito. Conferir antes como o jsdmstan identifica as
+  cargas dos fatores (restrições de sinal e de triângulo).
+- Pronto quando: recuperação das correlações residuais em simulação; o
+  modelo da Fase A é o caso com zero fatores (mesma log-densidade);
+  comparação por LOO entre 0, 1 e 2 fatores numa vinheta.
+- Por que é 3.0.0: muda as saídas e a interface multiespécies de forma
+  incompatível com a Fase A, se a Fase A já estiver publicada.
+
+### Fora do plano
+
+Confusão entre espécies (o classificador marca A quando quem canta é B):
+exige uma matriz de classificação e estado latente multinomial, com
+verificação desenhada para identificá-la. É problema de pesquisa, não de
+implementação; não entra no crywolf.
+

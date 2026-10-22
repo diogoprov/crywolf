@@ -9,7 +9,15 @@ vignette: >
 
 ```{r setup, include = FALSE}
 has_unmarked <- requireNamespace("unmarked", quietly = TRUE)
+has_stan <- crywolf:::.has_cmdstan()   # crywolf fits run only with CmdStan
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r no-stan-note, echo = FALSE, results = "asis"}
+if (!has_stan) {
+  cat("*CmdStan was not available when this page was built, so the crywolf",
+      "fits, the comparison table, and the predictions below are not shown.*\n")
+}
 ```
 
 The 'unmarked' package (Fiske & Chandler, 2011; Kellner et al., 2023) fits
@@ -89,7 +97,7 @@ m_um
 In crywolf the verified method has its own detection probability, so no
 method covariate is needed:
 
-```{r crywolf}
+```{r crywolf, eval = has_stan}
 d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
 m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
 coef(m_cw)
@@ -100,7 +108,7 @@ Both fits recover the generating values (occupancy intercept 0, slope
 logit(0.05) = −2.94), and with this much data the maximum-likelihood
 estimates and the posterior means nearly coincide:
 
-```{r compare, eval = has_unmarked, echo = FALSE}
+```{r compare, eval = has_unmarked && has_stan, echo = FALSE}
 cu <- coef(m_um)
 ci_um <- rbind(confint(m_um, type = "state"), confint(m_um, type = "det"),
                confint(m_um, type = "fp"))
@@ -174,7 +182,7 @@ larger workflow built on its other models.
 
 Predictions follow the same logic in both packages:
 
-```{r predict, eval = has_unmarked}
+```{r predict, eval = has_unmarked && has_stan}
 nd <- data.frame(x = c(-1, 0, 1))
 predict(m_um, type = "state", newdata = nd)
 predict(m_cw, newdata = nd, process = "occ")

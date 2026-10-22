@@ -58,6 +58,14 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
 <div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>Two fits made within the same minute after the same <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> could share CmdStan’s output file names, which ‘cmdstanr’ draws from R’s random numbers; discarding the first fit then deleted the files of the second, and reading its draws failed with “File does not exist” or “Supplied CSV file is corrupt”. <code><a href="../reference/fp_occu.html">fp_occu()</a></code> now gives every fit its own file names, without using R’s random numbers.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tests-development-version">Tests<a class="anchor" aria-label="anchor" href="#tests-development-version"></a></h3>
+<ul><li>A posterior regression test checks, in four designs, that the log-likelihood at saved parameter values is unchanged and that posterior means stay within Monte Carlo error of saved references (<code>tests/testthat/test-regression.R</code>; references made by <code>dev/make-regression-refs.R</code>).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="new-articles-development-version">New articles<a class="anchor" aria-label="anchor" href="#new-articles-development-version"></a></h3>
 <ul><li>“From BirdNET output to an occupancy model”: BirdNET selection tables and ‘sheepdog’ verdicts to the data of <code><a href="../reference/fp_data.html">fp_data()</a></code>.</li>
 <li>“Choosing a classifier threshold”: <code><a href="../reference/fp_threshold_sweep.html">fp_threshold_sweep()</a></code> on the <code>curiango</code> data.</li>

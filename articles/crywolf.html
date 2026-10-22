@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,12 +42,25 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>From data to results</h6></li>
+    <li><a class="dropdown-item" href="../articles/birdnet_workflow.html">From BirdNET output to an occupancy model</a></li>
+    <li><a class="dropdown-item" href="../articles/threshold.html">Choosing a classifier threshold</a></li>
+    <li><a class="dropdown-item" href="../articles/reporting.html">Reporting a crywolf analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Modelling</h6></li>
+    <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
+    <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
+    <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
     <li><a class="dropdown-item" href="../articles/simulation.html">Simulating false-positive regimes</a></li>
     <li><a class="dropdown-item" href="../articles/calibration.html">Checking calibration and how much to verify</a></li>
-    <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Background</h6></li>
     <li><a class="dropdown-item" href="../articles/unmarked.html">Coming from unmarked::occuFP()</a></li>
     <li><a class="dropdown-item" href="../articles/stan_model.html">The Stan model</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -72,7 +85,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Introduction to crywolf</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.6.0/vignettes/crywolf.Rmd" class="external-link"><code>vignettes/crywolf.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/vignettes/crywolf.Rmd" class="external-link"><code>vignettes/crywolf.Rmd</code></a></small>
       <div class="d-none name"><code>crywolf.Rmd</code></div>
     </div>
 
@@ -1201,6 +1214,28 @@ Both kinds of known truth can be combined: keep a verified method in
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
 <ul>
+<li>
+<code><a href="../articles/birdnet_workflow.html">vignette("birdnet_workflow", package = "crywolf")</a></code>: from
+BirdNET selection tables and reviewed clips to the data of
+<code><a href="../reference/fp_data.html">fp_data()</a></code>.</li>
+<li>
+<code><a href="../articles/threshold.html">vignette("threshold", package = "crywolf")</a></code>: how the
+estimates change with the classifier threshold.</li>
+<li>
+<code><a href="../articles/reporting.html">vignette("reporting", package = "crywolf")</a></code>: what to
+report, with a template for the methods and results.</li>
+<li>
+<code><a href="../articles/markov.html">vignette("markov", package = "crywolf")</a></code>: detections
+that come in runs.</li>
+<li>
+<code><a href="../articles/fp_variation.html">vignette("fp_variation", package = "crywolf")</a></code>:
+false-positive rates that vary among sites and occasions.</li>
+<li>
+<code><a href="../articles/planning.html">vignette("planning", package = "crywolf")</a></code>: decisions to
+make before recording starts.</li>
+<li>
+<code><a href="../articles/performance.html">vignette("performance", package = "crywolf")</a></code>: computing
+time, threads, and what was tried to reduce it.</li>
 <li>
 <code><a href="../articles/simulation.html">vignette("simulation", package = "crywolf")</a></code>: the
 false-positive regimes and observation options of

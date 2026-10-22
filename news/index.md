@@ -1,5 +1,29 @@
 # Changelog
 
+## crywolf (development version)
+
+### New articles
+
+- “From BirdNET output to an occupancy model”: BirdNET selection tables
+  and ‘sheepdog’ verdicts to the data of
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
+- “Choosing a classifier threshold”:
+  [`fp_threshold_sweep()`](https://provetelab.org/crywolf/reference/fp_threshold_sweep.md)
+  on the `curiango` data.
+- “Reporting a crywolf analysis”: the items of the Bayesian Analysis
+  Reporting Guidelines, with a template for methods and results.
+- “Detections that come in runs”: the Markov term on the `curiango`
+  data.
+- “False-positive rates that vary among sites and occasions”:
+  `random_fp` and occasion-level covariates on simulated data.
+- “Planning a study”: decisions to make before recording starts.
+- “Performance”: computing time over the versions, threads, and what did
+  not help.
+
+Results that need long fits are precomputed by
+`dev/precompute-markov.R`, `dev/precompute-threshold.R`, and
+`dev/precompute-fp-variation.R`.
+
 ## crywolf 1.6.0
 
 ### Speed

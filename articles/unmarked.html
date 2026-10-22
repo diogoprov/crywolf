@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,12 +42,25 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Guides</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>From data to results</h6></li>
+    <li><a class="dropdown-item" href="../articles/birdnet_workflow.html">From BirdNET output to an occupancy model</a></li>
+    <li><a class="dropdown-item" href="../articles/threshold.html">Choosing a classifier threshold</a></li>
+    <li><a class="dropdown-item" href="../articles/reporting.html">Reporting a crywolf analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Modelling</h6></li>
+    <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
+    <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
+    <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
     <li><a class="dropdown-item" href="../articles/simulation.html">Simulating false-positive regimes</a></li>
     <li><a class="dropdown-item" href="../articles/calibration.html">Checking calibration and how much to verify</a></li>
-    <li><a class="dropdown-item" href="../articles/curiango.html">Case study: the Common Pauraque in the Pantanal</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Background</h6></li>
     <li><a class="dropdown-item" href="../articles/unmarked.html">Coming from unmarked::occuFP()</a></li>
     <li><a class="dropdown-item" href="../articles/stan_model.html">The Stan model</a></li>
+    <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -72,7 +85,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Coming from unmarked::occuFP()</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.6.0/vignettes/unmarked.Rmd" class="external-link"><code>vignettes/unmarked.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/vignettes/unmarked.Rmd" class="external-link"><code>vignettes/unmarked.Rmd</code></a></small>
       <div class="d-none name"><code>unmarked.Rmd</code></div>
     </div>
 
@@ -214,14 +227,14 @@ no method covariate is needed:</p>
 <span><span class="va">m_cw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Running MCMC with 4 parallel chains, with 1 thread(s) per chain...</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 2 finished in 43.2 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 43.2 seconds.</span></span>
-<span><span class="co">#&gt; Chain 4 finished in 44.5 seconds.</span></span>
-<span><span class="co">#&gt; Chain 1 finished in 46.2 seconds.</span></span>
+<span><span class="co">#&gt; Chain 2 finished in 33.5 seconds.</span></span>
+<span><span class="co">#&gt; Chain 3 finished in 34.7 seconds.</span></span>
+<span><span class="co">#&gt; Chain 4 finished in 34.8 seconds.</span></span>
+<span><span class="co">#&gt; Chain 1 finished in 36.5 seconds.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 44.3 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 46.4 seconds.</span></span>
+<span><span class="co">#&gt; Mean chain execution time: 34.9 seconds.</span></span>
+<span><span class="co">#&gt; Total execution time: 36.6 seconds.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_cw</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      occ_(Intercept)                occ_x      det_(Intercept) </span></span>
 <span><span class="co">#&gt;           0.15887315          -0.76977980           0.42722960 </span></span>

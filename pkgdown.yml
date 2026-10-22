@@ -2,13 +2,20 @@ pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
+  birdnet_workflow: birdnet_workflow.html
   calibration: calibration.html
   crywolf: crywolf.html
   curiango: curiango.html
+  fp_variation: fp_variation.html
+  markov: markov.html
+  performance: performance.html
+  planning: planning.html
+  reporting: reporting.html
   simulation: simulation.html
   stan_model: stan_model.html
+  threshold: threshold.html
   unmarked: unmarked.html
-last_built: 2026-10-22T03:05Z
+last_built: 2026-10-22T04:08Z
 urls:
   reference: https://provetelab.org/crywolf/reference
   article: https://provetelab.org/crywolf/articles

@@ -1,12 +1,19 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://provetelab.org/crywolf/404.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/LICENSE.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/birdnet_workflow.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/calibration.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/crywolf.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/curiango.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/fp_variation.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/index.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/markov.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/performance.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/planning.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/reporting.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/simulation.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/stan_model.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/articles/threshold.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/articles/unmarked.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/authors.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/index.html</loc></url>

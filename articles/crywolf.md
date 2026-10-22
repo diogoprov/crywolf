@@ -1172,6 +1172,21 @@ occasions to `auto`.
 
 ## Next steps
 
+- [`vignette("birdnet_workflow", package = "crywolf")`](https://provetelab.org/crywolf/articles/birdnet_workflow.md):
+  from BirdNET selection tables and reviewed clips to the data of
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
+- [`vignette("threshold", package = "crywolf")`](https://provetelab.org/crywolf/articles/threshold.md):
+  how the estimates change with the classifier threshold.
+- [`vignette("reporting", package = "crywolf")`](https://provetelab.org/crywolf/articles/reporting.md):
+  what to report, with a template for the methods and results.
+- [`vignette("markov", package = "crywolf")`](https://provetelab.org/crywolf/articles/markov.md):
+  detections that come in runs.
+- [`vignette("fp_variation", package = "crywolf")`](https://provetelab.org/crywolf/articles/fp_variation.md):
+  false-positive rates that vary among sites and occasions.
+- [`vignette("planning", package = "crywolf")`](https://provetelab.org/crywolf/articles/planning.md):
+  decisions to make before recording starts.
+- [`vignette("performance", package = "crywolf")`](https://provetelab.org/crywolf/articles/performance.md):
+  computing time, threads, and what was tried to reduce it.
 - [`vignette("simulation", package = "crywolf")`](https://provetelab.org/crywolf/articles/simulation.md):
   the false-positive regimes and observation options of
   [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md).

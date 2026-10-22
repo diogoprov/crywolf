@@ -5,6 +5,10 @@
 # 2. With the options on, the log-likelihood computed in R (.ppc_core) equals
 #    the Stan log_lik, in six combinations.
 # 3. In simulations, the model recovers the effect of each option.
+# Since crywolf 1.7.0, part 2 runs as tests/testthat/test-likelihood.R and
+# the identity of draws across versions is guarded by
+# tests/testthat/test-regression.R; this script keeps part 3 (recovery,
+# too slow for the tests) and the record of the 1.5.0 validation.
 # Run from the package root: Rscript dev/validate-model-options.R
 # Output: dev/validate-model-options.txt
 sink(file.path("dev", "validate-model-options.txt"), split = TRUE)

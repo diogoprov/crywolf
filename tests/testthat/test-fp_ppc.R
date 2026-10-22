@@ -79,11 +79,11 @@ test_that("the R likelihood matches the Stan log_lik in every design", {
   same_ll <- function(s, ...) {
     m <- suppressWarnings(fp_occu(s$data, occ = ~ x, ..., chains = 1,
                                   iter_warmup = 150, iter_sampling = 100,
-                                  seed = 3, show_messages = FALSE))
+                                  seed = 3, show_messages = FALSE, sig_figs = 15))
     pars <- crywolf:::.ppc_pars(m$fit, m$stan_data, NULL)
     r <- crywolf:::.ppc_core(m$stan_data, pars, "automated", "freeman-tukey")
     ll <- unclass(posterior::as_draws_matrix(m$fit$draws("log_lik")))
-    expect_lt(max(abs(r$ll - ll)), 1e-4)   # CmdStan writes 6 significant digits
+    expect_lt(max(abs(r$ll - ll) / pmax(1, abs(ll))), 1e-8)
     m
   }
   s1 <- simulate_fp(nsite = 80, nocc = 6, a_bio = 0.5, sd_recorder = 0.5,

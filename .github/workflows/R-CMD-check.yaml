@@ -10,13 +10,18 @@ permissions: read-all
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }}, CmdStan ${{ matrix.config.cmdstan }})
     strategy:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
-          - {os: ubuntu-latest,  r: 'release'}
+          # with CmdStan: every test, vignettes fitted live
+          - {os: macos-latest,   r: 'release', cmdstan: true}
+          - {os: ubuntu-latest,  r: 'release', cmdstan: true}
+          # without CmdStan, as on CRAN: Stan tests skip, vignettes must build
+          - {os: macos-latest,   r: 'release', cmdstan: false}
+          - {os: ubuntu-latest,  r: 'release', cmdstan: false}
+          - {os: windows-latest, r: 'release', cmdstan: false}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
@@ -33,9 +38,35 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+      - name: Month, for the CmdStan cache key
+        if: matrix.config.cmdstan
+        id: month
+        run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+        shell: bash
+      - name: Cache CmdStan
+        if: matrix.config.cmdstan
+        uses: actions/cache@v4
+        with:
+          path: ~/.cmdstan
+          key: cmdstan-${{ runner.os }}-${{ runner.arch }}-${{ steps.month.outputs.month }}
       - name: Install CmdStan
-        run: cmdstanr::install_cmdstan(cores = 2)
+        if: matrix.config.cmdstan
+        run: |
+          # a cache restored from an interrupted build has no stanc: reinstall
+          v <- cmdstanr::cmdstan_version(error_on_NA = FALSE)
+          if (is.null(v) || !file.exists(file.path(cmdstanr::cmdstan_path(), "bin", "stanc"))) {
+            cmdstanr::install_cmdstan(cores = 2, overwrite = TRUE)
+          }
+          cat("CmdStan", cmdstanr::cmdstan_version(), "\n")
         shell: Rscript {0}
       - uses: r-lib/actions/check-r-package@v2
+        if: matrix.config.cmdstan
         with:
+          upload-snapshots: true
+      - uses: r-lib/actions/check-r-package@v2
+        if: ${{ !matrix.config.cmdstan }}
+        env:
+          _R_CHECK_FORCE_SUGGESTS_: false
+        with:
+          args: 'c("--no-manual", "--as-cran")'
           upload-snapshots: true

@@ -27,8 +27,22 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
+      - name: Month, for the CmdStan cache key
+        id: month
+        run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+        shell: bash
+      - name: Cache CmdStan
+        uses: actions/cache@v4
+        with:
+          path: ~/.cmdstan
+          key: cmdstan-${{ runner.os }}-${{ runner.arch }}-${{ steps.month.outputs.month }}
       - name: Install CmdStan
-        run: cmdstanr::install_cmdstan(cores = 2)
+        run: |
+          # a cache restored from an interrupted build has no stanc: reinstall
+          v <- cmdstanr::cmdstan_version(error_on_NA = FALSE)
+          if (is.null(v) || !file.exists(file.path(cmdstanr::cmdstan_path(), "bin", "stanc"))) {
+            cmdstanr::install_cmdstan(cores = 2, overwrite = TRUE)
+          }
         shell: Rscript {0}
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

@@ -1,5 +1,5 @@
 diff --git a/DESCRIPTION b/DESCRIPTION
-index 4700939..3af0ad3 100644
+index 2349560..a8bc89f 100644
 --- a/DESCRIPTION
 +++ b/DESCRIPTION
 @@ -30,7 +30,7 @@ BugReports: https://github.com/diogoprov/crywolf/issues
@@ -27,9 +27,9 @@ index 4700939..3af0ad3 100644
 -    stan-dev/cmdstanr
  Additional_repositories: https://stan-dev.r-universe.dev,
      https://diogoprov.r-universe.dev
- SystemRequirements: CmdStan (>= 2.34; https://mc-stan.org/users/interfaces/cmdstan)
+ SystemRequirements: CmdStan (>= 2.40; https://mc-stan.org/users/interfaces/cmdstan)
 diff --git a/R/model.R b/R/model.R
-index 9c324ac..695307c 100644
+index d530ddd..4bc4afa 100644
 --- a/R/model.R
 +++ b/R/model.R
 @@ -27,25 +27,30 @@
@@ -60,8 +60,8 @@ index 9c324ac..695307c 100644
 -    mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = TRUE,
 -                                   cpp_options = threads)
 +  if (is.null(mod) || !.has_threads(mod)) {
-+    # binary packages (such as those on CRAN) come without it: compile once
-+    # into the user cache
++    # binary packages (such as those on CRAN), or an installation without a
++    # recent enough CmdStan, come without it: compile once into the user cache
 +    src <- fp_stan_file()
 +    dir <- tools::R_user_dir("crywolf", which = "cache")
 +    dir.create(dir, recursive = TRUE, showWarnings = FALSE)
@@ -90,25 +90,6 @@ index 9c324ac..695307c 100644
  }
  
  .has_threads <- function(mod) {
-@@ -69,13 +74,15 @@ fp_stan_file <- function() {
- }
- 
- .has_cmdstan <- function() {
--  isTRUE(tryCatch(nzchar(cmdstanr::cmdstan_path()), error = function(e) FALSE))
-+  requireNamespace("cmdstanr", quietly = TRUE) &&
-+    isTRUE(tryCatch(nzchar(cmdstanr::cmdstan_path()), error = function(e) FALSE))
- }
- 
- .check_cmdstan <- function() {
-   if (!.has_cmdstan()) {
--    stop("CmdStan was not found. Install it once with ",
--         "`cmdstanr::install_cmdstan()` and try again.", call. = FALSE)
-+    stop("crywolf needs the R package 'cmdstanr' and CmdStan. Install them with\n",
-+         "  install.packages(\"cmdstanr\", repos = c(\"https://stan-dev.r-universe.dev\", ",
-+         "getOption(\"repos\")))\n  cmdstanr::install_cmdstan()", call. = FALSE)
-   }
-   v <- as.character(cmdstanr::cmdstan_version())
-   if (utils::compareVersion(v, "2.34.0") < 0) {
 diff --git a/cleanup b/cleanup
 new file mode 100755
 index 0000000..1e9fd15
@@ -198,10 +179,10 @@ index 0000000..8b13789
 +
 diff --git a/src/install.libs.R b/src/install.libs.R
 new file mode 100755
-index 0000000..7d3d3b3
+index 0000000..8703e3c
 --- /dev/null
 +++ b/src/install.libs.R
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,50 @@
 +libs <- file.path(R_PACKAGE_DIR, "libs", R_ARCH)
 +dir.create(libs, recursive = TRUE, showWarnings = FALSE)
 +for (file in c("symbols.rds", Sys.glob(paste0("*", SHLIB_EXT)))) {
@@ -230,6 +211,19 @@ index 0000000..7d3d3b3
 +fs::dir_copy(path = "stan", new_path = bin_stan)
 +callr::r(
 +  func = function(bin_stan) {
++    # crywolf needs CmdStan 2.40 or later (tuples as reduce_sum() arguments).
++    # Without it, install anyway: fp_compile() compiles the model on first
++    # use after CmdStan is installed or updated, and says how otherwise.
++    v <- if (requireNamespace("cmdstanr", quietly = TRUE)) {
++      tryCatch(as.character(cmdstanr::cmdstan_version()), error = function(e) NULL)
++    }
++    if (is.null(v) || utils::compareVersion(v, "2.40.0") < 0) {
++      message("crywolf: CmdStan 2.40 or later not found (found ",
++              if (is.null(v)) "none" else v, "); the Stan model was not ",
++              "compiled now and will be compiled on first use after CmdStan ",
++              "is installed or updated with cmdstanr::install_cmdstan().")
++      return(invisible(NULL))
++    }
 +    instantiate::stan_package_compile(
 +      models = instantiate::stan_package_model_files(path = bin_stan),
 +      cpp_options = list(stan_threads = TRUE)
@@ -243,42 +237,3 @@ diff --git a/inst/stan/fp_occu.stan b/src/stan/fp_occu.stan
 similarity index 100%
 rename from inst/stan/fp_occu.stan
 rename to src/stan/fp_occu.stan
-diff --git a/vignettes/unmarked.Rmd b/vignettes/unmarked.Rmd
-index 78d11e3..bdc9a88 100644
---- a/vignettes/unmarked.Rmd
-+++ b/vignettes/unmarked.Rmd
-@@ -9,6 +9,7 @@ vignette: >
- 
- ```{r setup, include = FALSE}
- has_unmarked <- requireNamespace("unmarked", quietly = TRUE)
-+has_stan <- crywolf:::.has_cmdstan()   # crywolf fits run only with CmdStan
- knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
- ```
- 
-@@ -89,7 +90,7 @@ m_um
- In crywolf the verified method has its own detection probability, so no
- method covariate is needed:
- 
--```{r crywolf}
-+```{r crywolf, eval = has_stan}
- d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
- m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
- coef(m_cw)
-@@ -100,7 +101,7 @@ Both fits recover the generating values (occupancy intercept 0, slope
- logit(0.05) = −2.94), and with this much data the maximum-likelihood
- estimates and the posterior means nearly coincide:
- 
--```{r compare, eval = has_unmarked, echo = FALSE}
-+```{r compare, eval = has_unmarked && has_stan, echo = FALSE}
- cu <- coef(m_um)
- ci_um <- rbind(confint(m_um, type = "state"), confint(m_um, type = "det"),
-                confint(m_um, type = "fp"))
-@@ -174,7 +175,7 @@ larger workflow built on its other models.
- 
- Predictions follow the same logic in both packages:
- 
--```{r predict, eval = has_unmarked}
-+```{r predict, eval = has_unmarked && has_stan}
- nd <- data.frame(x = c(-1, 0, 1))
- predict(m_um, type = "state", newdata = nd)
- predict(m_cw, newdata = nd, process = "occ")

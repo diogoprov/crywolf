@@ -1,8 +1,9 @@
 # Conferência: crywolf no CRAN via instantiate (22/10/2026)
 
 Protótipo feito numa cópia do 1.6.0.9000 (commit 34ca3ec), sem mexer no
-pacote. As mudanças estão em `dev/instantiate-prototype.patch`, que se
-aplica limpo ao `HEAD` com `git apply`. Ambiente: macOS (M5 Pro), R 4.6,
+pacote. As mudanças estão em `dev/instantiate-prototype.patch`, refeito em
+22/10/2026 sobre a 1.7.0.9000 (commit 30e8dcd; Stan com tuplas, CmdStan
+≥ 2.40), que se aplica limpo ao `HEAD` com `git apply`. Ambiente: macOS (M5 Pro), R 4.6,
 CmdStan 2.40, cmdstanr 0.9.0.9002, instantiate 0.2.4 (CRAN, publicado em
 07/10/2026).
 
@@ -22,6 +23,19 @@ CmdStan 2.40, cmdstanr 0.9.0.9002, instantiate 0.2.4 (CRAN, publicado em
 - `.has_cmdstan()` confere também se o cmdstanr está instalado.
 - Vinheta `unmarked`: os chunks que ajustam modelos passam a exigir CmdStan
   (era a única vinheta que falhava sem ele).
+
+## Guarda de versão na instalação (22/10/2026)
+
+O Stan com tuplas exige CmdStan 2.40. `src/install.libs.R` só compila na
+instalação se encontrar CmdStan 2.40 ou mais novo; caso contrário instala
+assim mesmo e avisa. Testado em macOS:
+
+| Situação | Resultado |
+|---|---|
+| Instalar com CmdStan 2.40 | modelo compilado na instalação; `fp_compile()` usa esse executável, com threads |
+| Instalar com CmdStan 2.39 | instala; mensagem "CmdStan 2.40 or later not found (found 2.39.0)"; sem executável |
+| Usar esse pacote ainda com 2.39 | `fp_compile()` para com "crywolf needs CmdStan 2.40 or later (found 2.39.0)" |
+| O mesmo pacote depois de passar para 2.40 | compila no cache do usuário no primeiro uso, com threads |
 
 ## Resultados
 

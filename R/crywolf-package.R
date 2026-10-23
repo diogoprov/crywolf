@@ -36,6 +36,9 @@
 #'   users can see whether the correction holds for their design and how much
 #'   verification it needs.
 #'
+#' See [crywolf-output] for the names and interpretation of model parameters
+#' and result fields.
+#'
 #' @section Installation:
 #' crywolf is distributed through R-universe, with binaries for Windows,
 #' macOS, and Linux. 'cmdstanr' comes from the Stan R-universe, and CmdStan

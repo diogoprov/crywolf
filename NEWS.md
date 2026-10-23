@@ -9,6 +9,19 @@
   equal to that of crywolf 1.6.0 in seven designs, and with the same seed
   the draws are identical in six (`dev/profile/validate-tuples*.R`).
 
+## Documentation
+
+* `help("crywolf-output")` gathers readable parameter names, their scales
+  and availability, posterior summaries, diagnostics, predictions, site
+  estimates, checks, calibration, simulation, and raw Stan mappings.
+
+## New features
+
+* `fp_threshold_sweep()` can derive MaxF1 and MaxPrecision thresholds from
+  reviewed classifier clips. Ties favour recall, then the smaller threshold;
+  selected thresholds and validation metrics are retained as attributes.
+  Numeric thresholds remain supported and duplicate thresholds are fitted once.
+
 ## Bug fixes
 
 * `print()` of an `fp_data` object counted the sites known to be occupied

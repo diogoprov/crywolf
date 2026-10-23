@@ -149,7 +149,8 @@
 #' (\eqn{\Delta}), `sd_recorder`, `p_verified` (detection probability of the
 #' verified method), `p11_ref` and `p10_ref` (true- and false-positive
 #' probabilities at the reference), and `p10_bar` (false-positive probability
-#' averaged over the sites).
+#' averaged over sites or automated occasions, depending on the FP covariates).
+#' See [crywolf-output] for all names, scales, and availability conditions.
 #'
 #' @return An object of class `fp_occu`, with methods for [base::print()],
 #'   [base::summary()], [stats::coef()], [stats::predict()], [loo::loo()], and
@@ -163,7 +164,7 @@
 #' Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 #' two types of observational error occur: non-detection and species
 #' misidentification. *Ecology*, 92, 1422–1428. \doi{10.1890/10-1396.1}
-#' @seealso [fp_data()], [fp_priors()], [fp_calibrate()]
+#' @seealso [crywolf-output], [fp_data()], [fp_priors()], [fp_calibrate()]
 #' @export
 #' @examples
 #' \dontrun{

@@ -8,7 +8,7 @@
 fp_threshold_sweep(
   occasions,
   detections,
-  thresholds,
+  thresholds = c("MaxF1", "MaxPrecision"),
   sites,
   verified = NULL,
   site = "site",
@@ -20,6 +20,7 @@ fp_threshold_sweep(
   fp = ~1,
   random_recorder = !is.null(recorder),
   prob = 0.95,
+  validation = NULL,
   ...
 )
 
@@ -28,9 +29,9 @@ fp_threshold_sweep(
 \arguments{
 \item{occasions, detections, by, species}{Passed to \code{\link[=fp_aggregate]{fp_aggregate()}}.}
 
-\item{thresholds}{Confidence thresholds to try, for instance those that
-maximise F1 or precision on a validation set (this function does not
-derive them).}
+\item{thresholds}{Numeric confidence thresholds in \verb{[0, 1]}, or names
+\code{"MaxF1"} and/or \code{"MaxPrecision"} to derive thresholds from \code{validation}.
+Defaults to both named methods. Each distinct threshold is fitted once.}
 
 \item{sites, verified, site, recorder}{Passed to \code{\link[=fp_data]{fp_data()}}; \code{site} must
 also be a column of \code{occasions}.}
@@ -38,6 +39,12 @@ also be a column of \code{occasions}.}
 \item{occ, det, fp, random_recorder}{Passed to \code{\link[=fp_occu]{fp_occu()}}.}
 
 \item{prob}{Width of the credible intervals in the summary.}
+
+\item{validation}{Optional reviewed clips, as returned by
+\code{\link[=fp_read_validation]{fp_read_validation()}}, with numeric \code{confidence} in \verb{[0, 1]} and logical
+(or binary 0/1) \code{verdict}. Required for named thresholds. Rows with missing
+scores or verdicts are dropped with a warning. When \code{species} is supplied,
+validation is filtered by \code{species_code} or \code{common_name}.}
 
 \item{...}{Further arguments for \code{\link[=fp_occu]{fp_occu()}}, such as \code{chains},
 \code{threads_per_chain}, or \code{seed}.}
@@ -52,7 +59,10 @@ A data frame of class \code{fp_threshold_sweep} with one row per
 threshold and parameter: the threshold, the share of occasions that are
 detections, the parameter, its posterior mean and interval, and the
 number of divergent transitions and largest R-hat of the fit. \code{\link[=plot]{plot()}}
-draws the estimates against the threshold.
+draws the estimates against the threshold. For named thresholds, attributes
+\code{threshold_selection} and \code{validation_metrics} contain the selected methods
+and the metrics at every candidate threshold, respectively (columns
+\code{threshold}, \code{tp}, \code{fp}, \code{fn}, \code{precision}, \code{recall}, \code{f1}).
 }
 \description{
 The threshold at which a confidence score counts as a detection trades
@@ -62,6 +72,18 @@ builds the automated occasions at each threshold with \code{\link[=fp_aggregate]
 fits the same model to each, and collects the estimates, so that their
 sensitivity to the threshold can be seen at once.
 }
+\details{
+Named methods evaluate every distinct validation score, counting
+scores at or above the threshold as positive. Precision is TP / (TP + FP),
+recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). Thresholds
+predicting no positives are excluded. At least one reviewed positive is
+required. Ties are resolved by greater recall, then the smaller threshold.
+Recall and F1 refer to positives in the supplied validation set: clips
+missed by the classifier or excluded by an earlier score cutoff are not
+represented. Use a representative validation sample for the target species.
+Validation selects thresholds only; it is not passed as confirmation data
+to \code{\link[=fp_aggregate]{fp_aggregate()}}.
+}
 \examples{
 \dontrun{
 # occasions: one row per one-minute recording, with site_night and covariates
@@ -70,6 +92,12 @@ sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.1, 0.4, 0.7)
                             site = "site_night", occ = ~ temp + rh, fp = ~ 1,
                             random_recorder = FALSE)
 plot(sweep)
+# Derive both thresholds from reviewed classifier clips:
+reviews <- fp_read_validation("validation_by_clip.csv")
+selected <- fp_threshold_sweep(occasions, detections, sites = nights,
+                               site = "site_night", validation = reviews,
+                               random_recorder = FALSE)
+attr(selected, "threshold_selection")
 }
 }
 \references{

@@ -49,7 +49,7 @@ test_that("plots and site estimates work on a fit, also after reloading it", {
   m <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ x,
                                 random_recorder = FALSE, chains = 2,
                                 iter_warmup = 200, iter_sampling = 200,
-                                seed = 1, show_messages = FALSE))
+                                threads_per_chain = 1, seed = 1, show_messages = FALSE))
   f <- tempfile(fileext = ".rds")
   saveRDS(m, f)
   unlink(m$fit$output_files())          # CmdStan's files are gone

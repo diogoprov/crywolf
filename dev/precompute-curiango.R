@@ -38,7 +38,8 @@ fit_one <- function(classifier, model) {
   d <- curiango_data(classifier)
   t0 <- Sys.time()
   m <- fp_occu(d, occ = ~ temp + rh + moon, det = ~ bio + aci,
-               fp = models[[model]], random_recorder = TRUE, seed = 1)
+               fp = models[[model]], random_recorder = TRUE,
+               threads_per_chain = 1, seed = 1)
   minutes <- as.numeric(difftime(Sys.time(), t0, units = "mins"))
   grid <- seq(-2.5, 2.5, length.out = 41)
   nd <- function(var) {

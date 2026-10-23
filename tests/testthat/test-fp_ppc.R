@@ -63,7 +63,7 @@ test_that("fp_ppc works on a fit", {
   m <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ 1,
                                 random_recorder = FALSE, chains = 2,
                                 iter_warmup = 300, iter_sampling = 300,
-                                seed = 1))
+                                threads_per_chain = 1, seed = 1))
   p <- fp_ppc(m, ndraws = 200, seed = 1)
   expect_s3_class(p, "fp_ppc")
   expect_equal(dim(p$yrep), c(200, 100))
@@ -79,7 +79,8 @@ test_that("the R likelihood matches the Stan log_lik in every design", {
   same_ll <- function(s, ...) {
     m <- suppressWarnings(fp_occu(s$data, occ = ~ x, ..., chains = 1,
                                   iter_warmup = 150, iter_sampling = 100,
-                                  seed = 3, show_messages = FALSE, sig_figs = 15))
+                                  threads_per_chain = 1, seed = 3,
+                                  show_messages = FALSE, sig_figs = 15))
     pars <- crywolf:::.ppc_pars(m$fit, m$stan_data, NULL)
     r <- crywolf:::.ppc_core(m$stan_data, pars, "automated", "freeman-tukey")
     ll <- unclass(posterior::as_draws_matrix(m$fit$draws("log_lik")))

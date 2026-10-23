@@ -81,7 +81,9 @@ fp_read_birdnet <- function(path, pattern = "\\.txt$", recursive = TRUE,
 #' [fp_aggregate()] can attach to the occasions. Files written by the
 #' sampler up to version 1.2.0
 #' (`validacao_por_clipe.csv`, with column names in Portuguese) are read as
-#' well.
+#' well. This legacy format is read throughout crywolf 2.x and will no
+#' longer be read from crywolf 3.0.0; reading it gives no warning before
+#' then.
 #'
 #' @param path Path of `validation_by_clip.csv` (or of the legacy
 #'   `validacao_por_clipe.csv`).

@@ -59,26 +59,47 @@ detecções. Medir antes de permitir a combinação.
 
 ## 1.9.0: congelamento da API
 
-Depreciações com `lifecycle::deprecate_warn()` no 1.9 e remoção no 2.0.
+Sem o pacote lifecycle (decidido em 23/10/2026): os avisos de transição
+são mensagens do próprio crywolf.
 
 - **Decidido:** `threads_per_chain = "auto"` passa a ser o padrão no 2.0.
+  **Feito na 1.9 (23/10/2026):**
   - O help de `fp_occu()` explica as opções: `"auto"` (rápido, draws não
     reproduzíveis exatamente pela semente, mesma posterior), `1`
     (reprodução exata), ou um número.
-  - No 1.9: mensagem avisando a mudança de padrão para quem não passar o
-    argumento.
-  - Testes, vinhetas e scripts `dev/precompute-*` passam a fixar
-    `threads_per_chain = 1` onde a reprodução importa.
-  - **Atenção ao CRAN:** exemplos, testes e vinhetas não podem usar mais de
-    2 núcleos. O `"auto"` precisa respeitar `_R_CHECK_LIMIT_CORES_` (ou ter
-    teto de 2 sob `R CMD check`), contando cadeias × threads.
-- Efeitos aleatórios com argumentos paralelos (`random_recorder`,
-  `random_fp`, `random_det`): manter assim, dado o escopo estreito.
-- `fp_data_wide()`: manter, como ponte do unmarked.
-- Formato legado do sampler (`validacao_por_clipe.csv`): manter no 2.x e
-  anunciar a remoção para o 3.0.
+  - Mensagem, uma vez por sessão, para quem chama `fp_occu()` sem passar
+    `threads_per_chain`. É uma condição com classe
+    (`crywolf_threads_default`): os ajustes repetidos do próprio pacote
+    (`.quiet_threads()`: calibração, SBC, reloo, varredura de limiar) a
+    descartam sem gastá-la.
+  - Testes, vinhetas (chunks ao vivo e o código mostrado do curiango; o
+    código mostrado do fp_variation não tem `seed` e ficou como estava) e
+    os scripts `dev/precompute-*` que rodavam com 1
+    thread fixam `threads_per_chain = 1`; os que já usavam mais threads
+    (markov, threshold, threshold-fp) ficaram como estavam.
+  - Teto de 2 núcleos sob `R CMD check` (`_R_CHECK_LIMIT_CORES_` definido e
+    diferente de `"false"`): threads ≤ 2 e `parallel_chains` ≤
+    `2 %/% threads`. Menos cadeias em paralelo não mudam os draws.
+  - **Falta no 2.0:** trocar o padrão, apagar a mensagem e decidir o padrão
+    dos ajustes internos repetidos. `fp_calibrate()` e `fp_sbc()` rodam um
+    ajuste por worker (o help do `fp_calibrate()` recomenda
+    `threads_per_chain = 1`, "the default"); devem continuar com 1,
+    passando-o explicitamente, para não multiplicar núcleos por workers.
+- **Decidido (23/10/2026):** efeitos aleatórios continuam como argumentos
+  lógicos separados (`random_recorder`, `random_fp` e, quando entrar, o
+  `random_det`), sem uma interface única do tipo `random = ~ ...`. Motivo:
+  o escopo é estreito (três efeitos fixos, cada um com prior e saída
+  própria: `sd_recorder`, `sd_fp_site`, `sd_det`), e argumentos lógicos
+  são mais fáceis de documentar e validar.
+- **Decidido (23/10/2026):** `fp_data_wide()` fica na API do 2.0, como
+  ponte para quem vem do `unmarked::occuFP()` com matrizes sítio × ocasião
+  (`vignette("unmarked")`).
+- Formato legado do sampler (`validacao_por_clipe.csv`): lido em todo o
+  2.x; remoção no 3.0 **anunciada** no help de `fp_read_validation()` e no
+  NEWS (23/10/2026), sem aviso em tempo de execução.
 - Nomes da saída (`occ_*`, `det_*`, `fp_*`, `verified_*`, `p10_bar`, ...):
-  congelar e documentar numa página única.
+  congelar em `help("crywolf-output")`. **Adiado para depois da 1.8**
+  (23/10/2026): o `random_det` pode acrescentar argumento e nome (`sd_det`).
 - Exigências mínimas: R ≥ 4.2; CmdStan ≥ 2.40 desde a 1.7.0 (subiu de 2.34
   com o refactor com tuplas, por decisão do Diogo em 22/10/2026).
 

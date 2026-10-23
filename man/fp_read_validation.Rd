@@ -23,7 +23,9 @@ step of the 'sheepdog' package, and returns the verdicts in a form that
 \code{\link[=fp_aggregate]{fp_aggregate()}} can attach to the occasions. Files written by the
 sampler up to version 1.2.0
 (\code{validacao_por_clipe.csv}, with column names in Portuguese) are read as
-well.
+well. This legacy format is read throughout crywolf 2.x and will no
+longer be read from crywolf 3.0.0; reading it gives no warning before
+then.
 }
 \details{
 The format is detected from the columns: \code{site} marks the format of

@@ -68,7 +68,7 @@ test_that("simulate() and fp_calibrate_fit() work on fits of both designs", {
   m <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ 1,
                                 random_recorder = FALSE, chains = 1,
                                 iter_warmup = 200, iter_sampling = 200,
-                                seed = 1, show_messages = FALSE))
+                                threads_per_chain = 1, seed = 1, show_messages = FALSE))
   new <- simulate(m, nsim = 2, seed = 1)
   expect_length(new, 2)
   expect_s3_class(new[[1]]$data, "fp_data")
@@ -84,7 +84,7 @@ test_that("simulate() and fp_calibrate_fit() work on fits of both designs", {
   m2 <- suppressWarnings(fp_occu(s2$data, occ = ~ x, fp = ~ 1,
                                  random_recorder = FALSE, chains = 1,
                                  iter_warmup = 200, iter_sampling = 200,
-                                 seed = 1, show_messages = FALSE))
+                                 threads_per_chain = 1, seed = 1, show_messages = FALSE))
   d2 <- simulate(m2, seed = 2)[[1]]$data
   conf <- d2$auto[!is.na(d2$auto$n_true), ]
   expect_equal(nrow(conf), sum(!is.na(s2$data$auto$n_true)))

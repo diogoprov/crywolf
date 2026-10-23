@@ -110,7 +110,7 @@ test_that("the new options fit, match the R likelihood, and refit exactly", {
   m <- suppressWarnings(fp_occu(d, occ = ~ x, fp = ~ noise, ver = ~ who,
                                 markov = "occasion", random_recorder = FALSE,
                                 chains = 1, iter_warmup = 200, iter_sampling = 150,
-                                seed = 1, show_messages = FALSE))
+                                threads_per_chain = 1, seed = 1, show_messages = FALSE))
   expect_true(all(c("fp_noise", "verified_who", "det_y_prev") %in%
                     posterior::variables(m$draws)))
   pars <- crywolf:::.ppc_pars(m$fit, m$stan_data, NULL)
@@ -131,7 +131,7 @@ test_that("the new options fit, match the R likelihood, and refit exactly", {
   m2 <- suppressWarnings(fp_occu(d2, occ = ~ x, fp = ~ noise, markov = "occasion",
                                  random_recorder = FALSE, chains = 1,
                                  iter_warmup = 200, iter_sampling = 100,
-                                 seed = 1, show_messages = FALSE))
+                                 threads_per_chain = 1, seed = 1, show_messages = FALSE))
   pars2 <- crywolf:::.ppc_pars(m2$fit, m2$stan_data, NULL)
   r2 <- crywolf:::.ppc_core(m2$stan_data, pars2, "automated", "freeman-tukey")
   ll2 <- unclass(posterior::as_draws_matrix(m2$fit$draws("log_lik")))
@@ -140,7 +140,7 @@ test_that("the new options fit, match the R likelihood, and refit exactly", {
   m0 <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ 1,
                                  random_recorder = FALSE, chains = 2,
                                  iter_warmup = 300, iter_sampling = 300,
-                                 seed = 1, show_messages = FALSE))
+                                 threads_per_chain = 1, seed = 1, show_messages = FALSE))
   l0 <- loo(m0)
   thr <- sort(l0$diagnostics$pareto_k, decreasing = TRUE)[2]
   l1 <- suppressMessages(loo(m0, reloo = TRUE, k_threshold = thr, seed = 2))

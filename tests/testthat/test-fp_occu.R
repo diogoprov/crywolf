@@ -5,7 +5,7 @@ test_that("fp_occu fits and its methods work", {
   m <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ w,
                                 random_recorder = FALSE, chains = 2,
                                 iter_warmup = 300, iter_sampling = 300,
-                                seed = 1))
+                                threads_per_chain = 1, seed = 1))
   expect_s3_class(m, "fp_occu")
   cf <- coef(m)
   expect_true(all(c("occ_(Intercept)", "occ_x", "fp_w", "p10_bar") %in% names(cf)))
@@ -23,7 +23,7 @@ test_that("fp_occu warns without verified data", {
   s <- simulate_fp(nsite = 50, nocc = 4, frac_verified = 0, seed = 2)
   w <- testthat::capture_warnings(
     fp_occu(s$data, occ = ~ x, chains = 1, iter_warmup = 100,
-            iter_sampling = 100, seed = 1, show_messages = FALSE)
+            iter_sampling = 100, threads_per_chain = 1, seed = 1, show_messages = FALSE)
   )
   expect_match(w, "No verified data", all = FALSE)
 })
@@ -46,6 +46,43 @@ test_that("threads_per_chain is checked and does not change the fit", {
   d1 <- posterior::as_draws_matrix(m1$draws)[1:20, ]
   d2 <- posterior::as_draws_matrix(m2$draws)[1:20, ]
   expect_equal(unclass(d1), unclass(d2), tolerance = 1e-4, ignore_attr = TRUE)
+})
+
+test_that("a fit without threads_per_chain announces the new default once", {
+  s <- simulate_fp(nsite = 20, nocc = 3, seed = 1)
+  env <- crywolf:::.fp_env
+  old <- env$threads_notice
+  on.exit(env$threads_notice <- old)
+  # an unknown covariate stops the fit after the notice and before Stan
+  bad <- function(...) suppressWarnings(fp_occu(s$data, occ = ~ nope, ...))
+  env$threads_notice <- NULL
+  expect_message(expect_error(bad()), "changes from 1 to \"auto\"")
+  expect_no_message(expect_error(bad()))
+  env$threads_notice <- NULL
+  expect_no_message(expect_error(bad(threads_per_chain = 1)))
+  # dropped inside crywolf's own repeated fits, and still due afterwards
+  expect_no_message(expect_error(crywolf:::.quiet_threads(bad())))
+  expect_message(expect_error(bad()), "once per session")
+})
+
+test_that("R CMD check limits a fit to two cores", {
+  old <- Sys.getenv("_R_CHECK_LIMIT_CORES_", NA)
+  on.exit(if (is.na(old)) Sys.unsetenv("_R_CHECK_LIMIT_CORES_") else
+    Sys.setenv(`_R_CHECK_LIMIT_CORES_` = old))
+  Sys.setenv(`_R_CHECK_LIMIT_CORES_` = "FALSE")
+  expect_false(crywolf:::.check_limits_cores())
+  Sys.setenv(`_R_CHECK_LIMIT_CORES_` = "TRUE")
+  expect_true(crywolf:::.check_limits_cores())
+  expect_lte(crywolf:::.auto_threads(1), 2L)
+  expect_equal(crywolf:::.auto_threads(4), 1L)
+  skip_if_no_cmdstan()
+  s <- simulate_fp(nsite = 20, nocc = 3, seed = 1)
+  m <- suppressWarnings(fp_occu(s$data, random_recorder = FALSE, chains = 2,
+                                threads_per_chain = 4, iter_warmup = 50,
+                                iter_sampling = 50, seed = 1, refresh = 0,
+                                show_messages = FALSE))
+  expect_equal(m$sampler$threads_per_chain, 2L)
+  expect_equal(m$sampler$parallel_chains, 1L)
 })
 
 test_that("threads_per_chain resolves \"auto\" and rejects other text", {
@@ -73,7 +110,8 @@ test_that("fits after the same seed get their own output files", {
   fit <- function() {
     set.seed(1)
     suppressWarnings(fp_occu(s$data, occ = ~ x, random_recorder = FALSE, chains = 1,
-                             iter_warmup = 50, iter_sampling = 50, seed = 1,
+                             iter_warmup = 50, iter_sampling = 50,
+                             threads_per_chain = 1, seed = 1,
                              refresh = 0, show_messages = FALSE))
   }
   f1 <- fit()

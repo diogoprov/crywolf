@@ -7,7 +7,8 @@
 library(crywolf)
 fit <- function(d, ...) {
   t0 <- Sys.time()
-  f <- suppressWarnings(fp_occu(d, occ = ~ x, random_recorder = FALSE, seed = 1,
+  f <- suppressWarnings(fp_occu(d, occ = ~ x, random_recorder = FALSE,
+                                threads_per_chain = 1, seed = 1,
                                 refresh = 0, show_messages = FALSE, ...))
   list(table = summary(f)$table, diagnostics = f$diagnostics,
        sites = as.data.frame(fp_sites(f, ndraws = 1000, seed = 1)),

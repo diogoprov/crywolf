@@ -11,7 +11,8 @@ test_that("loo() integrates the site effect on the false-positive rate", {
   s <- simulate_fp(nsite = 120, nocc = 8, sigma_p10 = 1, frac_verified = 0.3, seed = 1)
   m <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                                 random_fp = TRUE, chains = 2, iter_warmup = 300,
-                                iter_sampling = 300, seed = 1, refresh = 0,
+                                iter_sampling = 300,
+                                threads_per_chain = 1, seed = 1, refresh = 0,
                                 show_messages = FALSE))
   set.seed(1)
   before <- .Random.seed
@@ -41,7 +42,8 @@ test_that("the integrated log-likelihood keeps its shape when draws are thinned"
   s <- simulate_fp(nsite = 60, nocc = 5, sigma_p10 = 1, seed = 2)
   m <- suppressWarnings(fp_occu(s$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                                 random_fp = TRUE, chains = 2, iter_warmup = 200,
-                                iter_sampling = 200, thin = 2, seed = 1, refresh = 0,
+                                iter_sampling = 200, thin = 2,
+                                threads_per_chain = 1, seed = 1, refresh = 0,
                                 show_messages = FALSE))
   l <- suppressWarnings(loo(m))
   # 2 chains x 200 iterations thinned by 2: 200 draws, not 400

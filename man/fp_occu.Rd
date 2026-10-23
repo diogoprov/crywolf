@@ -77,16 +77,28 @@ covariates in \code{fp} do not capture. \code{FALSE} by default; see the section
 
 \item{threads_per_chain}{Number of threads each chain uses to compute the
 likelihood, which is summed over sites in parallel with Stan's
-\code{reduce_sum()}. The default, 1, runs each chain on one core. Larger
-values speed up fits with many sites or occasions (on the \code{curiango}
-data, 4 threads made each chain 3.4 times faster); keep
-\code{parallel_chains * threads_per_chain} at or below the number of cores.
-\code{"auto"} uses the physical cores divided among the parallel chains of
+\code{reduce_sum()}. One of:
+\itemize{
+\item \code{"auto"}: the physical cores divided among the parallel chains of
 this fit (not among other processes, such as calibration workers).
-With more than one thread the partial sums are added in an order that
-varies from run to run, so a fit is not reproduced exactly by its
-\code{seed}; the posterior is the same. Keep 1 when exact reproduction
-matters.}
+The fastest choice for most data, but a fit is not reproduced
+exactly by its \code{seed}: with more than one thread the partial sums are
+added in an order that varies from run to run, so the draws drift
+apart after a while. The posterior is the same.
+\item \code{1}: each chain runs on one core, and the same \code{seed} gives the same
+draws. Use it when exact reproduction matters (published analyses,
+tests, saved results).
+\item a larger number: that many threads per chain, with the same caveat
+as \code{"auto"}. Keep \code{parallel_chains * threads_per_chain} at or below
+the number of cores.
+}
+
+Threads speed up fits with many sites or occasions (on the \code{curiango}
+data, 4 threads made each chain 3.4 times faster). The default is 1
+and becomes \code{"auto"} in crywolf 2.0.0; a fit that does not set
+\code{threads_per_chain} says so once per session. Under \verb{R CMD check}
+(when \verb{_R_CHECK_LIMIT_CORES_} is set, as on CRAN) a fit uses at most
+two cores, counting \code{parallel_chains * threads_per_chain}.}
 
 \item{refresh}{How often each chain reports its progress, in iterations.
 The default, \code{NULL}, reports every 10\% of the iterations in interactive

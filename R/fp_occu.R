@@ -52,16 +52,26 @@
 #' @param parallel_chains Number of chains run in parallel.
 #' @param threads_per_chain Number of threads each chain uses to compute the
 #'   likelihood, which is summed over sites in parallel with Stan's
-#'   `reduce_sum()`. The default, 1, runs each chain on one core. Larger
-#'   values speed up fits with many sites or occasions (on the `curiango`
-#'   data, 4 threads made each chain 3.4 times faster); keep
-#'   `parallel_chains * threads_per_chain` at or below the number of cores.
-#'   `"auto"` uses the physical cores divided among the parallel chains of
-#'   this fit (not among other processes, such as calibration workers).
-#'   With more than one thread the partial sums are added in an order that
-#'   varies from run to run, so a fit is not reproduced exactly by its
-#'   `seed`; the posterior is the same. Keep 1 when exact reproduction
-#'   matters.
+#'   `reduce_sum()`. One of:
+#'   * `"auto"`: the physical cores divided among the parallel chains of
+#'     this fit (not among other processes, such as calibration workers).
+#'     The fastest choice for most data, but a fit is not reproduced
+#'     exactly by its `seed`: with more than one thread the partial sums are
+#'     added in an order that varies from run to run, so the draws drift
+#'     apart after a while. The posterior is the same.
+#'   * `1`: each chain runs on one core, and the same `seed` gives the same
+#'     draws. Use it when exact reproduction matters (published analyses,
+#'     tests, saved results).
+#'   * a larger number: that many threads per chain, with the same caveat
+#'     as `"auto"`. Keep `parallel_chains * threads_per_chain` at or below
+#'     the number of cores.
+#'
+#'   Threads speed up fits with many sites or occasions (on the `curiango`
+#'   data, 4 threads made each chain 3.4 times faster). The default is 1
+#'   and becomes `"auto"` in crywolf 2.0.0; a fit that does not set
+#'   `threads_per_chain` says so once per session. Under `R CMD check`
+#'   (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN) a fit uses at most
+#'   two cores, counting `parallel_chains * threads_per_chain`.
 #' @param ... Further arguments passed to `$sample()`.
 #'
 #' @details
@@ -196,12 +206,21 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     warning("No verified data: the false-positive rate is identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
+  if (missing(threads_per_chain) && !isTRUE(.fp_env$threads_notice)) {
+    .fp_env$threads_notice <- TRUE
+    message(.threads_default_message())
+  }
   auto_threads <- .auto_threads(parallel_chains)
   if (identical(threads_per_chain, "auto")) threads_per_chain <- auto_threads
   threads_per_chain <- suppressWarnings(as.integer(threads_per_chain))
   if (length(threads_per_chain) != 1 || is.na(threads_per_chain) ||
       threads_per_chain < 1) {
     stop("`threads_per_chain` must be a positive integer or \"auto\".", call. = FALSE)
+  }
+  # CRAN allows two cores under R CMD check: count chains x threads
+  if (.check_limits_cores()) {
+    threads_per_chain <- min(threads_per_chain, 2L)
+    parallel_chains <- max(1L, min(parallel_chains, 2L %/% threads_per_chain))
   }
   sd_list <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
                               random_fp = random_fp, ver = ver, markov = markov)
@@ -261,9 +280,25 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
             list(message = msg, call = NULL))
 }
 
-# repeated fits inside crywolf (calibration, SBC, refits) skip the advice
+# announces the change of default in 2.0.0, once per session; a classed
+# condition, so that .quiet_threads() can drop it
+.threads_default_message <- function() {
+  msg <- paste0("The default of `threads_per_chain` changes from 1 to \"auto\" in ",
+                "crywolf 2.0.0: faster, but a fit is no longer reproduced exactly ",
+                "by `seed` (the posterior is the same). Set `threads_per_chain = 1` ",
+                "to keep exact reproduction, or \"auto\" to switch now; see ",
+                "?fp_occu. This message is shown once per session.\n")
+  structure(class = c("crywolf_threads_default", "message", "condition"),
+            list(message = msg, call = NULL))
+}
+
+# repeated fits inside crywolf (calibration, SBC, refits) skip the advice;
+# a dropped notice of the new default stays due for the user's own fits
 .quiet_threads <- function(expr) {
   withCallingHandlers(expr, crywolf_threads_message = function(m) {
+    invokeRestart("muffleMessage")
+  }, crywolf_threads_default = function(m) {
+    .fp_env$threads_notice <- FALSE
     invokeRestart("muffleMessage")
   })
 }
@@ -276,11 +311,19 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
          "-", Sys.getpid(), "-", .fp_env$n_fits)
 }
 
-# physical cores divided among the parallel chains
+# physical cores divided among the parallel chains, at most two in total
+# under R CMD check
 .auto_threads <- function(parallel_chains) {
   cores <- parallel::detectCores(logical = FALSE)
   if (is.na(cores)) cores <- 1L
+  if (.check_limits_cores()) cores <- min(cores, 2L)
   max(1L, as.integer(cores %/% max(1L, parallel_chains)))
+}
+
+# TRUE when R CMD check limits the cores (set by --as-cran and on CRAN)
+.check_limits_cores <- function() {
+  chk <- tolower(Sys.getenv("_R_CHECK_LIMIT_CORES_", ""))
+  nzchar(chk) && chk != "false"
 }
 
 #' Prior settings for fp_occu()

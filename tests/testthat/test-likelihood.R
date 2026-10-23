@@ -6,7 +6,8 @@
 
 ll_gap <- function(data, ...) {
   m <- suppressWarnings(fp_occu(data, occ = ~ x, ..., chains = 1, iter_warmup = 150,
-                                iter_sampling = 40, seed = 3, refresh = 0,
+                                iter_sampling = 40,
+                                threads_per_chain = 1, seed = 3, refresh = 0,
                                 show_messages = FALSE, sig_figs = 15))
   pars <- crywolf:::.ppc_pars(m$fit, m$stan_data, NULL)
   r <- crywolf:::.ppc_core(m$stan_data, pars, "automated", "freeman-tukey")

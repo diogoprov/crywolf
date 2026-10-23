@@ -196,7 +196,8 @@ positive, where \code{fp_(Intercept)} is \eqn{\gamma_0}), plus \code{fp_gap}
 (\eqn{\Delta}), \code{sd_recorder}, \code{p_verified} (detection probability of the
 verified method), \code{p11_ref} and \code{p10_ref} (true- and false-positive
 probabilities at the reference), and \code{p10_bar} (false-positive probability
-averaged over the sites).
+averaged over sites or automated occasions, depending on the FP covariates).
+See \link{crywolf-output} for all names, scales, and availability conditions.
 }
 \examples{
 \dontrun{
@@ -224,5 +225,5 @@ two types of observational error occur: non-detection and species
 misidentification. \emph{Ecology}, 92, 1422–1428. \doi{10.1890/10-1396.1}
 }
 \seealso{
-\code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_priors]{fp_priors()}}, \code{\link[=fp_calibrate]{fp_calibrate()}}
+\link{crywolf-output}, \code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_priors]{fp_priors()}}, \code{\link[=fp_calibrate]{fp_calibrate()}}
 }

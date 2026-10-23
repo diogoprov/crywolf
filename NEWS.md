@@ -1,5 +1,11 @@
 # crywolf (development version)
 
+## Documentation
+
+* `help("crywolf-output")` gathers readable parameter names, their scales
+  and availability, posterior summaries, diagnostics, predictions, site
+  estimates, checks, calibration, simulation, and raw Stan mappings.
+
 ## New features
 
 * `fp_threshold_sweep()` can derive MaxF1 and MaxPrecision thresholds from

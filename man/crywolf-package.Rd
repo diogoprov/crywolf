@@ -41,6 +41,9 @@ credible intervals and the bias of the quantities of interest, so that
 users can see whether the correction holds for their design and how much
 verification it needs.
 }
+
+See \link{crywolf-output} for the names and interpretation of model parameters
+and result fields.
 }
 \section{Installation}{
 

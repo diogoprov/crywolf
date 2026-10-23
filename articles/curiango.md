@@ -93,7 +93,8 @@ posterior.
 fp_models <- list(standard = NULL, constant = ~ 1,
                   covariates = ~ temp + rh + moon)
 m <- fp_occu(d_custom, occ = ~ temp + rh + moon, det = ~ bio + aci,
-             fp = fp_models$constant, random_recorder = TRUE, seed = 1)
+             fp = fp_models$constant, random_recorder = TRUE,
+             threads_per_chain = 1, seed = 1)
 ```
 
 ## Convergence

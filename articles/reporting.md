@@ -17,7 +17,7 @@ data every step is the same.
 library(crywolf)
 sim <- simulate_fp(nsite = 200, nocc = 10, frac_verified = 0.3, seed = 1)
 m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-             seed = 1, refresh = 0, show_messages = FALSE)
+             threads_per_chain = 1, seed = 1, refresh = 0, show_messages = FALSE)
 ```
 
 ## 1. The model and why
@@ -179,7 +179,8 @@ natural candidates:
 
 refit <- function(priors) {
   f <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-               priors = priors, seed = 1, refresh = 0, show_messages = FALSE)
+               priors = priors, threads_per_chain = 1, seed = 1, refresh = 0,
+               show_messages = FALSE)
   t <- summary(f)$table
   t[t$variable %in% c("occ_x", "p10_bar"), cols]
 }

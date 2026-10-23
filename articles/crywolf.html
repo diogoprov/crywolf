@@ -577,7 +577,7 @@ The model is compiled the first time it is used and cached for later
 sessions.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>                   random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>                   random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">m_const</span></span>
 <span><span class="co">#&gt; Bayesian false-positive occupancy model (multiple-methods design)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -752,7 +752,7 @@ mean is estimated (Provete et al., in preparation).</p>
 occupancy covariate, which is always available:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>,</span>
-<span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_x</span>, <span class="st">"fp"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; fp_(Intercept)           fp_x </span></span>
 <span><span class="co">#&gt;      -2.656303       1.010679</span></span></code></pre></div>
@@ -775,7 +775,7 @@ gradient <code>w</code>, so we can fit the generating model as a
 positive control:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_w</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">w</span>,</span>
-<span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>               random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m_w</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Posterior summary (95% equal-tailed intervals)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -851,7 +851,7 @@ the model with <code>fp = ~ w</code> using narrower priors on the slopes
 and on the gap, and compare the main parameters:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_w_narrow</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">w</span>,</span>
-<span>                      random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                      random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                      priors <span class="op">=</span> <span class="fu"><a href="../reference/fp_priors.html">fp_priors</a></span><span class="op">(</span>slope_sd <span class="op">=</span> <span class="fl">1</span>, gap_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">pars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occ_x"</span>, <span class="st">"fp_w"</span>, <span class="st">"fp_gap"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>parameter <span class="op">=</span> <span class="va">pars</span>,</span>
@@ -879,7 +879,7 @@ reports <span class="math inline">\sigma_{fp}</span> as
 <code>sd_fp_site</code>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_re</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                random_fp <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span>                random_fp <span class="op">=</span> <span class="cn">TRUE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>The random effect is off by default because it is costly: it adds one
 parameter per site, fits take several times longer, and its chains mix
 less well, so check the diagnostics and run longer chains when needed.
@@ -1084,7 +1084,7 @@ in sensitivity (standard deviation 0.6 on the logit scale):</p>
 <span>                       sd_recorder <span class="op">=</span> <span class="fl">0.6</span>, nrec <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                       conf_effect <span class="op">=</span> <span class="fl">1.5</span>, conf_cor <span class="op">=</span> <span class="fl">0.7</span>, seed <span class="op">=</span> <span class="fl">2027</span><span class="op">)</span></span>
 <span><span class="va">m_rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim_rec</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span> <span class="op">+</span> <span class="va">aci</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">w</span>,</span>
-<span>                 random_recorder <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>                 random_recorder <span class="op">=</span> <span class="cn">TRUE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">m_rec</span></span></code></pre></div>
 <p>When detection covariates change among occasions, each occasion
 enters the likelihood separately, instead of being grouped with the
@@ -1185,7 +1185,7 @@ occasions alone identify the false-positive rate, so
 <code><a href="../reference/fp_occu.html">fp_occu()</a></code> does not warn about missing verified data.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_conf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim_conf</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>                  random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>                  random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">m_conf</span></span>
 <span><span class="co">#&gt; Bayesian false-positive occupancy model (observation-confirmation design)</span></span>
 <span><span class="co">#&gt; </span></span>

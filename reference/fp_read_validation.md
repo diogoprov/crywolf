@@ -5,7 +5,9 @@ step of the 'sheepdog' package, and returns the verdicts in a form that
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 can attach to the occasions. Files written by the sampler up to version
 1.2.0 (`validacao_por_clipe.csv`, with column names in Portuguese) are
-read as well.
+read as well. This legacy format is read throughout crywolf 2.x and will
+no longer be read from crywolf 3.0.0; reading it gives no warning before
+then.
 
 ## Usage
 

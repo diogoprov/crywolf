@@ -113,16 +113,29 @@ fp_occu(
 - threads_per_chain:
 
   Number of threads each chain uses to compute the likelihood, which is
-  summed over sites in parallel with Stan's `reduce_sum()`. The default,
-  1, runs each chain on one core. Larger values speed up fits with many
-  sites or occasions (on the `curiango` data, 4 threads made each chain
-  3.4 times faster); keep `parallel_chains * threads_per_chain` at or
-  below the number of cores. `"auto"` uses the physical cores divided
-  among the parallel chains of this fit (not among other processes, such
-  as calibration workers). With more than one thread the partial sums
-  are added in an order that varies from run to run, so a fit is not
-  reproduced exactly by its `seed`; the posterior is the same. Keep 1
-  when exact reproduction matters.
+  summed over sites in parallel with Stan's `reduce_sum()`. One of:
+
+  - `"auto"`: the physical cores divided among the parallel chains of
+    this fit (not among other processes, such as calibration workers).
+    The fastest choice for most data, but a fit is not reproduced
+    exactly by its `seed`: with more than one thread the partial sums
+    are added in an order that varies from run to run, so the draws
+    drift apart after a while. The posterior is the same.
+
+  - `1`: each chain runs on one core, and the same `seed` gives the same
+    draws. Use it when exact reproduction matters (published analyses,
+    tests, saved results).
+
+  - a larger number: that many threads per chain, with the same caveat
+    as `"auto"`. Keep `parallel_chains * threads_per_chain` at or below
+    the number of cores.
+
+  Threads speed up fits with many sites or occasions (on the `curiango`
+  data, 4 threads made each chain 3.4 times faster). The default is 1
+  and becomes `"auto"` in crywolf 2.0.0; a fit that does not set
+  `threads_per_chain` says so once per session. Under `R CMD check`
+  (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN) a fit uses at most
+  two cores, counting `parallel_chains * threads_per_chain`.
 
 - refresh:
 

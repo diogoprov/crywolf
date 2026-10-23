@@ -2,8 +2,31 @@
 
 ## crywolf (development version)
 
+### Upcoming changes
+
+- The default of `threads_per_chain` in
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  changes from 1 to `"auto"` in crywolf 2.0.0. Fits will be faster, but
+  a fit will no longer be reproduced exactly by its `seed` (the
+  posterior is the same), so rerunning an old analysis with the same
+  seed will give slightly different draws. A fit that does not set
+  `threads_per_chain` now says so once per session; set
+  `threads_per_chain = 1` to keep exact reproduction.
+  [`?fp_occu`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  explains the three choices (`"auto"`, 1, or a number).
+- [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
+  will stop reading the legacy format of the sampler
+  (`validacao_por_clipe.csv`, column names in Portuguese) in crywolf
+  3.0.0. It is read as before throughout crywolf 2.x, with no warning at
+  run time.
+
 ### Changes
 
+- Under `R CMD check` (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN),
+  a fit uses at most two cores: `threads_per_chain` is capped at 2 and
+  `parallel_chains` at `2 %/% threads_per_chain`. Fewer parallel chains
+  do not change the draws, only the wall time: the chains run one after
+  another.
 - With `random_fp = TRUE`,
   [`loo()`](https://mc-stan.org/loo/reference/loo.html) now integrates
   each site’s effect on the false-positive rate out of its

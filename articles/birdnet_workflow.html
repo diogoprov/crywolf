@@ -297,7 +297,8 @@ with the names of the confirmation counts.</p>
 <span><span class="co">#&gt;   site covariates:        x, w </span></span>
 <span><span class="co">#&gt;   observation covariates: file, n_detections, score</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span>
+<code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>             threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>             refresh <span class="op">=</span> <span class="fl">0</span>, show_messages <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Posterior summary (95% equal-tailed intervals)</span></span>

@@ -113,17 +113,17 @@ method covariate is needed:
 ``` r
 
 d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
-m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, seed = 1)
+m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, threads_per_chain = 1, seed = 1)
 #> Running MCMC with 4 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 21.6 seconds.
-#> Chain 3 finished in 21.7 seconds.
-#> Chain 4 finished in 22.4 seconds.
-#> Chain 1 finished in 23.6 seconds.
+#> Chain 2 finished in 42.5 seconds.
+#> Chain 3 finished in 42.7 seconds.
+#> Chain 4 finished in 43.9 seconds.
+#> Chain 1 finished in 45.7 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 22.3 seconds.
-#> Total execution time: 23.6 seconds.
+#> Mean chain execution time: 43.7 seconds.
+#> Total execution time: 45.8 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
 #>           0.15887315          -0.76977980           0.42722960 

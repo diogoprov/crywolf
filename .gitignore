@@ -16,3 +16,6 @@ CLAUDE.md
 .claude/
 dev/curiango-fits/
 dev/profile/fp_occu_profile
+
+# compiled Stan prototypes
+dev/random-det/fp_occu_random_det

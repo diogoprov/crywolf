@@ -57,6 +57,8 @@ itself is installed once:
 cmdstanr::install_cmdstan()
 }\if{html}{\out{</div>}}
 
+crywolf needs CmdStan 2.40 or later; \code{cmdstanr::cmdstan_version()} shows
+the version in use, and \code{cmdstanr::install_cmdstan()} updates it.
 The model is compiled the first time \code{\link[=fp_occu]{fp_occu()}} needs it, or ahead of
 time with \code{\link[=fp_compile]{fp_compile()}}, and the executable is kept in the user cache
 directory for later sessions.

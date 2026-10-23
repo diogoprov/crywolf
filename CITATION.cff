@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "crywolf: Bayesian false-positive occupancy models with calibration checks"
 type: software
-version: 1.6.0
+version: 1.7.0
 doi: 10.5281/zenodo.23385045
-date-released: 2026-10-21
+date-released: 2026-10-22
 license: GPL-3.0-or-later
 repository-code: "https://github.com/diogoprov/crywolf"
 url: "https://provetelab.org/crywolf/"

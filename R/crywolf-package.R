@@ -49,6 +49,8 @@
 #'                                       getOption("repos")))
 #' cmdstanr::install_cmdstan()
 #' ```
+#' crywolf needs CmdStan 2.40 or later; `cmdstanr::cmdstan_version()` shows
+#' the version in use, and `cmdstanr::install_cmdstan()` updates it.
 #' The model is compiled the first time [fp_occu()] needs it, or ahead of
 #' time with [fp_compile()], and the executable is kept in the user cache
 #' directory for later sessions.

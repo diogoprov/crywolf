@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 1.7.0
 
 ## Requirements
 

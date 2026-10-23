@@ -100,7 +100,7 @@ c(crywolf = as.character(utils::packageVersion("crywolf")),
   cmdstanr = as.character(utils::packageVersion("cmdstanr")),
   CmdStan = cmdstanr::cmdstan_version())
 #>      crywolf     cmdstanr      CmdStan 
-#> "1.6.0.9000" "0.9.0.9002"     "2.40.0"
+#>      "1.7.0" "0.9.0.9002"     "2.40.0"
 unlist(m$sampler)
 #>            chains   parallel_chains threads_per_chain       iter_warmup 
 #>              4.00              4.00              1.00           1000.00 
@@ -216,18 +216,18 @@ it when one thread per chain is used.
 The text below is filled in from the fit above; adapt it to the study.
 
 > We fitted a multiple-methods false-positive occupancy model (Miller et
-> al., 2011) in a Bayesian framework with the R package crywolf
-> 1.6.0.9000, which uses Stan through CmdStan 2.40.0. Occupancy
-> probability depended on the standardized covariate *x*; the
-> probability of a true automated detection and the false-positive rate
-> were constant. The false-positive intercept was the true-detection
-> intercept minus a positive gap, with a Normal(2, 1.5) prior truncated
-> at zero; intercepts had Normal(0, 1.5) priors and slopes Normal(0,
-> 2.5) priors on the logit scale. We ran 4 chains of 1000 warm-up and
-> 1000 sampling iterations. The largest R-hat was 1.002, the smallest
-> bulk effective sample size was 4226, and there were 0 divergent
-> transitions. A posterior predictive check based on the Freeman-Tukey
-> discrepancy gave a Bayesian p-value of 0.03.
+> al., 2011) in a Bayesian framework with the R package crywolf 1.7.0,
+> which uses Stan through CmdStan 2.40.0. Occupancy probability depended
+> on the standardized covariate *x*; the probability of a true automated
+> detection and the false-positive rate were constant. The
+> false-positive intercept was the true-detection intercept minus a
+> positive gap, with a Normal(2, 1.5) prior truncated at zero;
+> intercepts had Normal(0, 1.5) priors and slopes Normal(0, 2.5) priors
+> on the logit scale. We ran 4 chains of 1000 warm-up and 1000 sampling
+> iterations. The largest R-hat was 1.002, the smallest bulk effective
+> sample size was 4226, and there were 0 divergent transitions. A
+> posterior predictive check based on the Freeman-Tukey discrepancy gave
+> a Bayesian p-value of 0.03.
 >
 > Occupancy decreased with *x* (slope -0.52, 95% credible interval -0.83
 > to -0.23). The mean false-positive rate per automated occasion was

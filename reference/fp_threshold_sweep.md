@@ -14,7 +14,7 @@ sensitivity to the threshold can be seen at once.
 fp_threshold_sweep(
   occasions,
   detections,
-  thresholds,
+  thresholds = c("MaxF1", "MaxPrecision"),
   sites,
   verified = NULL,
   site = "site",
@@ -26,6 +26,7 @@ fp_threshold_sweep(
   fp = ~1,
   random_recorder = !is.null(recorder),
   prob = 0.95,
+  validation = NULL,
   ...
 )
 
@@ -42,8 +43,9 @@ plot(x, parameters = NULL, ...)
 
 - thresholds:
 
-  Confidence thresholds to try, for instance those that maximise F1 or
-  precision on a validation set (this function does not derive them).
+  Numeric confidence thresholds in `[0, 1]`, or names `"MaxF1"` and/or
+  `"MaxPrecision"` to derive thresholds from `validation`. Defaults to
+  both named methods. Each distinct threshold is fitted once.
 
 - sites, verified, site, recorder:
 
@@ -59,6 +61,15 @@ plot(x, parameters = NULL, ...)
 - prob:
 
   Width of the credible intervals in the summary.
+
+- validation:
+
+  Optional reviewed clips, as returned by
+  [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md),
+  with numeric `confidence` in `[0, 1]` and logical (or binary 0/1)
+  `verdict`. Required for named thresholds. Rows with missing scores or
+  verdicts are dropped with a warning. When `species` is supplied,
+  validation is filtered by `species_code` or `common_name`.
 
 - ...:
 
@@ -81,7 +92,27 @@ and parameter: the threshold, the share of occasions that are
 detections, the parameter, its posterior mean and interval, and the
 number of divergent transitions and largest R-hat of the fit.
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws the
-estimates against the threshold.
+estimates against the threshold. For named thresholds, attributes
+`threshold_selection` and `validation_metrics` contain the selected
+methods and the metrics at every candidate threshold, respectively
+(columns `threshold`, `tp`, `fp`, `fn`, `precision`, `recall`, `f1`).
+
+## Details
+
+Named methods evaluate every distinct validation score, counting scores
+at or above the threshold as positive. Precision is TP / (TP + FP),
+recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). The
+candidates are the observed scores, so each predicts at least one
+positive. At least one reviewed positive is required. The selected
+threshold is a score of the validation table, applied with `>=` to
+`detections`; if the validation file stores rounded scores, the clips at
+the cutoff can fall on the other side. Ties are resolved by greater
+recall, then the smaller threshold. Recall and F1 refer to positives in
+the supplied validation set: clips missed by the classifier or excluded
+by an earlier score cutoff are not represented. Use a representative
+validation sample for the target species. Validation selects thresholds
+only; it is not passed as confirmation data to
+[`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md).
 
 ## References
 
@@ -104,5 +135,11 @@ sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.1, 0.4, 0.7)
                             site = "site_night", occ = ~ temp + rh, fp = ~ 1,
                             random_recorder = FALSE)
 plot(sweep)
+# Derive both thresholds from reviewed classifier clips:
+reviews <- fp_read_validation("validation_by_clip.csv")
+selected <- fp_threshold_sweep(occasions, detections, sites = nights,
+                               site = "site_night", validation = reviews,
+                               random_recorder = FALSE)
+attr(selected, "threshold_selection")
 } # }
 ```

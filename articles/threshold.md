@@ -20,6 +20,44 @@ with
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md),
 fits the same model to each, and collects the estimates.
 
+## Thresholds from reviewed clips
+
+Numeric thresholds remain available. Alternatively, pass reviewed clips
+from
+[`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
+to select MaxF1 and MaxPrecision automatically:
+
+``` r
+
+reviews <- fp_read_validation("validation_by_clip.csv")
+selected <- fp_threshold_sweep(
+  occasions, detections, sites = nights, site = "site_night",
+  thresholds = c("MaxF1", "MaxPrecision"), validation = reviews,
+  random_recorder = FALSE
+)
+attr(selected, "threshold_selection")
+attr(selected, "validation_metrics")
+```
+
+Each distinct reviewed score is a candidate threshold; scores equal to
+the threshold count as detections. Precision measures the fraction of
+retained clips that are true positives. Recall measures the fraction of
+reviewed positives retained, and F1 combines precision and recall.
+MaxPrecision tends to pick a high score with few retained clips, which
+makes it unstable in small validation samples; look at
+`validation_metrics` before trusting it. Ties favour greater recall,
+then the smaller threshold. If both methods select the same threshold,
+the model is fitted once.
+
+The validation sample should represent the target species and the score
+range of interest. Recall here refers to positives in that sample: it
+does not count vocalizations missed by the classifier or excluded by a
+previous score cutoff. Missing scores or verdicts are dropped with a
+warning; at least one reviewed positive is needed. Use `species` to
+select the target when the validation contains several species.
+Validation is used only to select thresholds; it is not automatically
+used as confirmation data in the occupancy model.
+
 ## Running the sweep
 
 The data are the one-minute recordings of the `curiango` dataset, scored

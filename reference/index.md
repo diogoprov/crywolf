@@ -39,6 +39,9 @@ Fit the model and inspect, summarize, predict, and compare fits.
   [`loo(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
   [`as_draws_df(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)
   : Methods for fp_occu fits
+- [`crywolf-output`](https://provetelab.org/crywolf/reference/crywolf-output.md)
+  [`output-names`](https://provetelab.org/crywolf/reference/crywolf-output.md)
+  : Output names and interpretation
 - [`fp_loo_weights()`](https://provetelab.org/crywolf/reference/fp_loo_weights.md)
   : Model weights by stacking
 - [`fp_gap_prior()`](https://provetelab.org/crywolf/reference/fp_gap_prior.md)

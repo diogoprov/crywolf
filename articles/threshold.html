@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,13 +108,46 @@ builds the occasions at several thresholds with
 <code><a href="../reference/fp_aggregate.html">fp_aggregate()</a></code>, fits the same model to each, and collects
 the estimates.</p>
 <div class="section level2">
+<h2 id="thresholds-from-reviewed-clips">Thresholds from reviewed clips<a class="anchor" aria-label="anchor" href="#thresholds-from-reviewed-clips"></a>
+</h2>
+<p>Numeric thresholds remain available. Alternatively, pass reviewed
+clips from <code><a href="../reference/fp_read_validation.html">fp_read_validation()</a></code> to select MaxF1 and
+MaxPrecision automatically:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reviews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_read_validation.html">fp_read_validation</a></span><span class="op">(</span><span class="st">"validation_by_clip.csv"</span><span class="op">)</span></span>
+<span><span class="va">selected</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_threshold_sweep.html">fp_threshold_sweep</a></span><span class="op">(</span></span>
+<span>  <span class="va">occasions</span>, <span class="va">detections</span>, sites <span class="op">=</span> <span class="va">nights</span>, site <span class="op">=</span> <span class="st">"site_night"</span>,</span>
+<span>  thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MaxF1"</span>, <span class="st">"MaxPrecision"</span><span class="op">)</span>, validation <span class="op">=</span> <span class="va">reviews</span>,</span>
+<span>  random_recorder <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">selected</span>, <span class="st">"threshold_selection"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">selected</span>, <span class="st">"validation_metrics"</span><span class="op">)</span></span></code></pre></div>
+<p>Each distinct reviewed score is a candidate threshold; scores equal
+to the threshold count as detections. Precision measures the fraction of
+retained clips that are true positives. Recall measures the fraction of
+reviewed positives retained, and F1 combines precision and recall.
+MaxPrecision tends to pick a high score with few retained clips, which
+makes it unstable in small validation samples; look at
+<code>validation_metrics</code> before trusting it. Ties favour greater
+recall, then the smaller threshold. If both methods select the same
+threshold, the model is fitted once.</p>
+<p>The validation sample should represent the target species and the
+score range of interest. Recall here refers to positives in that sample:
+it does not count vocalizations missed by the classifier or excluded by
+a previous score cutoff. Missing scores or verdicts are dropped with a
+warning; at least one reviewed positive is needed. Use
+<code>species</code> to select the target when the validation contains
+several species. Validation is used only to select thresholds; it is not
+automatically used as confirmation data in the occupancy model.</p>
+</div>
+<div class="section level2">
 <h2 id="running-the-sweep">Running the sweep<a class="anchor" aria-label="anchor" href="#running-the-sweep"></a>
 </h2>
 <p>The data are the one-minute recordings of the <code>curiango</code>
 dataset, scored by the custom classifier of Piatti et al. (2026). Each
 recording is an occasion; nights at a site are the sites of the
 model.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">zs</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">m</span> <span class="op">&lt;-</span> <span class="va">curiango</span><span class="op">$</span><span class="va">minutes</span></span>
 <span><span class="va">nt</span> <span class="op">&lt;-</span> <span class="va">curiango</span><span class="op">$</span><span class="va">nights</span></span>
@@ -142,7 +175,7 @@ minutes in all.</p>
 <div class="section level2">
 <h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">sweep</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"threshold"</span>, <span class="st">"detection_rate"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    threshold detection_rate</span></span>
 <span><span class="co">#&gt; 1        0.2    0.067664560</span></span>
@@ -151,7 +184,7 @@ minutes in all.</p>
 <span><span class="co">#&gt; 31       0.8    0.006390201</span></span></code></pre></div>
 <p>From the lowest to the highest threshold, the share of one-minute
 recordings counted as detections falls from 6.8% to 0.6%.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sweep</span>, parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occ_temp"</span>, <span class="st">"occ_rh"</span>, <span class="st">"occ_moon"</span>, <span class="st">"p10_bar"</span>,</span>
 <span>                           <span class="st">"det_(Intercept)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
@@ -161,7 +194,7 @@ detection intercept, and the mean false-positive rate at four thresholds
 of the custom classifier.
 </p>
 </div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occ_temp"</span>, <span class="st">"occ_rh"</span>, <span class="st">"occ_moon"</span>, <span class="st">"p10_bar"</span><span class="op">)</span></span>
 <span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="va">sweep</span><span class="op">[</span><span class="va">sweep</span><span class="op">$</span><span class="va">parameter</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">keep</span>,</span>
 <span>             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"threshold"</span>, <span class="st">"parameter"</span>, <span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span>, <span class="st">"max_rhat"</span><span class="op">)</span><span class="op">]</span></span>
@@ -202,7 +235,7 @@ the false-positive formula would test it. Until then, the estimates at
 0.2 should not be trusted, and the stability from 0.4 upwards, which
 includes the F1-maximizing threshold, is the reassuring part of the
 sweep.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">sweep</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"threshold"</span>, <span class="st">"divergences"</span>, <span class="st">"max_rhat"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    threshold divergences max_rhat</span></span>
 <span><span class="co">#&gt; 1        0.2           1 1.004453</span></span>

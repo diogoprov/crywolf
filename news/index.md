@@ -1,6 +1,6 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 1.7.0
 
 ### Requirements
 
@@ -12,6 +12,21 @@
   log-likelihood is exactly equal to that of crywolf 1.6.0 in seven
   designs, and with the same seed the draws are identical in six
   (`dev/profile/validate-tuples*.R`).
+
+### Documentation
+
+- [`help("crywolf-output")`](https://provetelab.org/crywolf/reference/crywolf-output.md)
+  gathers readable parameter names, their scales and availability,
+  posterior summaries, diagnostics, predictions, site estimates, checks,
+  calibration, simulation, and raw Stan mappings.
+
+### New features
+
+- [`fp_threshold_sweep()`](https://provetelab.org/crywolf/reference/fp_threshold_sweep.md)
+  can derive MaxF1 and MaxPrecision thresholds from reviewed classifier
+  clips. Ties favour recall, then the smaller threshold; selected
+  thresholds and validation metrics are retained as attributes. Numeric
+  thresholds remain supported and duplicate thresholds are fitted once.
 
 ### Bug fixes
 

@@ -59,6 +59,10 @@ The package has three parts:
   so that users can see whether the correction holds for their design
   and how much verification it needs.
 
+See
+[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md)
+for the names and interpretation of model parameters and result fields.
+
 ## Installation
 
 crywolf is distributed through R-universe, with binaries for Windows,
@@ -70,7 +74,11 @@ itself is installed once:
                                           getOption("repos")))
     cmdstanr::install_cmdstan()
 
-The model is compiled the first time
+crywolf needs CmdStan 2.40 or later;
+[`cmdstanr::cmdstan_version()`](https://mc-stan.org/cmdstanr/reference/set_cmdstan_path.html)
+shows the version in use, and
+[`cmdstanr::install_cmdstan()`](https://mc-stan.org/cmdstanr/reference/install_cmdstan.html)
+updates it. The model is compiled the first time
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) needs
 it, or ahead of time with
 [`fp_compile()`](https://provetelab.org/crywolf/reference/fp_compile.md),

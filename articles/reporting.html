@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -175,7 +175,7 @@ the fit:</p>
 <span>  cmdstanr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"cmdstanr"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  CmdStan <span class="op">=</span> <span class="fu">cmdstanr</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/cmdstanr/reference/set_cmdstan_path.html" class="external-link">cmdstan_version</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      crywolf     cmdstanr      CmdStan </span></span>
-<span><span class="co">#&gt; "1.6.0.9000" "0.9.0.9002"     "2.40.0"</span></span>
+<span><span class="co">#&gt;      "1.7.0" "0.9.0.9002"     "2.40.0"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">sampler</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            chains   parallel_chains threads_per_chain       iter_warmup </span></span>
 <span><span class="co">#&gt;              4.00              4.00              1.00           1000.00 </span></span>
@@ -279,18 +279,18 @@ it when one thread per chain is used.</p>
 study.</p>
 <blockquote>
 <p>We fitted a multiple-methods false-positive occupancy model (Miller
-et al., 2011) in a Bayesian framework with the R package crywolf
-1.6.0.9000, which uses Stan through CmdStan 2.40.0. Occupancy
-probability depended on the standardized covariate <em>x</em>; the
-probability of a true automated detection and the false-positive rate
-were constant. The false-positive intercept was the true-detection
-intercept minus a positive gap, with a Normal(2, 1.5) prior truncated at
-zero; intercepts had Normal(0, 1.5) priors and slopes Normal(0, 2.5)
-priors on the logit scale. We ran 4 chains of 1000 warm-up and 1000
-sampling iterations. The largest R-hat was 1.002, the smallest bulk
-effective sample size was 4226, and there were 0 divergent transitions.
-A posterior predictive check based on the Freeman-Tukey discrepancy gave
-a Bayesian p-value of 0.03.</p>
+et al., 2011) in a Bayesian framework with the R package crywolf 1.7.0,
+which uses Stan through CmdStan 2.40.0. Occupancy probability depended
+on the standardized covariate <em>x</em>; the probability of a true
+automated detection and the false-positive rate were constant. The
+false-positive intercept was the true-detection intercept minus a
+positive gap, with a Normal(2, 1.5) prior truncated at zero; intercepts
+had Normal(0, 1.5) priors and slopes Normal(0, 2.5) priors on the logit
+scale. We ran 4 chains of 1000 warm-up and 1000 sampling iterations. The
+largest R-hat was 1.002, the smallest bulk effective sample size was
+4226, and there were 0 divergent transitions. A posterior predictive
+check based on the Freeman-Tukey discrepancy gave a Bayesian p-value of
+0.03.</p>
 <p>Occupancy decreased with <em>x</em> (slope -0.52, 95% credible
 interval -0.83 to -0.23). The mean false-positive rate per automated
 occasion was 0.055 (0.040 to 0.073). With a narrower gap prior or

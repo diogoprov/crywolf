@@ -17,7 +17,7 @@ sensitivity to the threshold can be seen at once."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,7 @@ sensitivity to the threshold can be seen at once.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fp_threshold_sweep</span><span class="op">(</span></span>
 <span>  <span class="va">occasions</span>,</span>
 <span>  <span class="va">detections</span>,</span>
-<span>  <span class="va">thresholds</span>,</span>
+<span>  thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MaxF1"</span>, <span class="st">"MaxPrecision"</span><span class="op">)</span>,</span>
 <span>  <span class="va">sites</span>,</span>
 <span>  verified <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  site <span class="op">=</span> <span class="st">"site"</span>,</span>
@@ -92,6 +92,7 @@ sensitivity to the threshold can be seen at once.</p>
 <span>  fp <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  random_recorder <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">recorder</span><span class="op">)</span>,</span>
 <span>  prob <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  validation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -108,9 +109,9 @@ sensitivity to the threshold can be seen at once.</p>
 
 
 <dt id="arg-thresholds">thresholds<a class="anchor" aria-label="anchor" href="#arg-thresholds"></a></dt>
-<dd><p>Confidence thresholds to try, for instance those that
-maximise F1 or precision on a validation set (this function does not
-derive them).</p></dd>
+<dd><p>Numeric confidence thresholds in <code>[0, 1]</code>, or names
+<code>"MaxF1"</code> and/or <code>"MaxPrecision"</code> to derive thresholds from <code>validation</code>.
+Defaults to both named methods. Each distinct threshold is fitted once.</p></dd>
 
 
 <dt id="arg-sites-verified-site-recorder">sites, verified, site, recorder<a class="anchor" aria-label="anchor" href="#arg-sites-verified-site-recorder"></a></dt>
@@ -124,6 +125,14 @@ also be a column of <code>occasions</code>.</p></dd>
 
 <dt id="arg-prob">prob<a class="anchor" aria-label="anchor" href="#arg-prob"></a></dt>
 <dd><p>Width of the credible intervals in the summary.</p></dd>
+
+
+<dt id="arg-validation">validation<a class="anchor" aria-label="anchor" href="#arg-validation"></a></dt>
+<dd><p>Optional reviewed clips, as returned by
+<code><a href="fp_read_validation.html">fp_read_validation()</a></code>, with numeric <code>confidence</code> in <code>[0, 1]</code> and logical
+(or binary 0/1) <code>verdict</code>. Required for named thresholds. Rows with missing
+scores or verdicts are dropped with a warning. When <code>species</code> is supplied,
+validation is filtered by <code>species_code</code> or <code>common_name</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -146,7 +155,26 @@ also be a column of <code>occasions</code>.</p></dd>
 threshold and parameter: the threshold, the share of occasions that are
 detections, the parameter, its posterior mean and interval, and the
 number of divergent transitions and largest R-hat of the fit. <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
-draws the estimates against the threshold.</p>
+draws the estimates against the threshold. For named thresholds, attributes
+<code>threshold_selection</code> and <code>validation_metrics</code> contain the selected methods
+and the metrics at every candidate threshold, respectively (columns
+<code>threshold</code>, <code>tp</code>, <code>fp</code>, <code>fn</code>, <code>precision</code>, <code>recall</code>, <code>f1</code>).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Named methods evaluate every distinct validation score, counting
+scores at or above the threshold as positive. Precision is TP / (TP + FP),
+recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). The
+candidates are the observed scores, so each predicts at least one
+positive. At least one reviewed positive is required. The selected
+threshold is a score of the validation table, applied with <code>&gt;=</code> to
+<code>detections</code>; if the validation file stores rounded scores, the clips
+at the cutoff can fall on the other side. Ties are resolved by greater recall, then the smaller threshold.
+Recall and F1 refer to positives in the supplied validation set: clips
+missed by the classifier or excluded by an earlier score cutoff are not
+represented. Use a representative validation sample for the target species.
+Validation selects thresholds only; it is not passed as confirmation data
+to <code><a href="fp_aggregate.html">fp_aggregate()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -169,6 +197,12 @@ Neotropical nightjar. <em>Journal of Avian Biology</em>, in press.</p>
 <span class="r-in"><span>                            site <span class="op">=</span> <span class="st">"site_night"</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">temp</span> <span class="op">+</span> <span class="va">rh</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>                            random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sweep</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Derive both thresholds from reviewed classifier clips:</span></span></span>
+<span class="r-in"><span><span class="va">reviews</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_read_validation.html">fp_read_validation</a></span><span class="op">(</span><span class="st">"validation_by_clip.csv"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">selected</span> <span class="op">&lt;-</span> <span class="fu">fp_threshold_sweep</span><span class="op">(</span><span class="va">occasions</span>, <span class="va">detections</span>, sites <span class="op">=</span> <span class="va">nights</span>,</span></span>
+<span class="r-in"><span>                               site <span class="op">=</span> <span class="st">"site_night"</span>, validation <span class="op">=</span> <span class="va">reviews</span>,</span></span>
+<span class="r-in"><span>                               random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">selected</span>, <span class="st">"threshold_selection"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

@@ -246,7 +246,10 @@ the design matrix: `occ_*` (occupancy), `det_*` (true detection), `fp_*`
 (\\\Delta\\), `sd_recorder`, `p_verified` (detection probability of the
 verified method), `p11_ref` and `p10_ref` (true- and false-positive
 probabilities at the reference), and `p10_bar` (false-positive
-probability averaged over the sites).
+probability averaged over sites or automated occasions, depending on the
+FP covariates). See
+[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md)
+for all names, scales, and availability conditions.
 
 ## References
 
@@ -263,6 +266,7 @@ misidentification. *Ecology*, 92, 1422–1428.
 
 ## See also
 
+[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md),
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
 [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md),
 [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)

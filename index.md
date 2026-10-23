@@ -30,6 +30,12 @@ install.packages("crywolf", repos = c("https://diogoprov.r-universe.dev",
 cmdstanr::install_cmdstan()
 ```
 
+crywolf needs CmdStan 2.40 or later (since crywolf 1.7.0). If you
+installed CmdStan before September 2026, update it with
+[`cmdstanr::install_cmdstan()`](https://mc-stan.org/cmdstanr/reference/install_cmdstan.html);
+[`cmdstanr::cmdstan_version()`](https://mc-stan.org/cmdstanr/reference/set_cmdstan_path.html)
+shows the version in use.
+
 The development version can be installed from GitHub with
 `remotes::install_github("diogoprov/crywolf")`.
 

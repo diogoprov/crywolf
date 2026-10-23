@@ -9,7 +9,7 @@ returned by fp_occu()."><meta property="og:image" content="https://provetelab.or
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,15 @@ returned by <code><a href="fp_occu.html">fp_occu()</a></code>.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'fp_occu'</span></span>
-<span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span><span class="va">x</span>, reloo <span class="op">=</span> <span class="cn">FALSE</span>, k_threshold <span class="op">=</span> <span class="fl">0.7</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  reloo <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  k_threshold <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  integrate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  nodes <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'fp_occu'</span></span>
 <span><span class="fu"><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
@@ -152,6 +160,23 @@ warning.</p></dd>
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Seed of the refits.</p></dd>
+
+
+<dt id="arg-integrate">integrate<a class="anchor" aria-label="anchor" href="#arg-integrate"></a></dt>
+<dd><p>Logical. With a site random effect on the false-positive
+rate (<code>random_fp = TRUE</code>), integrate each site's effect out of its
+log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
+computation. The default, <code>TRUE</code>, is the right choice for leaving a site
+out: a left-out site's effect is not known from its own data. With
+<code>FALSE</code>, the log-likelihood is conditional on the fitted site effects,
+which gives many sites with high Pareto \(k\). Without a site
+random effect, <code>integrate</code> has no effect.</p></dd>
+
+
+<dt id="arg-nodes">nodes<a class="anchor" aria-label="anchor" href="#arg-nodes"></a></dt>
+<dd><p>Number of quadrature nodes for <code>integrate</code>. With 100, the
+log-likelihood of a site was within 6e-4 of its value with 400 nodes in
+a test with 200 sites; the cost grows linearly with <code>nodes</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

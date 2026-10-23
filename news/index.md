@@ -1,5 +1,26 @@
 # Changelog
 
+## crywolf (development version)
+
+### Changes
+
+- With `random_fp = TRUE`,
+  [`loo()`](https://mc-stan.org/loo/reference/loo.html) now integrates
+  each site’s effect on the false-positive rate out of its
+  log-likelihood, by Gauss-Hermite quadrature (`integrate = TRUE`,
+  `nodes = 100`), before the leave-one-out computation. A left-out
+  site’s effect is not known from its own data, so this is the right
+  predictive density; conditional on the fitted effects, many sites had
+  Pareto k above 0.7 (in the example of
+  [`vignette("fp_variation")`](https://provetelab.org/crywolf/articles/fp_variation.md),
+  0 integrated against 26 to 29 conditional). `integrate = FALSE` gives
+  the previous values. The exact refits of `reloo = TRUE` integrate the
+  left-out site’s effect the same way, and no longer draw random
+  numbers.
+- Tests and vignettes skip their model fits when the CmdStan found is
+  older than 2.40, instead of failing in
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
+
 ## crywolf 1.7.0
 
 ### Requirements

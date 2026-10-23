@@ -30,7 +30,15 @@ predict(
 )
 
 # S3 method for class 'fp_occu'
-loo(x, reloo = FALSE, k_threshold = 0.7, seed = NULL, ...)
+loo(
+  x,
+  reloo = FALSE,
+  k_threshold = 0.7,
+  seed = NULL,
+  integrate = TRUE,
+  nodes = 100,
+  ...
+)
 
 # S3 method for class 'fp_occu'
 as_draws_df(x, ...)
@@ -92,6 +100,23 @@ as_draws_df(x, ...)
 - seed:
 
   Seed of the refits.
+
+- integrate:
+
+  Logical. With a site random effect on the false-positive rate
+  (`random_fp = TRUE`), integrate each site's effect out of its
+  log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
+  computation. The default, `TRUE`, is the right choice for leaving a
+  site out: a left-out site's effect is not known from its own data.
+  With `FALSE`, the log-likelihood is conditional on the fitted site
+  effects, which gives many sites with high Pareto \\k\\. Without a site
+  random effect, `integrate` has no effect.
+
+- nodes:
+
+  Number of quadrature nodes for `integrate`. With 100, the
+  log-likelihood of a site was within 6e-4 of its value with 400 nodes
+  in a test with 200 sites; the cost grows linearly with `nodes`.
 
 ## Value
 

@@ -53,20 +53,20 @@ of 0.071. The true occupancy slope is -0.8.
 tab(list(constant = res$among$constant, random_fp = res$among$random),
     c("occ_x", "fp_(Intercept)", "p10_bar", "sd_fp_site"))
 #>       model       variable   mean  lower  upper  rhat
-#> 1  constant          occ_x -0.461 -0.771 -0.162 1.000
-#> 2  constant fp_(Intercept) -2.881 -3.255 -2.541 1.000
+#> 1  constant          occ_x -0.461 -0.775 -0.160 1.000
+#> 2  constant fp_(Intercept) -2.880 -3.245 -2.545 1.000
 #> 3  constant        p10_bar  0.054  0.037  0.073 1.000
-#> 4 random_fp          occ_x -0.539 -0.886 -0.214 1.000
-#> 5 random_fp fp_(Intercept) -3.055 -3.657 -2.500 1.000
-#> 6 random_fp        p10_bar  0.100  0.055  0.157 1.009
-#> 7 random_fp     sd_fp_site  1.590  0.803  2.324 1.008
+#> 4 random_fp          occ_x -0.530 -0.874 -0.224 1.000
+#> 5 random_fp fp_(Intercept) -3.066 -3.686 -2.524 1.003
+#> 6 random_fp        p10_bar  0.098  0.053  0.151 1.010
+#> 7 random_fp     sd_fp_site  1.559  0.755  2.336 1.005
 ```
 
 The constant-rate model estimates the occupancy slope at -0.46 \[-0.77,
 -0.16\], which misses the true value of -0.8. With the site effect the
-estimate is -0.54 \[-0.89, -0.21\], still below the truth but with an
+estimate is -0.53 \[-0.87, -0.22\], still below the truth but with an
 interval that contains it, and the standard deviation of the site
-effects, 1.59 \[0.80, 2.32\], covers the true value of 1. Unexplained
+effects, 1.56 \[0.75, 2.34\], covers the true value of 1. Unexplained
 variation among sites is not harmless: in this dataset it pulled the
 occupancy slope towards zero, as sites with a high false-positive rate
 look occupied whatever their covariate. One dataset shows that it can
@@ -99,9 +99,9 @@ the true rate used in the simulation, on log scales. The dashed line
 marks equality.
 
 The estimates fall into two groups. The 59 sites without any automated
-detection all get a low rate, between 0.032 and 0.038, whatever their
+detection all get a low rate, between 0.033 and 0.039, whatever their
 true rate; the sites with detections get higher rates, which track the
-truth only loosely (correlation over all sites 0.43). Ten occasions per
+truth only loosely (correlation over all sites 0.45). Ten occasions per
 site say little about one site’s rate, and at a site that may be
 occupied a detection can be true or false. The site effect matters for
 the occupancy slope through the sites as a whole, not as a way to rank
@@ -109,29 +109,28 @@ sites by their false-positive rate.
 
 ### Costs and caveats
 
-- **Mixing.** The fit with the site effect took 24 seconds against 7 for
-  the constant rate, and its smallest bulk effective sample size was 298
-  (largest R-hat 1.009). In 20 simulated datasets of the same kind with
+- **Mixing.** The fit with the site effect took 27 seconds against 9 for
+  the constant rate, and its smallest bulk effective sample size was 371
+  (largest R-hat 1.01). In 20 simulated datasets of the same kind with
   300 sites and 20 occasions, 3 fits had an R-hat above 1.01 with the
   default settings (`dev/profile/rejected-2026-10-21.md`). Check the
   diagnostics, and run more iterations when they flag a problem.
-- **Model comparison.** LOO favours the site effect here, but 29 sites
-  have Pareto k above 0.7 in that fit, because each site carries its own
-  parameter. The approximate leave-one-out values of those sites are
-  unreliable; `loo(m_rand, reloo = TRUE)` refits the model without each
-  of them.
+- **Model comparison.** Leaving a site out means its own effect is not
+  known, so [`loo()`](https://mc-stan.org/loo/reference/loo.html)
+  integrates each site’s effect out of its log-likelihood (by
+  Gauss-Hermite quadrature) before the leave-one-out computation.
+  Conditional on the fitted effects, as in the `log_lik` of the Stan
+  program, many sites would have Pareto k above 0.7; integrated, 0 do
+  here. The difference in favour of the site effect is about 1.7 times
+  its standard error, not a decisive one.
 
 ``` r
 
 loo::loo_compare(list(constant = res$among$constant$loo,
                       random_fp = res$among$random$loo))
-#>      model elpd_diff se_diff p_worse diag_diff       diag_elpd
-#>  random_fp       0.0     0.0      NA           29 k_psis > 0.7
-#>   constant      -8.0     2.9    1.00
-#> 
-#> Diagnostic flags present.
-#> See ?`loo-glossary` (sections `diag_diff` and `diag_elpd`)
-#> or https://mc-stan.org/loo/reference/loo-glossary.html.
+#>      model elpd_diff se_diff p_worse diag_diff diag_elpd
+#>  random_fp       0.0     0.0      NA                    
+#>   constant      -4.8     2.8    0.96
 ```
 
 - **Confounding.** The site effect is independent of the covariates by
@@ -175,20 +174,20 @@ m_noise <- fp_occu(d, occ = ~ x, fp = ~ noise, random_recorder = FALSE)
 tab(list(constant = res$within$constant, noise = res$within$noise),
     c("occ_x", "fp_(Intercept)", "fp_noise", "p10_bar"))
 #>      model       variable   mean  lower  upper  rhat
-#> 1 constant          occ_x -0.791 -1.165 -0.448 1.000
-#> 2 constant fp_(Intercept) -2.263 -2.526 -2.011 1.001
-#> 3 constant        p10_bar  0.095  0.074  0.118 1.001
-#> 4    noise          occ_x -0.752 -1.091 -0.438 1.000
-#> 5    noise fp_(Intercept) -2.692 -3.042 -2.367 1.003
-#> 6    noise       fp_noise  0.901  0.643  1.185 1.000
-#> 7    noise        p10_bar  0.089  0.070  0.109 1.000
+#> 1 constant          occ_x -0.788 -1.163 -0.441 1.001
+#> 2 constant fp_(Intercept) -2.265 -2.537 -2.018 1.001
+#> 3 constant        p10_bar  0.095  0.073  0.117 1.001
+#> 4    noise          occ_x -0.751 -1.088 -0.438 1.001
+#> 5    noise fp_(Intercept) -2.687 -3.041 -2.362 1.003
+#> 6    noise       fp_noise  0.898  0.635  1.186 1.001
+#> 7    noise        p10_bar  0.089  0.071  0.109 1.000
 ```
 
 The noise effect is estimated at 0.90 \[0.64, 1.19\] (true value 1), and
-the mean rate over occasions at 0.089 \[0.070, 0.109\] (true value
+the mean rate over occasions at 0.089 \[0.071, 0.109\] (true value
 0.076). Because the noise was drawn independently of the occupancy
 covariate, the constant-rate model still estimates the occupancy slope
-well, at -0.79 \[-1.17, -0.45\]. What it cannot do is say which
+well, at -0.79 \[-1.16, -0.44\]. What it cannot do is say which
 detections are suspect: under the noise model, a detection in a noisy
 recording counts as weaker evidence of presence. LOO prefers the noise
 model clearly:
@@ -199,7 +198,7 @@ loo::loo_compare(list(constant = res$within$constant$loo,
                       noise = res$within$noise$loo))
 #>     model elpd_diff se_diff p_worse diag_diff diag_elpd
 #>     noise       0.0     0.0      NA                    
-#>  constant     -25.2     7.5    1.00
+#>  constant     -25.1     7.5    1.00
 ```
 
 If noise were correlated with the occupancy covariate, as when noisy
@@ -216,8 +215,7 @@ slope as in
   [`vignette("calibration")`](https://provetelab.org/crywolf/articles/calibration.md)
   when the cause was correlated with occupancy.
 - `random_fp = TRUE` is for variation among sites that no covariate
-  explains. It costs time and mixing, and its leave-one-out comparison
-  needs `reloo = TRUE`. It is off by default.
+  explains. It costs time and mixing. It is off by default.
 - With neither, the false-positive rate is assumed equal everywhere. A
   posterior predictive check
   ([`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md))

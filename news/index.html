@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,14 @@
       <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<div class="section level3">
+<h3 id="changes-development-version">Changes<a class="anchor" aria-label="anchor" href="#changes-development-version"></a></h3>
+<ul><li>With <code>random_fp = TRUE</code>, <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> now integrates each site’s effect on the false-positive rate out of its log-likelihood, by Gauss-Hermite quadrature (<code>integrate = TRUE</code>, <code>nodes = 100</code>), before the leave-one-out computation. A left-out site’s effect is not known from its own data, so this is the right predictive density; conditional on the fitted effects, many sites had Pareto k above 0.7 (in the example of <code><a href="../articles/fp_variation.html">vignette("fp_variation")</a></code>, 0 integrated against 26 to 29 conditional). <code>integrate = FALSE</code> gives the previous values. The exact refits of <code>reloo = TRUE</code> integrate the left-out site’s effect the same way, and no longer draw random numbers.</li>
+<li>Tests and vignettes skip their model fits when the CmdStan found is older than 2.40, instead of failing in <code><a href="../reference/fp_occu.html">fp_occu()</a></code>.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.7.0" id="crywolf-170">crywolf 1.7.0<a class="anchor" aria-label="anchor" href="#crywolf-170"></a></h2>
 <div class="section level3">

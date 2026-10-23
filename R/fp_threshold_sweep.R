@@ -8,9 +8,25 @@
 #' sensitivity to the threshold can be seen at once.
 #'
 #' @param occasions,detections,by,species Passed to [fp_aggregate()].
-#' @param thresholds Confidence thresholds to try, for instance those that
-#'   maximise F1 or precision on a validation set (this function does not
-#'   derive them).
+#' @param thresholds Numeric confidence thresholds in `[0, 1]`, or names
+#'   `"MaxF1"` and/or `"MaxPrecision"` to derive thresholds from `validation`.
+#'   Defaults to both named methods. Each distinct threshold is fitted once.
+#' @param validation Optional reviewed clips, as returned by
+#'   [fp_read_validation()], with numeric `confidence` in `[0, 1]` and logical
+#'   (or binary 0/1) `verdict`. Required for named thresholds. Rows with missing
+#'   scores or verdicts are dropped with a warning. When `species` is supplied,
+#'   validation is filtered by `species_code` or `common_name`.
+#'
+#' @details Named methods evaluate every distinct validation score, counting
+#'   scores at or above the threshold as positive. Precision is TP / (TP + FP),
+#'   recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). Thresholds
+#'   predicting no positives are excluded. At least one reviewed positive is
+#'   required. Ties are resolved by greater recall, then the smaller threshold.
+#'   Recall and F1 refer to positives in the supplied validation set: clips
+#'   missed by the classifier or excluded by an earlier score cutoff are not
+#'   represented. Use a representative validation sample for the target species.
+#'   Validation selects thresholds only; it is not passed as confirmation data
+#'   to [fp_aggregate()].
 #' @param sites,verified,site,recorder Passed to [fp_data()]; `site` must
 #'   also be a column of `occasions`.
 #' @param occ,det,fp,random_recorder Passed to [fp_occu()].
@@ -22,7 +38,10 @@
 #'   threshold and parameter: the threshold, the share of occasions that are
 #'   detections, the parameter, its posterior mean and interval, and the
 #'   number of divergent transitions and largest R-hat of the fit. [plot()]
-#'   draws the estimates against the threshold.
+#'   draws the estimates against the threshold. For named thresholds, attributes
+#'   `threshold_selection` and `validation_metrics` contain the selected methods
+#'   and the metrics at every candidate threshold, respectively (columns
+#'   `threshold`, `tp`, `fp`, `fn`, `precision`, `recall`, `f1`).
 #' @references Piatti, L., de Sousa, D. L. H., Oliveira, B. S., de Melo,
 #'   A. V., Sugai, L. S. M., & Provete, D. B. (2026). Methodological choices
 #'   influence ecological inference in passive acoustic monitoring of a
@@ -37,15 +56,37 @@
 #'                             site = "site_night", occ = ~ temp + rh, fp = ~ 1,
 #'                             random_recorder = FALSE)
 #' plot(sweep)
+#' # Derive both thresholds from reviewed classifier clips:
+#' reviews <- fp_read_validation("validation_by_clip.csv")
+#' selected <- fp_threshold_sweep(occasions, detections, sites = nights,
+#'                                site = "site_night", validation = reviews,
+#'                                random_recorder = FALSE)
+#' attr(selected, "threshold_selection")
 #' }
-fp_threshold_sweep <- function(occasions, detections, thresholds, sites,
+fp_threshold_sweep <- function(occasions, detections,
+                               thresholds = c("MaxF1", "MaxPrecision"), sites,
                                verified = NULL, site = "site", by = "file",
                                species = NULL, recorder = NULL,
                                occ = ~ 1, det = ~ 1, fp = ~ 1,
                                random_recorder = !is.null(recorder),
-                               prob = 0.95, ...) {
-  a <- (1 - prob) / 2
-  purrr::map(sort(thresholds), function(th) {
+                               prob = 0.95, validation = NULL, ...) {
+  selection <- metrics <- NULL
+  if (is.character(thresholds) && length(thresholds)) {
+    methods <- match.arg(thresholds, c("MaxF1", "MaxPrecision"), several.ok = TRUE)
+    metrics <- .threshold_metrics(validation, species)
+    selection <- do.call(rbind, lapply(unique(methods), function(method) {
+      metric <- if (method == "MaxF1") metrics$f1 else metrics$precision
+      best <- order(-metric, -metrics$recall, metrics$threshold)[1]
+      data.frame(method = method, metrics[best, ], row.names = NULL)
+    }))
+    thresholds <- selection$threshold
+  } else if (!is.numeric(thresholds) || !length(thresholds) ||
+             anyNA(thresholds) || any(!is.finite(thresholds)) ||
+             any(thresholds < 0 | thresholds > 1)) {
+    stop("`thresholds` must be nonempty numeric values in [0, 1] or named methods.",
+         call. = FALSE)
+  }
+  out <- purrr::map(sort(unique(thresholds)), function(th) {
     auto <- fp_aggregate(occasions, detections, threshold = th, by = by,
                          species = species)
     d <- fp_data(auto, sites, verified, site = site, recorder = recorder)
@@ -61,6 +102,56 @@ fp_threshold_sweep <- function(occasions, detections, thresholds, sites,
   }) |>
     purrr::list_rbind() |>
     structure(class = c("fp_threshold_sweep", "data.frame"), prob = prob)
+  if (!is.null(selection)) {
+    attr(out, "threshold_selection") <- selection
+    attr(out, "validation_metrics") <- metrics
+  }
+  out
+}
+
+# Metrics use complete score groups so tied scores always cross together.
+.threshold_metrics <- function(validation, species = NULL) {
+  .check_df(validation, "validation", c("confidence", "verdict"))
+  sp_cols <- intersect(c("species_code", "common_name"), names(validation))
+  if (!is.null(species)) {
+    if (!length(sp_cols)) {
+      stop("`validation` needs species_code or common_name when `species` is supplied.",
+           call. = FALSE)
+    }
+    hit <- Reduce(`|`, lapply(sp_cols, function(cl) validation[[cl]] %in% species))
+    validation <- validation[hit, , drop = FALSE]
+  } else if (length(sp_cols) && length(unique(validation[[sp_cols[1]]])) > 1) {
+    stop("`validation` holds several species; name the target with `species`.",
+         call. = FALSE)
+  }
+  score <- validation$confidence
+  truth <- validation$verdict
+  if (!is.numeric(score) || any(!is.na(score) & (!is.finite(score) | score < 0 | score > 1))) {
+    stop("`validation$confidence` must be numeric scores in [0, 1].", call. = FALSE)
+  }
+  if (!(is.logical(truth) || is.numeric(truth)) || any(!is.na(truth) & !truth %in% c(0, 1))) {
+    stop("`validation$verdict` must be logical or binary 0/1.", call. = FALSE)
+  }
+  keep <- !is.na(score) & !is.na(truth)
+  if (any(!keep)) warning(sum(!keep), " validation row(s) with missing confidence or verdict were dropped.",
+                          call. = FALSE)
+  score <- score[keep]
+  truth <- truth[keep]
+  if (!length(score) || !any(truth == 1)) {
+    stop("`validation` must contain at least one reviewed positive with a score.",
+         call. = FALSE)
+  }
+  ord <- order(score, decreasing = TRUE)
+  score <- score[ord]
+  truth <- truth[ord]
+  ends <- which(!duplicated(score, fromLast = TRUE))
+  tp <- cumsum(truth)[ends]
+  fp <- ends - tp
+  fn <- sum(truth) - tp
+  out <- data.frame(threshold = score[ends], tp = tp, fp = fp, fn = fn,
+                    precision = tp / ends, recall = tp / sum(truth),
+                    f1 = 2 * tp / (2 * tp + fp + fn))
+  out[order(out$threshold), , drop = FALSE]
 }
 
 #' @rdname fp_threshold_sweep

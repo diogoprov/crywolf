@@ -1,5 +1,12 @@
 # crywolf (development version)
 
+## New features
+
+* `fp_threshold_sweep()` can derive MaxF1 and MaxPrecision thresholds from
+  reviewed classifier clips. Ties favour recall, then the smaller threshold;
+  selected thresholds and validation metrics are retained as attributes.
+  Numeric thresholds remain supported and duplicate thresholds are fitted once.
+
 ## Bug fixes
 
 * `print()` of an `fp_data` object counted the sites known to be occupied

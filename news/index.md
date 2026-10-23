@@ -2,6 +2,17 @@
 
 ## crywolf (development version)
 
+### Requirements
+
+- CmdStan 2.40 or later is now required (it was 2.34). The data of the
+  likelihood now travel in tuples, which `reduce_sum()` accepts only
+  from CmdStan 2.40. Update with
+  [`cmdstanr::install_cmdstan()`](https://mc-stan.org/cmdstanr/reference/install_cmdstan.html).
+  The posterior is unchanged: at the same parameter values the
+  log-likelihood is exactly equal to that of crywolf 1.6.0 in seven
+  designs, and with the same seed the draws are identical in six
+  (`dev/profile/validate-tuples*.R`).
+
 ### Bug fixes
 
 - [`print()`](https://rdrr.io/r/base/print.html) of an `fp_data` object

@@ -58,6 +58,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
 <div class="section level3">
+<h3 id="requirements-development-version">Requirements<a class="anchor" aria-label="anchor" href="#requirements-development-version"></a></h3>
+<ul><li>CmdStan 2.40 or later is now required (it was 2.34). The data of the likelihood now travel in tuples, which <code>reduce_sum()</code> accepts only from CmdStan 2.40. Update with <code><a href="https://mc-stan.org/cmdstanr/reference/install_cmdstan.html" class="external-link">cmdstanr::install_cmdstan()</a></code>. The posterior is unchanged: at the same parameter values the log-likelihood is exactly equal to that of crywolf 1.6.0 in seven designs, and with the same seed the draws are identical in six (<code>dev/profile/validate-tuples*.R</code>).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> of an <code>fp_data</code> object counted the sites known to be occupied (from verified detections and confirmed true observations together) on the line of verified sites, so data with only confirmations showed “0 verified sites … 24 with a confirmed detection”. Verified sites, confirmed occasions, and sites known to be occupied now have their own lines.</li>

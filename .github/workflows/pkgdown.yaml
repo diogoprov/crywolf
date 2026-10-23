@@ -40,7 +40,9 @@ jobs:
         run: |
           # a cache restored from an interrupted build has no stanc: reinstall
           v <- cmdstanr::cmdstan_version(error_on_NA = FALSE)
-          if (is.null(v) || !file.exists(file.path(cmdstanr::cmdstan_path(), "bin", "stanc"))) {
+          # and crywolf needs CmdStan 2.40 or later
+          if (is.null(v) || utils::compareVersion(v, "2.40.0") < 0 ||
+              !file.exists(file.path(cmdstanr::cmdstan_path(), "bin", "stanc"))) {
             cmdstanr::install_cmdstan(cores = 2, overwrite = TRUE)
           }
         shell: Rscript {0}

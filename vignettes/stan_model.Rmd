@@ -97,8 +97,11 @@ roles, and the sampler could visit either.
 ## Likelihood
 
 The occupancy state $z_i$ is discrete, so Stan cannot sample it. The
-function `site_loglik()` sums it out for each site in a range of sites, from
-`a` to `b`:
+function `loglik_sites()` sums it out for each site in a range of sites, from
+`a` to `b`. It is called through `site_loglik()`, which receives the data
+grouped in tuples (built at the end of `transformed data`) and hands their
+fields on as arguments; Stan passes function arguments by reference, so
+nothing is copied. The tuples need CmdStan 2.40 or later:
 
 ```{r functions, echo = FALSE, comment = ""}
 stan_block("functions")
@@ -135,7 +138,7 @@ function per term instead of two. In the occupied branch the detection probabili
 change from one occasion to the next, so when `det` has covariates each
 site's rows go through one call of Stan's `binomial_logit_glm_lpmf()`,
 which evaluates the linear predictor, the log-likelihood and its gradient
-in one pass without creating an autodiff variable per row (`lcc` removes
+in one pass without creating an autodiff variable per row (`lchoose_site` removes
 the binomial constant that this function includes). When the rows are
 already collapsed (`det = ~ 1`), or under the observation-confirmation
 design, the per-row terms are computed as vectors and summed by site with

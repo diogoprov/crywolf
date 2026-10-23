@@ -40,6 +40,10 @@
 // collapsed, or the observation-confirmation design) the rows are
 // evaluated as vectors and summed with segment().
 //
+// The data of the likelihood travel in tuples (built at the end of
+// transformed data) through site_loglik() to loglik_sites(); tuples as
+// arguments of reduce_sum() need CmdStan 2.40 or later.
+//
 // The sum over sites runs with reduce_sum(), which splits the sites among
 // threads when the model is compiled with stan_threads (threads_per_chain in
 // fp_occu()). Each slice of sites only touches its own rows of the automated
@@ -48,22 +52,23 @@
 functions {
   // Marginal log-likelihood of sites a to b, with the latent state z summed
   // out. The automated (and confirmed) rows of these sites are contiguous.
-  vector site_loglik(int a, int b, matrix X, vector beta, matrix Z, vector alpha,
-                     real gamma0, matrix Xfp, vector gamma_fp, vector e_fp,
-                     vector u, array[] int rec2, int estimate_re,
-                     int estimate_fp, int Kfp,
-                     vector y2v, vector n2v, array[] int site2,
-                     array[] int start2, array[] int len2, array[] int any_det2,
-                     vector n1v, vector s1v, real delta0,
-                     array[] int known_present, int obs_confirm,
-                     array[] int v3, array[] int site3, matrix Z3,
-                     array[] int rec3, array[] int start3, array[] int len3,
-                     vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
-                     array[] int y2, array[] int n2, vector lchoose_site,
-                     int rec_by_site, array[] int rec_site,
-                     int Kver_s, matrix X1s, vector delta_s, vector y1v,
-                     array[] int start1, array[] int len1,
-                     int fp_by_row, matrix Xfp2, matrix Xfp3) {
+  // Called through site_loglik(), which takes the data grouped in tuples.
+  vector loglik_sites(int a, int b, matrix X, vector beta, matrix Z, vector alpha,
+                      real gamma0, matrix Xfp, vector gamma_fp, vector e_fp,
+                      vector u, array[] int rec2, int estimate_re,
+                      int estimate_fp, int Kfp,
+                      vector y2v, vector n2v, array[] int site2,
+                      array[] int start2, array[] int len2, array[] int any_det2,
+                      vector n1v, vector s1v, real delta0,
+                      array[] int known_present, int obs_confirm,
+                      array[] int v3, array[] int site3, matrix Z3,
+                      array[] int rec3, array[] int start3, array[] int len3,
+                      vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
+                      array[] int y2, array[] int n2, vector lchoose_site,
+                      int rec_by_site, array[] int rec_site,
+                      int Kver_s, matrix X1s, vector delta_s, vector y1v,
+                      array[] int start1, array[] int len1,
+                      int fp_by_row, matrix Xfp2, matrix Xfp3) {
     int ns = b - a + 1;
     vector[ns] lpsi = X[a:b] * beta;
     vector[ns] lp10 = rep_vector(gamma0, ns);
@@ -202,30 +207,56 @@ functions {
     return ll;
   }
 
+  // The data of the likelihood grouped in tuples (built at the end of
+  // transformed data). Function arguments are passed by reference, so
+  // handing the fields on to loglik_sites() copies nothing.
+  vector site_loglik(int a, int b, vector beta, vector alpha, real gamma0,
+                     vector gamma_fp, vector e_fp, vector u, real delta0,
+                     vector delta_s,
+                     tuple(matrix, matrix, matrix, matrix, matrix) design,
+                     tuple(array[] int, array[] int, array[] int, array[] int,
+                           vector, vector, array[] int, array[] int,
+                           array[] int, array[] int, vector, vector, vector) automated,
+                     tuple(vector, vector, array[] int, matrix, vector,
+                           array[] int, array[] int) verified,
+                     tuple(array[] int, array[] int, array[] int, matrix,
+                           array[] int, array[] int, matrix) confirmed,
+                     array[] int options) {
+    // design: X, Z, Z_slopes, Xfp, Xfp2
+    // automated: y2, n2, site2, rec2, y2v, n2v, start2, len2, any_det2,
+    //            rec_site, Ysite, Nsite, lchoose_site
+    // verified: n1v, s1v, known_present, X1s, y1v, start1, len1
+    // confirmed: v3, site3, rec3, Z3, start3, len3, Xfp3
+    // options: estimate_re, estimate_fp, Kfp, obs_confirm, use_glm,
+    //          rec_by_site, Kver_s, fp_by_row
+    return loglik_sites(a, b, design.1, beta, design.2, alpha, gamma0, design.4,
+                        gamma_fp, e_fp, u, automated.4, options[1], options[2],
+                        options[3], automated.5, automated.6, automated.3,
+                        automated.7, automated.8, automated.9, verified.1,
+                        verified.2, delta0, verified.3, options[4], confirmed.1,
+                        confirmed.2, confirmed.4, confirmed.3, confirmed.5,
+                        confirmed.6, automated.11, automated.12, options[5],
+                        design.3, automated.1, automated.2, automated.13,
+                        options[6], automated.10, options[7], verified.4,
+                        delta_s, verified.5, verified.6, verified.7, options[8],
+                        design.5, confirmed.7);
+  }
+
   // partial sum over a slice of sites, for reduce_sum()
-  real partial_loglik(array[] int slice, int a, int b, matrix X, vector beta,
-                      matrix Z, vector alpha, real gamma0, matrix Xfp,
-                      vector gamma_fp, vector e_fp, vector u, array[] int rec2,
-                      int estimate_re, int estimate_fp, int Kfp,
-                      vector y2v, vector n2v, array[] int site2,
-                      array[] int start2, array[] int len2, array[] int any_det2,
-                      vector n1v, vector s1v, real delta0,
-                      array[] int known_present, int obs_confirm,
-                      array[] int v3, array[] int site3, matrix Z3,
-                      array[] int rec3, array[] int start3, array[] int len3,
-                      vector Ysite, vector Nsite, int use_glm, matrix Z_slopes,
-                      array[] int y2, array[] int n2, vector lchoose_site,
-                      int rec_by_site, array[] int rec_site,
-                      int Kver_s, matrix X1s, vector delta_s, vector y1v,
-                      array[] int start1, array[] int len1,
-                      int fp_by_row, matrix Xfp2, matrix Xfp3) {
-    return sum(site_loglik(a, b, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
-                           rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
-                           start2, len2, any_det2, n1v, s1v, delta0,
-                           known_present, obs_confirm, v3, site3, Z3, rec3,
-                           start3, len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                           rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
-                           start1, len1, fp_by_row, Xfp2, Xfp3));
+  real partial_loglik(array[] int slice, int a, int b, vector beta, vector alpha,
+                      real gamma0, vector gamma_fp, vector e_fp, vector u,
+                      real delta0, vector delta_s,
+                      tuple(matrix, matrix, matrix, matrix, matrix) design,
+                      tuple(array[] int, array[] int, array[] int, array[] int,
+                            vector, vector, array[] int, array[] int,
+                            array[] int, array[] int, vector, vector, vector) automated,
+                      tuple(vector, vector, array[] int, matrix, vector,
+                            array[] int, array[] int) verified,
+                      tuple(array[] int, array[] int, array[] int, matrix,
+                            array[] int, array[] int, matrix) confirmed,
+                      array[] int options) {
+    return sum(site_loglik(a, b, beta, alpha, gamma0, gamma_fp, e_fp, u, delta0,
+                           delta_s, design, automated, verified, confirmed, options));
   }
 }
 
@@ -343,6 +374,24 @@ transformed data {
     if (n == 1 || site2[n] != site2[n - 1]) rec_site[site2[n]] = rec2[n];
     else if (rec2[n] != rec_site[site2[n]]) rec_by_site = 0;
   }
+  // the data of the likelihood, grouped for site_loglik() and reduce_sum();
+  // the order of the fields is the order of the unpacking in site_loglik()
+  tuple(matrix[nsite, Kbeta], matrix[N2, Kalpha], matrix[N2, Kalpha - 1],
+        matrix[nsite, fp_by_row == 1 ? 0 : Kfp], matrix[N2, fp_by_row == 1 ? Kfp : 0])
+    design = (X, Z, Z_slopes, Xfp, Xfp2);
+  tuple(array[N2] int, array[N2] int, array[N2] int, array[N2] int, vector[N2],
+        vector[N2], array[nsite] int, array[nsite] int, array[nsite] int,
+        array[nsite] int, vector[nsite], vector[nsite], vector[nsite])
+    automated = (y2, n2, site2, rec2, y2v, n2v, start2, len2, any_det2, rec_site,
+                 Ysite, Nsite, lchoose_site);
+  tuple(vector[nsite], vector[nsite], array[nsite] int, matrix[N1, Kver_s],
+        vector[N1], array[nsite] int, array[nsite] int)
+    verified = (n1v, s1v, known_present, X1s, y1v, start1, len1);
+  tuple(array[N3] int, array[N3] int, array[N3] int, matrix[N3, Kalpha],
+        array[nsite] int, array[nsite] int, matrix[N3, fp_by_row == 1 ? Kfp : 0])
+    confirmed = (v3, site3, rec3, Z3, start3, len3, Xfp3);
+  array[8] int options = {estimate_re, estimate_fp, Kfp, obs_confirm, use_glm,
+                          rec_by_site, Kver_s, fp_by_row};
 }
 
 parameters {
@@ -382,21 +431,13 @@ model {
   // which reduce_sum() neither copies nor differentiates for each slice.
   if (estimate_fp_re == 1) {
     vector[nsite] e_fp = sigma_fp[1] * e_raw;
-    target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
-                         Xfp, gamma_fp, e_fp, u, rec2, estimate_re, estimate_fp, Kfp,
-                         y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
-                         known_present, obs_confirm, v3, site3, Z3, rec3, start3,
-                         len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                         rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
-                         start1, len1, fp_by_row, Xfp2, Xfp3);
+    target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                         e_fp, u, delta0, delta_s, design, automated, verified,
+                         confirmed, options);
   } else {
-    target += reduce_sum(partial_loglik, site_index, 1, X, beta, Z, alpha, gamma0,
-                         Xfp, gamma_fp, zero_site, u, rec2, estimate_re, estimate_fp, Kfp,
-                         y2v, n2v, site2, start2, len2, any_det2, n1v, s1v, delta0,
-                         known_present, obs_confirm, v3, site3, Z3, rec3, start3,
-                         len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                         rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
-                         start1, len1, fp_by_row, Xfp2, Xfp3);
+    target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                         zero_site, u, delta0, delta_s, design, automated, verified,
+                         confirmed, options);
   }
 }
 
@@ -419,12 +460,7 @@ generated quantities {
     if (estimate_fp == 1 && fp_by_row == 1 && N2 > 0) {
       p10_bar = dot_product(n2v, inv_logit(lp10[site2] + Xfp2 * gamma_fp)) / sum(n2v);
     }
-    log_lik = site_loglik(1, nsite, X, beta, Z, alpha, gamma0, Xfp, gamma_fp, e_fp, u,
-                          rec2, estimate_re, estimate_fp, Kfp, y2v, n2v, site2,
-                          start2, len2, any_det2, n1v, s1v, delta0,
-                          known_present, obs_confirm, v3, site3, Z3, rec3,
-                          start3, len3, Ysite, Nsite, use_glm, Z_slopes, y2, n2, lchoose_site,
-                          rec_by_site, rec_site, Kver_s, X1s, delta_s, y1v,
-                          start1, len1, fp_by_row, Xfp2, Xfp3);
+    log_lik = site_loglik(1, nsite, beta, alpha, gamma0, gamma_fp, e_fp, u, delta0,
+                          delta_s, design, automated, verified, confirmed, options);
   }
 }

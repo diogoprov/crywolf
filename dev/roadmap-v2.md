@@ -38,7 +38,7 @@ teste de regressão protege as mudanças seguintes.
 | Validações de `dev/validate-*.R` como testes (identidade com opções desligadas; log_lik R vs Stan em todas as combinações) | M | as combinações rodam em `tests/` com `skip_on_cran()` |
 | Hash do Stan gravado nos `.rds` pré-computados + `dev/precompute-all.R` | P | a vinheta avisa quando o `.rds` veio de outro Stan; um script refaz tudo |
 | Reprodutibilidade em paralelo: gerar os conjuntos de `fp_calibrate()` no processo principal | P | `parallel = TRUE` e `FALSE` dão os mesmos dados com a mesma semente |
-| Refatorar `site_loglik()`/`partial_loglik()` (≈50 argumentos posicionais) com tuplas | M | draws idênticos ao 1.6.0 (diferença 0) em todos os desenhos do teste de regressão |
+| Refatorar `site_loglik()`/`partial_loglik()` (≈50 argumentos posicionais) com tuplas | M | **feito em 22/10/2026**; exige CmdStan ≥ 2.40 (decisão do Diogo); `log_lik` idêntico ao 1.6.0 em sete desenhos e draws idênticos em seis |
 | Cache do CmdStan no GitHub Actions | P | R-CMD-check abaixo de ~6 min |
 | `print.fp_data`: separar sítios verificados de ocasiões confirmadas (Chambert) | P | duas linhas distintas na saída |
 
@@ -79,8 +79,8 @@ Depreciações com `lifecycle::deprecate_warn()` no 1.9 e remoção no 2.0.
   anunciar a remoção para o 3.0.
 - Nomes da saída (`occ_*`, `det_*`, `fp_*`, `verified_*`, `p10_bar`, ...):
   congelar e documentar numa página única.
-- Exigências mínimas (R ≥ 4.2, CmdStan ≥ 2.34): subir só se o refactor com
-  tuplas ou o `instantiate` exigir.
+- Exigências mínimas: R ≥ 4.2; CmdStan ≥ 2.40 desde a 1.7.0 (subiu de 2.34
+  com o refactor com tuplas, por decisão do Diogo em 22/10/2026).
 
 ## 2.0.0: lançamento e CRAN
 

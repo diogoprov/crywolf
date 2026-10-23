@@ -166,7 +166,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   f2 <- sd$n2 - sd$y2
   conf <- isTRUE(sd$obs_confirm == 1)
 
-  # conditional posterior of z, as in site_loglik() of the Stan program
+  # conditional posterior of z, as in loglik_sites() of the Stan program
   if (conf) {
     # observation confirmation: log(1 - p11) = log(1 - s1) + log(1 - s0)
     lq11 <- stats::plogis(-lp11, log.p = TRUE) +

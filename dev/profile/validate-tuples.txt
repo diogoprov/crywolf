@@ -1,0 +1,15 @@
+CmdStan 2.40.0 
+1. Miller, recorder (GLM path), fp ~ w          max |draw difference| = 0
+1. Chambert, constant rate                      max |draw difference| = 0
+1. no false positives                           max |draw difference| = 0
+1. random_fp                                    max |draw difference| = 0
+1. Chambert, fp ~ noise, ver ~ listener, markov max |draw difference| = 0
+1. Miller, recorder, markov, det ~ bio          max |draw difference| = 0
+2. curiango, 1 thread(s): previous 24.4 / 26.0 s, tuples 27.2 / 26.7 s; same draws (1 thread only): FALSE
+2. curiango, 4 thread(s): previous 8.3 / 8.4 s, tuples 8.1 / 8.3 s; same draws (1 thread only): n/a
+Note: the 1-thread curiango runs start from `init = warm` (a fit object),
+from which cmdstanr takes the initial values; the two programs gave
+different draws there although their log-likelihoods are exactly equal at
+the same parameter values in every design, curiango included
+(dev/profile/validate-tuples-loglik.txt), and the draws are identical in all
+six designs of part 1. The timings are the point of part 2.

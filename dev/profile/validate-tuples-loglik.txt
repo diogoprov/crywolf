@@ -1,0 +1,120 @@
+CmdStan 2.40.0 
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Miller, recorder (GLM path), fp ~ w            max |difference| 0.00e+00, relative 0.00e+00
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Chambert, constant rate                        max |difference| 0.00e+00, relative 0.00e+00
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+no false positives                             max |difference| 0.00e+00, relative 0.00e+00
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+random_fp                                      max |difference| 0.00e+00, relative 0.00e+00
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Chambert, fp ~ noise, ver ~ listener, markov   max |difference| 0.00e+00, relative 0.00e+00
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.2 seconds.
+Miller, recorder, markov, det ~ bio            max |difference| 0.00e+00, relative 0.00e+00
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.4 seconds.
+Running standalone generated quantities after 2 MCMC chains, 1 chain at a time , with 1 thread(s) per chain...
+
+Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+
+Both chains finished successfully.
+Mean chain execution time: 0.0 seconds.
+Total execution time: 0.5 seconds.
+curiango, recorder, det ~ bio + aci            max |difference| 0.00e+00, relative 0.00e+00

@@ -146,7 +146,9 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   out
 }
 
-.ppc_core <- function(sd, pars, method, fit_stat) {
+# with ll_only = TRUE, returns only the log-likelihood, without drawing
+# random numbers (for loo())
+.ppc_core <- function(sd, pars, method, fit_stat, ll_only = FALSE) {
   S <- nrow(pars$beta)
   nsite <- sd$nsite
   rows <- function(v) rep(v, each = S)   # recycle a per-column vector over draws
@@ -212,6 +214,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   m <- pmax(occ, unocc)
   ll <- m + log(exp(occ - m) + exp(unocc - m))
   ll[, sd$known_present == 1] <- occ[, sd$known_present == 1]
+  if (ll_only) return(list(ll = ll))
   pz <- stats::plogis(occ - unocc)
   pz[, sd$known_present == 1] <- 1
   z <- matrix(stats::rbinom(S * nsite, 1, pz), S, nsite)

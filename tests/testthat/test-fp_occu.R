@@ -82,3 +82,9 @@ test_that("fits after the same seed get their own output files", {
   b <- crywolf:::.output_basename()
   expect_false(identical(b, crywolf:::.output_basename()))
 })
+
+test_that("CmdStan versions below 2.40 are not usable", {
+  expect_false(crywolf:::.cmdstan_recent("2.39.0"))
+  expect_true(crywolf:::.cmdstan_recent("2.40.0"))
+  expect_true(crywolf:::.cmdstan_recent("2.41.2"))
+})

@@ -28,7 +28,15 @@
   ...
 )
 
-\method{loo}{fp_occu}(x, reloo = FALSE, k_threshold = 0.7, seed = NULL, ...)
+\method{loo}{fp_occu}(
+  x,
+  reloo = FALSE,
+  k_threshold = 0.7,
+  seed = NULL,
+  integrate = TRUE,
+  nodes = 100,
+  ...
+)
 
 \method{as_draws_df}{fp_occu}(x, ...)
 }
@@ -66,6 +74,19 @@ warning.}
 \item{k_threshold}{Pareto \eqn{k} above which a site is refitted.}
 
 \item{seed}{Seed of the refits.}
+
+\item{integrate}{Logical. With a site random effect on the false-positive
+rate (\code{random_fp = TRUE}), integrate each site's effect out of its
+log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
+computation. The default, \code{TRUE}, is the right choice for leaving a site
+out: a left-out site's effect is not known from its own data. With
+\code{FALSE}, the log-likelihood is conditional on the fitted site effects,
+which gives many sites with high Pareto \eqn{k}. Without a site
+random effect, \code{integrate} has no effect.}
+
+\item{nodes}{Number of quadrature nodes for \code{integrate}. With 100, the
+log-likelihood of a site was within 6e-4 of its value with 400 nodes in
+a test with 200 sites; the cost grows linearly with \code{nodes}.}
 }
 \value{
 \code{summary()} returns an object of class \code{summary.fp_occu} whose

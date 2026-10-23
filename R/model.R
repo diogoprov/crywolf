@@ -68,17 +68,32 @@ fp_stan_file <- function() {
   isTRUE(as.logical(v[1]))
 }
 
+.min_cmdstan <- "2.40.0"
+
+# the version of CmdStan that cmdstanr finds, or NULL
+.cmdstan_found <- function() {
+  if (!requireNamespace("cmdstanr", quietly = TRUE)) return(NULL)
+  path <- tryCatch(cmdstanr::cmdstan_path(), error = function(e) "")
+  if (!nzchar(path)) return(NULL)
+  tryCatch(as.character(cmdstanr::cmdstan_version()), error = function(e) NULL)
+}
+
+.cmdstan_recent <- function(v) utils::compareVersion(v, .min_cmdstan) >= 0
+
+# a CmdStan that crywolf can use: found, and recent enough (tests and
+# vignettes skip the fits otherwise)
 .has_cmdstan <- function() {
-  isTRUE(tryCatch(nzchar(cmdstanr::cmdstan_path()), error = function(e) FALSE))
+  v <- .cmdstan_found()
+  !is.null(v) && .cmdstan_recent(v)
 }
 
 .check_cmdstan <- function() {
-  if (!.has_cmdstan()) {
+  v <- .cmdstan_found()
+  if (is.null(v)) {
     stop("CmdStan was not found. Install it once with ",
          "`cmdstanr::install_cmdstan()` and try again.", call. = FALSE)
   }
-  v <- as.character(cmdstanr::cmdstan_version())
-  if (utils::compareVersion(v, "2.40.0") < 0) {
+  if (!.cmdstan_recent(v)) {
     stop("crywolf needs CmdStan 2.40 or later (found ", v, "). Update it ",
          "with `cmdstanr::install_cmdstan()`.", call. = FALSE)
   }

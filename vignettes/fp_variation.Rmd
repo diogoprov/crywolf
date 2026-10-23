@@ -135,11 +135,15 @@ as a whole, not as a way to rank sites by their false-positive rate.
   R-hat above 1.01 with the default
   settings (`dev/profile/rejected-2026-10-21.md`). Check the diagnostics, and
   run more iterations when they flag a problem.
-* **Model comparison.** LOO favours the site effect here, but
-  `r sum(res$among$random$loo$diagnostics$pareto_k > 0.7)` sites have Pareto
-  $k$ above 0.7 in that fit, because each site carries its own parameter. The
-  approximate leave-one-out values of those sites are unreliable;
-  `loo(m_rand, reloo = TRUE)` refits the model without each of them.
+* **Model comparison.** Leaving a site out means its own effect is not
+  known, so `loo()` integrates each site's effect out of its
+  log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
+  computation. Conditional on the fitted effects, as in the `log_lik` of the
+  Stan program, many sites would have Pareto $k$ above 0.7; integrated,
+  `r sum(res$among$random$loo$diagnostics$pareto_k > 0.7)` do here. The
+  difference in favour of the site effect is about
+  `r round(abs(loo::loo_compare(list(constant = res$among$constant$loo, random_fp = res$among$random$loo))[2, "elpd_diff"] / loo::loo_compare(list(constant = res$among$constant$loo, random_fp = res$among$random$loo))[2, "se_diff"]), 1)`
+  times its standard error, not a decisive one.
 
 ```{r among-loo}
 loo::loo_compare(list(constant = res$among$constant$loo,
@@ -212,8 +216,7 @@ are also those with less habitat, leaving it out would bias the slope as in
   restored calibrated intervals in the simulations of
   `vignette("calibration")` when the cause was correlated with occupancy.
 * `random_fp = TRUE` is for variation among sites that no covariate
-  explains. It costs time and mixing, and its leave-one-out comparison needs
-  `reloo = TRUE`. It is off by default.
+  explains. It costs time and mixing. It is off by default.
 * With neither, the false-positive rate is assumed equal everywhere. A
   posterior predictive check (`fp_ppc()`) that flags sites with more
   detections than the model expects is a sign that this is wrong.

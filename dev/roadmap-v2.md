@@ -49,7 +49,7 @@ teste de regressão protege as mudanças seguintes.
 | **Efeito aleatório de sítio na detecção verdadeira** (**decidido**): `fp_occu(random_det = TRUE)`, intercepto aleatório em logit(p11) por sítio (na curiango, por sítio-noite), análogo ao `random_fp`; desligado por padrão | M–G | draws idênticos com a opção desligada; log_lik R = Stan; recuperação em simulação; SBC uniforme; `simulate()`, `fp_ppc()` e `fp_sites()` cientes da opção |
 | Exemplo na curiango (**decidido**): ajustar com `random_det` (com e sem Markov) e ver se o PPC, hoje com p = 0, melhora | P (computação) | resultados pré-computados e seção na vinheta `markov` ou vinheta própria |
 | Limiar 0,2 da curiango com `fp ~ temp + rh` (com `fp ~ 1` o efeito da temperatura troca de sinal) | P (computação ~30 min) | resultado na vinheta `threshold` |
-| `fp_threshold_sweep()` derivando MaxF1/MaxPrecision de um conjunto de validação | P–M | limiares calculados dentro da função, como opção |
+| `fp_threshold_sweep()` derivando MaxF1/MaxPrecision de um conjunto de validação | P–M | **feito na 1.7.0** (branch do Codex `feat/threshold-selection`, mesclado e ajustado) |
 | LOO com efeitos de sítio (`random_fp`, `random_det`): `log_lik` integrado sobre o efeito do sítio | M | k de Pareto aceitável sem `reloo` no exemplo da vinheta `fp_variation` |
 | Desenho de Chambert no caminho rápido (GLM por sítio) | M | só com dado real grande que justifique; medir antes |
 

@@ -71,7 +71,8 @@ Its \code{table} has one row per readable variable:\tabular{ll}{
 \code{max_treedepth} (the number of transitions reaching the maximum depth,
 not the maximum depth observed), \code{max_rhat} (largest R-hat),
 \code{min_ess_bulk}, and \code{min_ess_tail} (smallest effective sample sizes).
-Diagnostics are summarized across the readable variables.
+R-hat and the effective sample sizes are summarized across the readable
+variables; \code{divergences} and \code{max_treedepth} count sampler transitions.
 }
 
 \section{Predictions and site estimates}{
@@ -128,7 +129,8 @@ count, not a model coefficient. See \code{\link[=fp_threshold_sweep]{fp_threshol
 
 \code{fp_calibrate()} and \code{fp_calibrate_fit()} return \code{cell}, \code{rep}, \code{seed},
 \code{model}, \code{parameter}, \code{truth}, \code{mean}, \code{lower}, \code{upper}, \code{covered},
-\code{divergences}, \code{max_rhat}, \code{ok}, and \code{seconds}, plus design columns.
+\code{divergences}, \code{max_rhat}, \code{ok}, and \code{seconds}; \code{fp_calibrate()} adds the
+columns of its \code{design}.
 \code{ok} records whether fitting returned a result, not convergence.
 \code{summary()} groups by cell, model and parameter and returns the design
 columns plus \code{n} (successful fits), \code{failed}, \code{coverage}, \code{mc_se}

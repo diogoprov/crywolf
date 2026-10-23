@@ -75,3 +75,25 @@ test_that("named selection preserves metrics and fits each threshold once", {
   expect_error(fp_threshold_sweep(occasions, detections, "typo", sites, validation = v),
                "arg")
 })
+
+test_that("named thresholds without validation give a clear error", {
+  expect_error(fp_threshold_sweep(data.frame(file = "a", site = 1),
+                                  data.frame(file = "a", confidence = 0.5),
+                                  sites = data.frame(site = 1)),
+               "derived from reviewed clips")
+})
+
+test_that("empty or odd thresholds stop, and unused validation warns", {
+  occ <- data.frame(file = "a", site = 1)
+  det <- data.frame(file = "a", confidence = 0.5)
+  sites <- data.frame(site = 1)
+  expect_error(fp_threshold_sweep(occ, det, thresholds = character(0), sites = sites),
+               "nonempty")
+  expect_error(fp_threshold_sweep(occ, det, thresholds = 2, sites = sites), "\\[0, 1\\]")
+  val <- data.frame(confidence = 0.5, verdict = TRUE)
+  # the sites table lacks `site`, so the call stops right after the warning
+  expect_warning(try(fp_threshold_sweep(occ, det, thresholds = 0.5,
+                                        sites = data.frame(x = 1), validation = val),
+                     silent = TRUE),
+                 "ignored with numeric")
+})

@@ -61,7 +61,8 @@
 #' `max_treedepth` (the number of transitions reaching the maximum depth,
 #' not the maximum depth observed), `max_rhat` (largest R-hat),
 #' `min_ess_bulk`, and `min_ess_tail` (smallest effective sample sizes).
-#' Diagnostics are summarized across the readable variables.
+#' R-hat and the effective sample sizes are summarized across the readable
+#' variables; `divergences` and `max_treedepth` count sampler transitions.
 #'
 #' @section Predictions and site estimates:
 #' `predict(fit)` appends `estimate`, `lower`, and `upper` to `newdata`:
@@ -112,7 +113,8 @@
 #' @section Calibration and simulation:
 #' `fp_calibrate()` and `fp_calibrate_fit()` return `cell`, `rep`, `seed`,
 #' `model`, `parameter`, `truth`, `mean`, `lower`, `upper`, `covered`,
-#' `divergences`, `max_rhat`, `ok`, and `seconds`, plus design columns.
+#' `divergences`, `max_rhat`, `ok`, and `seconds`; `fp_calibrate()` adds the
+#' columns of its `design`.
 #' `ok` records whether fitting returned a result, not convergence.
 #' `summary()` groups by cell, model and parameter and returns the design
 #' columns plus `n` (successful fits), `failed`, `coverage`, `mc_se`

@@ -19,9 +19,12 @@
 #'
 #' @details Named methods evaluate every distinct validation score, counting
 #'   scores at or above the threshold as positive. Precision is TP / (TP + FP),
-#'   recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). Thresholds
-#'   predicting no positives are excluded. At least one reviewed positive is
-#'   required. Ties are resolved by greater recall, then the smaller threshold.
+#'   recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). The
+#'   candidates are the observed scores, so each predicts at least one
+#'   positive. At least one reviewed positive is required. The selected
+#'   threshold is a score of the validation table, applied with `>=` to
+#'   `detections`; if the validation file stores rounded scores, the clips
+#'   at the cutoff can fall on the other side. Ties are resolved by greater recall, then the smaller threshold.
 #'   Recall and F1 refer to positives in the supplied validation set: clips
 #'   missed by the classifier or excluded by an earlier score cutoff are not
 #'   represented. Use a representative validation sample for the target species.
@@ -71,20 +74,34 @@ fp_threshold_sweep <- function(occasions, detections,
                                random_recorder = !is.null(recorder),
                                prob = 0.95, validation = NULL, ...) {
   selection <- metrics <- NULL
-  if (is.character(thresholds) && length(thresholds)) {
+  if (is.character(thresholds)) {
+    if (!length(thresholds)) {
+      stop("`thresholds` must be nonempty numeric values in [0, 1] or named methods.",
+           call. = FALSE)
+    }
     methods <- match.arg(thresholds, c("MaxF1", "MaxPrecision"), several.ok = TRUE)
+    if (is.null(validation)) {
+      stop("Named thresholds (", paste(unique(methods), collapse = ", "), ") are ",
+           "derived from reviewed clips: give them in `validation`, or give ",
+           "numeric `thresholds`.", call. = FALSE)
+    }
     metrics <- .threshold_metrics(validation, species)
-    selection <- do.call(rbind, lapply(unique(methods), function(method) {
+    selection <- purrr::map(unique(methods), function(method) {
       metric <- if (method == "MaxF1") metrics$f1 else metrics$precision
       best <- order(-metric, -metrics$recall, metrics$threshold)[1]
       data.frame(method = method, metrics[best, ], row.names = NULL)
-    }))
+    }) |> purrr::list_rbind()
     thresholds <- selection$threshold
-  } else if (!is.numeric(thresholds) || !length(thresholds) ||
-             anyNA(thresholds) || any(!is.finite(thresholds)) ||
-             any(thresholds < 0 | thresholds > 1)) {
-    stop("`thresholds` must be nonempty numeric values in [0, 1] or named methods.",
-         call. = FALSE)
+  } else {
+    if (!is.numeric(thresholds) || !length(thresholds) || anyNA(thresholds) ||
+        any(!is.finite(thresholds)) || any(thresholds < 0 | thresholds > 1)) {
+      stop("`thresholds` must be nonempty numeric values in [0, 1] or named methods.",
+           call. = FALSE)
+    }
+    if (!is.null(validation)) {
+      warning("`validation` is used only to derive named thresholds; it is ",
+              "ignored with numeric `thresholds`.", call. = FALSE)
+    }
   }
   out <- purrr::map(sort(unique(thresholds)), function(th) {
     auto <- fp_aggregate(occasions, detections, threshold = th, by = by,
@@ -118,7 +135,8 @@ fp_threshold_sweep <- function(occasions, detections,
       stop("`validation` needs species_code or common_name when `species` is supplied.",
            call. = FALSE)
     }
-    hit <- Reduce(`|`, lapply(sp_cols, function(cl) validation[[cl]] %in% species))
+    hit <- purrr::map(sp_cols, function(cl) validation[[cl]] %in% species) |>
+      purrr::reduce(`|`)
     validation <- validation[hit, , drop = FALSE]
   } else if (length(sp_cols) && length(unique(validation[[sp_cols[1]]])) > 1) {
     stop("`validation` holds several species; name the target with `species`.",

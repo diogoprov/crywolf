@@ -69,7 +69,10 @@ attr(selected, "validation_metrics")
 Each distinct reviewed score is a candidate threshold; scores equal to the
 threshold count as detections. Precision measures the fraction of retained
 clips that are true positives. Recall measures the fraction of reviewed
-positives retained, and F1 combines precision and recall. Ties favour greater
+positives retained, and F1 combines precision and recall. MaxPrecision tends
+to pick a high score with few retained clips, which makes it unstable in
+small validation samples; look at `validation_metrics` before trusting it.
+Ties favour greater
 recall, then the smaller threshold. If both methods select the same threshold,
 the model is fitted once.
 

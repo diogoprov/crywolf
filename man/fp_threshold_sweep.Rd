@@ -75,9 +75,12 @@ sensitivity to the threshold can be seen at once.
 \details{
 Named methods evaluate every distinct validation score, counting
 scores at or above the threshold as positive. Precision is TP / (TP + FP),
-recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). Thresholds
-predicting no positives are excluded. At least one reviewed positive is
-required. Ties are resolved by greater recall, then the smaller threshold.
+recall is TP / (TP + FN), and F1 is 2 TP / (2 TP + FP + FN). The
+candidates are the observed scores, so each predicts at least one
+positive. At least one reviewed positive is required. The selected
+threshold is a score of the validation table, applied with \code{>=} to
+\code{detections}; if the validation file stores rounded scores, the clips
+at the cutoff can fall on the other side. Ties are resolved by greater recall, then the smaller threshold.
 Recall and F1 refer to positives in the supplied validation set: clips
 missed by the classifier or excluded by an earlier score cutoff are not
 represented. Use a representative validation sample for the target species.

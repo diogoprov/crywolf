@@ -10,7 +10,12 @@ O que toca o crywolf, em ordem de prioridade:
 - **Fase 0, contrato de dados:** `fp_read_sheepdog()` lê o diretório
   escrito por `sheepdog::export_occupancy_data()` (esquema
   `sheepdog-occupancy`, v1) e recusa ou avisa quando a validação vem de
-  `sampling_mode = "top"`.
+  `sampling_mode = "top"`. **Feito em 24/10/2026** (lado do sheepdog no
+  PR diogoprov/sheepdog#36): descarta os clipes "top" com aviso
+  (`keep_top = TRUE` os mantém), devolve as tabelas no formato de
+  `fp_aggregate(by = c("site", "occasion_id"))` e `fp_data()`; teste de
+  contrato com a exportação real do sheepdog, que roda no CI quando o
+  r-universe publicar o sheepdog 3.2.1.9000.
 - **Fase 1, propagação Monte Carlo:** `fp_occu_mc()` ajusta o modelo nos
   históricos de `sheepdog::history_draws()` e junta as posteriores.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função

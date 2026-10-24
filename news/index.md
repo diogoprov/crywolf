@@ -15,6 +15,14 @@
   fit by fit. With a single version it reproduces
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   draw for draw.
+- [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  builds those versions from an export of sheepdog with calibration
+  draws (`calibration_draws.parquet`): in each draw a prediction is
+  judged true with its calibrated probability (`rule = "sample"`, the
+  default) or when that probability reaches `p_min`
+  (`rule = "threshold"`). The sites of the model can be other than the
+  recorders (for instance, site-nights). Needs the ‘arrow’ package
+  (Suggests).
 
 ## crywolf 1.9.0
 

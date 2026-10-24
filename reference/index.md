@@ -37,6 +37,8 @@ Fit the model and inspect, summarize, predict, and compare fits.
   [`print(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`as_draws_df(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   : Fit the model to draws of the detection histories
+- [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  : Detection histories over the draws of a classifier calibration
 - [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
   : Prior settings for fp_occu()
 - [`print(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)

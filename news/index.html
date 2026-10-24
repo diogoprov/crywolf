@@ -62,6 +62,8 @@
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
 <ul><li>
 <code><a href="../reference/fp_occu_mc.html">fp_occu_mc()</a></code> fits the model to several versions of the same data, such as detection histories drawn from the posterior of a classifier calibration (<code><a href="https://provetelab.org/sheepdog/reference/history_draws.html" class="external-link">sheepdog::history_draws()</a></code>), and pools the posteriors in equal shares (Monte Carlo propagation; a “cut” model, in which the calibration does not learn from occupancy). <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> splits each variance into parts within and between fits, and reports convergence fit by fit. With a single version it reproduces <code><a href="../reference/fp_occu.html">fp_occu()</a></code> draw for draw.</li>
+<li>
+<code><a href="../reference/fp_draws_data.html">fp_draws_data()</a></code> builds those versions from an export of sheepdog with calibration draws (<code>calibration_draws.parquet</code>): in each draw a prediction is judged true with its calibrated probability (<code>rule = "sample"</code>, the default) or when that probability reaches <code>p_min</code> (<code>rule = "threshold"</code>). The sites of the model can be other than the recorders (for instance, site-nights). Needs the ‘arrow’ package (Suggests).</li>
 </ul></div>
 </div>
     <div class="section level2">

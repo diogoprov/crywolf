@@ -59,14 +59,12 @@ jobs:
               !file.exists(file.path(cmdstanr::cmdstan_path(), "bin", "stanc"))) {
             cmdstanr::install_cmdstan(cores = 2, overwrite = TRUE)
           }
+          # the precompiled headers in the cache were built by the compiler of an
+          # earlier runner image; when its SDK changes clang rejects them, so
+          # remove them and let CmdStan rebuild them with the current one
+          unlink(Sys.glob(file.path(cmdstanr::cmdstan_path(), "stan", "src", "stan",
+                                    "model", "*.gch")))
           cat("CmdStan", cmdstanr::cmdstan_version(), "\n")
-        shell: Rscript {0}
-      - name: Compile the Stan model (shows compiler errors)
-        if: matrix.config.cmdstan
-        run: |
-          m <- cmdstanr::cmdstan_model("inst/stan/fp_occu.stan", compile = FALSE)
-          m$compile(cpp_options = list(stan_threads = TRUE), quiet = FALSE,
-                    dir = tempdir())
         shell: Rscript {0}
       - uses: r-lib/actions/check-r-package@v2
         if: matrix.config.cmdstan

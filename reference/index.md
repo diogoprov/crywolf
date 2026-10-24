@@ -17,6 +17,8 @@ Read BirdNET selection tables and reviewed clips, and build occasions.
   : Read BirdNET selection tables
 - [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md)
   : Read the verdicts of a clip review
+- [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+  : Read an export of the sheepdog package
 - [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
   : Detections and confirmations per occasion
 - [`fp_threshold_sweep()`](https://provetelab.org/crywolf/reference/fp_threshold_sweep.md)

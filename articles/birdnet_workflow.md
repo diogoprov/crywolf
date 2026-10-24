@@ -175,6 +175,21 @@ head(verdicts)
 #> 6 S05_20240104_200000
 ```
 
+When ‘sheepdog’ wrote the whole survey with `export_occupancy_data()`,
+[`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+reads that folder instead: every occasion, the predictions, the reviewed
+clips with their sampling design, and the recordings annotated by ear,
+already in the forms used below. It drops clips drawn with
+`sampling_mode = "top"`, which were chosen for their high scores, and
+refuses schemas it does not know.
+
+``` r
+
+x <- fp_read_sheepdog("occupancy_export", species = "compau")
+auto <- fp_aggregate(x$occasions, x$detections, threshold = 0.5,
+                     by = c("site", "occasion_id"), validation = x$validation)
+```
+
 ## Building the occasions
 
 The classifier lists detections only, so the occasions come from a table

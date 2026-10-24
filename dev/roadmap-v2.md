@@ -76,12 +76,16 @@ detecções. Medir antes de permitir a combinação.
   Chambert e combinado; `loo()` integra em grade de Gauss-Hermite 2D com os
   dois efeitos, 30 nós por efeito, diferença de 6e-4 contra 60). Saída
   `sd_det_site`, prior `fp_priors(det_site_sd = 1)`.
-- **Em andamento:** mais 80 réplicas dos cenários (100 no total, 14
-  workers, gravação por ajuste em `dev/random-det/jobs/`), pedidas pelo
-  Diogo antes da vinheta; depois, gráficos dos cenários.
-- **Falta:** gráficos e vinheta do `random_det` (com os números das 100
-  réplicas também no help); SBC com `random_det`; exemplo na curiango;
-  texto do limiar 0,2 na vinheta `threshold`.
+- **Feito em 24/10/2026:** 100 réplicas dos cenários (1600 ajustes),
+  SBC com `random_det` (200 réplicas, ranks uniformes), curiango com
+  `random_det` com e sem Markov (LOO prefere os dois termos, 113, EP 22),
+  vinheta `site_effects` com os gráficos, texto do limiar 0,2 na vinheta
+  `threshold`. O PPC da curiango deixa de acusar a variação entre noites,
+  mas isso é esperado com um efeito por noite (o `fp_ppc()` replica cada
+  sítio com o próprio efeito); a evidência é o LOO.
+- **Resta da 1.8:** só o desenho de Chambert no caminho GLM (opcional).
+  Próximo: congelar os nomes da saída (`help("crywolf-output")`), agora que
+  o `sd_det_site` existe.
 
 ## 1.9.0: congelamento da API
 

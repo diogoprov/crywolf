@@ -13,3 +13,15 @@ cur_sites <- data.frame(site_night = nt$site_night, temp = zs(nt$temp), rh = zs(
                         moon = zs(log(nt$moon)))
 cur_verified <- data.frame(site_night = curiango$verified$site_night,
                            y = curiango$verified$y)
+
+# runs of consecutive detections within a night (15-minute steps)
+runs <- function(a) {
+  a <- a[order(a$site_night, a$time), ]
+  same <- c(FALSE, a$site_night[-1] == a$site_night[-nrow(a)])
+  step <- c(NA, diff(as.numeric(a$time)))
+  adjacent <- same & step == 900
+  start <- a$y == 1 & !(adjacent & c(0, a$y[-nrow(a)]) == 1)
+  id <- cumsum(start)
+  len <- tabulate(id[a$y == 1])
+  table(factor(pmin(len, 5), levels = 1:5, labels = c(1:4, "5+")))
+}

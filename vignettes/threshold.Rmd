@@ -10,13 +10,15 @@ vignette: >
 ```{r setup, include = FALSE}
 # The four fits take about half an hour on 16 cores, so the results were
 # saved by dev/precompute-threshold.R and are read from
-# threshold-results.rds.
+# threshold-results.rds; the refits with fp ~ temp + rh, by
+# dev/precompute-threshold-fp.R, from threshold-fp-results.rds.
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
                       fig.width = 7, fig.height = 5, out.width = "100%")
 library(crywolf)
 sweep <- readRDS("threshold-results.rds")
-val <- function(par, th, digits = 2) {
-  r <- sweep[sweep$parameter == par & sweep$threshold == th, ]
+sweep_fp <- readRDS("threshold-fp-results.rds")
+val <- function(par, th, digits = 2, x = sweep) {
+  r <- x[x$parameter == par & x$threshold == th, ]
   sprintf(paste0("%.", digits, "f (%.", digits, "f to %.", digits, "f)"),
           r$mean, r$lower, r$upper)
 }
@@ -31,6 +33,7 @@ rate <- function(th) {
 
 ```{r stale, echo = FALSE, results = "asis"}
 cat(crywolf:::.stale_note(sweep, "threshold-results.rds"))
+cat(crywolf:::.stale_note(sweep_fp, "threshold-fp-results.rds"))
 ```
 
 A classifier gives each recording a confidence score, and the analyst picks
@@ -151,16 +154,62 @@ The occupancy effects, however, are not stable over the whole range. From
 `r val("occ_temp", 0.4)` to `r val("occ_temp", 0.8)`. At 0.2 they change:
 relative humidity is `r val("occ_rh", 0.2)`, and the temperature effect
 changes sign, to `r val("occ_temp", 0.2)`. A constant false-positive rate
-does not absorb what a low threshold lets in. One reading is that false
-positives at low scores are themselves related to the conditions of the
-night; refitting the low-threshold data with the environmental covariates in
-the false-positive formula would test it. Until then, the estimates at 0.2
-should not be trusted, and the stability from 0.4 upwards, which includes
-the F1-maximizing threshold, is the reassuring part of the sweep.
+does not absorb what a low threshold lets in.
 
 ```{r divergences}
 unique(sweep[c("threshold", "divergences", "max_rhat")])
 ```
+
+## False positives that follow the conditions of the night
+
+One reading of the change at 0.2 is that the false positives let in by a
+low threshold are themselves related to the conditions of the night. If so,
+a constant false-positive rate assigns part of them to occupancy, and the
+occupancy effects of those conditions are biased. The remedy suggested in
+`vignette("crywolf")` is to model the false-positive rate with the
+occupancy covariates. The thresholds 0.2 and 0.4 were refitted with
+`fp = ~ temp + rh` (`dev/precompute-threshold-fp.R`; the two fits took
+`r round(attr(sweep_fp, "minutes"))` minutes):
+
+```{r fp-covariates}
+pars <- c("occ_temp", "occ_rh", "fp_temp", "fp_rh", "p10_bar")
+both <- rbind(
+  data.frame(fp = "~ 1", sweep[sweep$threshold %in% c(0.2, 0.4) &
+                                 sweep$parameter %in% pars, ]),
+  data.frame(fp = "~ temp + rh", sweep_fp[sweep_fp$parameter %in% pars, ]))
+both[c("mean", "lower", "upper")] <- signif(both[c("mean", "lower", "upper")], 3)
+both <- both[order(both$threshold, both$parameter, both$fp),
+             c("threshold", "parameter", "fp", "mean", "lower", "upper")]
+rownames(both) <- NULL
+both
+```
+
+At 0.2 the false-positive rate rises with temperature,
+`r val("fp_temp", 0.2, x = sweep_fp)` on the logit scale, and falls slightly
+with humidity, `r val("fp_rh", 0.2, x = sweep_fp)`. With these terms, the
+occupancy effect of temperature shrinks from `r val("occ_temp", 0.2)` to
+`r val("occ_temp", 0.2, x = sweep_fp)`, and its interval now just includes
+zero. It does not return to the negative value found at 0.4 and above. The
+humidity effect hardly changes, from `r val("occ_rh", 0.2)` to
+`r val("occ_rh", 0.2, x = sweep_fp)`, and stays weaker than at 0.4. At 0.4
+the false-positive rate falls with humidity,
+`r val("fp_rh", 0.4, x = sweep_fp)`, yet the occupancy effects barely move:
+humidity goes from `r val("occ_rh", 0.4)` to
+`r val("occ_rh", 0.4, x = sweep_fp)`, and temperature stays at
+`r val("occ_temp", 0.4, x = sweep_fp)`. Both refits had no
+divergent transitions and a largest R-hat of
+`r sprintf("%.3f", max(sweep_fp$max_rhat))`.
+
+So false positives that follow the temperature of the night explain part of
+the change at the low threshold, but not all of it: what remains may come
+from false positives related to conditions not in the formula, or from
+changes in detection, which also depends on the threshold. This is
+consistent with the simulations behind crywolf (Provete et al., in preparation), in which
+putting the occupancy covariates in the false-positive formula reduced the
+bias of the occupancy effects without removing it. The estimates at 0.2
+should therefore still not be trusted, and the stability from 0.4 upwards,
+which includes the F1-maximizing threshold, is the reassuring part of the
+sweep.
 
 ## Reading a sweep
 
@@ -190,3 +239,5 @@ Piatti, L., de Sousa, D. L. H., Oliveira, B. S., de Melo, A. V., Sugai,
 L. S. M., & Provete, D. B. (2026). Methodological choices influence
 ecological inference in passive acoustic monitoring of a Neotropical
 nightjar. *Journal of Avian Biology*, in press.
+
+Provete, D. B., et al. (in preparation).

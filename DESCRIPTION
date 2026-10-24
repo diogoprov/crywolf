@@ -1,6 +1,6 @@
 Package: crywolf
 Title: Bayesian False-Positive Occupancy Models with Calibration Checks
-Version: 1.9.0
+Version: 1.9.0.9000
 Authors@R: c(
     person("Diogo B.", "Provete", email = "dbprovete@gmail.com",
            role = c("aut", "cre"),

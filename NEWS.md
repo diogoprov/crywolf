@@ -1,3 +1,15 @@
+# crywolf (development version)
+
+## New features
+
+* `fp_occu_mc()` fits the model to several versions of the same data, such
+  as detection histories drawn from the posterior of a classifier
+  calibration (`sheepdog::history_draws()`), and pools the posteriors in
+  equal shares (Monte Carlo propagation; a "cut" model, in which the
+  calibration does not learn from occupancy). `summary()` splits each
+  variance into parts within and between fits, and reports convergence fit
+  by fit. With a single version it reproduces `fp_occu()` draw for draw.
+
 # crywolf 1.9.0
 
 This release freezes the API on the way to crywolf 2.0.0, and adds a site

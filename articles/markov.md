@@ -184,6 +184,9 @@ further from their expected values than the model allows. The
 discrepancy is computed per site-night, so it does not measure runs
 directly, and the remaining misfit may come from variation among nights
 that the covariates do not explain.
+[`vignette("site_effects")`](https://provetelab.org/crywolf/articles/site_effects.md)
+adds a site effect on true detection to these fits; leave-one-site-out
+comparison prefers the model with both terms.
 
 Leave-one-site-out cross-validation prefers the Markov model, by 450
 units of expected log predictive density, 8 times its standard error:

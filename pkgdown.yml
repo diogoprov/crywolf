@@ -12,10 +12,11 @@ articles:
   planning: planning.html
   reporting: reporting.html
   simulation: simulation.html
+  site_effects: site_effects.html
   stan_model: stan_model.html
   threshold: threshold.html
   unmarked: unmarked.html
-last_built: 2026-10-24T04:28Z
+last_built: 2026-10-24T10:45Z
 urls:
   reference: https://provetelab.org/crywolf/reference
   article: https://provetelab.org/crywolf/articles

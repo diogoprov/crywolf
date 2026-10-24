@@ -51,6 +51,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Modelling</h6></li>
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
+    <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -257,7 +258,10 @@ replicated one, but both p-values are 0: the detections of some
 site-nights remain further from their expected values than the model
 allows. The discrepancy is computed per site-night, so it does not
 measure runs directly, and the remaining misfit may come from variation
-among nights that the covariates do not explain.</p>
+among nights that the covariates do not explain.
+<code><a href="../articles/site_effects.html">vignette("site_effects")</a></code> adds a site effect on true
+detection to these fits; leave-one-site-out comparison prefers the model
+with both terms.</p>
 <p>Leave-one-site-out cross-validation prefers the Markov model, by 450
 units of expected log predictive density, 8 times its standard
 error:</p>

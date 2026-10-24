@@ -41,7 +41,15 @@
   [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md),
   [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md) and
   [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
-  support it.
+  support it. The new article
+  [`vignette("site_effects")`](https://provetelab.org/crywolf/articles/site_effects.md)
+  shows in simulations (100 replicates of four scenarios) what each site
+  effect recovers and costs, a simulation-based calibration, and the
+  `curiango` data, where leave-one-site-out comparison prefers
+  `random_det` together with the run term of
+  [`vignette("markov")`](https://provetelab.org/crywolf/articles/markov.md).
+- [`vignette("threshold")`](https://provetelab.org/crywolf/articles/threshold.md)
+  reports refits at thresholds 0.2 and 0.4 with `fp = ~ temp + rh`.
 
 ### Changes
 

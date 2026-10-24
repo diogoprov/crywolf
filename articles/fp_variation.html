@@ -51,6 +51,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Modelling</h6></li>
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
+    <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -299,7 +300,11 @@ of <code><a href="../articles/calibration.html">vignette("calibration")</a></cod
 with occupancy.</li>
 <li>
 <code>random_fp = TRUE</code> is for variation among sites that no
-covariate explains. It costs time and mixing. It is off by default.</li>
+covariate explains. It costs time and mixing. It is off by default. When
+true detection may also vary among sites, fit it together with
+<code>random_det = TRUE</code>: alone, it can mistake variation in
+detection for variation in false positives
+(<code><a href="../articles/site_effects.html">vignette("site_effects")</a></code>).</li>
 <li>With neither, the false-positive rate is assumed equal everywhere. A
 posterior predictive check (<code><a href="../reference/fp_ppc.html">fp_ppc()</a></code>) that flags sites with
 more detections than the model expects is a sign that this is

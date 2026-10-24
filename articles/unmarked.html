@@ -51,6 +51,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Modelling</h6></li>
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
+    <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -227,14 +228,14 @@ no method covariate is needed:</p>
 <span><span class="va">m_cw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Running MCMC with 4 parallel chains, with 1 thread(s) per chain...</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 2 finished in 32.1 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 32.4 seconds.</span></span>
-<span><span class="co">#&gt; Chain 4 finished in 33.3 seconds.</span></span>
-<span><span class="co">#&gt; Chain 1 finished in 35.0 seconds.</span></span>
+<span><span class="co">#&gt; Chain 2 finished in 45.1 seconds.</span></span>
+<span><span class="co">#&gt; Chain 3 finished in 46.1 seconds.</span></span>
+<span><span class="co">#&gt; Chain 4 finished in 46.5 seconds.</span></span>
+<span><span class="co">#&gt; Chain 1 finished in 49.3 seconds.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 33.2 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 35.1 seconds.</span></span>
+<span><span class="co">#&gt; Mean chain execution time: 46.8 seconds.</span></span>
+<span><span class="co">#&gt; Total execution time: 49.4 seconds.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_cw</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      occ_(Intercept)                occ_x      det_(Intercept) </span></span>
 <span><span class="co">#&gt;           0.15887315          -0.76977980           0.42722960 </span></span>

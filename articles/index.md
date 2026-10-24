@@ -22,6 +22,8 @@
   runs](https://provetelab.org/crywolf/articles/markov.md):
 - [False-positive rates that vary among sites and
   occasions](https://provetelab.org/crywolf/articles/fp_variation.md):
+- [Site effects on detection and false
+  positives](https://provetelab.org/crywolf/articles/site_effects.md):
 
 ### Design and checks
 

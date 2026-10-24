@@ -215,7 +215,11 @@ slope as in
   [`vignette("calibration")`](https://provetelab.org/crywolf/articles/calibration.md)
   when the cause was correlated with occupancy.
 - `random_fp = TRUE` is for variation among sites that no covariate
-  explains. It costs time and mixing. It is off by default.
+  explains. It costs time and mixing. It is off by default. When true
+  detection may also vary among sites, fit it together with
+  `random_det = TRUE`: alone, it can mistake variation in detection for
+  variation in false positives
+  ([`vignette("site_effects")`](https://provetelab.org/crywolf/articles/site_effects.md)).
 - With neither, the false-positive rate is assumed equal everywhere. A
   posterior predictive check
   ([`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md))

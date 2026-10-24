@@ -34,6 +34,7 @@ reference:
     contents:
       - fp_occu
       - fp_occu_mc
+      - fp_draws_data
       - fp_priors
       - fp_occu-methods
       - crywolf-output

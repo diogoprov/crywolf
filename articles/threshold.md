@@ -159,13 +159,7 @@ From 0.4 to 0.8 they stay close: relative humidity goes from -0.78
 (-0.39 to -0.11) to -0.35 (-0.52 to -0.18). At 0.2 they change: relative
 humidity is -0.36 (-0.48 to -0.25), and the temperature effect changes
 sign, to 0.16 (0.04 to 0.28). A constant false-positive rate does not
-absorb what a low threshold lets in. One reading is that false positives
-at low scores are themselves related to the conditions of the night;
-refitting the low-threshold data with the environmental covariates in
-the false-positive formula would test it. Until then, the estimates at
-0.2 should not be trusted, and the stability from 0.4 upwards, which
-includes the F1-maximizing threshold, is the reassuring part of the
-sweep.
+absorb what a low threshold lets in.
 
 ``` r
 
@@ -176,6 +170,73 @@ unique(sweep[c("threshold", "divergences", "max_rhat")])
 #> 21       0.6           0 1.005064
 #> 31       0.8           0 1.005095
 ```
+
+## False positives that follow the conditions of the night
+
+One reading of the change at 0.2 is that the false positives let in by a
+low threshold are themselves related to the conditions of the night. If
+so, a constant false-positive rate assigns part of them to occupancy,
+and the occupancy effects of those conditions are biased. The remedy
+suggested in
+[`vignette("crywolf")`](https://provetelab.org/crywolf/articles/crywolf.md)
+is to model the false-positive rate with the occupancy covariates. The
+thresholds 0.2 and 0.4 were refitted with `fp = ~ temp + rh`
+(`dev/precompute-threshold-fp.R`; the two fits took 17 minutes):
+
+``` r
+
+pars <- c("occ_temp", "occ_rh", "fp_temp", "fp_rh", "p10_bar")
+both <- rbind(
+  data.frame(fp = "~ 1", sweep[sweep$threshold %in% c(0.2, 0.4) &
+                                 sweep$parameter %in% pars, ]),
+  data.frame(fp = "~ temp + rh", sweep_fp[sweep_fp$parameter %in% pars, ]))
+both[c("mean", "lower", "upper")] <- signif(both[c("mean", "lower", "upper")], 3)
+both <- both[order(both$threshold, both$parameter, both$fp),
+             c("threshold", "parameter", "fp", "mean", "lower", "upper")]
+rownames(both) <- NULL
+both
+#>    threshold parameter          fp     mean     lower    upper
+#> 1        0.2     fp_rh ~ temp + rh -0.07960 -0.143000 -0.01780
+#> 2        0.2   fp_temp ~ temp + rh  0.27400  0.216000  0.33600
+#> 3        0.2    occ_rh         ~ 1 -0.36300 -0.482000 -0.24500
+#> 4        0.2    occ_rh ~ temp + rh -0.36800 -0.491000 -0.24800
+#> 5        0.2  occ_temp         ~ 1  0.16100  0.040800  0.28400
+#> 6        0.2  occ_temp ~ temp + rh  0.09040 -0.024400  0.20700
+#> 7        0.2   p10_bar         ~ 1  0.02600  0.024400  0.02760
+#> 8        0.2   p10_bar ~ temp + rh  0.02740  0.025700  0.02930
+#> 9        0.4     fp_rh ~ temp + rh -0.38100 -0.498000 -0.25500
+#> 10       0.4   fp_temp ~ temp + rh  0.13200 -0.000408  0.27000
+#> 11       0.4    occ_rh         ~ 1 -0.77700 -0.938000 -0.62400
+#> 12       0.4    occ_rh ~ temp + rh -0.71900 -0.882000 -0.56800
+#> 13       0.4  occ_temp         ~ 1 -0.24900 -0.391000 -0.11000
+#> 14       0.4  occ_temp ~ temp + rh -0.25500 -0.390000 -0.11200
+#> 15       0.4   p10_bar         ~ 1  0.00327  0.002830  0.00376
+#> 16       0.4   p10_bar ~ temp + rh  0.00369  0.003190  0.00424
+```
+
+At 0.2 the false-positive rate rises with temperature, 0.27 (0.22 to
+0.34) on the logit scale, and falls slightly with humidity, -0.08 (-0.14
+to -0.02). With these terms, the occupancy effect of temperature shrinks
+from 0.16 (0.04 to 0.28) to 0.09 (-0.02 to 0.21), and its interval now
+just includes zero. It does not return to the negative value found at
+0.4 and above. The humidity effect hardly changes, from -0.36 (-0.48 to
+-0.25) to -0.37 (-0.49 to -0.25), and stays weaker than at 0.4. At 0.4
+the false-positive rate falls with humidity, -0.38 (-0.50 to -0.26), yet
+the occupancy effects barely move: humidity goes from -0.78 (-0.94 to
+-0.62) to -0.72 (-0.88 to -0.57), and temperature stays at -0.25 (-0.39
+to -0.11). Both refits had no divergent transitions and a largest R-hat
+of 1.004.
+
+So false positives that follow the temperature of the night explain part
+of the change at the low threshold, but not all of it: what remains may
+come from false positives related to conditions not in the formula, or
+from changes in detection, which also depends on the threshold. This is
+consistent with the simulations behind crywolf (Provete et al., in
+preparation), in which putting the occupancy covariates in the
+false-positive formula reduced the bias of the occupancy effects without
+removing it. The estimates at 0.2 should therefore still not be trusted,
+and the stability from 0.4 upwards, which includes the F1-maximizing
+threshold, is the reassuring part of the sweep.
 
 ## Reading a sweep
 
@@ -207,3 +268,5 @@ Piatti, L., de Sousa, D. L. H., Oliveira, B. S., de Melo, A. V., Sugai,
 L. S. M., & Provete, D. B. (2026). Methodological choices influence
 ecological inference in passive acoustic monitoring of a Neotropical
 nightjar. *Journal of Avian Biology*, in press.
+
+Provete, D. B., et al. (in preparation).

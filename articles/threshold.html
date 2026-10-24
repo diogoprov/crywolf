@@ -228,13 +228,7 @@ From 0.4 to 0.8 they stay close: relative humidity goes from -0.78
 (-0.39 to -0.11) to -0.35 (-0.52 to -0.18). At 0.2 they change: relative
 humidity is -0.36 (-0.48 to -0.25), and the temperature effect changes
 sign, to 0.16 (0.04 to 0.28). A constant false-positive rate does not
-absorb what a low threshold lets in. One reading is that false positives
-at low scores are themselves related to the conditions of the night;
-refitting the low-threshold data with the environmental covariates in
-the false-positive formula would test it. Until then, the estimates at
-0.2 should not be trusted, and the stability from 0.4 upwards, which
-includes the F1-maximizing threshold, is the reassuring part of the
-sweep.</p>
+absorb what a low threshold lets in.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">sweep</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"threshold"</span>, <span class="st">"divergences"</span>, <span class="st">"max_rhat"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    threshold divergences max_rhat</span></span>
@@ -242,6 +236,69 @@ sweep.</p>
 <span><span class="co">#&gt; 11       0.4           0 1.006481</span></span>
 <span><span class="co">#&gt; 21       0.6           0 1.005064</span></span>
 <span><span class="co">#&gt; 31       0.8           0 1.005095</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="false-positives-that-follow-the-conditions-of-the-night">False positives that follow the conditions of the night<a class="anchor" aria-label="anchor" href="#false-positives-that-follow-the-conditions-of-the-night"></a>
+</h2>
+<p>One reading of the change at 0.2 is that the false positives let in
+by a low threshold are themselves related to the conditions of the
+night. If so, a constant false-positive rate assigns part of them to
+occupancy, and the occupancy effects of those conditions are biased. The
+remedy suggested in <code><a href="../articles/crywolf.html">vignette("crywolf")</a></code> is to model the
+false-positive rate with the occupancy covariates. The thresholds 0.2
+and 0.4 were refitted with <code>fp = ~ temp + rh</code>
+(<code>dev/precompute-threshold-fp.R</code>; the two fits took 17
+minutes):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occ_temp"</span>, <span class="st">"occ_rh"</span>, <span class="st">"fp_temp"</span>, <span class="st">"fp_rh"</span>, <span class="st">"p10_bar"</span><span class="op">)</span></span>
+<span><span class="va">both</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>fp <span class="op">=</span> <span class="st">"~ 1"</span>, <span class="va">sweep</span><span class="op">[</span><span class="va">sweep</span><span class="op">$</span><span class="va">threshold</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.4</span><span class="op">)</span> <span class="op">&amp;</span></span>
+<span>                                 <span class="va">sweep</span><span class="op">$</span><span class="va">parameter</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">pars</span>, <span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>fp <span class="op">=</span> <span class="st">"~ temp + rh"</span>, <span class="va">sweep_fp</span><span class="op">[</span><span class="va">sweep_fp</span><span class="op">$</span><span class="va">parameter</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">pars</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">both</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">both</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">both</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">both</span><span class="op">$</span><span class="va">threshold</span>, <span class="va">both</span><span class="op">$</span><span class="va">parameter</span>, <span class="va">both</span><span class="op">$</span><span class="va">fp</span><span class="op">)</span>,</span>
+<span>             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"threshold"</span>, <span class="st">"parameter"</span>, <span class="st">"fp"</span>, <span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">both</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="va">both</span></span>
+<span><span class="co">#&gt;    threshold parameter          fp     mean     lower    upper</span></span>
+<span><span class="co">#&gt; 1        0.2     fp_rh ~ temp + rh -0.07960 -0.143000 -0.01780</span></span>
+<span><span class="co">#&gt; 2        0.2   fp_temp ~ temp + rh  0.27400  0.216000  0.33600</span></span>
+<span><span class="co">#&gt; 3        0.2    occ_rh         ~ 1 -0.36300 -0.482000 -0.24500</span></span>
+<span><span class="co">#&gt; 4        0.2    occ_rh ~ temp + rh -0.36800 -0.491000 -0.24800</span></span>
+<span><span class="co">#&gt; 5        0.2  occ_temp         ~ 1  0.16100  0.040800  0.28400</span></span>
+<span><span class="co">#&gt; 6        0.2  occ_temp ~ temp + rh  0.09040 -0.024400  0.20700</span></span>
+<span><span class="co">#&gt; 7        0.2   p10_bar         ~ 1  0.02600  0.024400  0.02760</span></span>
+<span><span class="co">#&gt; 8        0.2   p10_bar ~ temp + rh  0.02740  0.025700  0.02930</span></span>
+<span><span class="co">#&gt; 9        0.4     fp_rh ~ temp + rh -0.38100 -0.498000 -0.25500</span></span>
+<span><span class="co">#&gt; 10       0.4   fp_temp ~ temp + rh  0.13200 -0.000408  0.27000</span></span>
+<span><span class="co">#&gt; 11       0.4    occ_rh         ~ 1 -0.77700 -0.938000 -0.62400</span></span>
+<span><span class="co">#&gt; 12       0.4    occ_rh ~ temp + rh -0.71900 -0.882000 -0.56800</span></span>
+<span><span class="co">#&gt; 13       0.4  occ_temp         ~ 1 -0.24900 -0.391000 -0.11000</span></span>
+<span><span class="co">#&gt; 14       0.4  occ_temp ~ temp + rh -0.25500 -0.390000 -0.11200</span></span>
+<span><span class="co">#&gt; 15       0.4   p10_bar         ~ 1  0.00327  0.002830  0.00376</span></span>
+<span><span class="co">#&gt; 16       0.4   p10_bar ~ temp + rh  0.00369  0.003190  0.00424</span></span></code></pre></div>
+<p>At 0.2 the false-positive rate rises with temperature, 0.27 (0.22 to
+0.34) on the logit scale, and falls slightly with humidity, -0.08 (-0.14
+to -0.02). With these terms, the occupancy effect of temperature shrinks
+from 0.16 (0.04 to 0.28) to 0.09 (-0.02 to 0.21), and its interval now
+just includes zero. It does not return to the negative value found at
+0.4 and above. The humidity effect hardly changes, from -0.36 (-0.48 to
+-0.25) to -0.37 (-0.49 to -0.25), and stays weaker than at 0.4. At 0.4
+the false-positive rate falls with humidity, -0.38 (-0.50 to -0.26), yet
+the occupancy effects barely move: humidity goes from -0.78 (-0.94 to
+-0.62) to -0.72 (-0.88 to -0.57), and temperature stays at -0.25 (-0.39
+to -0.11). Both refits had no divergent transitions and a largest R-hat
+of 1.004.</p>
+<p>So false positives that follow the temperature of the night explain
+part of the change at the low threshold, but not all of it: what remains
+may come from false positives related to conditions not in the formula,
+or from changes in detection, which also depends on the threshold. This
+is consistent with the simulations behind crywolf (Provete et al., in
+preparation), in which putting the occupancy covariates in the
+false-positive formula reduced the bias of the occupancy effects without
+removing it. The estimates at 0.2 should therefore still not be trusted,
+and the stability from 0.4 upwards, which includes the F1-maximizing
+threshold, is the reassuring part of the sweep.</p>
 </div>
 <div class="section level2">
 <h2 id="reading-a-sweep">Reading a sweep<a class="anchor" aria-label="anchor" href="#reading-a-sweep"></a>
@@ -280,6 +337,7 @@ recognition programs. <em>Avian Conservation and Ecology</em>, 12, 14.
 Sugai, L. S. M., &amp; Provete, D. B. (2026). Methodological choices
 influence ecological inference in passive acoustic monitoring of a
 Neotropical nightjar. <em>Journal of Avian Biology</em>, in press.</p>
+<p>Provete, D. B., et al. (in preparation).</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

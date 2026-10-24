@@ -18,6 +18,14 @@ O que toca o crywolf, em ordem de prioridade:
   r-universe publicar o sheepdog 3.2.1.9000.
 - **Fase 1, propagação Monte Carlo:** `fp_occu_mc()` ajusta o modelo nos
   históricos de `sheepdog::history_draws()` e junta as posteriores.
+  **Feito em 24/10/2026 (crywolf 1.9.0.9000):** `fp_occu_mc()` (mistura
+  igual; `summary()` com variância dentro e entre ajustes; com M = 1, draws
+  idênticos ao `fp_occu()`) e `fp_draws_data()`, que monta as versões a
+  partir de `calibration_draws.parquet` (regra `"sample"` por padrão,
+  decisão do Diogo; `"threshold"` como alternativa). Falta: escolher M
+  (estabilidade com M = 10, 20, 50) e a comparação na curiango, inclusive
+  `fp = NULL` contra o modelo de FP nos históricos calibrados (com eles o
+  p10 tende a ficar mal identificado).
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

@@ -9,6 +9,19 @@ A reference for the parameter names and result fields returned by crywolf.
 Use \code{help("crywolf-output")} to open this page. Coefficients keep the same
 names in \code{as_draws_df(fit)}, \code{summary(fit)$table}, and \code{coef(fit)}.
 }
+\section{Stability}{
+
+From crywolf 1.9.0, the names documented on this page are frozen: the
+readable parameter and derived-quantity names, the columns of the
+summaries and of the other results described below (results of other
+functions are not covered yet), and the fields of
+the fitted object listed under "Readable draws and raw Stan names". They
+change only in a major version, announced in the previous minor version.
+New options may add names (as \code{random_det} added \code{sd_det_site}) without
+changing existing ones. Raw Stan names and the fields of \code{design} and
+\code{stan_data} are implementation details and are not covered.
+}
+
 \section{Coefficient names}{
 
 Suffixes come from the columns of R's \code{\link[stats:model.matrix]{stats::model.matrix()}}: \code{(Intercept)}
@@ -186,7 +199,8 @@ metadata \code{.chain}, \code{.iteration}, and \code{.draw}. The backend's
 input site-table order; \code{\link[=loo]{loo()}} uses sites as its pointwise units.
 It is available from \code{fit$fit$draws("log_lik")}, not the readable draws.
 With a fitted site random effect, state marginalization does not also
-integrate that effect out. Raw random effects (\code{u}, \code{u_raw}, \code{e_raw})
+integrate that effect out; \code{\link[=loo]{loo()}} does, by quadrature (its argument
+\code{integrate}). Raw random effects (\code{u}, \code{u_raw}, \code{e_raw}, \code{d_raw})
 and sampler variable \code{lp__} are backend outputs, not additional public
 coefficient names. \code{design} and \code{stan_data} describe internal encodings;
 their field names and raw Stan names are implementation details.

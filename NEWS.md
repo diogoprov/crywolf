@@ -1,4 +1,16 @@
-# crywolf (development version)
+# crywolf 1.9.0
+
+This release freezes the API on the way to crywolf 2.0.0, and adds a site
+random effect on true detection.
+
+## API
+
+* The names documented in `help("crywolf-output")` (readable parameter
+  names, the columns of the results described there, the fields of the
+  fitted object, now including `random_det`) are frozen from this version:
+  they change only in a major version, announced one minor version
+  earlier. New options may add names without changing existing ones.
+  Results not described on that page are not covered yet.
 
 ## Upcoming changes
 
@@ -31,8 +43,7 @@
   off the draws are identical to those of the previous version with the same
   seed. `loo()` integrates the site effects out of each site's
   log-likelihood also with `random_det`, with a two-dimensional
-  Gauss-Hermite grid when both site effects are on (`nodes` now defaults to
-  `NULL`: 100 nodes with one site effect, 30 per effect with two).
+  Gauss-Hermite grid of 30 nodes per effect when both site effects are on.
   `simulate()`, `fp_ppc()`, `fp_calibrate_fit()`, `fp_sbc()` and
   `fp_prior_predictive()` support it. The new article
   `vignette("site_effects")` shows in simulations (100 replicates of four
@@ -51,7 +62,8 @@
   another.
 * With `random_fp = TRUE`, `loo()` now integrates each site's effect on the
   false-positive rate out of its log-likelihood, by Gauss-Hermite quadrature
-  (`integrate = TRUE`, `nodes = 100`), before the leave-one-out computation.
+  (new arguments `integrate = TRUE` and `nodes = NULL`, which means 100
+  nodes with one site effect), before the leave-one-out computation.
   A left-out site's effect is not known from its own data, so this is the
   right predictive density; conditional on the fitted effects, many sites
   had Pareto k above 0.7 (in the example of `vignette("fp_variation")`, 0

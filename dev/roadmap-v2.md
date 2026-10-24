@@ -65,7 +65,7 @@ detecções. Medir antes de permitir a combinação.
   explica parte da troca de sinal, não toda. Falta o texto na vinheta
   `threshold`.
 - Protótipo do `random_det` (`dev/random-det/`), 20 réplicas: recupera
-  `sd_det` sem custo quando não há heterogeneidade; o `random_fp` sozinho
+  `sd_det_site` sem custo quando não há heterogeneidade; o `random_fp` sozinho
   absorve heterogeneidade de detecção como se fosse de FP (sd_fp 1,43 com
   verdade 0); os dois juntos recuperam os dois sd e o declive, mas com
   R-hat > 1,01 em 30–60% dos ajustes. **Decidido pelo Diogo:** implementar,
@@ -119,7 +119,7 @@ são mensagens do próprio crywolf.
   lógicos separados (`random_recorder`, `random_fp` e, quando entrar, o
   `random_det`), sem uma interface única do tipo `random = ~ ...`. Motivo:
   o escopo é estreito (três efeitos fixos, cada um com prior e saída
-  própria: `sd_recorder`, `sd_fp_site`, `sd_det`), e argumentos lógicos
+  própria: `sd_recorder`, `sd_fp_site`, `sd_det_site`), e argumentos lógicos
   são mais fáceis de documentar e validar.
 - **Decidido (23/10/2026):** `fp_data_wide()` fica na API do 2.0, como
   ponte para quem vem do `unmarked::occuFP()` com matrizes sítio × ocasião
@@ -128,8 +128,12 @@ são mensagens do próprio crywolf.
   2.x; remoção no 3.0 **anunciada** no help de `fp_read_validation()` e no
   NEWS (23/10/2026), sem aviso em tempo de execução.
 - Nomes da saída (`occ_*`, `det_*`, `fp_*`, `verified_*`, `p10_bar`, ...):
-  congelar em `help("crywolf-output")`. **Adiado para depois da 1.8**
-  (23/10/2026): o `random_det` pode acrescentar argumento e nome (`sd_det`).
+  congelar em `help("crywolf-output")`. **Feito na 1.9.0 (24/10/2026)**,
+  com o `sd_det_site` já incluído; seção "Stability" na página. Ficam para
+  o 2.0: congelar argumentos e classes (critério 1) e estender a garantia
+  aos resultados de outras funções (`fp_read_sheepdog()`, `loo()` etc.).
+- **Release 1.9.0 (24/10/2026, decisão do Diogo):** um único release com a
+  ciência da 1.8 e a API da 1.9; não houve tag 1.8.0.
 - Exigências mínimas: R ≥ 4.2; CmdStan ≥ 2.40 desde a 1.7.0 (subiu de 2.34
   com o refactor com tuplas, por decisão do Diogo em 22/10/2026).
 

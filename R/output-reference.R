@@ -4,6 +4,17 @@
 #' Use `help("crywolf-output")` to open this page. Coefficients keep the same
 #' names in `as_draws_df(fit)`, `summary(fit)$table`, and `coef(fit)`.
 #'
+#' @section Stability:
+#' From crywolf 1.9.0, the names documented on this page are frozen: the
+#' readable parameter and derived-quantity names, the columns of the
+#' summaries and of the other results described below (results of other
+#' functions are not covered yet), and the fields of
+#' the fitted object listed under "Readable draws and raw Stan names". They
+#' change only in a major version, announced in the previous minor version.
+#' New options may add names (as `random_det` added `sd_det_site`) without
+#' changing existing ones. Raw Stan names and the fields of `design` and
+#' `stan_data` are implementation details and are not covered.
+#'
 #' @section Coefficient names:
 #' Suffixes come from the columns of R's [stats::model.matrix()]: `(Intercept)`
 #' for an intercept, the covariate name for a numeric slope, factor contrasts
@@ -168,7 +179,8 @@
 #' input site-table order; [loo()] uses sites as its pointwise units.
 #' It is available from `fit$fit$draws("log_lik")`, not the readable draws.
 #' With a fitted site random effect, state marginalization does not also
-#' integrate that effect out. Raw random effects (`u`, `u_raw`, `e_raw`)
+#' integrate that effect out; [loo()] does, by quadrature (its argument
+#' `integrate`). Raw random effects (`u`, `u_raw`, `e_raw`, `d_raw`)
 #' and sampler variable `lp__` are backend outputs, not additional public
 #' coefficient names. `design` and `stan_data` describe internal encodings;
 #' their field names and raw Stan names are implementation details.

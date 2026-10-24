@@ -14,6 +14,7 @@ fp_sbc(
   markov = NULL,
   random_recorder = !is.null(data$recorder),
   random_fp = FALSE,
+  random_det = FALSE,
   priors = fp_priors(),
   reps = 100,
   ndraws = 99,
@@ -28,7 +29,7 @@ fp_sbc(
 \arguments{
 \item{data}{An \code{fp_data} object that gives the design.}
 
-\item{occ, det, fp, ver, markov, random_recorder, random_fp, priors}{As in
+\item{occ, det, fp, ver, markov, random_recorder, random_fp, random_det, priors}{As in
 \code{\link[=fp_occu]{fp_occu()}}. The
 priors are both the ones the data are drawn from and the ones the model
 is fitted with, as the method requires.}
@@ -81,7 +82,8 @@ posteriors that are too narrow; a hump, too wide; a slope, a bias.
 Prior draws can produce extreme data (for instance, no detection at
 all); such replicates are fitted as they are, and their divergent
 transitions are recorded. The \code{log_lik} quantity is not computed with
-\code{random_fp = TRUE}, whose site effects are not kept by the simulation.
+\code{random_fp = TRUE} or \code{random_det = TRUE}, whose site effects are not
+kept by the simulation.
 \code{\link[base:summary]{base::summary()}} uses a chi-squared test of the binned ranks, which is
 coarse; look at the histograms from \code{\link[=plot]{plot()}} as well.
 }

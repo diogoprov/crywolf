@@ -14,6 +14,7 @@ fp_prior_predictive(
   markov = NULL,
   random_recorder = !is.null(data$recorder),
   random_fp = FALSE,
+  random_det = FALSE,
   priors = fp_priors(),
   ndraws = 200,
   seed = NULL
@@ -24,7 +25,7 @@ fp_prior_predictive(
 \arguments{
 \item{data}{An \code{fp_data} object.}
 
-\item{occ, det, fp, ver, markov, random_recorder, random_fp, priors}{As in
+\item{occ, det, fp, ver, markov, random_recorder, random_fp, random_det, priors}{As in
 \code{\link[=fp_occu]{fp_occu()}}.}
 
 \item{ndraws}{Number of prior draws, one simulated dataset each.}

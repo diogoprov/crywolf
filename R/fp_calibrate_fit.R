@@ -22,12 +22,12 @@
 #' The recorder effects, when the model has them, are kept at their values in
 #' the chosen draw (or their posterior means), so the simulated data have the
 #' same recorders with the same effects. Site effects on the false-positive
-#' rate (`fp_occu(random_fp = TRUE)`) are kept at their values in the draw
-#' with `truth = "posterior"`; with `truth = "mean"`, whose site effects
-#' would be shrunk towards zero, new ones are drawn from a normal
-#' distribution with the posterior mean of `sd_fp_site` as standard
-#' deviation. Under the multiple-methods
-#' design, an automated occasion at an occupied site is a detection with
+#' rate (`fp_occu(random_fp = TRUE)`) and on true detection (`random_det =
+#' TRUE`) are kept at their values in the draw with `truth = "posterior"`;
+#' with `truth = "mean"`, whose site effects would be shrunk towards zero,
+#' new ones are drawn from a normal distribution with the posterior mean of
+#' `sd_fp_site` (or `sd_det_site`) as standard deviation. Under the
+#' multiple-methods design, an automated occasion at an occupied site is a detection with
 #' probability \eqn{p_{11}} and at an unoccupied site with probability
 #' \eqn{p_{10}}; verified occasions are detections with probability
 #' \eqn{r_{11}} at occupied sites only. Under the observation-confirmation
@@ -134,7 +134,8 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   fit_args <- utils::modifyList(
     list(show_messages = FALSE, show_exceptions = FALSE, refresh = 0,
          random_recorder = fit$random_recorder,
-         random_fp = isTRUE(fit$random_fp), priors = fit$priors,
+         random_fp = isTRUE(fit$random_fp), random_det = isTRUE(fit$random_det),
+         priors = fit$priors,
          ver = if (is.null(fit$formulas$ver)) ~ 1 else fit$formulas$ver,
          markov = fit$markov),
     fit_args)
@@ -168,6 +169,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   f <- fit$formulas
   sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, fit$random_recorder,
                          fit$priors, random_fp = isTRUE(fit$random_fp),
+                         random_det = isTRUE(fit$random_det),
                          ver = if (is.null(f$ver)) ~ 1 else f$ver,
                          markov = fit$markov)
   list(data = fit$data, formulas = f, stan_data = sl$stan_data,
@@ -188,6 +190,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   # truth = "mean", the simulation draws new site effects from their
   # distribution instead
   if (truth == "mean" && !is.null(p$sigma_fp)) p$e_fp <- NULL
+  if (truth == "mean" && !is.null(p$sigma_det)) p$d_det <- NULL
   p
 }
 
@@ -214,6 +217,11 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   # automated occasions, in the sorted order of the design
   lp11 <- drop(oc$Z %*% p$alpha)
   if (sd$estimate_re == 1) lp11 <- lp11 + p$u[oc$rec]
+  if (!is.null(p$d_det)) {
+    lp11 <- lp11 + p$d_det[oc$site]
+  } else if (!is.null(p$sigma_det)) {
+    lp11 <- lp11 + stats::rnorm(nsite, 0, p$sigma_det)[oc$site]
+  }
   zi <- z[oc$site]
   lp10_occ <- lp10[oc$site]
   if (by_row) lp10_occ <- lp10_occ + drop(oc$Xfp %*% p$gamma_fp)

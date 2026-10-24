@@ -25,6 +25,7 @@ automatically standardize formula covariates.\tabular{ll}{
    \code{fp_gap} \tab Positive difference \code{det_(Intercept) - fp_(Intercept)} on the logit scale. Present when \code{fp} is not \code{NULL}. It orders the reference intercepts, not all covariate-specific probabilities. \cr
    \code{sd_recorder} \tab Standard deviation of the recorder random intercept on the detection logit scale, when the recorder effect is enabled. \cr
    \code{sd_fp_site} \tab Standard deviation of the site random intercept on the false-positive logit scale, when \code{random_fp = TRUE}. \cr
+   \code{sd_det_site} \tab Standard deviation of the site random intercept on the true-detection logit scale, when \code{random_det = TRUE}. \cr
 }
 
 
@@ -162,7 +163,7 @@ its truth fields are \code{pars} (named generating coefficients), \code{z},
 \section{Readable draws and raw Stan names}{
 
 The fitted object contains \code{draws}, \code{fit} (the backend fit), \code{data},
-\code{formulas}, \code{markov}, \code{random_recorder}, \code{random_fp}, \code{priors},
+\code{formulas}, \code{markov}, \code{random_recorder}, \code{random_fp}, \code{random_det}, \code{priors},
 \code{sampler}, \code{diagnostics}, \code{call}, \code{design}, and \code{stan_data}.
 \code{sampler} records \code{chains}, \code{parallel_chains}, \code{threads_per_chain},
 \code{iter_warmup}, \code{iter_sampling}, and \code{adapt_delta}.
@@ -176,7 +177,7 @@ metadata \code{.chain}, \code{.iteration}, and \code{.draw}. The backend's
    \code{gamma0}, \code{gamma_fp[k]} \tab \code{fp_(Intercept)}, \verb{fp_<term>} \cr
    \code{delta0}, \code{delta_s[k]} \tab \code{verified_(Intercept)}, \verb{verified_<term>} \cr
    \code{r11} \tab \code{p_verified} \cr
-   \code{sigma_u}, \code{sigma_fp[1]} \tab \code{sd_recorder}, \code{sd_fp_site} \cr
+   \code{sigma_u}, \code{sigma_fp[1]}, \code{sigma_det[1]} \tab \code{sd_recorder}, \code{sd_fp_site}, \code{sd_det_site} \cr
 }
 
 

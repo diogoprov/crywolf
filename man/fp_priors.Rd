@@ -10,7 +10,8 @@ fp_priors(
   gap_mean = 2,
   gap_sd = 1.5,
   recorder_sd = 2,
-  fp_site_sd = 1
+  fp_site_sd = 1,
+  det_site_sd = 1
 )
 }
 \arguments{
@@ -32,6 +33,10 @@ deviation of the recorder random intercept.}
 \item{fp_site_sd}{Scale of the half-Normal(0, sd) prior on the standard
 deviation of the site random intercept on the false-positive rate
 (\code{fp_occu(random_fp = TRUE)}).}
+
+\item{det_site_sd}{Scale of the half-Normal(0, sd) prior on the standard
+deviation of the site random intercept on true detection
+(\code{fp_occu(random_det = TRUE)}).}
 }
 \value{
 A list of class \code{fp_priors}.

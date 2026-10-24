@@ -13,6 +13,22 @@
   (`validacao_por_clipe.csv`, column names in Portuguese) in crywolf 3.0.0.
   It is read as before throughout crywolf 2.x, with no warning at run time.
 
+## New features
+
+* `fp_occu(random_det = TRUE)` adds a site random intercept to the logit of
+  the true-detection probability of the automated method, for detection
+  that varies among occupied sites in ways the covariates in `det` do not
+  capture. It is off by default, reported as `sd_det_site`, with the prior
+  `fp_priors(det_site_sd = 1)`, and can be combined with `random_fp`; the
+  combination mixes slowly, and `fp_occu()` warns about it. With the option
+  off the draws are identical to those of the previous version with the same
+  seed. `loo()` integrates the site effects out of each site's
+  log-likelihood also with `random_det`, with a two-dimensional
+  Gauss-Hermite grid when both site effects are on (`nodes` now defaults to
+  `NULL`: 100 nodes with one site effect, 30 per effect with two).
+  `simulate()`, `fp_ppc()`, `fp_calibrate_fit()`, `fp_sbc()` and
+  `fp_prior_predictive()` support it.
+
 ## Changes
 
 * Under `R CMD check` (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN), a

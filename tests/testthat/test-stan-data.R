@@ -119,3 +119,20 @@ test_that("the site random effect on false positives is switched on and named", 
   expect_false("sigma_fp[1]" %in% names(crywolf:::.name_map(b1$design, TRUE, FALSE)))
   expect_output(print(fp_priors()), "sd_fp_site")
 })
+
+test_that("the site random effect on true detection is switched on and named", {
+  s <- simulate_fp(nsite = 30, nocc = 4, seed = 1)
+  b0 <- crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ 1, FALSE, fp_priors())
+  expect_equal(b0$stan_data$estimate_det_re, 0L)
+  b1 <- crywolf:::.build_stan_data(s$data, ~ x, ~ 1, NULL, FALSE,
+                                   fp_priors(det_site_sd = 0.5), random_det = TRUE)
+  expect_equal(b1$stan_data$estimate_det_re, 1L)
+  expect_equal(b1$stan_data$det_site_sd, 0.5)
+  m <- crywolf:::.name_map(b1$design, FALSE, FALSE, use_det_re = TRUE)
+  expect_equal(m[["sigma_det[1]"]], "sd_det_site")
+  expect_output(print(fp_priors()), "sd_det_site")
+  # priors saved before det_site_sd existed
+  old <- fp_priors()
+  old$det_site_sd <- NULL
+  expect_equal(crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ 1, FALSE, old)$stan_data$det_site_sd, 1)
+})

@@ -34,7 +34,7 @@
   k_threshold = 0.7,
   seed = NULL,
   integrate = TRUE,
-  nodes = 100,
+  nodes = NULL,
   ...
 )
 
@@ -76,17 +76,21 @@ warning.}
 \item{seed}{Seed of the refits.}
 
 \item{integrate}{Logical. With a site random effect on the false-positive
-rate (\code{random_fp = TRUE}), integrate each site's effect out of its
-log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
-computation. The default, \code{TRUE}, is the right choice for leaving a site
-out: a left-out site's effect is not known from its own data. With
+rate (\code{random_fp = TRUE}), on true detection (\code{random_det = TRUE}), or
+both, integrate each site's effects out of its log-likelihood (by
+Gauss-Hermite quadrature) before the leave-one-out computation. The
+default, \code{TRUE}, is the right choice for leaving a site out: a
+left-out site's effects are not known from its own data. With
 \code{FALSE}, the log-likelihood is conditional on the fitted site effects,
 which gives many sites with high Pareto \eqn{k}. Without a site
 random effect, \code{integrate} has no effect.}
 
-\item{nodes}{Number of quadrature nodes for \code{integrate}. With 100, the
+\item{nodes}{Number of quadrature nodes for \code{integrate}, per site effect.
+The default, \code{NULL}, uses 100 with one site effect and 30 per effect
+with both (a grid of 900 nodes). With one effect and 100 nodes, the
 log-likelihood of a site was within 6e-4 of its value with 400 nodes in
-a test with 200 sites; the cost grows linearly with \code{nodes}.}
+a test with 200 sites. The cost grows with the number of nodes in the
+grid, \code{nodes} with one effect and \code{nodes^2} with two.}
 }
 \value{
 \code{summary()} returns an object of class \code{summary.fp_occu} whose

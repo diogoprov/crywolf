@@ -17,7 +17,8 @@
 #'   random effect (`random_fp = TRUE`); the verified method can have
 #'   covariates (`ver`), runs of detections can be modelled (`markov`), and
 #'   the true-detection process accepts
-#'   observation covariates and a recorder random effect. The
+#'   observation covariates, a recorder random effect, and a site random
+#'   effect (`random_det = TRUE`). The
 #'   observation-confirmation design of Chambert et al. (2015), in which an
 #'   expert checks the detections of some automated occasions, is supported
 #'   through the `confirmed` argument of [fp_data()]. [fp_read_birdnet()],

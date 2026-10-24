@@ -16,13 +16,20 @@
 # Run from the package root, with the package installed:
 #   OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
 #     Rscript dev/random-det/simulate-scenarios.R
-# Environment: WORKERS (default 10), REPS (default 20), SMOKE=1 for a quick
-# check of the code (one tiny fit; SMOKE_MODEL picks the model).
-# Output: dev/random-det/scenarios.rds.
+# Environment: WORKERS (default 10), REPS (default 20), REP_FROM (default 1:
+# run replicates REP_FROM to REPS, e.g. REP_FROM=21 REPS=100 to add 80 to a
+# first run of 20), SMOKE=1 for a quick check of the code (one tiny fit;
+# SMOKE_MODEL picks the model).
+# Each fit is saved in dev/random-det/jobs/ as soon as it ends, and fits
+# already there are skipped, so an interrupted run resumes where it stopped.
+# Output: dev/random-det/scenarios.rds, all the fits in dev/random-det/jobs/
+# plus, for replicates below REP_FROM, those of the previous scenarios.rds.
 library(crywolf)
 smoke <- identical(Sys.getenv("SMOKE"), "1")
 workers <- as.integer(Sys.getenv("WORKERS", "10"))
 reps <- if (smoke) 1L else as.integer(Sys.getenv("REPS", "20"))
+rep_from <- if (smoke) 1L else as.integer(Sys.getenv("REP_FROM", "1"))
+job_dir <- file.path("dev", "random-det", "jobs")
 
 stan_file <- file.path("dev", "random-det", "fp_occu_random_det.stan")
 mod <- cmdstanr::cmdstan_model(stan_file, cpp_options = list(stan_threads = TRUE),
@@ -81,32 +88,47 @@ models <- data.frame(model = c("base", "random_det", "random_fp", "both"),
                      random_fp = c(FALSE, FALSE, TRUE, TRUE))
 jobs <- merge(merge(scenarios, models), data.frame(rep = seq_len(reps)))
 jobs$seed <- seq_len(nrow(jobs))
+jobs <- jobs[jobs$rep >= rep_from, ]
 if (smoke) {
   smoke_model <- Sys.getenv("SMOKE_MODEL", "random_det")
   jobs <- jobs[jobs$sigma_det == 1 & jobs$sigma_fp == 1 & jobs$model == smoke_model, ][1, ]
 }
 
 run_one <- function(sigma_det, sigma_fp, model, random_det, random_fp, rep, seed) {
+  f <- file.path(job_dir, sprintf("det%g-fp%g-%s-rep%03d.rds", sigma_det, sigma_fp,
+                                  model, rep))
+  if (!smoke && file.exists(f)) return(readRDS(f))
   # every model of a replicate sees the same data: the data seed is the
   # replicate's, the fit seed the job's
   d <- sim_scenario(1000 * rep + 10 * sigma_det + sigma_fp, sigma_det, sigma_fp,
                     nsite = if (smoke) 40 else 300, nocc = if (smoke) 4 else 20)
   out <- tryCatch(fit_proto(d, random_det, random_fp, seed),
                   error = function(e) data.frame(slope = NA, error = conditionMessage(e)))
-  data.frame(sigma_det, sigma_fp, model, rep, out)
+  res <- data.frame(sigma_det, sigma_fp, model, rep, out)
+  if (!smoke) saveRDS(res, f)
+  res
 }
 
+if (!smoke) dir.create(job_dir, showWarnings = FALSE)
 if (smoke || workers <= 1) {
   res <- purrr::pmap(jobs, run_one) |> purrr::list_rbind()
 } else {
   future::plan(future::multisession, workers = workers)
-  res <- furrr::future_pmap(jobs, run_one, .options = furrr::furrr_options(seed = TRUE)) |>
+  # one job at a time per worker, so that slow fits do not hold back a chunk
+  res <- furrr::future_pmap(jobs, run_one,
+                            .options = furrr::furrr_options(seed = TRUE, chunk_size = 1)) |>
     purrr::list_rbind()
 }
 if (smoke) {
   print(res)
 } else {
-  saveRDS(res, file.path("dev", "random-det", "scenarios.rds"))
+  out_file <- file.path("dev", "random-det", "scenarios.rds")
+  if (rep_from > 1) {
+    old <- readRDS(out_file)
+    # list_rbind() fills a column that one side lacks (error) with NA
+    res <- purrr::list_rbind(list(old[old$rep < rep_from, ], res))
+  }
+  saveRDS(res, out_file)
   # summary per scenario and model; failed fits (NA) are left out
   agg <- purrr::map(split(res, res[c("sigma_det", "sigma_fp", "model")], drop = TRUE),
                     function(g) {

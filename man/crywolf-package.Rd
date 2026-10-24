@@ -22,7 +22,8 @@ covariates (\code{fp = ~ w}, site- or occasion-level), with an optional site
 random effect (\code{random_fp = TRUE}); the verified method can have
 covariates (\code{ver}), runs of detections can be modelled (\code{markov}), and
 the true-detection process accepts
-observation covariates and a recorder random effect. The
+observation covariates, a recorder random effect, and a site random
+effect (\code{random_det = TRUE}). The
 observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
 through the \code{confirmed} argument of \code{\link[=fp_data]{fp_data()}}. \code{\link[=fp_read_birdnet]{fp_read_birdnet()}},

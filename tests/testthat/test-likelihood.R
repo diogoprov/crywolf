@@ -42,7 +42,17 @@ test_that("the R likelihood matches the Stan log_lik with every option", {
     markov_random_fp = ll_gap(s_plain$data, fp = ~ 1, markov = "occasion",
                               random_fp = TRUE, random_recorder = FALSE),
     markov_noise_ver_chambert = ll_gap(d_chambert, fp = ~ noise, ver = ~ listener,
-                                       markov = "occasion", random_recorder = FALSE)
+                                       markov = "occasion", random_recorder = FALSE),
+    # site effect on true detection in the GLM, vectorized and confirmation
+    # paths, alone and with the site effect on false positives
+    random_det_glm = ll_gap(s_miller$data, det = ~ bio, fp = ~ 1, random_det = TRUE,
+                            random_recorder = TRUE),
+    random_det_rows = ll_gap(s_plain$data, fp = ~ 1, random_det = TRUE,
+                             random_recorder = FALSE),
+    random_det_chambert = ll_gap(d_chambert, fp = ~ noise, random_det = TRUE,
+                                 random_recorder = FALSE),
+    random_det_and_fp = ll_gap(s_plain$data, fp = ~ 1, random_det = TRUE,
+                               random_fp = TRUE, random_recorder = FALSE)
   )
   purrr::iwalk(gaps, function(g, name) {
     expect_lt(g, 1e-8, label = paste(name, "relative difference R vs Stan"))

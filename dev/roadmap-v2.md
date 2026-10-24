@@ -57,6 +57,32 @@ Para o `random_det`, conferir a identificabilidade: com `random_fp` e
 `random_det` ligados juntos, os dois efeitos por sítio competem pelas mesmas
 detecções. Medir antes de permitir a combinação.
 
+**Andamento em 23/10/2026:**
+
+- Limiar 0,2 com `fp ~ temp + rh`: **rodado** (`vignettes/threshold-fp-results.rds`).
+  `occ_temp` vai de +0,16 (0,04; 0,28) com `fp ~ 1` para +0,09 (−0,02;
+  0,21), e `fp_temp` = +0,27; em 0,4 nada muda. O FP ligado à temperatura
+  explica parte da troca de sinal, não toda. Falta o texto na vinheta
+  `threshold`.
+- Protótipo do `random_det` (`dev/random-det/`), 20 réplicas: recupera
+  `sd_det` sem custo quando não há heterogeneidade; o `random_fp` sozinho
+  absorve heterogeneidade de detecção como se fosse de FP (sd_fp 1,43 com
+  verdade 0); os dois juntos recuperam os dois sd e o declive, mas com
+  R-hat > 1,01 em 30–60% dos ajustes. **Decidido pelo Diogo:** implementar,
+  permitindo a combinação, com aviso de mixing.
+- `random_det` **implementado no pacote** (Stan com quatro chamadas do
+  `reduce_sum` e zeros como dados; draws idênticos com a opção desligada em
+  quatro desenhos; `log_lik` R = Stan ≤ 5e-14 nos caminhos GLM, vetorizado,
+  Chambert e combinado; `loo()` integra em grade de Gauss-Hermite 2D com os
+  dois efeitos, 30 nós por efeito, diferença de 6e-4 contra 60). Saída
+  `sd_det_site`, prior `fp_priors(det_site_sd = 1)`.
+- **Em andamento:** mais 80 réplicas dos cenários (100 no total, 14
+  workers, gravação por ajuste em `dev/random-det/jobs/`), pedidas pelo
+  Diogo antes da vinheta; depois, gráficos dos cenários.
+- **Falta:** gráficos e vinheta do `random_det` (com os números das 100
+  réplicas também no help); SBC com `random_det`; exemplo na curiango;
+  texto do limiar 0,2 na vinheta `threshold`.
+
 ## 1.9.0: congelamento da API
 
 Sem o pacote lifecycle (decidido em 23/10/2026): os avisos de transição
@@ -102,6 +128,20 @@ são mensagens do próprio crywolf.
   (23/10/2026): o `random_det` pode acrescentar argumento e nome (`sd_det`).
 - Exigências mínimas: R ≥ 4.2; CmdStan ≥ 2.40 desde a 1.7.0 (subiu de 2.34
   com o refactor com tuplas, por decisão do Diogo em 22/10/2026).
+
+## Fora do código: manuscrito e documentação (pedido em 23/10/2026)
+
+Ordem pedida pelo Diogo, depois de fechar o `random_det`:
+
+1. Revisar o manuscrito no Google Docs à luz das simulações e benchmarks
+   recentes (LOO integrado, `random_fp`/`random_det`, limiar 0,2, threads)
+   e ver o que melhorar no estudo de simulação do artigo (compêndio
+   fpcalib).
+2. Avançar no texto: Discussão, Introdução, Abstract, material
+   suplementar, cover letter e o pacote de submissão para a MEE.
+3. Traduzir para pt-BR as principais vinhetas do crywolf, no formato do
+   sheepdog (`articles/pt/`, como em
+   https://provetelab.org/sheepdog/articles/pt/sheepdog.html).
 
 ## 2.0.0: lançamento e CRAN
 

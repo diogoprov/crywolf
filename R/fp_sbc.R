@@ -12,7 +12,7 @@
 #' can miss (Modrák et al. 2025).
 #'
 #' @param data An `fp_data` object that gives the design.
-#' @param occ,det,fp,ver,markov,random_recorder,random_fp,priors As in
+#' @param occ,det,fp,ver,markov,random_recorder,random_fp,random_det,priors As in
 #'   [fp_occu()]. The
 #'   priors are both the ones the data are drawn from and the ones the model
 #'   is fitted with, as the method requires.
@@ -37,7 +37,8 @@
 #' Prior draws can produce extreme data (for instance, no detection at
 #' all); such replicates are fitted as they are, and their divergent
 #' transitions are recorded. The `log_lik` quantity is not computed with
-#' `random_fp = TRUE`, whose site effects are not kept by the simulation.
+#' `random_fp = TRUE` or `random_det = TRUE`, whose site effects are not
+#' kept by the simulation.
 #' [base::summary()] uses a chi-squared test of the binned ranks, which is
 #' coarse; look at the histograms from [plot()] as well.
 #'
@@ -67,7 +68,8 @@
 #' }
 fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NULL,
                    random_recorder = !is.null(data$recorder),
-                   random_fp = FALSE, priors = fp_priors(), reps = 100,
+                   random_fp = FALSE, random_det = FALSE, priors = fp_priors(),
+                   reps = 100,
                    ndraws = 99, base_seed = 1L, parallel = FALSE,
                    fit_args = list(chains = 4, parallel_chains = 1,
                                    iter_warmup = 1000, iter_sampling = 1000,
@@ -76,7 +78,8 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
   }
   sl <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
-                         random_fp = random_fp, ver = ver, markov = markov)
+                         random_fp = random_fp, ver = ver, markov = markov,
+                         random_det = random_det)
   gen <- list(data = data, formulas = list(occ = occ, det = det, fp = fp, ver = ver),
               stan_data = sl$stan_data, design = sl$design,
               occasions = sl$occasions)
@@ -96,12 +99,14 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
     p <- .prior_draw(sl$stan_data, priors)
     sim <- .simulate_from(gen, p)
     truth <- .sbc_truth(p, sl$design, sl$stan_data)
-    with_ll <- !isTRUE(sl$stan_data$estimate_fp_re == 1)
+    with_ll <- !isTRUE(sl$stan_data$estimate_fp_re == 1) &&
+      !isTRUE(sl$stan_data$estimate_det_re == 1)
     if (with_ll) truth <- c(truth, log_lik = NA_real_)
     fit <- tryCatch(.quiet_threads(suppressWarnings(do.call(fp_occu, c(list(
       data = sim$data, occ = occ, det = det, fp = fp, ver = ver, markov = markov,
       random_recorder = random_recorder, random_fp = random_fp,
-      priors = priors, seed = seed), fit_args)))), error = function(e) NULL)
+      random_det = random_det, priors = priors, seed = seed), fit_args)))),
+      error = function(e) NULL)
     if (is.null(fit)) {
       return(data.frame(rep = rep, parameter = names(truth), truth = unname(truth),
                         rank = NA_integer_, divergences = NA_integer_, ok = FALSE))
@@ -139,7 +144,8 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
     if (sd$estimate_fp == 1 && sd$Kfp > 0)
       stats::setNames(p$gamma_fp, paste0("fp_", design$fp_names[-1])),
     if (sd$estimate_re == 1) c(sd_recorder = p$sigma_u),
-    if (isTRUE(sd$estimate_fp_re == 1)) c(sd_fp_site = p$sigma_fp))
+    if (isTRUE(sd$estimate_fp_re == 1)) c(sd_fp_site = p$sigma_fp),
+    if (isTRUE(sd$estimate_det_re == 1)) c(sd_det_site = p$sigma_det))
 }
 
 # true parameter values in the layout of .ppc_pars(), as one draw

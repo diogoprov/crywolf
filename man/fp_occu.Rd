@@ -13,6 +13,7 @@ fp_occu(
   ver = ~1,
   markov = NULL,
   random_fp = FALSE,
+  random_det = FALSE,
   priors = fp_priors(),
   chains = 4,
   parallel_chains = chains,
@@ -67,6 +68,13 @@ as a bird calling for several consecutive minutes. See Details.}
 false-positive rate, for rates that vary among sites in ways the
 covariates in \code{fp} do not capture. \code{FALSE} by default; see the section
 "Site random effect on the false-positive rate" before turning it on.}
+
+\item{random_det}{Logical. Add a site random intercept to the logit of the
+true-detection probability of the automated method, for detection that
+varies among occupied sites in ways the covariates in \code{det} do not
+capture (distance to the recorder, abundance, local noise). \code{FALSE} by
+default; it can be combined with \code{random_fp}. See the section "Site
+random effect on true detection".}
 
 \item{priors}{Prior settings from \code{\link[=fp_priors]{fp_priors()}}.}
 
@@ -173,6 +181,27 @@ variation that remains.
 
 Predictions with \code{predict(process = "fp")} are for a site with
 \eqn{e_i = 0}, a typical site.
+
+\strong{Site random effect on true detection.} With \code{random_det = TRUE} the
+logit of the true-detection probability of the automated method at site
+\eqn{i} gains a term \eqn{d_i \sim \mathrm{Normal}(0, \sigma_{det})},
+reported as \code{sd_det_site}, with a half-Normal prior
+(\code{fp_priors(det_site_sd = )}). It is for detection that varies among
+occupied sites for reasons the covariates in \code{det} do not capture, such as
+the distance from the recorder to the calling animals, their abundance, or
+local noise. The detection probability of the verified method has no site
+effect. \code{p11_ref} is the true-detection probability of a typical site
+(\eqn{d_i = 0}).
+
+The two site effects answer different questions, and one cannot stand in
+for the other: in simulations where only detection varied among sites, a
+model with \code{random_fp = TRUE} alone attributed that variation to false
+positives and estimated a large \code{sd_fp_site} although the true rate was
+constant. Both can be fitted together. They are then identified by
+different data (true detection only at occupied sites, false positives
+only at unoccupied ones, with the verified data telling the two apart),
+but they mix slowly, and \code{fp_occu()} warns about it: check R-hat and the
+effective sample sizes, and run longer chains when they are poor.
 
 \strong{Detections that come in runs.} Occasions close in time are not
 independent when the species, once present, is active for a while: a

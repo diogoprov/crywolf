@@ -112,7 +112,8 @@ print.fp_ppc <- function(x, digits = 3, ...) {
             if (sd$estimate_re == 1) "u",
             if (sd$estimate_fp == 1) "gamma0",
             if (sd$estimate_fp == 1 && sd$Kfp > 0) "gamma_fp",
-            if (isTRUE(sd$estimate_fp_re == 1)) c("e_raw", "sigma_fp"))
+            if (isTRUE(sd$estimate_fp_re == 1)) c("e_raw", "sigma_fp"),
+            if (isTRUE(sd$estimate_det_re == 1)) c("d_raw", "sigma_det"))
   dm <- posterior::as_draws_matrix(fit$draws(variables = vars))
   total <- nrow(dm)
   if (!is.null(ndraws) && ndraws < total) {
@@ -133,7 +134,11 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     # site effects on the false-positive rate, S x nsite
     e_fp = if (isTRUE(sd$estimate_fp_re == 1))
       cols("e_raw") * cols("sigma_fp")[, 1] else NULL,
-    sigma_fp = if (isTRUE(sd$estimate_fp_re == 1)) cols("sigma_fp")[, 1] else NULL
+    sigma_fp = if (isTRUE(sd$estimate_fp_re == 1)) cols("sigma_fp")[, 1] else NULL,
+    # site effects on true detection, S x nsite
+    d_det = if (isTRUE(sd$estimate_det_re == 1))
+      cols("d_raw") * cols("sigma_det")[, 1] else NULL,
+    sigma_det = if (isTRUE(sd$estimate_det_re == 1)) cols("sigma_det")[, 1] else NULL
   )
 }
 
@@ -157,6 +162,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   lpsi <- pars$beta %*% t(sd$X)                          # S x nsite
   lp11 <- pars$alpha %*% t(sd$Z)                         # S x N2
   if (sd$estimate_re == 1) lp11 <- lp11 + pars$u[, sd$rec2, drop = FALSE]
+  if (!is.null(pars$d_det)) lp11 <- lp11 + pars$d_det[, sd$site2, drop = FALSE]
   fp <- sd$estimate_fp == 1
   by_row <- isTRUE(sd$fp_by_row == 1)
   if (fp) {
@@ -198,6 +204,7 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     v3 <- sd$v3
     lp3 <- pars$alpha %*% t(sd$Z3)
     if (sd$estimate_re == 1) lp3 <- lp3 + pars$u[, sd$rec3, drop = FALSE]
+    if (!is.null(pars$d_det)) lp3 <- lp3 + pars$d_det[, sd$site3, drop = FALSE]
     lp10_3 <- lp10[, sd$site3, drop = FALSE]
     if (by_row) lp10_3 <- lp10_3 + pars$gamma_fp %*% t(sd$Xfp3)
     occ3 <- rows(v3 >= 2) * stats::plogis(lp3, log.p = TRUE) +

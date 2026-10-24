@@ -85,6 +85,10 @@ With `random_fp = TRUE` (`estimate_fp_re = 1`), the site effects on the
 false-positive rate are written in the same way, `sigma_fp[1] * e_raw`, and
 are added to its linear predictor; with the option off, `e_raw` and
 `sigma_fp` have length zero and the model is the same as without them.
+`random_det = TRUE` (`estimate_det_re = 1`) does the same for true
+detection, with `sigma_det[1] * d_raw` added to the logit of $p_{11}$. The
+likelihood receives the site effects that are off as a data vector of
+zeros (`zero_site`), so that `reduce_sum()` does not differentiate them.
 
 The false-positive intercept is not a parameter of its own:
 `gamma0 = alpha[1] - fp_gap`, with `fp_gap` constrained to be positive.

@@ -31,7 +31,8 @@ print.fp_occu <- function(x, digits = 3, ...) {
   f <- x$formulas
   cat("  occupancy:      ", .fmt_formula(f$occ), "\n")
   cat("  true detection: ", .fmt_formula(f$det),
-      if (x$random_recorder) "+ (1 | recorder)" else "", "\n")
+      if (x$random_recorder) "+ (1 | recorder)" else "",
+      if (isTRUE(x$random_det)) "+ (1 | site)" else "", "\n")
   cat("  false positive: ",
       if (is.null(f$fp)) "none (standard occupancy model)" else .fmt_formula(f$fp),
       if (isTRUE(x$random_fp)) "+ (1 | site)" else "", "\n")
@@ -156,16 +157,20 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
 #'   warning.
 #' @param k_threshold Pareto \eqn{k} above which a site is refitted.
 #' @param integrate Logical. With a site random effect on the false-positive
-#'   rate (`random_fp = TRUE`), integrate each site's effect out of its
-#'   log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
-#'   computation. The default, `TRUE`, is the right choice for leaving a site
-#'   out: a left-out site's effect is not known from its own data. With
+#'   rate (`random_fp = TRUE`), on true detection (`random_det = TRUE`), or
+#'   both, integrate each site's effects out of its log-likelihood (by
+#'   Gauss-Hermite quadrature) before the leave-one-out computation. The
+#'   default, `TRUE`, is the right choice for leaving a site out: a
+#'   left-out site's effects are not known from its own data. With
 #'   `FALSE`, the log-likelihood is conditional on the fitted site effects,
 #'   which gives many sites with high Pareto \eqn{k}. Without a site
 #'   random effect, `integrate` has no effect.
-#' @param nodes Number of quadrature nodes for `integrate`. With 100, the
+#' @param nodes Number of quadrature nodes for `integrate`, per site effect.
+#'   The default, `NULL`, uses 100 with one site effect and 30 per effect
+#'   with both (a grid of 900 nodes). With one effect and 100 nodes, the
 #'   log-likelihood of a site was within 6e-4 of its value with 400 nodes in
-#'   a test with 200 sites; the cost grows linearly with `nodes`.
+#'   a test with 200 sites. The cost grows with the number of nodes in the
+#'   grid, `nodes` with one effect and `nodes^2` with two.
 #' @param seed Seed of the refits.
 #' @return `loo()` returns a `psis_loo` object from 'loo'. The pointwise
 #'   log-likelihood is computed per site, with the latent state marginalized,
@@ -174,8 +179,8 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
 #'   their values exactly, and their \eqn{k} is then set to 0.
 #' @export
 loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL,
-                        integrate = TRUE, nodes = 100, ...) {
-  if (isTRUE(x$random_fp) && integrate) {
+                        integrate = TRUE, nodes = NULL, ...) {
+  if ((isTRUE(x$random_fp) || isTRUE(x$random_det)) && integrate) {
     pars <- .ppc_pars(x$fit, x$stan_data, NULL)
     llm <- .integrate_site_effect(x$stan_data, pars, nodes)
     # iterations and chains as saved (thinning or a failed chain change them)
@@ -250,7 +255,7 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
 }
 
 # exact leave-one-site-out log predictive density of site i
-.elpd_without_site <- function(x, i, seed, nodes = 100) {
+.elpd_without_site <- function(x, i, seed, nodes = NULL) {
   d <- x$data
   id <- d$sites[[d$site]][i]
   keep <- function(tb) if (is.null(tb)) NULL else tb[tb[[d$site]] != id, , drop = FALSE]
@@ -263,6 +268,7 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   refit <- .quiet_threads(suppressWarnings(do.call(fp_occu, c(list(
     d_i, occ = x$formulas$occ, det = x$formulas$det, fp = x$formulas$fp,
     random_recorder = x$random_recorder, random_fp = isTRUE(x$random_fp),
+    random_det = isTRUE(x$random_det),
     ver = if (is.null(x$formulas$ver)) ~ 1 else x$formulas$ver, markov = x$markov,
     priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE), st))))
   # the left-out site must not carry a recorder or a factor level of its own,
@@ -276,8 +282,8 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   }
   sd <- x$stan_data
   pars <- .ppc_pars(refit$fit, refit$stan_data, NULL)
-  ll <- if (!is.null(pars$e_fp)) {
-    # the left-out site's effect is integrated over the fitted distribution
+  ll <- if (!is.null(pars$e_fp) || !is.null(pars$d_det)) {
+    # the left-out site's effects are integrated over the fitted distribution
     .integrate_site_effect(sd, pars, nodes)[, i]
   } else {
     .ppc_core(sd, pars, "automated", "freeman-tukey", ll_only = TRUE)$ll[, i]
@@ -285,19 +291,33 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   .log_mean_exp(ll)
 }
 
-# Log-likelihood of each site (S x nsite) with its random effect on the
-# false-positive rate integrated out: log of the integral of p(y_i | e) over
-# e ~ Normal(0, sigma_fp), for each draw, by Gauss-Hermite quadrature
-.integrate_site_effect <- function(sd, pars, nodes = 100) {
+# Log-likelihood of each site (S x nsite) with its random effects integrated
+# out: log of the integral of p(y_i | e, d) over e ~ Normal(0, sigma_fp) (on
+# the false-positive rate) and d ~ Normal(0, sigma_det) (on true detection),
+# whichever the model has, for each draw, by Gauss-Hermite quadrature with a
+# product grid of `nodes` points per effect. The terms are summed as they
+# come (a running log-sum-exp), so memory does not grow with the grid.
+.integrate_site_effect <- function(sd, pars, nodes = NULL) {
+  effects <- c(e_fp = "sigma_fp", d_det = "sigma_det")
+  effects <- effects[!purrr::map_lgl(pars[effects], is.null)]
+  if (is.null(nodes)) nodes <- if (length(effects) > 1) 30 else 100
   gh <- .gauss_hermite(nodes)
+  grid <- as.matrix(expand.grid(rep(list(seq_len(nodes)), length(effects))))
   S <- nrow(pars$beta)
-  terms <- purrr::map(seq_along(gh$x), function(k) {
-    pars$e_fp <- matrix(sqrt(2) * pars$sigma_fp * gh$x[k], S, sd$nsite)
+  term <- function(g) {
+    k <- grid[g, ]
+    pars[names(effects)] <- purrr::map2(unname(effects), k, function(sigma, kj) {
+      matrix(sqrt(2) * pars[[sigma]] * gh$x[kj], S, sd$nsite)
+    })
     .ppc_core(sd, pars, "automated", "freeman-tukey", ll_only = TRUE)$ll +
-      log(gh$w[k]) - 0.5 * log(pi)
-  })
-  m <- purrr::reduce(terms, pmax)
-  m + log(purrr::reduce(purrr::map(terms, function(t) exp(t - m)), `+`))
+      sum(log(gh$w[k])) - 0.5 * length(effects) * log(pi)
+  }
+  acc <- purrr::reduce(seq_len(nrow(grid))[-1], function(acc, g) {
+    t <- term(g)
+    m <- pmax(acc$m, t)
+    list(m = m, s = acc$s * exp(acc$m - m) + exp(t - m))
+  }, .init = list(m = term(1), s = 1))
+  acc$m + log(acc$s)
 }
 
 # nodes and weights of Gauss-Hermite quadrature (weight function exp(-x^2)),

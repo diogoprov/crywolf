@@ -7,7 +7,7 @@
 #' priors (or the model) are at odds with the data before any fitting.
 #'
 #' @param data An `fp_data` object.
-#' @param occ,det,fp,ver,markov,random_recorder,random_fp,priors As in
+#' @param occ,det,fp,ver,markov,random_recorder,random_fp,random_det,priors As in
 #'   [fp_occu()].
 #' @param ndraws Number of prior draws, one simulated dataset each.
 #' @param seed Optional integer seed.
@@ -37,13 +37,15 @@
 fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                                 ver = ~ 1, markov = NULL,
                                 random_recorder = !is.null(data$recorder),
-                                random_fp = FALSE, priors = fp_priors(),
+                                random_fp = FALSE, random_det = FALSE,
+                                priors = fp_priors(),
                                 ndraws = 200, seed = NULL) {
   if (!inherits(data, "fp_data")) {
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
   }
   sl <- .build_stan_data(data, occ, det, fp, random_recorder, priors,
-                         random_fp = random_fp, ver = ver, markov = markov)
+                         random_fp = random_fp, ver = ver, markov = markov,
+                         random_det = random_det)
   gen <- list(data = data, formulas = list(occ = occ, det = det, fp = fp, ver = ver),
               stan_data = sl$stan_data, design = sl$design,
               occasions = sl$occasions)
@@ -83,6 +85,9 @@ fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     gamma_fp = slopes(sd$Kfp),
     sigma_fp = if (isTRUE(sd$estimate_fp_re == 1)) {
       abs(stats::rnorm(1, 0, priors$fp_site_sd))
+    },
+    sigma_det = if (isTRUE(sd$estimate_det_re == 1)) {
+      abs(stats::rnorm(1, 0, priors$det_site_sd))
     }
   )
 }

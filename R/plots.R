@@ -38,7 +38,7 @@ plot.fp_occu <- function(x, type = c("intervals", "trace", "rank", "pairs"),
   vars <- posterior::variables(x$draws)
   if (is.null(pars)) {
     pars <- intersect(c(grep("^occ_", vars, value = TRUE), "fp_(Intercept)",
-                        "fp_gap", "sd_recorder", "sd_fp_site"), vars)
+                        "fp_gap", "sd_recorder", "sd_fp_site", "sd_det_site"), vars)
     pars <- setdiff(pars, "occ_(Intercept)")
     if (!length(pars)) {
       stop("The model has none of the default parameters; name them in `pars`.",

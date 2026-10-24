@@ -26,6 +26,7 @@ reference:
     contents:
       - fp_read_birdnet
       - fp_read_validation
+      - fp_read_sheepdog
       - fp_aggregate
       - fp_threshold_sweep
   - title: Fitting

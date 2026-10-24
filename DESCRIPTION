@@ -44,6 +44,7 @@ Suggests:
     furrr,
     future,
     ggplot2,
+    jsonlite,
     knitr,
     progressr,
     rmarkdown,

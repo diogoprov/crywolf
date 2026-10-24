@@ -15,6 +15,13 @@
 
 ## New features
 
+* `fp_read_sheepdog()` reads the folder written by
+  `sheepdog::export_occupancy_data()` (schema `sheepdog-occupancy`,
+  version 1): occasions, predictions, reviewed clips with their sampling
+  design, and recordings annotated by ear, in the forms of `fp_aggregate()`
+  and `fp_data()`. It drops clips drawn with `sampling_mode = "top"` with a
+  warning (`keep_top = TRUE` keeps them) and refuses other schemas and
+  versions. Needs the 'jsonlite' package (Suggests).
 * `fp_occu(random_det = TRUE)` adds a site random intercept to the logit of
   the true-detection probability of the automated method, for detection
   that varies among occupied sites in ways the covariates in `det` do not

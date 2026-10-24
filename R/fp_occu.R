@@ -151,6 +151,8 @@
 #' only at unoccupied ones, with the verified data telling the two apart),
 #' but they mix slowly, and `fp_occu()` warns about it: check R-hat and the
 #' effective sample sizes, and run longer chains when they are poor.
+#' `vignette("site_effects")` shows both effects in simulations and on the
+#' `curiango` data.
 #'
 #' **Detections that come in runs.** Occasions close in time are not
 #' independent when the species, once present, is active for a while: a

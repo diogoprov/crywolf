@@ -5,8 +5,10 @@
 # occupancy slope -0.8, p11 = 0.6 and p10 = 0.05 at the reference, with
 # among-site variation on the logit scale of sd sigma_det (detection) and
 # sigma_fp (false positives), each 0 or 1: four scenarios.
-# Models: base, random_det, random_fp, and both. 20 replicates each:
-# 4 x 4 x 20 = 320 fits, about 80 minutes on 10 workers (estimate).
+# Models: base, random_det, random_fp, and both. The results in
+# vignettes/site-effects-scenarios.rds have 100 replicates each, 1600 fits:
+# 20 in a first run (about 2 h 50 min on 10 workers) and 80 more with
+# REP_FROM=21 REPS=100 (about 8 h on 14 workers).
 #
 # Questions: does random_det restore the occupancy slope when detection
 # varies among sites? Does it cost anything when it does not? Can random_det

@@ -194,7 +194,9 @@ one, but both p-values are
 further from their expected values than the model allows. The discrepancy
 is computed per site-night, so it does not measure runs directly, and the
 remaining misfit may come from variation among nights that the covariates
-do not explain.
+do not explain. `vignette("site_effects")` adds a site effect on true
+detection to these fits; leave-one-site-out comparison prefers the model
+with both terms.
 
 Leave-one-site-out cross-validation prefers the Markov model, by
 `r round(-res$loo$elpd_diff[2])` units of expected log predictive density,

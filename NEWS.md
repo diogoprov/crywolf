@@ -27,7 +27,13 @@
   Gauss-Hermite grid when both site effects are on (`nodes` now defaults to
   `NULL`: 100 nodes with one site effect, 30 per effect with two).
   `simulate()`, `fp_ppc()`, `fp_calibrate_fit()`, `fp_sbc()` and
-  `fp_prior_predictive()` support it.
+  `fp_prior_predictive()` support it. The new article
+  `vignette("site_effects")` shows in simulations (100 replicates of four
+  scenarios) what each site effect recovers and costs, a simulation-based
+  calibration, and the `curiango` data, where leave-one-site-out comparison
+  prefers `random_det` together with the run term of `vignette("markov")`.
+* `vignette("threshold")` reports refits at thresholds 0.2 and 0.4 with
+  `fp = ~ temp + rh`.
 
 ## Changes
 

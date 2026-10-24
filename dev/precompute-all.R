@@ -8,9 +8,14 @@
 # the package root: Rscript dev/precompute-all.R
 # Uses at most 10 cores; set OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1 and
 # VECLIB_MAXIMUM_THREADS=1 when other heavy jobs share the machine.
+# vignettes/site-effects-scenarios.rds is not refreshed here: it comes from
+# dev/random-det/simulate-scenarios.R (1600 fits, about 11 hours), whose
+# prototype Stan program is independent of the package.
 scripts <- c("precompute-vignette.R", "precompute-calibration.R",
-             "precompute-sbc.R", "precompute-fp-variation.R",
-             "precompute-markov.R", "precompute-threshold.R")
+             "precompute-sbc.R", "precompute-sbc-random-det.R",
+             "precompute-fp-variation.R", "precompute-markov.R",
+             "precompute-curiango-random-det.R", "precompute-threshold.R",
+             "precompute-threshold-fp.R")
 run <- function(script, args = character()) {
   message("== ", script, " ", paste(args, collapse = " "), " (", format(Sys.time()), ")")
   status <- system2("Rscript", c(file.path("dev", script), args))

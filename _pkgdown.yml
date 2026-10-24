@@ -84,6 +84,7 @@ articles:
     contents:
       - markov
       - fp_variation
+      - site_effects
   - title: Design and checks
     navbar: Design and checks
     contents:

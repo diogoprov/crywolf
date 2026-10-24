@@ -38,17 +38,21 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-      - name: Month, for the CmdStan cache key
+      - name: Month and runner image, for the CmdStan cache key
         if: matrix.config.cmdstan
         id: month
-        run: echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "month=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+          echo "image=${ImageVersion:-none}" >> "$GITHUB_OUTPUT"
         shell: bash
       - name: Cache CmdStan
         if: matrix.config.cmdstan
         uses: actions/cache@v4
         with:
           path: ~/.cmdstan
-          key: cmdstan-${{ runner.os }}-${{ runner.arch }}-${{ steps.month.outputs.month }}
+          # CmdStan's precompiled headers and objects hold the compiler of the
+          # runner image, so a new image gets a new cache
+          key: cmdstan-${{ runner.os }}-${{ runner.arch }}-${{ steps.month.outputs.image }}-${{ steps.month.outputs.month }}
       - name: Install CmdStan
         if: matrix.config.cmdstan
         run: |
@@ -59,11 +63,6 @@ jobs:
               !file.exists(file.path(cmdstanr::cmdstan_path(), "bin", "stanc"))) {
             cmdstanr::install_cmdstan(cores = 2, overwrite = TRUE)
           }
-          # the precompiled headers in the cache were built by the compiler of an
-          # earlier runner image; when its SDK changes clang rejects them, so
-          # remove them and let CmdStan rebuild them with the current one
-          unlink(Sys.glob(file.path(cmdstanr::cmdstan_path(), "stan", "src", "stan",
-                                    "model", "*.gch")))
           cat("CmdStan", cmdstanr::cmdstan_version(), "\n")
         shell: Rscript {0}
       - uses: r-lib/actions/check-r-package@v2

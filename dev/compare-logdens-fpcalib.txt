@@ -1,0 +1,21 @@
+crywolf 1.7.0.9000 commit 00b3a2b
+fpcalib commit b7756fc
+CmdStan 2.40.0 | cmdstanr 0.9.0.9002 | R version 4.6.1 (2026-06-24)
+Run on 2026-10-24
+
+                                design estimate_re Kfp logdens_min logdens_max
+                           homogeneous           0   0       -5769       -3043
+ homogeneous, p10 = 0.20, 10% verified           0   0       -5228       -3903
+                   unstructured (Beta)           0   0       -5795       -2935
+              structured, constant p10           0   0       -5511       -3562
+    structured, fp ~ x (practical fix)           0   1       -5491       -3487
+ structured, fp ~ w (positive control)           0   1       -5518       -3441
+         recorder effect (sig_u = 0.8)           1   0       -4297       -3454
+  mean_diff max_dev_diff
+  3.638e-14    9.459e-13
+ -2.183e-13    1.601e-12
+  5.457e-14    9.641e-13
+ -1.273e-13    1.037e-12
+  2.547e-13    7.094e-13
+  1.819e-14    1.837e-12
+ -3.092e-13    2.128e-12

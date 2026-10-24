@@ -35,7 +35,7 @@ m
 #> Bayesian false-positive occupancy model (multiple-methods design)
 #> 
 #>   occupancy:       ~x 
-#>   true detection:  ~1  
+#>   true detection:  ~1   
 #>   false positive:  ~1  
 #>   data:            200 sites, 2000 automated and 138 verified occasions
 #> 
@@ -76,6 +76,7 @@ m$priors
 #>   fp_gap          ~ Normal(2, 1.5), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 ```
 
 Give a reason for each, even a short one: the intercept and slope priors

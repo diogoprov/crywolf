@@ -86,6 +86,7 @@ false-positive rate is either constant or a function of site covariates.</p>
 <span>  ver <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  markov <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  random_fp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  random_det <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  priors <span class="op">=</span> <span class="fu"><a href="fp_priors.html">fp_priors</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  chains <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  parallel_chains <span class="op">=</span> <span class="va">chains</span>,</span>
@@ -159,6 +160,15 @@ as a bird calling for several consecutive minutes. See Details.</p></dd>
 false-positive rate, for rates that vary among sites in ways the
 covariates in <code>fp</code> do not capture. <code>FALSE</code> by default; see the section
 "Site random effect on the false-positive rate" before turning it on.</p></dd>
+
+
+<dt id="arg-random-det">random_det<a class="anchor" aria-label="anchor" href="#arg-random-det"></a></dt>
+<dd><p>Logical. Add a site random intercept to the logit of the
+true-detection probability of the automated method, for detection that
+varies among occupied sites in ways the covariates in <code>det</code> do not
+capture (distance to the recorder, abundance, local noise). <code>FALSE</code> by
+default; it can be combined with <code>random_fp</code>. See the section "Site
+random effect on true detection".</p></dd>
 
 
 <dt id="arg-priors">priors<a class="anchor" aria-label="anchor" href="#arg-priors"></a></dt>
@@ -261,6 +271,25 @@ occupancy covariates, and any measured correlate of the confusion, in
 variation that remains.</p></li>
 </ul><p>Predictions with <code>predict(process = "fp")</code> are for a site with
 \(e_i = 0\), a typical site.</p>
+<p><strong>Site random effect on true detection.</strong> With <code>random_det = TRUE</code> the
+logit of the true-detection probability of the automated method at site
+\(i\) gains a term \(d_i \sim \mathrm{Normal}(0, \sigma_{det})\),
+reported as <code>sd_det_site</code>, with a half-Normal prior
+(<code>fp_priors(det_site_sd = )</code>). It is for detection that varies among
+occupied sites for reasons the covariates in <code>det</code> do not capture, such as
+the distance from the recorder to the calling animals, their abundance, or
+local noise. The detection probability of the verified method has no site
+effect. <code>p11_ref</code> is the true-detection probability of a typical site
+(\(d_i = 0\)).</p>
+<p>The two site effects answer different questions, and one cannot stand in
+for the other: in simulations where only detection varied among sites, a
+model with <code>random_fp = TRUE</code> alone attributed that variation to false
+positives and estimated a large <code>sd_fp_site</code> although the true rate was
+constant. Both can be fitted together. They are then identified by
+different data (true detection only at occupied sites, false positives
+only at unoccupied ones, with the verified data telling the two apart),
+but they mix slowly, and <code>fp_occu()</code> warns about it: check R-hat and the
+effective sample sizes, and run longer chains when they are poor.</p>
 <p><strong>Detections that come in runs.</strong> Occasions close in time are not
 independent when the species, once present, is active for a while: a
 calling bird is recorded in consecutive minutes, which makes detections

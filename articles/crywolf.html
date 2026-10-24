@@ -451,13 +451,15 @@ the settings and lets you change them:</p>
 <span><span class="co">#&gt;   fp_gap          ~ Normal(2, 1.5), truncated at 0</span></span>
 <span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span>
 <span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span>
+<span><span class="co">#&gt;   sd_det_site     ~ half-Normal(0, 1)</span></span>
 <span><span class="fu"><a href="../reference/fp_priors.html">fp_priors</a></span><span class="op">(</span>slope_sd <span class="op">=</span> <span class="fl">1</span>, gap_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;fp_priors&gt; (logit scale)</span></span>
 <span><span class="co">#&gt;   intercepts      ~ Normal(0, 1.5)</span></span>
 <span><span class="co">#&gt;   slopes          ~ Normal(0, 1)</span></span>
 <span><span class="co">#&gt;   fp_gap          ~ Normal(2, 1), truncated at 0</span></span>
 <span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span>
-<span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span></code></pre></div>
+<span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span>
+<span><span class="co">#&gt;   sd_det_site     ~ half-Normal(0, 1)</span></span></code></pre></div>
 <p>When a random sample of detections has been reviewed, the precision
 of the classifier says something about the false-positive rate before
 any fitting. <code><a href="../reference/fp_gap_prior.html">fp_gap_prior()</a></code> turns the counts of true and
@@ -471,7 +473,8 @@ a prior for <span class="math inline">\Delta</span>:</p>
 <span><span class="co">#&gt;   slopes          ~ Normal(0, 2.5)</span></span>
 <span><span class="co">#&gt;   fp_gap          ~ Normal(3.58586, 0.490575), truncated at 0</span></span>
 <span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span>
-<span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span></code></pre></div>
+<span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span>
+<span><span class="co">#&gt;   sd_det_site     ~ half-Normal(0, 1)</span></span></code></pre></div>
 <p>Before fitting, <code><a href="../reference/fp_prior_predictive.html">fp_prior_predictive()</a></code> checks what the
 priors imply for data with the design at hand. It draws parameter values
 from the priors, simulates data with the sites, covariates, and
@@ -582,7 +585,7 @@ sessions.</p>
 <span><span class="co">#&gt; Bayesian false-positive occupancy model (multiple-methods design)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   occupancy:       ~x </span></span>
-<span><span class="co">#&gt;   true detection:  ~1  </span></span>
+<span><span class="co">#&gt;   true detection:  ~1   </span></span>
 <span><span class="co">#&gt;   false positive:  ~1  </span></span>
 <span><span class="co">#&gt;   data:            300 sites, 6000 automated and 255 verified occasions</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1190,7 +1193,7 @@ occasions alone identify the false-positive rate, so
 <span><span class="co">#&gt; Bayesian false-positive occupancy model (observation-confirmation design)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   occupancy:       ~x </span></span>
-<span><span class="co">#&gt;   true detection:  ~1  </span></span>
+<span><span class="co">#&gt;   true detection:  ~1   </span></span>
 <span><span class="co">#&gt;   false positive:  ~1  </span></span>
 <span><span class="co">#&gt;   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions</span></span>
 <span><span class="co">#&gt; </span></span>

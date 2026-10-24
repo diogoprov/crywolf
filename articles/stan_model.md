@@ -72,6 +72,8 @@ declares it:
 
       int<lower=0, upper=1> estimate_fp_re;      // site random effect on logit(p10)
       real<lower=0> fp_site_sd;                  // half-Normal(0, fp_site_sd) on sigma_fp
+      int<lower=0, upper=1> estimate_det_re;     // site random effect on logit(p11)
+      real<lower=0> det_site_sd;                 // half-Normal(0, det_site_sd) on sigma_det
     }
 
 The occupancy design `X`, the detection design `Z`, and the
@@ -115,6 +117,8 @@ site.
       vector[Kver_s] delta_s;
       vector[estimate_fp_re == 1 ? nsite : 0] e_raw;
       array[estimate_fp_re] real<lower=0> sigma_fp;
+      vector[estimate_det_re == 1 ? nsite : 0] d_raw;
+      array[estimate_det_re] real<lower=0> sigma_det;
     }
     transformed parameters {
       vector[nrec] u = sigma_u * u_raw;
@@ -129,6 +133,11 @@ With `random_fp = TRUE` (`estimate_fp_re = 1`), the site effects on the
 false-positive rate are written in the same way, `sigma_fp[1] * e_raw`,
 and are added to its linear predictor; with the option off, `e_raw` and
 `sigma_fp` have length zero and the model is the same as without them.
+`random_det = TRUE` (`estimate_det_re = 1`) does the same for true
+detection, with `sigma_det[1] * d_raw` added to the logit of p\_{11}.
+The likelihood receives the site effects that are off as a data vector
+of zeros (`zero_site`), so that `reduce_sum()` does not differentiate
+them.
 
 The false-positive intercept is not a parameter of its own:
 `gamma0 = alpha[1] - fp_gap`, with `fp_gap` constrained to be positive.
@@ -153,7 +162,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
       // Called through site_loglik(), which takes the data grouped in tuples.
       vector loglik_sites(int a, int b, matrix X, vector beta, matrix Z, vector alpha,
                           real gamma0, matrix Xfp, vector gamma_fp, vector e_fp,
-                          vector u, array[] int rec2, int estimate_re,
+                          vector u, vector d_det, array[] int rec2, int estimate_re,
                           int estimate_fp, int Kfp,
                           vector y2v, vector n2v, array[] int site2,
                           array[] int start2, array[] int len2, array[] int any_det2,
@@ -215,10 +224,10 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
               int q1 = q0 + len2[s] - 1;
               if (estimate_re == 1 && rec_by_site == 0) {
                 occ[i] = binomial_logit_glm_lpmf(y2[q0:q1] | n2[q0:q1], Z_slopes[q0:q1],
-                                                 alpha[1] + u[rec2[q0:q1]], slopes)
+                                                 alpha[1] + d_det[s] + u[rec2[q0:q1]], slopes)
                          - lchoose_site[s];
               } else {
-                real intercept = estimate_re == 1 ? alpha[1] + u[rec_site[s]] : alpha[1];
+                real intercept = d_det[s] + (estimate_re == 1 ? alpha[1] + u[rec_site[s]] : alpha[1]);
                 occ[i] = binomial_logit_glm_lpmf(y2[q0:q1] | n2[q0:q1], Z_slopes[q0:q1],
                                                  intercept, slopes) - lchoose_site[s];
               }
@@ -231,6 +240,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
           vector[nr] n = n2v[r0:r1];
           vector[nr] lp11 = Z[r0:r1] * alpha;
           if (estimate_re == 1) lp11 += u[rec2[r0:r1]];
+          lp11 += d_det[site2[r0:r1]];
           vector[nr] l11;
           if (obs_confirm == 1) {
             // log(1 - p11) = log(1 - s1) + log(1 - s0)
@@ -281,6 +291,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
             int q1 = q0 + nq - 1;
             vector[nq] lp11_3 = Z3[q0:q1] * alpha;
             if (estimate_re == 1) lp11_3 += u[rec3[q0:q1]];
+            lp11_3 += d_det[site3[q0:q1]];
             for (k in 1:nq) {
               int i = site3[q0 + k - 1] - a + 1;
               int v = v3[q0 + k - 1];
@@ -309,7 +320,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
       // transformed data). Function arguments are passed by reference, so
       // handing the fields on to loglik_sites() copies nothing.
       vector site_loglik(int a, int b, vector beta, vector alpha, real gamma0,
-                         vector gamma_fp, vector e_fp, vector u, real delta0,
+                         vector gamma_fp, vector e_fp, vector u, vector d_det, real delta0,
                          vector delta_s,
                          tuple(matrix, matrix, matrix, matrix, matrix) design,
                          tuple(array[] int, array[] int, array[] int, array[] int,
@@ -328,7 +339,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
         // options: estimate_re, estimate_fp, Kfp, obs_confirm, use_glm,
         //          rec_by_site, Kver_s, fp_by_row
         return loglik_sites(a, b, design.1, beta, design.2, alpha, gamma0, design.4,
-                            gamma_fp, e_fp, u, automated.4, options[1], options[2],
+                            gamma_fp, e_fp, u, d_det, automated.4, options[1], options[2],
                             options[3], automated.5, automated.6, automated.3,
                             automated.7, automated.8, automated.9, verified.1,
                             verified.2, delta0, verified.3, options[4], confirmed.1,
@@ -342,7 +353,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
 
       // partial sum over a slice of sites, for reduce_sum()
       real partial_loglik(array[] int slice, int a, int b, vector beta, vector alpha,
-                          real gamma0, vector gamma_fp, vector e_fp, vector u,
+                          real gamma0, vector gamma_fp, vector e_fp, vector u, vector d_det,
                           real delta0, vector delta_s,
                           tuple(matrix, matrix, matrix, matrix, matrix) design,
                           tuple(array[] int, array[] int, array[] int, array[] int,
@@ -353,7 +364,7 @@ reference, so nothing is copied. The tuples need CmdStan 2.40 or later:
                           tuple(array[] int, array[] int, array[] int, matrix,
                                 array[] int, array[] int, matrix) confirmed,
                           array[] int options) {
-        return sum(site_loglik(a, b, beta, alpha, gamma0, gamma_fp, e_fp, u, delta0,
+        return sum(site_loglik(a, b, beta, alpha, gamma0, gamma_fp, e_fp, u, d_det, delta0,
                                delta_s, design, automated, verified, confirmed, options));
       }
     }
@@ -445,19 +456,33 @@ number of physical cores.
       delta_s        ~ normal(0, prior_sd_slope);
       e_raw          ~ std_normal();
       sigma_fp       ~ normal(0, fp_site_sd);
+      d_raw          ~ std_normal();
+      sigma_det      ~ normal(0, det_site_sd);
 
-      // The two calls differ only in the site effects on the false-positive
-      // rate: parameters when estimated, otherwise the data vector zero_site,
-      // which reduce_sum() neither copies nor differentiates for each slice.
-      if (estimate_fp_re == 1) {
+      // The four calls differ only in the site effects on the false-positive
+      // and true-detection rates: parameters when estimated, otherwise the data
+      // vector zero_site, which reduce_sum() neither copies nor differentiates
+      // for each slice.
+      if (estimate_fp_re == 1 && estimate_det_re == 1) {
+        vector[nsite] e_fp = sigma_fp[1] * e_raw;
+        vector[nsite] d_det = sigma_det[1] * d_raw;
+        target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                             e_fp, u, d_det, delta0, delta_s, design, automated, verified,
+                             confirmed, options);
+      } else if (estimate_fp_re == 1) {
         vector[nsite] e_fp = sigma_fp[1] * e_raw;
         target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
-                             e_fp, u, delta0, delta_s, design, automated, verified,
+                             e_fp, u, zero_site, delta0, delta_s, design, automated, verified,
+                             confirmed, options);
+      } else if (estimate_det_re == 1) {
+        vector[nsite] d_det = sigma_det[1] * d_raw;
+        target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                             zero_site, u, d_det, delta0, delta_s, design, automated, verified,
                              confirmed, options);
       } else {
         target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
-                             zero_site, u, delta0, delta_s, design, automated, verified,
-                             confirmed, options);
+                             zero_site, u, zero_site, delta0, delta_s, design, automated,
+                             verified, confirmed, options);
       }
     }
 
@@ -479,6 +504,8 @@ the log density.
       {
         vector[nsite] e_fp = rep_vector(0, nsite);
         if (estimate_fp_re == 1) e_fp = sigma_fp[1] * e_raw;
+        vector[nsite] d_det = rep_vector(0, nsite);
+        if (estimate_det_re == 1) d_det = sigma_det[1] * d_raw;
         vector[nsite] lp10 = rep_vector(gamma0, nsite);
         if (Kfp > 0 && fp_by_row == 0) lp10 += Xfp * gamma_fp;
         lp10 += e_fp;
@@ -487,7 +514,7 @@ the log density.
         if (estimate_fp == 1 && fp_by_row == 1 && N2 > 0) {
           p10_bar = dot_product(n2v, inv_logit(lp10[site2] + Xfp2 * gamma_fp)) / sum(n2v);
         }
-        log_lik = site_loglik(1, nsite, beta, alpha, gamma0, gamma_fp, e_fp, u, delta0,
+        log_lik = site_loglik(1, nsite, beta, alpha, gamma0, gamma_fp, e_fp, u, d_det, delta0,
                               delta_s, design, automated, verified, confirmed, options);
       }
     }

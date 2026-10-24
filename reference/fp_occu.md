@@ -20,6 +20,7 @@ fp_occu(
   ver = ~1,
   markov = NULL,
   random_fp = FALSE,
+  random_det = FALSE,
   priors = fp_priors(),
   chains = 4,
   parallel_chains = chains,
@@ -96,6 +97,15 @@ fp_occu(
   false-positive rate, for rates that vary among sites in ways the
   covariates in `fp` do not capture. `FALSE` by default; see the section
   "Site random effect on the false-positive rate" before turning it on.
+
+- random_det:
+
+  Logical. Add a site random intercept to the logit of the
+  true-detection probability of the automated method, for detection that
+  varies among occupied sites in ways the covariates in `det` do not
+  capture (distance to the recorder, abundance, local noise). `FALSE` by
+  default; it can be combined with `random_fp`. See the section "Site
+  random effect on true detection".
 
 - priors:
 
@@ -219,6 +229,27 @@ homogeneous. Use it with care:
 
 Predictions with `predict(process = "fp")` are for a site with \\e_i =
 0\\, a typical site.
+
+**Site random effect on true detection.** With `random_det = TRUE` the
+logit of the true-detection probability of the automated method at site
+\\i\\ gains a term \\d_i \sim \mathrm{Normal}(0, \sigma\_{det})\\,
+reported as `sd_det_site`, with a half-Normal prior
+(`fp_priors(det_site_sd = )`). It is for detection that varies among
+occupied sites for reasons the covariates in `det` do not capture, such
+as the distance from the recorder to the calling animals, their
+abundance, or local noise. The detection probability of the verified
+method has no site effect. `p11_ref` is the true-detection probability
+of a typical site (\\d_i = 0\\).
+
+The two site effects answer different questions, and one cannot stand in
+for the other: in simulations where only detection varied among sites, a
+model with `random_fp = TRUE` alone attributed that variation to false
+positives and estimated a large `sd_fp_site` although the true rate was
+constant. Both can be fitted together. They are then identified by
+different data (true detection only at occupied sites, false positives
+only at unoccupied ones, with the verified data telling the two apart),
+but they mix slowly, and `fp_occu()` warns about it: check R-hat and the
+effective sample sizes, and run longer chains when they are poor.
 
 **Detections that come in runs.** Occasions close in time are not
 independent when the species, once present, is active for a while: a

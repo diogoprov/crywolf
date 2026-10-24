@@ -20,6 +20,29 @@
   3.0.0. It is read as before throughout crywolf 2.x, with no warning at
   run time.
 
+### New features
+
+- `fp_occu(random_det = TRUE)` adds a site random intercept to the logit
+  of the true-detection probability of the automated method, for
+  detection that varies among occupied sites in ways the covariates in
+  `det` do not capture. It is off by default, reported as `sd_det_site`,
+  with the prior `fp_priors(det_site_sd = 1)`, and can be combined with
+  `random_fp`; the combination mixes slowly, and
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  warns about it. With the option off the draws are identical to those
+  of the previous version with the same seed.
+  [`loo()`](https://mc-stan.org/loo/reference/loo.html) integrates the
+  site effects out of each site’s log-likelihood also with `random_det`,
+  with a two-dimensional Gauss-Hermite grid when both site effects are
+  on (`nodes` now defaults to `NULL`: 100 nodes with one site effect, 30
+  per effect with two).
+  [`simulate()`](https://rdrr.io/r/stats/simulate.html),
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md),
+  [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md),
+  [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md) and
+  [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+  support it.
+
 ### Changes
 
 - Under `R CMD check` (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN),

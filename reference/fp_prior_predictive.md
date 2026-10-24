@@ -19,6 +19,7 @@ fp_prior_predictive(
   markov = NULL,
   random_recorder = !is.null(data$recorder),
   random_fp = FALSE,
+  random_det = FALSE,
   priors = fp_priors(),
   ndraws = 200,
   seed = NULL
@@ -34,7 +35,8 @@ plot(x, ...)
 
   An `fp_data` object.
 
-- occ, det, fp, ver, markov, random_recorder, random_fp, priors:
+- occ, det, fp, ver, markov, random_recorder, random_fp, random_det,
+  priors:
 
   As in
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).

@@ -53,16 +53,17 @@ its mean `p10_bar`).
 The recorder effects, when the model has them, are kept at their values
 in the chosen draw (or their posterior means), so the simulated data
 have the same recorders with the same effects. Site effects on the
-false-positive rate (`fp_occu(random_fp = TRUE)`) are kept at their
-values in the draw with `truth = "posterior"`; with `truth = "mean"`,
-whose site effects would be shrunk towards zero, new ones are drawn from
-a normal distribution with the posterior mean of `sd_fp_site` as
-standard deviation. Under the multiple-methods design, an automated
-occasion at an occupied site is a detection with probability \\p\_{11}\\
-and at an unoccupied site with probability \\p\_{10}\\; verified
-occasions are detections with probability \\r\_{11}\\ at occupied sites
-only. Under the observation-confirmation design, true and false
-observations are drawn independently, as in
+false-positive rate (`fp_occu(random_fp = TRUE)`) and on true detection
+(`random_det = TRUE`) are kept at their values in the draw with
+`truth = "posterior"`; with `truth = "mean"`, whose site effects would
+be shrunk towards zero, new ones are drawn from a normal distribution
+with the posterior mean of `sd_fp_site` (or `sd_det_site`) as standard
+deviation. Under the multiple-methods design, an automated occasion at
+an occupied site is a detection with probability \\p\_{11}\\ and at an
+unoccupied site with probability \\p\_{10}\\; verified occasions are
+detections with probability \\r\_{11}\\ at occupied sites only. Under
+the observation-confirmation design, true and false observations are
+drawn independently, as in
 [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md).
 
 ## See also

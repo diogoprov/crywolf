@@ -120,7 +120,7 @@ covariates. <code><a href="https://rdrr.io/r/base/print.html" class="external-li
 <span><span class="co">#&gt; Bayesian false-positive occupancy model (multiple-methods design)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   occupancy:       ~x </span></span>
-<span><span class="co">#&gt;   true detection:  ~1  </span></span>
+<span><span class="co">#&gt;   true detection:  ~1   </span></span>
 <span><span class="co">#&gt;   false positive:  ~1  </span></span>
 <span><span class="co">#&gt;   data:            200 sites, 2000 automated and 138 verified occasions</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -154,7 +154,8 @@ mirror-image solution in which the two are swapped.</p>
 <span><span class="co">#&gt;   slopes          ~ Normal(0, 2.5)</span></span>
 <span><span class="co">#&gt;   fp_gap          ~ Normal(2, 1.5), truncated at 0</span></span>
 <span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span>
-<span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span></code></pre></div>
+<span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span>
+<span><span class="co">#&gt;   sd_det_site     ~ half-Normal(0, 1)</span></span></code></pre></div>
 <p>Give a reason for each, even a short one: the intercept and slope
 priors are weakly informative on the logit scale, and the gap prior
 expresses the belief that the classifier is right more often than not.

@@ -24,6 +24,7 @@ fp_sbc(
   markov = NULL,
   random_recorder = !is.null(data$recorder),
   random_fp = FALSE,
+  random_det = FALSE,
   priors = fp_priors(),
   reps = 100,
   ndraws = 99,
@@ -43,7 +44,8 @@ plot(x, bins = 10, ...)
 
   An `fp_data` object that gives the design.
 
-- occ, det, fp, ver, markov, random_recorder, random_fp, priors:
+- occ, det, fp, ver, markov, random_recorder, random_fp, random_det,
+  priors:
 
   As in
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
@@ -106,7 +108,8 @@ hump, too wide; a slope, a bias.
 Prior draws can produce extreme data (for instance, no detection at
 all); such replicates are fitted as they are, and their divergent
 transitions are recorded. The `log_lik` quantity is not computed with
-`random_fp = TRUE`, whose site effects are not kept by the simulation.
+`random_fp = TRUE` or `random_det = TRUE`, whose site effects are not
+kept by the simulation.
 [`base::summary()`](https://rdrr.io/r/base/summary.html) uses a
 chi-squared test of the binned ranks, which is coarse; look at the
 histograms from [`plot()`](https://rdrr.io/r/graphics/plot.default.html)

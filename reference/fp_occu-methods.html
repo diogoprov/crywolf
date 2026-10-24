@@ -94,7 +94,7 @@ returned by <code><a href="fp_occu.html">fp_occu()</a></code>.</p>
 <span>  k_threshold <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  integrate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  nodes <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -164,19 +164,23 @@ warning.</p></dd>
 
 <dt id="arg-integrate">integrate<a class="anchor" aria-label="anchor" href="#arg-integrate"></a></dt>
 <dd><p>Logical. With a site random effect on the false-positive
-rate (<code>random_fp = TRUE</code>), integrate each site's effect out of its
-log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
-computation. The default, <code>TRUE</code>, is the right choice for leaving a site
-out: a left-out site's effect is not known from its own data. With
+rate (<code>random_fp = TRUE</code>), on true detection (<code>random_det = TRUE</code>), or
+both, integrate each site's effects out of its log-likelihood (by
+Gauss-Hermite quadrature) before the leave-one-out computation. The
+default, <code>TRUE</code>, is the right choice for leaving a site out: a
+left-out site's effects are not known from its own data. With
 <code>FALSE</code>, the log-likelihood is conditional on the fitted site effects,
 which gives many sites with high Pareto \(k\). Without a site
 random effect, <code>integrate</code> has no effect.</p></dd>
 
 
 <dt id="arg-nodes">nodes<a class="anchor" aria-label="anchor" href="#arg-nodes"></a></dt>
-<dd><p>Number of quadrature nodes for <code>integrate</code>. With 100, the
+<dd><p>Number of quadrature nodes for <code>integrate</code>, per site effect.
+The default, <code>NULL</code>, uses 100 with one site effect and 30 per effect
+with both (a grid of 900 nodes). With one effect and 100 nodes, the
 log-likelihood of a site was within 6e-4 of its value with 400 nodes in
-a test with 200 sites; the cost grows linearly with <code>nodes</code>.</p></dd>
+a test with 200 sites. The cost grows with the number of nodes in the
+grid, <code>nodes</code> with one effect and <code>nodes^2</code> with two.</p></dd>
 
 </dl></div>
     <div class="section level2">

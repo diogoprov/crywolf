@@ -71,7 +71,8 @@ standardized covariates.</p>
 <span>  gap_mean <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  gap_sd <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>  recorder_sd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  fp_site_sd <span class="op">=</span> <span class="fl">1</span></span>
+<span>  fp_site_sd <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  det_site_sd <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -107,6 +108,12 @@ deviation of the recorder random intercept.</p></dd>
 deviation of the site random intercept on the false-positive rate
 (<code>fp_occu(random_fp = TRUE)</code>).</p></dd>
 
+
+<dt id="arg-det-site-sd">det_site_sd<a class="anchor" aria-label="anchor" href="#arg-det-site-sd"></a></dt>
+<dd><p>Scale of the half-Normal(0, sd) prior on the standard
+deviation of the site random intercept on true detection
+(<code>fp_occu(random_det = TRUE)</code>).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -122,6 +129,7 @@ deviation of the site random intercept on the false-positive rate
 <span class="r-out co"><span class="r-pr">#&gt;</span>   fp_gap          ~ Normal(2, 1.5), truncated at 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_recorder     ~ half-Normal(0, 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_fp_site      ~ half-Normal(0, 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd_det_site     ~ half-Normal(0, 1)</span>
 <span class="r-in"><span><span class="fu">fp_priors</span><span class="op">(</span>slope_sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fp_priors&gt; (logit scale)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   intercepts      ~ Normal(0, 1.5)</span>
@@ -129,6 +137,7 @@ deviation of the site random intercept on the false-positive rate
 <span class="r-out co"><span class="r-pr">#&gt;</span>   fp_gap          ~ Normal(2, 1.5), truncated at 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_recorder     ~ half-Normal(0, 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   sd_fp_site      ~ half-Normal(0, 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd_det_site     ~ half-Normal(0, 1)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

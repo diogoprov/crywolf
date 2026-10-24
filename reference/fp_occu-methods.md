@@ -36,7 +36,7 @@ loo(
   k_threshold = 0.7,
   seed = NULL,
   integrate = TRUE,
-  nodes = 100,
+  nodes = NULL,
   ...
 )
 
@@ -104,19 +104,23 @@ as_draws_df(x, ...)
 - integrate:
 
   Logical. With a site random effect on the false-positive rate
-  (`random_fp = TRUE`), integrate each site's effect out of its
-  log-likelihood (by Gauss-Hermite quadrature) before the leave-one-out
-  computation. The default, `TRUE`, is the right choice for leaving a
-  site out: a left-out site's effect is not known from its own data.
-  With `FALSE`, the log-likelihood is conditional on the fitted site
-  effects, which gives many sites with high Pareto \\k\\. Without a site
-  random effect, `integrate` has no effect.
+  (`random_fp = TRUE`), on true detection (`random_det = TRUE`), or
+  both, integrate each site's effects out of its log-likelihood (by
+  Gauss-Hermite quadrature) before the leave-one-out computation. The
+  default, `TRUE`, is the right choice for leaving a site out: a
+  left-out site's effects are not known from its own data. With `FALSE`,
+  the log-likelihood is conditional on the fitted site effects, which
+  gives many sites with high Pareto \\k\\. Without a site random effect,
+  `integrate` has no effect.
 
 - nodes:
 
-  Number of quadrature nodes for `integrate`. With 100, the
+  Number of quadrature nodes for `integrate`, per site effect. The
+  default, `NULL`, uses 100 with one site effect and 30 per effect with
+  both (a grid of 900 nodes). With one effect and 100 nodes, the
   log-likelihood of a site was within 6e-4 of its value with 400 nodes
-  in a test with 200 sites; the cost grows linearly with `nodes`.
+  in a test with 200 sites. The cost grows with the number of nodes in
+  the grid, `nodes` with one effect and `nodes^2` with two.
 
 ## Value
 

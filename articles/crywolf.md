@@ -355,6 +355,7 @@ fp_priors()
 #>   fp_gap          ~ Normal(2, 1.5), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 fp_priors(slope_sd = 1, gap_sd = 1)
 #> <fp_priors> (logit scale)
 #>   intercepts      ~ Normal(0, 1.5)
@@ -362,6 +363,7 @@ fp_priors(slope_sd = 1, gap_sd = 1)
 #>   fp_gap          ~ Normal(2, 1), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 ```
 
 When a random sample of detections has been reviewed, the precision of
@@ -382,6 +384,7 @@ fp_gap_prior(n_true = 46, n_false = 4, p11 = 0.6, psi = 0.5)
 #>   fp_gap          ~ Normal(3.58586, 0.490575), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 ```
 
 Before fitting,
@@ -455,7 +458,7 @@ m_const
 #> Bayesian false-positive occupancy model (multiple-methods design)
 #> 
 #>   occupancy:       ~x 
-#>   true detection:  ~1  
+#>   true detection:  ~1   
 #>   false positive:  ~1  
 #>   data:            300 sites, 6000 automated and 255 verified occasions
 #> 
@@ -1149,7 +1152,7 @@ m_conf
 #> Bayesian false-positive occupancy model (observation-confirmation design)
 #> 
 #>   occupancy:       ~x 
-#>   true detection:  ~1  
+#>   true detection:  ~1   
 #>   false positive:  ~1  
 #>   data:            200 sites, 2000 automated (640 confirmed) and 0 verified occasions
 #> 

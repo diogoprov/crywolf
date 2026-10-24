@@ -31,6 +31,7 @@ pr
 #>   fp_gap          ~ Normal(3.58586, 0.490575), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 ```
 
 The sample must be random among the detections at the threshold you will

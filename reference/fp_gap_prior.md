@@ -83,6 +83,7 @@ fp_gap_prior(n_true = 46, n_false = 4, p11 = 0.3, psi = 0.4)
 #>   fp_gap          ~ Normal(3.50353, 0.478711), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 # with uncertainty in p11
 fp_gap_prior(46, 4, p11 = rbeta(1000, 30, 70), psi = 0.4)
 #> <fp_priors> (logit scale)
@@ -91,4 +92,5 @@ fp_gap_prior(46, 4, p11 = rbeta(1000, 30, 70), psi = 0.4)
 #>   fp_gap          ~ Normal(3.50994, 0.488533), truncated at 0
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
+#>   sd_det_site     ~ half-Normal(0, 1)
 ```

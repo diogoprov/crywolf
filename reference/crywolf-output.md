@@ -25,6 +25,7 @@ crywolf does not automatically standardize formula covariates.
 | `fp_gap` | Positive difference `det_(Intercept) - fp_(Intercept)` on the logit scale. Present when `fp` is not `NULL`. It orders the reference intercepts, not all covariate-specific probabilities. |
 | `sd_recorder` | Standard deviation of the recorder random intercept on the detection logit scale, when the recorder effect is enabled. |
 | `sd_fp_site` | Standard deviation of the site random intercept on the false-positive logit scale, when `random_fp = TRUE`. |
+| `sd_det_site` | Standard deviation of the site random intercept on the true-detection logit scale, when `random_det = TRUE`. |
 
 `coef(fit, "occ")`, `coef(fit, "det")`, and `coef(fit, "fp")` select the
 corresponding prefixes. `coef(fit, "fp")` excludes `fp_gap`. `coef(fit)`
@@ -172,24 +173,24 @@ fields are `pars` (named generating coefficients), `z`, `p10_site`, and
 ## Readable draws and raw Stan names
 
 The fitted object contains `draws`, `fit` (the backend fit), `data`,
-`formulas`, `markov`, `random_recorder`, `random_fp`, `priors`,
-`sampler`, `diagnostics`, `call`, `design`, and `stan_data`. `sampler`
-records `chains`, `parallel_chains`, `threads_per_chain`, `iter_warmup`,
-`iter_sampling`, and `adapt_delta`.
+`formulas`, `markov`, `random_recorder`, `random_fp`, `random_det`,
+`priors`, `sampler`, `diagnostics`, `call`, `design`, and `stan_data`.
+`sampler` records `chains`, `parallel_chains`, `threads_per_chain`,
+`iter_warmup`, `iter_sampling`, and `adapt_delta`.
 
 `as_draws_df(fit)` returns the readable variables above, with posterior
 metadata `.chain`, `.iteration`, and `.draw`. The backend's
 `fit$fit$draws()` also exposes raw Stan names. Current mappings are:
 
-|                          |                                           |
-|--------------------------|-------------------------------------------|
-| Stan name                | Readable name                             |
-| `beta[k]`                | `occ_<term>`                              |
-| `alpha[k]`               | `det_<term>`                              |
-| `gamma0`, `gamma_fp[k]`  | `fp_(Intercept)`, `fp_<term>`             |
-| `delta0`, `delta_s[k]`   | `verified_(Intercept)`, `verified_<term>` |
-| `r11`                    | `p_verified`                              |
-| `sigma_u`, `sigma_fp[1]` | `sd_recorder`, `sd_fp_site`               |
+|  |  |
+|----|----|
+| Stan name | Readable name |
+| `beta[k]` | `occ_<term>` |
+| `alpha[k]` | `det_<term>` |
+| `gamma0`, `gamma_fp[k]` | `fp_(Intercept)`, `fp_<term>` |
+| `delta0`, `delta_s[k]` | `verified_(Intercept)`, `verified_<term>` |
+| `r11` | `p_verified` |
+| `sigma_u`, `sigma_fp[1]`, `sigma_det[1]` | `sd_recorder`, `sd_fp_site`, `sd_det_site` |
 
 `fp_gap`, `p11_ref`, `p10_ref`, and `p10_bar` keep their names.
 `log_lik[i]` is the state-marginalized log likelihood of site `i`, in

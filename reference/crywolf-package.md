@@ -20,10 +20,11 @@ The package has three parts:
   site- or occasion-level), with an optional site random effect
   (`random_fp = TRUE`); the verified method can have covariates (`ver`),
   runs of detections can be modelled (`markov`), and the true-detection
-  process accepts observation covariates and a recorder random effect.
-  The observation-confirmation design of Chambert et al. (2015), in
-  which an expert checks the detections of some automated occasions, is
-  supported through the `confirmed` argument of
+  process accepts observation covariates, a recorder random effect, and
+  a site random effect (`random_det = TRUE`). The
+  observation-confirmation design of Chambert et al. (2015), in which an
+  expert checks the detections of some automated occasions, is supported
+  through the `confirmed` argument of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
   [`fp_read_birdnet()`](https://provetelab.org/crywolf/reference/fp_read_birdnet.md),
   [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md),

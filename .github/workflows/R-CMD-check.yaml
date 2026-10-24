@@ -61,6 +61,13 @@ jobs:
           }
           cat("CmdStan", cmdstanr::cmdstan_version(), "\n")
         shell: Rscript {0}
+      - name: Compile the Stan model (shows compiler errors)
+        if: matrix.config.cmdstan
+        run: |
+          m <- cmdstanr::cmdstan_model("inst/stan/fp_occu.stan", compile = FALSE)
+          m$compile(cpp_options = list(stan_threads = TRUE), quiet = FALSE,
+                    dir = tempdir())
+        shell: Rscript {0}
       - uses: r-lib/actions/check-r-package@v2
         if: matrix.config.cmdstan
         with:

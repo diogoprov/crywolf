@@ -1,6 +1,20 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 1.9.0
+
+This release freezes the API on the way to crywolf 2.0.0, and adds a
+site random effect on true detection.
+
+### API
+
+- The names documented in
+  [`help("crywolf-output")`](https://provetelab.org/crywolf/reference/crywolf-output.md)
+  (readable parameter names, the columns of the results described there,
+  the fields of the fitted object, now including `random_det`) are
+  frozen from this version: they change only in a major version,
+  announced one minor version earlier. New options may add names without
+  changing existing ones. Results not described on that page are not
+  covered yet.
 
 ### Upcoming changes
 
@@ -23,7 +37,8 @@
 ### New features
 
 - [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
-  reads the folder written by `sheepdog::export_occupancy_data()`
+  reads the folder written by
+  [`sheepdog::export_occupancy_data()`](https://provetelab.org/sheepdog/reference/export_occupancy_data.html)
   (schema `sheepdog-occupancy`, version 1): occasions, predictions,
   reviewed clips with their sampling design, and recordings annotated by
   ear, in the forms of
@@ -44,9 +59,8 @@
   of the previous version with the same seed.
   [`loo()`](https://mc-stan.org/loo/reference/loo.html) integrates the
   site effects out of each site’s log-likelihood also with `random_det`,
-  with a two-dimensional Gauss-Hermite grid when both site effects are
-  on (`nodes` now defaults to `NULL`: 100 nodes with one site effect, 30
-  per effect with two).
+  with a two-dimensional Gauss-Hermite grid of 30 nodes per effect when
+  both site effects are on.
   [`simulate()`](https://rdrr.io/r/stats/simulate.html),
   [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md),
   [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md),
@@ -72,11 +86,12 @@
 - With `random_fp = TRUE`,
   [`loo()`](https://mc-stan.org/loo/reference/loo.html) now integrates
   each site’s effect on the false-positive rate out of its
-  log-likelihood, by Gauss-Hermite quadrature (`integrate = TRUE`,
-  `nodes = 100`), before the leave-one-out computation. A left-out
-  site’s effect is not known from its own data, so this is the right
-  predictive density; conditional on the fitted effects, many sites had
-  Pareto k above 0.7 (in the example of
+  log-likelihood, by Gauss-Hermite quadrature (new arguments
+  `integrate = TRUE` and `nodes = NULL`, which means 100 nodes with one
+  site effect), before the leave-one-out computation. A left-out site’s
+  effect is not known from its own data, so this is the right predictive
+  density; conditional on the fitted effects, many sites had Pareto k
+  above 0.7 (in the example of
   [`vignette("fp_variation")`](https://provetelab.org/crywolf/articles/fp_variation.md),
   0 integrated against 26 to 29 conditional). `integrate = FALSE` gives
   the previous values. The exact refits of `reloo = TRUE` integrate the

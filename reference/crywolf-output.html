@@ -11,7 +11,7 @@ names in as_draws_df(fit), summary(fit)$table, and coef(fit).'><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,6 +68,20 @@ names in <code>as_draws_df(fit)</code>, <code>summary(fit)$table</code>, and <co
     </div>
 
 
+    <div class="section level2">
+    <h2 id="stability">Stability<a class="anchor" aria-label="anchor" href="#stability"></a></h2>
+
+
+<p>From crywolf 1.9.0, the names documented on this page are frozen: the
+readable parameter and derived-quantity names, the columns of the
+summaries and of the other results described below (results of other
+functions are not covered yet), and the fields of
+the fitted object listed under "Readable draws and raw Stan names". They
+change only in a major version, announced in the previous minor version.
+New options may add names (as <code>random_det</code> added <code>sd_det_site</code>) without
+changing existing ones. Raw Stan names and the fields of <code>design</code> and
+<code>stan_data</code> are implementation details and are not covered.</p>
+    </div>
     <div class="section level2">
     <h2 id="coefficient-names">Coefficient names<a class="anchor" aria-label="anchor" href="#coefficient-names"></a></h2>
 
@@ -192,7 +206,8 @@ metadata <code>.chain</code>, <code>.iteration</code>, and <code>.draw</code>. T
 input site-table order; <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> uses sites as its pointwise units.
 It is available from <code>fit$fit$draws("log_lik")</code>, not the readable draws.
 With a fitted site random effect, state marginalization does not also
-integrate that effect out. Raw random effects (<code>u</code>, <code>u_raw</code>, <code>e_raw</code>)
+integrate that effect out; <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> does, by quadrature (its argument
+<code>integrate</code>). Raw random effects (<code>u</code>, <code>u_raw</code>, <code>e_raw</code>, <code>d_raw</code>)
 and sampler variable <code>lp__</code> are backend outputs, not additional public
 coefficient names. <code>design</code> and <code>stan_data</code> describe internal encodings;
 their field names and raw Stan names are implementation details.</p>

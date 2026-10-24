@@ -1,10 +1,11 @@
 # Read an export of the sheepdog package
 
-Reads the folder written by `sheepdog::export_occupancy_data()`, which
-follows the `sheepdog-occupancy` schema (version 1): every occasion of a
-passive acoustic survey, the classifier predictions, the reviewed clips
-with their sampling design, and the recordings annotated by ear. The
-tables come back in the forms that
+Reads the folder written by
+[`sheepdog::export_occupancy_data()`](https://provetelab.org/sheepdog/reference/export_occupancy_data.html),
+which follows the `sheepdog-occupancy` schema (version 1): every
+occasion of a passive acoustic survey, the classifier predictions, the
+reviewed clips with their sampling design, and the recordings annotated
+by ear. The tables come back in the forms that
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 and [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
 expect.

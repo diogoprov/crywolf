@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,9 +53,17 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/v1.9.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/fp_occu_mc.html">fp_occu_mc()</a></code> fits the model to several versions of the same data, such as detection histories drawn from the posterior of a classifier calibration (<code><a href="https://provetelab.org/sheepdog/reference/history_draws.html" class="external-link">sheepdog::history_draws()</a></code>), and pools the posteriors in equal shares (Monte Carlo propagation; a “cut” model, in which the calibration does not learn from occupancy). <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> splits each variance into parts within and between fits, and reports convergence fit by fit. With a single version it reproduces <code><a href="../reference/fp_occu.html">fp_occu()</a></code> draw for draw.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.9.0" id="crywolf-190">crywolf 1.9.0<a class="anchor" aria-label="anchor" href="#crywolf-190"></a></h2>
 <p>This release freezes the API on the way to crywolf 2.0.0, and adds a site random effect on true detection.</p>

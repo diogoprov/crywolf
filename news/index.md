@@ -1,5 +1,21 @@
 # Changelog
 
+## crywolf (development version)
+
+### New features
+
+- [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  fits the model to several versions of the same data, such as detection
+  histories drawn from the posterior of a classifier calibration
+  ([`sheepdog::history_draws()`](https://provetelab.org/sheepdog/reference/history_draws.html)),
+  and pools the posteriors in equal shares (Monte Carlo propagation; a
+  “cut” model, in which the calibration does not learn from occupancy).
+  [`summary()`](https://rdrr.io/r/base/summary.html) splits each
+  variance into parts within and between fits, and reports convergence
+  fit by fit. With a single version it reproduces
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  draw for draw.
+
 ## crywolf 1.9.0
 
 This release freezes the API on the way to crywolf 2.0.0, and adds a

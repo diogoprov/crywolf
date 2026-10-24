@@ -31,6 +31,12 @@ Fit the model and inspect, summarize, predict, and compare fits.
 
 - [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) :
   Fit a Bayesian false-positive occupancy model
+- [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  [`summary(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  [`print(`*`<summary.fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  [`print(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  [`as_draws_df(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  : Fit the model to draws of the detection histories
 - [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
   : Prior settings for fp_occu()
 - [`print(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/fp_occu-methods.md)

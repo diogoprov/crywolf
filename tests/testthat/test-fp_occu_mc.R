@@ -48,3 +48,16 @@ test_that("identical versions put almost nothing between the fits", {
   # only Monte Carlo error separates the fits of one dataset
   expect_lt(max(t$share_between), 0.1)
 })
+
+test_that("arguments set to NULL reach fp_occu(), also in parallel", {
+  skip_if_no_cmdstan()
+  skip_if_not_installed("furrr")
+  s <- simulate_fp(nsite = 40, nocc = 4, seed = 1)
+  old <- future::plan(future::sequential)
+  on.exit(future::plan(old))
+  mc <- suppressWarnings(fp_occu_mc(list(s$data), occ = ~ x, fp = NULL,
+                                    random_recorder = FALSE, chains = 1,
+                                    iter_warmup = 50, iter_sampling = 50, seed = 1,
+                                    refresh = 0, show_messages = FALSE, parallel = TRUE))
+  expect_false(any(grepl("^fp_", posterior::variables(mc$draws))))
+})

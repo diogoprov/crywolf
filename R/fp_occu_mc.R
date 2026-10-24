@@ -94,8 +94,10 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
          call. = FALSE)
   }
   # one core per fit when the fits run in parallel, unless set by the user
+  # (not modifyList(), which would drop an argument set to NULL, as fp = NULL)
   if (parallel) {
-    dots <- utils::modifyList(list(parallel_chains = 1, threads_per_chain = 1), dots)
+    one <- list(parallel_chains = 1, threads_per_chain = 1)
+    dots <- c(dots, one[setdiff(names(one), names(dots))])
   }
   fp_compile()
   jobs <- tibble::tibble(i = seq_along(data_list), d = data_list)

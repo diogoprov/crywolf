@@ -161,6 +161,11 @@ as <code>y_auto</code> and the type-1 columns as
 </tr>
 </tbody>
 </table>
+<p><code><a href="../reference/fp_to_unmarked.html">fp_to_unmarked()</a></code> goes the other way: it turns any
+<code>fp_data</code> object into the <code>unmarkedFrameOccuFP</code> of
+<code><a href="https://ecoverseR.github.io/unmarked/reference/occuFP.html" class="external-link">occuFP()</a></code>, with the verified columns first and a
+<code>METH</code> covariate that tells the two methods apart, so that
+the same data can be fitted both ways.</p>
 </div>
 <div class="section level2">
 <h2 id="the-same-model-fitted-both-ways">The same model fitted both ways<a class="anchor" aria-label="anchor" href="#the-same-model-fitted-both-ways"></a>
@@ -228,14 +233,14 @@ no method covariate is needed:</p>
 <span><span class="va">m_cw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Running MCMC with 4 parallel chains, with 1 thread(s) per chain...</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Chain 2 finished in 45.6 seconds.</span></span>
-<span><span class="co">#&gt; Chain 3 finished in 45.8 seconds.</span></span>
-<span><span class="co">#&gt; Chain 4 finished in 47.0 seconds.</span></span>
-<span><span class="co">#&gt; Chain 1 finished in 49.0 seconds.</span></span>
+<span><span class="co">#&gt; Chain 2 finished in 45.2 seconds.</span></span>
+<span><span class="co">#&gt; Chain 3 finished in 45.5 seconds.</span></span>
+<span><span class="co">#&gt; Chain 4 finished in 46.8 seconds.</span></span>
+<span><span class="co">#&gt; Chain 1 finished in 48.5 seconds.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; All 4 chains finished successfully.</span></span>
-<span><span class="co">#&gt; Mean chain execution time: 46.9 seconds.</span></span>
-<span><span class="co">#&gt; Total execution time: 49.2 seconds.</span></span>
+<span><span class="co">#&gt; Mean chain execution time: 46.5 seconds.</span></span>
+<span><span class="co">#&gt; Total execution time: 48.7 seconds.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m_cw</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      occ_(Intercept)                occ_x      det_(Intercept) </span></span>
 <span><span class="co">#&gt;           0.15887315          -0.76977980           0.42722960 </span></span>

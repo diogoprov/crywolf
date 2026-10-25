@@ -41,6 +41,13 @@ in `y_verified` mark sites that were not verified, as in ‘unmarked’.
 | `type = c(n1, n2, 0)`           | implied by the two matrices         |
 | type-3 data                     | not supported                       |
 
+[`fp_to_unmarked()`](https://provetelab.org/crywolf/reference/fp_to_unmarked.md)
+goes the other way: it turns any `fp_data` object into the
+`unmarkedFrameOccuFP` of
+[`occuFP()`](https://ecoverseR.github.io/unmarked/reference/occuFP.html),
+with the verified columns first and a `METH` covariate that tells the
+two methods apart, so that the same data can be fitted both ways.
+
 ## The same model fitted both ways
 
 We simulate 300 sites with 10 automated occasions each, a third of them
@@ -116,14 +123,14 @@ d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
 m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, threads_per_chain = 1, seed = 1)
 #> Running MCMC with 4 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 45.6 seconds.
-#> Chain 3 finished in 45.8 seconds.
-#> Chain 4 finished in 47.0 seconds.
-#> Chain 1 finished in 49.0 seconds.
+#> Chain 2 finished in 45.2 seconds.
+#> Chain 3 finished in 45.5 seconds.
+#> Chain 4 finished in 46.8 seconds.
+#> Chain 1 finished in 48.5 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 46.9 seconds.
-#> Total execution time: 49.2 seconds.
+#> Mean chain execution time: 46.5 seconds.
+#> Total execution time: 48.7 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
 #>           0.15887315          -0.76977980           0.42722960 

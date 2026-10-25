@@ -162,6 +162,8 @@ Assemble automated and verified detections and site covariates.
   Assemble data for a false-positive occupancy model
 - [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md)
   : Assemble data from detection matrices
+- [`fp_to_unmarked()`](https://provetelab.org/crywolf/reference/fp_to_unmarked.md)
+  : Convert data for unmarked::occuFP()
 
 ## Reading classifier output
 

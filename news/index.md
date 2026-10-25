@@ -23,6 +23,18 @@
   (`rule = "threshold"`). The sites of the model can be other than the
   recorders (for instance, site-nights). Needs the ‘arrow’ package
   (Suggests).
+- [`fp_to_unmarked()`](https://provetelab.org/crywolf/reference/fp_to_unmarked.md)
+  turns an `fp_data` object into the `unmarkedFrameOccuFP` of
+  [`unmarked::occuFP()`](https://ecoverseR.github.io/unmarked/reference/occuFP.html),
+  the reverse of
+  [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md):
+  verified occasions first, a `METH` covariate that tells the methods
+  apart, and optional observation covariates of the automated occasions.
+  With
+  [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+  and
+  [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md),
+  an export of sheepdog can be fitted by maximum likelihood as well.
 
 ## crywolf 1.9.0
 

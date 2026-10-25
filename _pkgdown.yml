@@ -21,6 +21,7 @@ reference:
     contents:
       - fp_data
       - fp_data_wide
+      - fp_to_unmarked
   - title: Reading classifier output
     desc: Read BirdNET selection tables and reviewed clips, and build occasions.
     contents:

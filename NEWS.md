@@ -15,6 +15,12 @@
   "sample"`, the default) or when that probability reaches `p_min` (`rule =
   "threshold"`). The sites of the model can be other than the recorders
   (for instance, site-nights). Needs the 'arrow' package (Suggests).
+* `fp_to_unmarked()` turns an `fp_data` object into the
+  `unmarkedFrameOccuFP` of `unmarked::occuFP()`, the reverse of
+  `fp_data_wide()`: verified occasions first, a `METH` covariate that tells
+  the methods apart, and optional observation covariates of the automated
+  occasions. With `fp_read_sheepdog()` and `fp_aggregate()`, an export of
+  sheepdog can be fitted by maximum likelihood as well.
 
 # crywolf 1.9.0
 

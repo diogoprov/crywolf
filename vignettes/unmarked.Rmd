@@ -54,6 +54,11 @@ columns as `y_auto` and the type-1 columns as `y_verified`. Rows of `NA` in
 | `type = c(n1, n2, 0)` | implied by the two matrices |
 | type-3 data | not supported |
 
+`fp_to_unmarked()` goes the other way: it turns any `fp_data` object into
+the `unmarkedFrameOccuFP` of `occuFP()`, with the verified columns first
+and a `METH` covariate that tells the two methods apart, so that the same
+data can be fitted both ways.
+
 ## The same model fitted both ways
 
 We simulate 300 sites with 10 automated occasions each, a third of them

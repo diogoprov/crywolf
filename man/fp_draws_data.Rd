@@ -60,10 +60,10 @@ when at least one of its predictions is judged true under that draw.
 occasion with many low-scoring predictions is likely to hold at least one
 judged true; it assumes that the predictions of an occasion are true or
 false independently, given the calibration. \code{"threshold"} keeps only the
-predictions the calibration is nearly sure of. On the \code{curiango} data
-(custom classifier, one calibration draw), \code{"sample"} gave a detection
-in 18\% of the recordings and \code{"threshold"} in 0.4\%, against 21\% of the
-recordings annotated by ear holding the species.
+predictions the calibration is nearly sure of, so it gives fewer
+detections: on the \code{curiango} data (custom classifier, minute
+occasions), about 8\% of the minutes with \code{"sample"} against about 1\%
+with \code{"threshold"}.
 
 A prediction takes the calibration value of the grid point nearest its
 score, as in sheepdog: grid index `round((score - grid_min) / grid_step)

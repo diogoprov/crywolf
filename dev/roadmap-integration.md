@@ -23,9 +23,14 @@ O que toca o crywolf, em ordem de prioridade:
   idênticos ao `fp_occu()`) e `fp_draws_data()`, que monta as versões a
   partir de `calibration_draws.parquet` (regra `"sample"` por padrão,
   decisão do Diogo; `"threshold"` como alternativa). Falta: escolher M
-  (estabilidade com M = 10, 20, 50) e a comparação na curiango, inclusive
-  `fp = NULL` contra o modelo de FP nos históricos calibrados (com eles o
-  p10 tende a ficar mal identificado).
+  (estabilidade com M = 10, 20, 50) e a comparação na curiango.
+  **25/10/2026:** uma primeira rodada (M = 50, `fp = NULL` e `fp ~ 1`) foi
+  descartada: o export tinha um artefato (score do minuto repetido em
+  cada linha, ~7 detecções por minuto) e a calibração era por janela, não
+  por minuto (corrigido em sheepdog#39). Com o export corrigido, a regra
+  `"sample"` dá 7,9% dos minutos com detecção (Custom) e `"threshold"`
+  1,3%. Refazer com `fp ~ 1` e `fp ~ temp + rh`; os 21,4% das gravações
+  anotadas não servem de referência para o total (meses concentrados).
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

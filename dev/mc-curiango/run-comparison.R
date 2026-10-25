@@ -2,11 +2,16 @@
 # Monte Carlo propagation of the classifier calibration (custom classifier,
 # export of sheepdog with calibration_draws.parquet). Versions of the
 # detection histories from fp_draws_data(rule = "sample"), fitted with
-# fp_occu_mc() with and without a false-positive process. Answers:
+# fp_occu_mc() with a constant false-positive rate and with one that depends
+# on the conditions of the night. Answers:
 #   (1) how many versions (M) are needed: the pooled estimates of the first
 #       10, 20, 30 and 50 versions are compared (nested);
-#   (2) does a false-positive process still make sense on histories already
-#       filtered by the calibration (fp = NULL against fp = ~ 1)?
+#   (2) do the false positives left after the calibration depend on the
+#       conditions of the night (fp = ~ 1 against fp = ~ temp + rh), as at
+#       a classifier threshold of 0.2 (vignette("threshold"))?
+# Needs the export of sheepdog#39 or later (one prediction per minute, a
+# calibration on minutes); an earlier export repeated each minute's score
+# on every row.
 # Sites of the model: nights at each recorder (night_site_id), as in
 # vignette("markov"). 2 x M fits of 4 chains, 4 fits at a time (16 cores);
 # about 6 minutes per fit, so 2.5 to 3 hours with M = 50 (estimate from a
@@ -49,7 +54,7 @@ fit <- function(fp) {
   m$minutes <- as.numeric(difftime(Sys.time(), t1, units = "mins"))
   m
 }
-res <- list(fp_null = fit(NULL), fp_constant = fit(~ 1))
+res <- list(fp_constant = fit(~ 1), fp_temp_rh = fit(~ temp + rh))
 
 # pooled estimates of the first k versions, from the per-fit summaries
 # (law of total variance, as summary.fp_occu_mc())

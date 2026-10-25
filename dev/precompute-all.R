@@ -12,6 +12,7 @@
 # dev/random-det/simulate-scenarios.R (1600 fits, about 11 hours), whose
 # prototype Stan program is independent of the package.
 scripts <- c("precompute-vignette.R", "precompute-calibration.R",
+             "precompute-calibration-fit.R",
              "precompute-sbc.R", "precompute-sbc-random-det.R",
              "precompute-fp-variation.R", "precompute-markov.R",
              "precompute-curiango-random-det.R", "precompute-threshold.R",

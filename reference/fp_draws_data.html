@@ -146,10 +146,10 @@ the attributes <code>draws</code> (the draw identifiers) and <code>rule</code>.<
 occasion with many low-scoring predictions is likely to hold at least one
 judged true; it assumes that the predictions of an occasion are true or
 false independently, given the calibration. <code>"threshold"</code> keeps only the
-predictions the calibration is nearly sure of. On the <code>curiango</code> data
-(custom classifier, one calibration draw), <code>"sample"</code> gave a detection
-in 18% of the recordings and <code>"threshold"</code> in 0.4%, against 21% of the
-recordings annotated by ear holding the species.</p>
+predictions the calibration is nearly sure of, so it gives fewer
+detections: on the <code>curiango</code> data (custom classifier, minute
+occasions), about 8% of the minutes with <code>"sample"</code> against about 1%
+with <code>"threshold"</code>.</p>
 <p>A prediction takes the calibration value of the grid point nearest its
 score, as in sheepdog: grid index `round((score - grid_min) / grid_step)</p><ul><li><p>1`, within the grid. Predictions of a site and species without
 calibration draws are left out, with a warning (no value is imputed).</p></li>

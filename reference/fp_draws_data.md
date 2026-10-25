@@ -87,10 +87,10 @@ identifiers) and `rule`.
 occasion with many low-scoring predictions is likely to hold at least
 one judged true; it assumes that the predictions of an occasion are true
 or false independently, given the calibration. `"threshold"` keeps only
-the predictions the calibration is nearly sure of. On the `curiango`
-data (custom classifier, one calibration draw), `"sample"` gave a
-detection in 18% of the recordings and `"threshold"` in 0.4%, against
-21% of the recordings annotated by ear holding the species.
+the predictions the calibration is nearly sure of, so it gives fewer
+detections: on the `curiango` data (custom classifier, minute
+occasions), about 8% of the minutes with `"sample"` against about 1%
+with `"threshold"`.
 
 A prediction takes the calibration value of the grid point nearest its
 score, as in sheepdog: grid index \`round((score - grid_min) /

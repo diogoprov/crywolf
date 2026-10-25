@@ -197,19 +197,53 @@ coverage and bias of their intervals. The cost is that of refitting the
 real data `reps` times per model.
 
 A typical use pits the model you fitted against a simpler one. If a
-model in which the false-positive rate depends on humidity found a clear
-effect, data simulated from it show whether a constant rate would have
-biased the occupancy effects at your sample size and verification
-effort:
+model in which the false-positive rate depends on a measured gradient
+found a clear effect, data simulated from it show whether a constant
+rate would have biased the occupancy effects at your sample size and
+verification effort. Here the “real” data are one simulated dataset with
+structured confusion (300 sites, 20 occasions, 30% of sites verified),
+and the model of interest lets the false-positive rate depend on the
+gradient `w` (`dev/precompute-calibration-fit.R`):
 
 ``` r
 
-m_rh <- fp_occu(d, occ = ~ temp + rh, det = ~ bio, fp = ~ rh)
-cal_fit <- fp_calibrate_fit(m_rh, models = list(constant = ~ 1, fp_rh = ~ rh),
+sim <- simulate_fp(nsite = 300, nocc = 20, p10 = 0.05, frac_verified = 0.3,
+                   conf_effect = 1.5, conf_cor = 0.7, seed = 1)
+m_w <- fp_occu(sim$data, occ = ~ x, fp = ~ w, random_recorder = FALSE,
+               threads_per_chain = 1, seed = 1)
+cal_fit <- fp_calibrate_fit(m_w, models = list(constant = ~ 1, fp_w = ~ w),
                             reps = 50, parallel = TRUE)
 summary(cal_fit)
-plot(cal_fit, parameter = "occ_rh")
+plot(cal_fit, parameter = "occ_x")
 ```
+
+    #> Calibration summary (95% intervals)
+    #> 
+    #> Occupancy slope:
+    #>  cell    model  n failed coverage mc_se   bias rmse prop_divergent   verdict
+    #>     1 constant 50      0     0.18 0.054  0.410 0.44              0 collapsed
+    #>     1     fp_w 50      0     0.88 0.046 -0.015 0.18              0       low
+    #> 
+    #> All quantities: inspect the returned tibble.
+
+![Coverage of the 95% interval of the occupancy slope in 50 datasets
+simulated from the fitted model with fp = ~ w, refitted with a constant
+false-positive rate and with fp = ~ w. Bars span two Monte Carlo
+standard errors; the dashed line is the nominal
+coverage.](calibration_files/figure-html/calibration-fit-plot-1.png)
+
+Coverage of the 95% interval of the occupancy slope in 50 datasets
+simulated from the fitted model with fp = ~ w, refitted with a constant
+false-positive rate and with fp = ~ w. Bars span two Monte Carlo
+standard errors; the dashed line is the nominal coverage.
+
+In data like these, a constant false-positive rate would have missed the
+occupancy slope: its 95% interval covered the true value in 0.18 of the
+datasets, with a bias of +0.41, whereas the model with `fp = ~ w`
+covered it in 0.88 (bias -0.02), somewhat below the nominal 0.95 (the
+Monte Carlo standard error of a coverage near 0.9 with 50 replicates is
+about 0.04). The check refitted the data 100 times, two models by 50
+replicates.
 
 By default every dataset is simulated from the posterior means;
 `truth = "posterior"` draws a different set of parameter values from the

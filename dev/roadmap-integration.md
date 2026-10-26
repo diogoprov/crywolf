@@ -29,8 +29,20 @@ O que toca o crywolf, em ordem de prioridade:
   cada linha, ~7 detecções por minuto) e a calibração era por janela, não
   por minuto (corrigido em sheepdog#39). Com o export corrigido, a regra
   `"sample"` dá 7,9% dos minutos com detecção (Custom) e `"threshold"`
-  1,3%. Refazer com `fp ~ 1` e `fp ~ temp + rh`; os 21,4% das gravações
-  anotadas não servem de referência para o total (meses concentrados).
+  1,3%. Os 21,4% das gravações anotadas não servem de referência para o
+  total (meses concentrados).
+  **Rodada no export corrigido (25/10/2026, `dev/mc-curiango/results.rds`):**
+  M = 50, 7,7% dos minutos com detecção por versão. 99 de 100 ajustes
+  convergiram (o 50º de `fp ~ temp + rh`, R-hat 1,53, fica fora: valores
+  de M = 30). M = 10 já basta. Ocupação, `fp ~ 1`: temperatura −0,07
+  (−0,24; 0,11), umidade −0,64, lua 0,15; `fp ~ temp + rh`: temperatura
+  −0,15 (−0,30; 0,01), umidade −0,54, lua 0,14, e `fp_temp` = +0,17 (0,09;
+  0,24). Limiar 0,4 com `fp ~ 1`: −0,25, −0,78, 0,14. Leitura: 30–70% da
+  variância dos efeitos de ocupação vem da calibração (o limiar fixo a
+  esconde); o FP volta a crescer com a temperatura, como no limiar 0,2, e
+  modelá-lo aproxima o efeito da temperatura do valor do limiar 0,4.
+  Ideia: `fp_occu_mc()` poderia avisar ou excluir ajustes que não
+  convergem.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

@@ -81,7 +81,7 @@ if (identical(args[1], "combine")) {
 } else {
   classifier <- match.arg(args[1], names(thresholds))
   # an optional second argument points to a pre-compiled copy of the model,
-  # so that edits to inst/stan/ during a long run do not affect it
+  # so that edits to src/stan/ during a long run do not affect it
   if (length(args) > 1) {
     fp_env <- get(".fp_env", envir = asNamespace("crywolf"))
     fp_env$model <- cmdstanr::cmdstan_model(args[2])

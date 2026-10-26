@@ -1,5 +1,5 @@
 # Profiles the likelihood of the curiango fit with Stan `profile` blocks
-# (dev/profile/fp_occu_profile.stan, a copy of inst/stan/fp_occu.stan).
+# (dev/profile/fp_occu_profile.stan, a copy of src/stan/fp_occu.stan).
 # Usage, from the package root: Rscript dev/profile/profile-curiango.R
 devtools::load_all(quiet = TRUE)
 source("dev/profile/curiango-data.R")

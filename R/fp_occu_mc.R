@@ -35,7 +35,7 @@
 #' state of a site does not flow back to how likely its detections are to
 #' be true.
 #'
-#' **Between and within.** [summary()] splits the posterior variance of
+#' **Between and within.** `summary()` splits the posterior variance of
 #' each quantity into the part within fits (uncertainty given one version of
 #' the histories) and the part between fits (uncertainty about the
 #' histories), by the law of total variance: the squares of `sd_within`

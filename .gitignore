@@ -8,8 +8,8 @@ inst/doc
 /doc/
 /Meta/
 # compiled Stan executables
-inst/stan/fp_occu
-inst/stan/*.exe
+src/stan/fp_occu
+src/stan/*.exe
 
 # memória do Claude Code (local, não publicar)
 CLAUDE.md

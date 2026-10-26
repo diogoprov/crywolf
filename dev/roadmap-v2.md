@@ -161,6 +161,15 @@ Ordem pedida pelo Diogo, depois de fechar o `random_det`:
 - `R CMD check --as-cran` limpo nas três plataformas; exemplos e vinhetas
   dentro dos limites de tempo e de núcleos do CRAN (as vinhetas longas já
   são pré-computadas).
+- **Em andamento (26/10/2026, branch `instantiate-backend`):** patch
+  aplicado, com quatro correções da revisão: sem executável instalado,
+  `fp_compile()` vai direto ao cache (o `instantiate` compilaria um sem
+  threads na biblioteca); o `install.libs.R` não compila na instalação
+  temporária do `devtools::load_all()` (`devtools_install_`) e uma falha de
+  compilação não derruba a instalação; o CI ganha o R-universe do Stan
+  (o pak não lê `Additional_repositories`), remove o `cmdstanr` nos jobs
+  sem CmdStan e roda os jobs com CmdStan sem `--as-cran` (o WARNING de
+  flags `-Wno-*` do CmdStan). Draws idênticos ao `main`.
 - NEWS do 2.0.0 com a lista de mudanças incompatíveis; CITATION.cff
   atualizado; a citação do artigo da MEE entra quando ele for aceito
   (2.0.x).

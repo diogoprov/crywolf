@@ -29,7 +29,7 @@ sdir <- file.path(tempdir(), "compare-logdens")
 dir.create(sdir, showWarnings = FALSE)
 file.copy(c(file.path(fpc, "inst", "stan", c("fp_occupancy_re_toggle.stan",
                                               "fp_occupancy_fpcov.stan")),
-            file.path("inst", "stan", "fp_occu.stan")), sdir, overwrite = TRUE)
+            file.path("src", "stan", "fp_occu.stan")), sdir, overwrite = TRUE)
 compile <- function(f) cmdstan_model(file.path(sdir, f), compile_model_methods = TRUE,
                                      quiet = TRUE)
 mod_const <- compile("fp_occupancy_re_toggle.stan")

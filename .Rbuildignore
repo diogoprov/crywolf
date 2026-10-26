@@ -8,7 +8,8 @@
 ^README\.Rmd$
 ^CITATION\.cff$
 ^LICENSE\.md$
-^inst/stan/fp_occu$
+^src/stan/fp_occu$
+^src/stan/.*\.exe$
 ^CLAUDE\.md$
 ^\.claude$
 ^data-raw$

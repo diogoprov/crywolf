@@ -1,6 +1,11 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 2.0.0
+
+The first major version: the interface of the stable functions is
+frozen, the Stan model is compiled when the package is installed (the
+route to CRAN), and fits use several threads per chain by default. Three
+experimental functions start the integration with ‘sheepdog’.
 
 ### Stable interface
 
@@ -52,7 +57,7 @@
   [`fp_stan_file()`](https://provetelab.org/crywolf/reference/fp_stan_file.md)
   finds it in either case. Draws are unchanged.
 
-### New features
+### New features (experimental)
 
 - [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   fits the model to several versions of the same data, such as detection

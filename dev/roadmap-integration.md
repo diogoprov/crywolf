@@ -49,6 +49,16 @@ O que toca o crywolf, em ordem de prioridade:
   caminho com princípio é a Fase 2 (covariáveis nas distribuições dos
   scores f1 e f0, prevalência vinda de ψ e θ); até lá, `fp ~ temp + rh`
   é a correção do lado do crywolf.
+  **Ressalva (26/10/2026, PPC das calibrações, sheepdog#41):** a calibração
+  do Custom ajusta bem no total, por score e por local, mas erra por mês
+  (dez/23 3,5% de TP observados contra 15% previstos; jan/24 0,9% contra
+  12%; jun/24 85% contra 74%). Os históricos `"sample"` ganham TP demais nos
+  meses de pouca atividade (quentes e úmidos), o que pode explicar a
+  atenuação da temperatura e o `fp_temp` positivo sem confusão estruturada
+  do classificador. A leitura acima fica como hipótese. Teste possível
+  (decisão do Diogo): calibração com estação/mês como análise de
+  sensibilidade e nova rodada do `fp_occu_mc()`; se os efeitos voltarem
+  para perto dos do limiar 0,4, a atenuação era artefato da calibração.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

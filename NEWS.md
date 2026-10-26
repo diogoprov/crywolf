@@ -9,6 +9,8 @@
   calibration does not learn from occupancy). `summary()` splits each
   variance into parts within and between fits, and reports convergence fit
   by fit. With a single version it reproduces `fp_occu()` draw for draw.
+  Fits that did not converge (largest R-hat above `max_rhat`, 1.05 by
+  default) are left out of the pool with a warning that names them.
 * `fp_draws_data()` builds those versions from an export of sheepdog with
   calibration draws (`calibration_draws.parquet`): in each draw a
   prediction is judged true with its calibrated probability (`rule =

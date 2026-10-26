@@ -17,6 +17,9 @@
 #'   workers set by [future::plan()]. Unless set in `...`,
 #'   `parallel_chains` and `threads_per_chain` are then 1, so that each
 #'   worker uses one core.
+#' @param max_rhat Fits whose largest R-hat exceeds this value are left out
+#'   of the pooled draws, with a warning that names them. `Inf` keeps every
+#'   fit.
 #' @param keep_fits Keep the [fp_occu()] fit of every version in the
 #'   result (`fits`)? They hold the backend objects and can be large. Their
 #'   draws are in memory, but with `parallel = TRUE` the CmdStan output
@@ -47,9 +50,20 @@
 #'
 #' **Convergence.** R-hat over the pooled draws would mix differences
 #' between fits with lack of convergence, so it is not reported for the
-#' pool. Each fit is checked on its own: the summary reports the largest
-#' R-hat and the smallest effective sample size over the fits, and
-#' `diagnostics` lists them by fit.
+#' pool. Each fit is checked on its own: a fit whose largest R-hat exceeds
+#' `max_rhat` (1.05 by default) has not converged and is left out, with a
+#' warning; report how many were left out. This is looser than the 1.01
+#' that [fp_occu()] warns about, because mixing error within one fit mostly
+#' widens the within-fit part of the pooled variance; fits between the two
+#' values are kept, and their warnings show in `diagnostics`. Divergent
+#' transitions do not exclude a fit. Leaving fits out conditions the
+#' propagation on the versions that converged: if non-convergence depends
+#' on the version (for instance, histories with very few detections), the
+#' pooled posterior is biased and the between-fit variance understated.
+#' Rather than dropping them, refit those versions with longer chains or a
+#' higher `adapt_delta`. The summary reports the largest R-hat and the
+#' smallest effective sample size over the fits kept, and `diagnostics`
+#' lists every fit, with `kept` marking those in the pool.
 #'
 #' **Number of versions.** The cost is that of one fit times the number of
 #' versions. The between-fit variance is estimated from the versions, so
@@ -59,9 +73,10 @@
 #' @return An object of class `fp_occu_mc`: `draws` (the pooled draws, in
 #'   the readable names of [fp_occu()], the chains of fit `i` following
 #'   those of fit `i - 1`), `summaries` (the posterior summary of each fit),
-#'   `diagnostics` (one row per fit: number of draws, divergences, largest
-#'   R-hat, smallest bulk and tail effective sample sizes), `fits` (with
-#'   `keep_fits = TRUE`), `n_fits` (the fits that succeeded), and `call`.
+#'   `diagnostics` (one row per fit that ran: number of draws, divergences,
+#'   largest R-hat, smallest bulk and tail effective sample sizes, and
+#'   `kept`), `fits` (with `keep_fits = TRUE`, the fits kept), `n_fits` (the
+#'   fits in the pool), and `call`.
 #' @seealso [fp_occu()], [fp_read_sheepdog()]
 #' @export
 #' @examples
@@ -81,12 +96,16 @@
 #' summary(mc)
 #' }
 fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
-                       keep_fits = FALSE) {
+                       max_rhat = 1.05, keep_fits = FALSE) {
   if (inherits(data_list, "fp_data") || !is.list(data_list) || !length(data_list) ||
       !all(purrr::map_lgl(data_list, inherits, "fp_data"))) {
     stop("`data_list` must be a list of `fp_data` objects.", call. = FALSE)
   }
   dots <- list(...)
+  if (!is.numeric(max_rhat) || length(max_rhat) != 1 || is.na(max_rhat) || max_rhat < 1) {
+    stop("`max_rhat` must be a single number of at least 1 (Inf keeps every fit).",
+         call. = FALSE)
+  }
   sites <- function(d) d$sites
   if (!all(purrr::map_lgl(data_list, function(d) identical(sites(d), sites(data_list[[1]]))))) {
     stop("The versions in `data_list` must have the same sites table (sites, ",
@@ -125,6 +144,21 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
             res[[which(!ok)[1]]]$msg, call. = FALSE)
   }
   res <- res[ok]
+  diagnostics <- purrr::list_rbind(purrr::map(res, "diagnostics"))
+  converged <- !((diagnostics$max_rhat > max_rhat) %in% TRUE)
+  diagnostics$kept <- converged
+  if (!any(converged)) {
+    stop("No fit converged (largest R-hat above ", max_rhat, " in every fit); ",
+         "run longer chains.", call. = FALSE)
+  }
+  if (!all(converged)) {
+    warning(sum(!converged), " fit(s) did not converge (largest R-hat above ",
+            max_rhat, ") and were left out: version(s) ",
+            paste(diagnostics$fit[!converged], collapse = ", "), ". Refit them with ",
+            "longer chains rather than dropping them: leaving versions out can bias ",
+            "the pooled posterior.", call. = FALSE)
+  }
+  res <- res[converged]
   n_draws <- purrr::map_int(res, function(r) r$diagnostics$n_draws)
   if (length(unique(n_draws)) > 1) {
     warning("The fits have different numbers of draws (", paste(range(n_draws), collapse = " to "),
@@ -132,8 +166,11 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
             "equally in the pooled draws.", call. = FALSE)
   }
   draws <- purrr::reduce(purrr::map(res, "draws"), posterior::bind_draws, along = "chain")
-  structure(list(draws = draws, summaries = purrr::map(res, "summary"),
-                 diagnostics = purrr::list_rbind(purrr::map(res, "diagnostics")),
+  # summaries named by version, as `fit` in diagnostics
+  summaries <- stats::setNames(purrr::map(res, "summary"),
+                               diagnostics$fit[diagnostics$kept])
+  structure(list(draws = draws, summaries = summaries,
+                 diagnostics = diagnostics,
                  fits = if (keep_fits) purrr::map(res, "fit"),
                  n_fits = length(res), call = match.call()),
             class = "fp_occu_mc")
@@ -156,6 +193,8 @@ summary.fp_occu_mc <- function(object, prob = 0.95, ...) {
     lower = function(v) unname(stats::quantile(v, a)),
     upper = function(v) unname(stats::quantile(v, 1 - a)))
   per_fit <- purrr::list_rbind(purrr::imap(object$summaries, function(t, i) {
+    # i is the version number (the names of `summaries`), or the position in
+    # objects made before they were named
     data.frame(fit = i, variable = t$variable, mean = t$mean, sd = t$sd,
                rhat = t$rhat, ess_bulk = t$ess_bulk)
   }))
@@ -183,9 +222,16 @@ print.summary.fp_occu_mc <- function(x, digits = 3, ...) {
               x$n_fits, 100 * x$prob))
   print(as.data.frame(x$table), digits = digits, row.names = FALSE)
   d <- x$diagnostics
+  # fits made before `kept` existed
+  if (is.null(d$kept)) d$kept <- TRUE
+  k <- d[d$kept, , drop = FALSE]
   cat(sprintf(paste0("\n  Per fit: %d divergent transitions in all, largest R-hat %.3f, ",
                      "smallest bulk ESS %.0f\n"),
-              sum(d$divergences), max(d$max_rhat), min(d$min_ess_bulk)))
+              sum(k$divergences), max(k$max_rhat), min(k$min_ess_bulk)))
+  if (any(!d$kept)) {
+    cat(sprintf("  %d fit(s) left out for lack of convergence: version(s) %s\n",
+                sum(!d$kept), paste(d$fit[!d$kept], collapse = ", ")))
+  }
   invisible(x)
 }
 

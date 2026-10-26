@@ -8,7 +8,14 @@
 \alias{as_draws_df.fp_occu_mc}
 \title{Fit the model to draws of the detection histories}
 \usage{
-fp_occu_mc(data_list, ..., seed = NULL, parallel = FALSE, keep_fits = FALSE)
+fp_occu_mc(
+  data_list,
+  ...,
+  seed = NULL,
+  parallel = FALSE,
+  max_rhat = 1.05,
+  keep_fits = FALSE
+)
 
 \method{summary}{fp_occu_mc}(object, prob = 0.95, ...)
 
@@ -32,6 +39,10 @@ workers set by \code{\link[future:plan]{future::plan()}}. Unless set in \code{..
 \code{parallel_chains} and \code{threads_per_chain} are then 1, so that each
 worker uses one core.}
 
+\item{max_rhat}{Fits whose largest R-hat exceeds this value are left out
+of the pooled draws, with a warning that names them. \code{Inf} keeps every
+fit.}
+
 \item{keep_fits}{Keep the \code{\link[=fp_occu]{fp_occu()}} fit of every version in the
 result (\code{fits})? They hold the backend objects and can be large. Their
 draws are in memory, but with \code{parallel = TRUE} the CmdStan output
@@ -47,9 +58,10 @@ files of a worker may be gone once it ends.}
 An object of class \code{fp_occu_mc}: \code{draws} (the pooled draws, in
 the readable names of \code{\link[=fp_occu]{fp_occu()}}, the chains of fit \code{i} following
 those of fit \code{i - 1}), \code{summaries} (the posterior summary of each fit),
-\code{diagnostics} (one row per fit: number of draws, divergences, largest
-R-hat, smallest bulk and tail effective sample sizes), \code{fits} (with
-\code{keep_fits = TRUE}), \code{n_fits} (the fits that succeeded), and \code{call}.
+\code{diagnostics} (one row per fit that ran: number of draws, divergences,
+largest R-hat, smallest bulk and tail effective sample sizes, and
+\code{kept}), \code{fits} (with \code{keep_fits = TRUE}, the fits kept), \code{n_fits} (the
+fits in the pool), and \code{call}.
 
 \code{summary()} returns, for each quantity, the pooled posterior mean,
 standard deviation and interval, the standard deviations within and
@@ -91,9 +103,20 @@ warns when the fits have different numbers of draws.
 
 \strong{Convergence.} R-hat over the pooled draws would mix differences
 between fits with lack of convergence, so it is not reported for the
-pool. Each fit is checked on its own: the summary reports the largest
-R-hat and the smallest effective sample size over the fits, and
-\code{diagnostics} lists them by fit.
+pool. Each fit is checked on its own: a fit whose largest R-hat exceeds
+\code{max_rhat} (1.05 by default) has not converged and is left out, with a
+warning; report how many were left out. This is looser than the 1.01
+that \code{\link[=fp_occu]{fp_occu()}} warns about, because mixing error within one fit mostly
+widens the within-fit part of the pooled variance; fits between the two
+values are kept, and their warnings show in \code{diagnostics}. Divergent
+transitions do not exclude a fit. Leaving fits out conditions the
+propagation on the versions that converged: if non-convergence depends
+on the version (for instance, histories with very few detections), the
+pooled posterior is biased and the between-fit variance understated.
+Rather than dropping them, refit those versions with longer chains or a
+higher \code{adapt_delta}. The summary reports the largest R-hat and the
+smallest effective sample size over the fits kept, and \code{diagnostics}
+lists every fit, with \code{kept} marking those in the pool.
 
 \strong{Number of versions.} The cost is that of one fit times the number of
 versions. The between-fit variance is estimated from the versions, so

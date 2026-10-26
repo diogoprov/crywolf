@@ -53,10 +53,11 @@ test_that("threads default to \"auto\", but one per chain in repeated fits", {
   # the fits of a calibration or SBC run side by side: one thread each,
   # unless fit_args says otherwise
   got <- list()
+  # (no CmdStan needed: neither the model nor the fits are real)
   local_mocked_bindings(fp_occu = function(...) {
     got[[length(got) + 1]] <<- list(...)$threads_per_chain
     stop("not fitted")
-  }, .package = "crywolf")
+  }, fp_compile = function(...) invisible(NULL), .package = "crywolf")
   s <- simulate_fp(nsite = 20, nocc = 3, seed = 1)
   try(fp_sbc(s$data, reps = 1, ndraws = 9), silent = TRUE)
   try(fp_sbc(s$data, reps = 1, ndraws = 9,

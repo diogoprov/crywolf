@@ -82,12 +82,12 @@
 #' the Stan program.
 #'
 #' @section Computation:
-#' Each chain runs on one core by default; the default becomes
-#' `threads_per_chain = "auto"` in crywolf 2.0.0 (see [fp_occu()] for what
-#' that changes in reproduction by `seed`). The likelihood is summed over
-#' sites with Stan's `reduce_sum()`, so `threads_per_chain` in [fp_occu()]
-#' splits each chain among several cores, which pays off with many sites or
-#' occasions. Keep `parallel_chains * threads_per_chain` at or below the
+#' By default (`threads_per_chain = "auto"`, since crywolf 2.0.0) each chain
+#' uses its share of the physical cores; set `threads_per_chain = 1` for
+#' draws reproduced exactly by `seed` (see [fp_occu()]). The likelihood is
+#' summed over sites with Stan's `reduce_sum()`, so `threads_per_chain` in
+#' [fp_occu()] splits each chain among several cores, which pays off with
+#' many sites or occasions. Keep `parallel_chains * threads_per_chain` at or below the
 #' number of physical cores. [fp_calibrate()] fits many models, one chain per
 #' worker; compile the model with [fp_compile()] before starting workers.
 #'

@@ -12,7 +12,9 @@
 #'   draw of the detection histories.
 #' @param ... Arguments passed to [fp_occu()] for every fit (formulas,
 #'   priors, sampler settings).
-#' @param seed Optional integer: fit `i` uses seed `seed + i - 1`.
+#' @param seed Optional integer: fit `i` uses seed `seed + i - 1`. The
+#'   fits are reproduced draw for draw only with one thread per chain
+#'   (`threads_per_chain = 1`, the setting when `parallel = TRUE`).
 #' @param parallel Fit the versions in parallel with 'furrr', on the
 #'   workers set by [future::plan()]. Unless set in `...`,
 #'   `parallel_chains` and `threads_per_chain` are then 1, so that each
@@ -122,7 +124,7 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
   jobs <- tibble::tibble(i = seq_along(data_list), d = data_list)
   run_one <- function(i, d) {
     s <- if (is.null(seed)) NULL else as.integer(seed) + i - 1L
-    m <- tryCatch(.quiet_threads(do.call(fp_occu, c(list(d, seed = s), dots))),
+    m <- tryCatch(do.call(fp_occu, c(list(d, seed = s), dots)),
                   error = function(e) conditionMessage(e))
     if (is.character(m)) return(list(ok = FALSE, msg = m))
     list(ok = TRUE, draws = m$draws, summary = summary(m)$table,

@@ -66,8 +66,9 @@ the false-positive rate on something you did not measure is not part of
 the generating model.
 
 Each replicate refits every model, so the cost is that of \code{reps} times
-the number of models fits of the size of the real data. Use \code{parallel},
-and \code{threads_per_chain} in \code{fit_args} for large datasets.
+the number of models fits of the size of the real data. Use \code{parallel}
+for large datasets; each fit runs on one thread per chain unless
+\code{fit_args} sets \code{threads_per_chain}.
 }
 \examples{
 \dontrun{

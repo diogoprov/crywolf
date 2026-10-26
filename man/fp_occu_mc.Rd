@@ -32,7 +32,9 @@ draw of the detection histories.}
 \item{...}{Arguments passed to \code{\link[=fp_occu]{fp_occu()}} for every fit (formulas,
 priors, sampler settings).}
 
-\item{seed}{Optional integer: fit \code{i} uses seed \code{seed + i - 1}.}
+\item{seed}{Optional integer: fit \code{i} uses seed \code{seed + i - 1}. The
+fits are reproduced draw for draw only with one thread per chain
+(\code{threads_per_chain = 1}, the setting when \code{parallel = TRUE}).}
 
 \item{parallel}{Fit the versions in parallel with 'furrr', on the
 workers set by \code{\link[future:plan]{future::plan()}}. Unless set in \code{...},

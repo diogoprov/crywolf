@@ -265,12 +265,12 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
     crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
   # fits saved before crywolf 1.5.0 lack the sampler settings: use defaults
   st <- purrr::compact(if (is.null(x$sampler)) list() else x$sampler)
-  refit <- .quiet_threads(suppressWarnings(do.call(fp_occu, c(list(
+  refit <- suppressWarnings(do.call(fp_occu, c(list(
     d_i, occ = x$formulas$occ, det = x$formulas$det, fp = x$formulas$fp,
     random_recorder = x$random_recorder, random_fp = isTRUE(x$random_fp),
     random_det = isTRUE(x$random_det),
     ver = if (is.null(x$formulas$ver)) ~ 1 else x$formulas$ver, markov = x$markov,
-    priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE), st))))
+    priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE), st)))
   # the left-out site must not carry a recorder or a factor level of its own,
   # or its prediction would need a parameter the refit lacks
   same <- intersect(c("recorders", "occ_names", "det_names", "fp_names", "ver_names"),

@@ -99,8 +99,9 @@ simulate.fp_occu <- function(object, nsim = 1, seed = NULL,
 #' the generating model.
 #'
 #' Each replicate refits every model, so the cost is that of `reps` times
-#' the number of models fits of the size of the real data. Use `parallel`,
-#' and `threads_per_chain` in `fit_args` for large datasets.
+#' the number of models fits of the size of the real data. Use `parallel`
+#' for large datasets; each fit runs on one thread per chain unless
+#' `fit_args` sets `threads_per_chain`.
 #'
 #' @return An object of class `fp_calibration`, as from [fp_calibrate()],
 #'   with a single design cell.
@@ -133,7 +134,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   gen <- .fit_generator(fit)
   fit_args <- utils::modifyList(
     list(show_messages = FALSE, show_exceptions = FALSE, refresh = 0,
-         random_recorder = fit$random_recorder,
+         threads_per_chain = 1, random_recorder = fit$random_recorder,
          random_fp = isTRUE(fit$random_fp), random_det = isTRUE(fit$random_det),
          priors = fit$priors,
          ver = if (is.null(fit$formulas$ver)) ~ 1 else fit$formulas$ver,

@@ -73,9 +73,8 @@
 #'     the number of cores.
 #'
 #'   Threads speed up fits with many sites or occasions (on the `curiango`
-#'   data, 4 threads made each chain 3.4 times faster). The default is 1
-#'   and becomes `"auto"` in crywolf 2.0.0; a fit that does not set
-#'   `threads_per_chain` says so once per session. Under `R CMD check`
+#'   data, 4 threads made each chain 3.4 times faster). The default is
+#'   `"auto"` since crywolf 2.0.0 (it was 1 before). Under `R CMD check`
 #'   (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN) a fit uses at most
 #'   two cores, counting `parallel_chains * threads_per_chain`.
 #' @param ... Further arguments passed to `$sample()`.
@@ -223,7 +222,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     random_recorder = !is.null(data$recorder),
                     ver = ~ 1, markov = NULL, random_fp = FALSE,
                     random_det = FALSE, priors = fp_priors(),
-                    chains = 4, parallel_chains = chains, threads_per_chain = 1,
+                    chains = 4, parallel_chains = chains, threads_per_chain = "auto",
                     iter_warmup = 1000, iter_sampling = 1000,
                     adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
   if (!inherits(data, "fp_data")) {
@@ -235,12 +234,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     warning("No verified data: the false-positive rate is identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
-  if (missing(threads_per_chain) && !isTRUE(.fp_env$threads_notice)) {
-    .fp_env$threads_notice <- TRUE
-    message(.threads_default_message())
+  if (identical(threads_per_chain, "auto")) {
+    threads_per_chain <- .auto_threads(parallel_chains)
   }
-  auto_threads <- .auto_threads(parallel_chains)
-  if (identical(threads_per_chain, "auto")) threads_per_chain <- auto_threads
   threads_per_chain <- suppressWarnings(as.integer(threads_per_chain))
   if (length(threads_per_chain) != 1 || is.na(threads_per_chain) ||
       threads_per_chain < 1) {
@@ -300,44 +296,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     class = "fp_occu"
   )
   .warn_diagnostics(diag)
-  slowest <- tryCatch(max(fit$time()$chains$total), error = function(e) NA_real_)
-  if (threads_per_chain == 1 && auto_threads > 1 && isTRUE(slowest > 60)) {
-    message(.threads_message(slowest, auto_threads))
-  }
   out
-}
-
-# advice after a slow fit on one thread; a classed condition, so that
-# .quiet_threads() can drop it
-.threads_message <- function(seconds, threads) {
-  msg <- paste0("Each chain took up to ", round(seconds / 60, 1), " min on one core. ",
-                "`threads_per_chain = \"auto\"` (", threads, " threads here) ",
-                "would be faster, at the cost of exact reproduction by `seed`.\n")
-  structure(class = c("crywolf_threads_message", "message", "condition"),
-            list(message = msg, call = NULL))
-}
-
-# announces the change of default in 2.0.0, once per session; a classed
-# condition, so that .quiet_threads() can drop it
-.threads_default_message <- function() {
-  msg <- paste0("The default of `threads_per_chain` changes from 1 to \"auto\" in ",
-                "crywolf 2.0.0: faster, but a fit is no longer reproduced exactly ",
-                "by `seed` (the posterior is the same). Set `threads_per_chain = 1` ",
-                "to keep exact reproduction, or \"auto\" to switch now; see ",
-                "?fp_occu. This message is shown once per session.\n")
-  structure(class = c("crywolf_threads_default", "message", "condition"),
-            list(message = msg, call = NULL))
-}
-
-# repeated fits inside crywolf (calibration, SBC, refits) skip the advice;
-# a dropped notice of the new default stays due for the user's own fits
-.quiet_threads <- function(expr) {
-  withCallingHandlers(expr, crywolf_threads_message = function(m) {
-    invokeRestart("muffleMessage")
-  }, crywolf_threads_default = function(m) {
-    .fp_env$threads_notice <- FALSE
-    invokeRestart("muffleMessage")
-  })
 }
 
 # a name for CmdStan's output files that no other fit in any session shares,

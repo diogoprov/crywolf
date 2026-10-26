@@ -48,21 +48,22 @@ test_that("threads_per_chain is checked and does not change the fit", {
   expect_equal(unclass(d1), unclass(d2), tolerance = 1e-4, ignore_attr = TRUE)
 })
 
-test_that("a fit without threads_per_chain announces the new default once", {
+test_that("threads default to \"auto\", but one per chain in repeated fits", {
+  expect_identical(formals(fp_occu)$threads_per_chain, "auto")
+  # the fits of a calibration or SBC run side by side: one thread each,
+  # unless fit_args says otherwise
+  got <- list()
+  local_mocked_bindings(fp_occu = function(...) {
+    got[[length(got) + 1]] <<- list(...)$threads_per_chain
+    stop("not fitted")
+  }, .package = "crywolf")
   s <- simulate_fp(nsite = 20, nocc = 3, seed = 1)
-  env <- crywolf:::.fp_env
-  old <- env$threads_notice
-  on.exit(env$threads_notice <- old)
-  # an unknown covariate stops the fit after the notice and before Stan
-  bad <- function(...) suppressWarnings(fp_occu(s$data, occ = ~ nope, ...))
-  env$threads_notice <- NULL
-  expect_message(expect_error(bad()), "changes from 1 to \"auto\"")
-  expect_no_message(expect_error(bad()))
-  env$threads_notice <- NULL
-  expect_no_message(expect_error(bad(threads_per_chain = 1)))
-  # dropped inside crywolf's own repeated fits, and still due afterwards
-  expect_no_message(expect_error(crywolf:::.quiet_threads(bad())))
-  expect_message(expect_error(bad()), "once per session")
+  try(fp_sbc(s$data, reps = 1, ndraws = 9), silent = TRUE)
+  try(fp_sbc(s$data, reps = 1, ndraws = 9,
+             fit_args = list(chains = 4, iter_sampling = 100, threads_per_chain = 2)),
+      silent = TRUE)
+  try(fp_calibrate(data.frame(nsite = 20, nocc = 3), reps = 1), silent = TRUE)
+  expect_equal(unlist(got), c(1, 2, 1))
 })
 
 test_that("R CMD check limits a fit to two cores", {
@@ -93,15 +94,6 @@ test_that("threads_per_chain resolves \"auto\" and rejects other text", {
                "positive integer or \"auto\"")
   expect_error(suppressWarnings(fp_occu(s$data, threads_per_chain = 0)),
                "positive integer")
-})
-
-test_that("the advice on threads is muffled inside crywolf", {
-  msg <- function() {
-    message(crywolf:::.threads_message(90, 4))
-    "done"
-  }
-  expect_message(msg(), "1.5 min on one core")
-  expect_no_message(crywolf:::.quiet_threads(msg()))
 })
 
 test_that("fits after the same seed get their own output files", {

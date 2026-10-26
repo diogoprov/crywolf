@@ -53,9 +53,11 @@ deviation is zero produces divergent transitions. With the chains of
 each fit run one after another, the cost is proportional to \code{chains}:
 \code{chains = 2} takes half the time of four and still gives an effective
 sample size of about 2000 per parameter in designs like the default
-one, ample for the 95\% intervals that are scored. Keep
-\code{threads_per_chain = 1} (the default) when fitting in parallel: \code{"auto"}
-divides the cores among the chains of one fit, not among workers.}
+one, ample for the 95\% intervals that are scored. Each fit runs on one
+thread per chain (\code{threads_per_chain = 1}, unlike \code{\link[=fp_occu]{fp_occu()}}, whose
+default is \code{"auto"}): \code{"auto"} divides the cores among the chains of one
+fit, not among parallel workers, and one thread keeps every replicate
+reproducible by its seed.}
 }
 \value{
 A tibble of class \code{fp_calibration}, one row per replicate, model,

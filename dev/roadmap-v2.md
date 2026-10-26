@@ -110,7 +110,11 @@ são mensagens do próprio crywolf.
   - Teto de 2 núcleos sob `R CMD check` (`_R_CHECK_LIMIT_CORES_` definido e
     diferente de `"false"`): threads ≤ 2 e `parallel_chains` ≤
     `2 %/% threads`. Menos cadeias em paralelo não mudam os draws.
-  - **Falta no 2.0:** trocar o padrão, apagar a mensagem e decidir o padrão
+  - **Feito (26/10/2026, no 2.0):** padrão `"auto"`; mensagem da 1.9 e
+    conselho depois de ajustes lentos apagados (com `.quiet_threads()`);
+    `fp_calibrate()`, `fp_calibrate_fit()` e `fp_sbc()` passam
+    `threads_per_chain = 1` (sobrescrevível em `fit_args`). Antes: trocar o
+    padrão, apagar a mensagem e decidir o padrão
     dos ajustes internos repetidos. `fp_calibrate()` e `fp_sbc()` rodam um
     ajuste por worker (o help do `fp_calibrate()` recomenda
     `threads_per_chain = 1`, "the default"); devem continuar com 1,

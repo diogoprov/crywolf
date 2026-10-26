@@ -36,9 +36,11 @@
 #'   each fit run one after another, the cost is proportional to `chains`:
 #'   `chains = 2` takes half the time of four and still gives an effective
 #'   sample size of about 2000 per parameter in designs like the default
-#'   one, ample for the 95% intervals that are scored. Keep
-#'   `threads_per_chain = 1` (the default) when fitting in parallel: `"auto"`
-#'   divides the cores among the chains of one fit, not among workers.
+#'   one, ample for the 95% intervals that are scored. Each fit runs on one
+#'   thread per chain (`threads_per_chain = 1`, unlike [fp_occu()], whose
+#'   default is `"auto"`): `"auto"` divides the cores among the chains of one
+#'   fit, not among parallel workers, and one thread keeps every replicate
+#'   reproducible by its seed.
 #'
 #' @details
 #' The scored quantities are the occupancy intercept and slope
@@ -225,6 +227,7 @@ print.summary.fp_calibration <- function(x, ...) {
   # sd_recorder = 0 its variance collapses to zero and the sampler diverges
   fit_args <- utils::modifyList(list(show_messages = FALSE,
                                      show_exceptions = FALSE, refresh = 0,
+                                     threads_per_chain = 1,
                                      random_recorder = tr$sd_recorder > 0),
                                 fit_args)
   targets <- c(`occ_(Intercept)` = tr$b0, occ_x = tr$b1)
@@ -244,9 +247,9 @@ print.summary.fp_calibration <- function(x, ...) {
                            fit_args) {
   t0 <- Sys.time()
   fit <- tryCatch(
-    .quiet_threads(suppressWarnings(do.call(fp_occu, c(list(data = data, occ = occ,
+    suppressWarnings(do.call(fp_occu, c(list(data = data, occ = occ,
                                              det = det, fp = fp, seed = seed),
-                                        fit_args)))),
+                                        fit_args))),
     error = function(e) NULL
   )
   secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))

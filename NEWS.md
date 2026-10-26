@@ -1,5 +1,18 @@
 # crywolf (development version)
 
+## Breaking changes
+
+* `threads_per_chain` of `fp_occu()` defaults to `"auto"`, as announced in
+  1.9.0: each chain uses its share of the physical cores. Fits are faster,
+  but with more than one thread a fit is no longer reproduced exactly by
+  its `seed` (the posterior is the same). Set `threads_per_chain = 1` to
+  keep exact reproduction, for example to rerun an analysis made with an
+  earlier version. The once-per-session notice of 1.9.0 and the advice
+  after slow one-thread fits are gone. `fp_calibrate()`,
+  `fp_calibrate_fit()` and `fp_sbc()` keep one thread per chain unless
+  `fit_args` says otherwise, since their fits run side by side in parallel
+  workers.
+
 ## Installation
 
 * The Stan model is compiled when the package is installed from source
@@ -18,8 +31,8 @@
   equal shares (Monte Carlo propagation; a "cut" model, in which the
   calibration does not learn from occupancy). `summary()` splits each
   variance into parts within and between fits, and reports convergence fit
-  by fit. With a single version it reproduces `fp_occu()` draw for draw.
-  Fits that did not converge (largest R-hat above `max_rhat`, 1.05 by
+  by fit. With a single version and one thread per chain it reproduces
+  `fp_occu()` draw for draw. Fits that did not converge (largest R-hat above `max_rhat`, 1.05 by
   default) are left out of the pool with a warning that names them.
 * `fp_draws_data()` builds those versions from an export of sheepdog with
   calibration draws (`calibration_draws.parquet`): in each draw a

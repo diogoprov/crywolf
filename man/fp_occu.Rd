@@ -17,7 +17,7 @@ fp_occu(
   priors = fp_priors(),
   chains = 4,
   parallel_chains = chains,
-  threads_per_chain = 1,
+  threads_per_chain = "auto",
   iter_warmup = 1000,
   iter_sampling = 1000,
   adapt_delta = 0.95,
@@ -102,9 +102,8 @@ the number of cores.
 }
 
 Threads speed up fits with many sites or occasions (on the \code{curiango}
-data, 4 threads made each chain 3.4 times faster). The default is 1
-and becomes \code{"auto"} in crywolf 2.0.0; a fit that does not set
-\code{threads_per_chain} says so once per session. Under \verb{R CMD check}
+data, 4 threads made each chain 3.4 times faster). The default is
+\code{"auto"} since crywolf 2.0.0 (it was 1 before). Under \verb{R CMD check}
 (when \verb{_R_CHECK_LIMIT_CORES_} is set, as on CRAN) a fit uses at most
 two cores, counting \code{parallel_chains * threads_per_chain}.}
 

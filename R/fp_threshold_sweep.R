@@ -107,8 +107,8 @@ fp_threshold_sweep <- function(occasions, detections,
     auto <- fp_aggregate(occasions, detections, threshold = th, by = by,
                          species = species)
     d <- fp_data(auto, sites, verified, site = site, recorder = recorder)
-    m <- .quiet_threads(suppressWarnings(fp_occu(d, occ = occ, det = det, fp = fp,
-                                  random_recorder = random_recorder, ...)))
+    m <- suppressWarnings(fp_occu(d, occ = occ, det = det, fp = fp,
+                                  random_recorder = random_recorder, ...))
     s <- summary(m, prob = prob)$table
     keep <- grepl("^(occ_|det_|fp_|verified_)", s$variable) | s$variable == "p10_bar"
     s <- s[keep & s$variable != "fp_gap", ]

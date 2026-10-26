@@ -35,6 +35,9 @@ jobs:
           # sheepdog and cmdstanr (Suggests) are published there, not on CRAN
           extra-repositories: https://diogoprov.r-universe.dev https://stan-dev.r-universe.dev
       - uses: r-lib/actions/setup-r-dependencies@v2
+        # it normally takes 1 to 10 minutes; a stuck install fails instead of
+        # holding the job until GitHub's 6-hour limit
+        timeout-minutes: 25
         with:
           extra-packages: any::rcmdcheck
           needs: check

@@ -1,5 +1,18 @@
 # crywolf (development version)
 
+## Stable interface
+
+* The interface of the stable functions is frozen (`help("crywolf-api")`),
+  extending the freeze of the names in `help("crywolf-output")` made in
+  1.9.0: the names, order and defaults of the arguments of these functions
+  and of their methods, the crywolf classes of their results (and of the
+  design warnings of `fp_data()`), and the components and columns
+  described in their help. These change only in a major version, announced
+  in the NEWS of the previous minor version; a minor version may add
+  arguments and columns. A test records the arguments of every stable
+  function and method. `fp_occu_mc()`, `fp_draws_data()` and
+  `fp_to_unmarked()` are experimental and say so in their help.
+
 ## Breaking changes
 
 * `threads_per_chain` of `fp_occu()` defaults to `"auto"`, as announced in

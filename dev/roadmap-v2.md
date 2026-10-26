@@ -136,6 +136,12 @@ são mensagens do próprio crywolf.
   com o `sd_det_site` já incluído; seção "Stability" na página. Ficam para
   o 2.0: congelar argumentos e classes (critério 1) e estender a garantia
   aos resultados de outras funções (`fp_read_sheepdog()`, `loo()` etc.).
+  **Feito (26/10/2026):** `help("crywolf-api")` com o que fica congelado
+  (argumentos: nomes, ordem e padrões; classes; componentes e colunas da
+  seção Value) e a lista de funções estáveis; `fp_occu_mc()`,
+  `fp_draws_data()` e `fp_to_unmarked()` marcadas como experimentais;
+  `tests/testthat/test-api.R` grava num snapshot a assinatura das funções
+  estáveis e dos métodos (sem as reexportações).
 - **Release 1.9.0 (24/10/2026, decisão do Diogo):** um único release com a
   ciência da 1.8 e a API da 1.9; não houve tag 1.8.0.
 - Exigências mínimas: R ≥ 4.2; CmdStan ≥ 2.40 desde a 1.7.0 (subiu de 2.34

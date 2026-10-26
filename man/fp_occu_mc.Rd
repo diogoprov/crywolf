@@ -125,6 +125,14 @@ versions. The between-fit variance is estimated from the versions, so
 it needs several of them; check that the estimates of interest are
 stable as versions are added.
 }
+\section{Experimental}{
+
+This function is experimental (new in 2.0.0, part of the integration with
+'sheepdog'): its arguments, its class and methods, and its results may
+change in a minor version.
+See \link{crywolf-api}.
+}
+
 \examples{
 \dontrun{
 # three versions of a simulated dataset, with detections switched off at

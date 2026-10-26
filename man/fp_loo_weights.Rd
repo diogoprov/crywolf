@@ -12,7 +12,8 @@ fp_loo_weights(..., method = c("stacking", "pseudobma"))
 \item{method}{\code{"stacking"} (default) or \code{"pseudobma"}.}
 }
 \value{
-A named vector of weights summing to one.
+A vector of weights summing to one, named by the arguments in
+\code{...}.
 }
 \description{
 Weights of several fitted models for combining their predictions, by

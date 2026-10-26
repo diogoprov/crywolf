@@ -229,7 +229,8 @@ loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL,
 #' @param ... Named `fp_occu` fits, or the results of [loo()] on them.
 #' @param method `"stacking"` (default) or `"pseudobma"`.
 #'
-#' @return A named vector of weights summing to one.
+#' @return A vector of weights summing to one, named by the arguments in
+#'   `...`.
 #' @references Yao, Y., Vehtari, A., Simpson, D., & Gelman, A. (2018). Using
 #'   stacking to average Bayesian predictive distributions. *Bayesian
 #'   Analysis*, 13, 917–1007. \doi{10.1214/17-BA1091}

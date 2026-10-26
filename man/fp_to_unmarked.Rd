@@ -49,6 +49,13 @@ Recorders are not passed on (\code{occuFP()} has no random effects), and data
 of the observation-confirmation design (\code{confirmed} in \code{\link[=fp_data]{fp_data()}}) are
 not supported.
 }
+\section{Experimental}{
+
+This function is experimental (new in 2.0.0, part of the integration with
+'sheepdog'): its arguments and results may change in a minor version.
+See \link{crywolf-api}.
+}
+
 \examples{
 \dontshow{if (requireNamespace("unmarked", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)

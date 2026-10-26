@@ -60,6 +60,11 @@
 #' @return A list of [fp_data()] objects, one per calibration draw, with
 #'   the attributes `draws` (the draw identifiers) and `rule`.
 #' @seealso [fp_occu_mc()], [fp_read_sheepdog()]
+#' @section Experimental:
+#' This function is experimental (new in 2.0.0, part of the integration with
+#' 'sheepdog'): its arguments and results may change in a minor version.
+#' See [crywolf-api].
+#'
 #' @export
 #' @examples
 #' \dontrun{

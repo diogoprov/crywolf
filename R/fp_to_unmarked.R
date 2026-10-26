@@ -38,6 +38,11 @@
 #'
 #' @return An `unmarkedFrameOccuFP` object.
 #' @seealso [fp_data_wide()], `vignette("unmarked")`
+#' @section Experimental:
+#' This function is experimental (new in 2.0.0, part of the integration with
+#' 'sheepdog'): its arguments and results may change in a minor version.
+#' See [crywolf-api].
+#'
 #' @export
 #' @examplesIf requireNamespace("unmarked", quietly = TRUE)
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)

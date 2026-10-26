@@ -39,6 +39,7 @@ reference:
       - fp_priors
       - fp_occu-methods
       - crywolf-output
+      - crywolf-api
       - fp_loo_weights
       - fp_gap_prior
       - fp_prior_predictive

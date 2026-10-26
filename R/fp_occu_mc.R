@@ -80,6 +80,12 @@
 #'   `kept`), `fits` (with `keep_fits = TRUE`, the fits kept), `n_fits` (the
 #'   fits in the pool), and `call`.
 #' @seealso [fp_occu()], [fp_read_sheepdog()]
+#' @section Experimental:
+#' This function is experimental (new in 2.0.0, part of the integration with
+#' 'sheepdog'): its arguments, its class and methods, and its results may
+#' change in a minor version.
+#' See [crywolf-api].
+#'
 #' @export
 #' @examples
 #' \dontrun{

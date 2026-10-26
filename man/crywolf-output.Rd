@@ -13,13 +13,14 @@ names in \code{as_draws_df(fit)}, \code{summary(fit)$table}, and \code{coef(fit)
 
 From crywolf 1.9.0, the names documented on this page are frozen: the
 readable parameter and derived-quantity names, the columns of the
-summaries and of the other results described below (results of other
-functions are not covered yet), and the fields of
+summaries and of the other results described below, and the fields of
 the fitted object listed under "Readable draws and raw Stan names". They
 change only in a major version, announced in the previous minor version.
 New options may add names (as \code{random_det} added \code{sd_det_site}) without
 changing existing ones. Raw Stan names and the fields of \code{design} and
-\code{stan_data} are implementation details and are not covered.
+\code{stan_data} are implementation details and are not covered. From 2.0.0
+the guarantee extends to arguments, classes and the results of the
+other stable functions: see \link{crywolf-api}.
 }
 
 \section{Coefficient names}{

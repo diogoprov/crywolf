@@ -85,6 +85,13 @@ Histories built this way hold few false positives, so a false-positive
 process fitted to them (the default of \code{\link[=fp_occu]{fp_occu()}}) is informed mostly by
 its priors; compare with \code{fp = NULL}.
 }
+\section{Experimental}{
+
+This function is experimental (new in 2.0.0, part of the integration with
+'sheepdog'): its arguments and results may change in a minor version.
+See \link{crywolf-api}.
+}
+
 \examples{
 \dontrun{
 x <- fp_read_sheepdog("occupancy_export", species = "nyc_alb")

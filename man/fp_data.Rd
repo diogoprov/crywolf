@@ -47,8 +47,9 @@ so an occasion with a detection has at least one confirmed observation,
 and one without has none. See Details of \code{\link[=fp_occu]{fp_occu()}}.}
 }
 \value{
-An object of class \code{fp_data}: a list with the three tables (rows
-with a missing detection dropped), the column names, and the vector
+An object of class \code{fp_data}: a list with the tables \code{auto},
+\code{verified} and \code{sites} (rows with a missing detection dropped), the
+column names \code{site}, \code{y}, \code{recorder} and \code{confirmed}, and the vector
 \code{known_present}, which flags sites with at least one verified detection
 or confirmed true observation.
 }

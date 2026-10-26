@@ -29,7 +29,7 @@ in the same order as the rows of \code{y_auto}.}
 recorder or observer.}
 }
 \value{
-An object of class \code{fp_data}.
+An object of class \code{fp_data}, as from \code{\link[=fp_data]{fp_data()}}.
 }
 \description{
 Convenience wrapper around \code{\link[=fp_data]{fp_data()}} for data stored as site-by-occasion

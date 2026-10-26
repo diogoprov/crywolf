@@ -42,8 +42,9 @@
 #' observation.
 #' [fp_aggregate()] builds `auto` from classifier output.
 #'
-#' @return An object of class `fp_data`: a list with the three tables (rows
-#'   with a missing detection dropped), the column names, and the vector
+#' @return An object of class `fp_data`: a list with the tables `auto`,
+#'   `verified` and `sites` (rows with a missing detection dropped), the
+#'   column names `site`, `y`, `recorder` and `confirmed`, and the vector
 #'   `known_present`, which flags sites with at least one verified detection
 #'   or confirmed true observation.
 #' @references
@@ -120,7 +121,7 @@ fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
 #' @param recorder Optional vector, one value per site, identifying the
 #'   recorder or observer.
 #'
-#' @return An object of class `fp_data`.
+#' @return An object of class `fp_data`, as from [fp_data()].
 #' @seealso [fp_data()]
 #' @export
 #' @examples

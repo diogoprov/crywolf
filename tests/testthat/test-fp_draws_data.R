@@ -1,6 +1,8 @@
 # a small export with calibration draws, as sheepdog writes it: two sites,
-# grid of scores from 0.1 in steps of 0.1, two draws
-write_cal_export <- function(dir) {
+# grid of scores from 0.1 in steps of 0.1, two draws; `edit` changes the
+# calibration table before it is written (the parquet is written once: on
+# Windows arrow keeps a file it has read mapped, so it cannot be rewritten)
+write_cal_export <- function(dir, edit = identity) {
   dir.create(dir, showWarnings = FALSE)
   w <- function(d, name) utils::write.csv(d, file.path(dir, name), row.names = FALSE, na = "")
   w(data.frame(site = c("A", "A", "B", "B"), occasion_id = c("a1", "a2", "b1", "b2"),
@@ -19,7 +21,7 @@ write_cal_export <- function(dir) {
   grid$p_tp <- ifelse(grid$draw == 3L, 1, as.numeric(grid$grid_index >= 9))
   grid$species <- "sp_one"
   grid$confidence <- 0.1 * grid$grid_index
-  arrow::write_parquet(grid, file.path(dir, "calibration_draws.parquet"))
+  arrow::write_parquet(edit(grid), file.path(dir, "calibration_draws.parquet"))
   jsonlite::write_json(list(schema = "sheepdog-occupancy", schema_version = 1L,
                             sheepdog_version = "3.2.1.9000", occasion_unit = "file",
                             min_confidence = 0.1,
@@ -51,15 +53,13 @@ test_that("each calibration draw gives one version of the detections", {
 test_that("a calibration by month is matched by the month of recording", {
   skip_if_not_installed("jsonlite")
   skip_if_not_installed("arrow")
-  dir <- write_cal_export(file.path(tempdir(), "cal-export-month"))
+  # January: every prediction true; February: none
+  by_month <- function(cal) rbind(transform(cal, month = "202401", p_tp = 1),
+                                  transform(cal, month = "202402", p_tp = 0))
+  dir <- write_cal_export(file.path(tempdir(), "cal-export-month"), by_month)
   occ <- utils::read.csv(file.path(dir, "occasions.csv"))
   occ$recording_date <- c("20240101", "20240201", "20240101", "20240201")
   utils::write.csv(occ, file.path(dir, "occasions.csv"), row.names = FALSE)
-  cal <- as.data.frame(arrow::read_parquet(file.path(dir, "calibration_draws.parquet")))
-  # January: every prediction true; February: none
-  cal <- rbind(transform(cal, month = "202401", p_tp = 1),
-               transform(cal, month = "202402", p_tp = 0))
-  arrow::write_parquet(cal, file.path(dir, "calibration_draws.parquet"))
   sc <- jsonlite::read_json(file.path(dir, "schema.json"))
   sc$calibration$keys <- list("site", "species", "month", "grid_index")
   jsonlite::write_json(sc, file.path(dir, "schema.json"), auto_unbox = TRUE)
@@ -72,10 +72,8 @@ test_that("a calibration by month is matched by the month of recording", {
 test_that("predictions without calibration leave their occasions unsurveyed", {
   skip_if_not_installed("jsonlite")
   skip_if_not_installed("arrow")
-  dir <- write_cal_export(file.path(tempdir(), "cal-export-nocal"))
-  cal <- as.data.frame(arrow::read_parquet(file.path(dir, "calibration_draws.parquet")))
-  arrow::write_parquet(cal[cal$site == "A", ], file.path(dir, "calibration_draws.parquet"))
-  x <- fp_read_sheepdog(dir)
+  x <- fp_read_sheepdog(write_cal_export(file.path(tempdir(), "cal-export-nocal"),
+                                         function(cal) cal[cal$site == "A", ]))
   expect_warning(
     v <- withCallingHandlers(fp_draws_data(x, rule = "threshold", p_min = 0.5),
                              crywolf_design_warning = function(w) invokeRestart("muffleWarning")),
@@ -83,7 +81,8 @@ test_that("predictions without calibration leave their occasions unsurveyed", {
   # fp_data() keeps surveyed occasions only: site B drops out of auto
   expect_equal(v[[1]]$auto$y, c(1L, 0L))
   expect_equal(unique(v[[1]]$auto$site), "A")
-  arrow::write_parquet(cal[cal$site == "A" & cal$species == "none", ], file.path(dir, "calibration_draws.parquet"))
+  dir <- write_cal_export(file.path(tempdir(), "cal-export-nocal2"),
+                          function(cal) cal[cal$site == "C", ])
   expect_error(suppressWarnings(fp_draws_data(fp_read_sheepdog(dir))),
                "No prediction could be matched")
 })
@@ -91,15 +90,14 @@ test_that("predictions without calibration leave their occasions unsurveyed", {
 test_that("keys of schema.json and the parquet must agree", {
   skip_if_not_installed("jsonlite")
   skip_if_not_installed("arrow")
-  dir <- write_cal_export(file.path(tempdir(), "cal-export-keys"))
-  cal <- as.data.frame(arrow::read_parquet(file.path(dir, "calibration_draws.parquet")))
   # a month column the schema does not announce
-  arrow::write_parquet(rbind(transform(cal, month = "202401"),
-                             transform(cal, month = "202402")),
-                       file.path(dir, "calibration_draws.parquet"))
+  dir <- write_cal_export(file.path(tempdir(), "cal-export-keys"),
+                          function(cal) rbind(transform(cal, month = "202401"),
+                                              transform(cal, month = "202402")))
   expect_error(fp_draws_data(fp_read_sheepdog(dir)), "disagree")
   # a key column missing from both: two values per key and draw
-  arrow::write_parquet(rbind(cal, cal), file.path(dir, "calibration_draws.parquet"))
+  dir <- write_cal_export(file.path(tempdir(), "cal-export-keys2"),
+                          function(cal) rbind(cal, cal))
   expect_error(fp_draws_data(fp_read_sheepdog(dir)), "more than one value")
 })
 

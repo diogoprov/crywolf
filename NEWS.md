@@ -1,4 +1,9 @@
-# crywolf (development version)
+# crywolf 2.0.0
+
+The first major version: the interface of the stable functions is frozen,
+the Stan model is compiled when the package is installed (the route to
+CRAN), and fits use several threads per chain by default. Three
+experimental functions start the integration with 'sheepdog'.
 
 ## Stable interface
 
@@ -36,7 +41,7 @@
   program moves from `inst/stan/` to `src/stan/`, and `fp_stan_file()`
   finds it in either case. Draws are unchanged.
 
-## New features
+## New features (experimental)
 
 * `fp_occu_mc()` fits the model to several versions of the same data, such
   as detection histories drawn from the posterior of a classifier
@@ -45,8 +50,9 @@
   calibration does not learn from occupancy). `summary()` splits each
   variance into parts within and between fits, and reports convergence fit
   by fit. With a single version and one thread per chain it reproduces
-  `fp_occu()` draw for draw. Fits that did not converge (largest R-hat above `max_rhat`, 1.05 by
-  default) are left out of the pool with a warning that names them.
+  `fp_occu()` draw for draw. Fits that did not converge (largest R-hat
+  above `max_rhat`, 1.05 by default) are left out of the pool with a
+  warning that names them.
 * `fp_draws_data()` builds those versions from an export of sheepdog with
   calibration draws (`calibration_draws.parquet`): in each draw a
   prediction is judged true with its calibrated probability (`rule =

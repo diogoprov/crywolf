@@ -13,3 +13,4 @@
 ^CLAUDE\.md$
 ^\.claude$
 ^data-raw$
+^cran-comments\.md$

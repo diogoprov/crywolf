@@ -59,6 +59,25 @@ O que toca o crywolf, em ordem de prioridade:
   (decisão do Diogo): calibração com estação/mês como análise de
   sensibilidade e nova rodada do `fp_occu_mc()`; se os efeitos voltarem
   para perto dos do limiar 0,4, a atenuação era artefato da calibração.
+  **Rodada com calibração por mês (26/10/2026, AWS us-east-2, 27 min,
+  `dev/mc-curiango/results-season.rds`; export `curiango-export-season`
+  da sessão do sheepdog):** M = 50, 8,8% dos minutos com detecção por
+  versão (7,2–10,8%). `fp ~ 1` convergiu nos 50; `fp ~ temp + rh` deixou
+  2 de fora (versões 5 e 11, R-hat 1,53). Ocupação, `fp ~ 1`: temperatura
+  −0,11 (−0,32; 0,08), umidade −0,55 (−0,82; −0,34), lua 0,02; `fp ~
+  temp + rh`: −0,09, −0,49, 0,03, e **`fp_temp` = −0,04 (−0,21; 0,12)**,
+  `fp_rh` = −0,14 (−0,32; 0,05). Leitura: (1) o `fp_temp` positivo some
+  quando a calibração acompanha o mês, então era erro mensal da calibração,
+  não confusão estruturada do classificador; (2) os efeitos de ocupação
+  **não** voltam para os do limiar 0,4 (−0,25, −0,78), então a atenuação
+  não se explica pelo erro mensal: a diferença para o limiar fixo segue
+  sem árbitro (o limiar muda o que conta como detecção); (3) 70–98% da
+  variância vem de uma versão para outra (antes 30–70%): por mês há menos
+  minutos de teste e a calibração fica mais incerta. Ressalvas: o mês na
+  calibração mistura atividade sazonal (prevalência) com o comportamento do
+  classificador e reusa os minutos de teste por mês, então é análise de
+  sensibilidade, não o modelo principal; o caminho com princípio continua
+  sendo a Fase 2.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

@@ -32,12 +32,18 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
-          # sheepdog (Suggests) is published there, not on CRAN
-          extra-repositories: https://diogoprov.r-universe.dev
+          # sheepdog and cmdstanr (Suggests) are published there, not on CRAN
+          extra-repositories: https://diogoprov.r-universe.dev https://stan-dev.r-universe.dev
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+      - name: Remove cmdstanr, as on CRAN
+        if: ${{ !matrix.config.cmdstan }}
+        # cmdstanr is in Suggests and not on CRAN: the package must install,
+        # pass its tests and build its vignettes without it
+        run: remove.packages("cmdstanr")
+        shell: Rscript {0}
       - name: Month and runner image, for the CmdStan cache key
         if: matrix.config.cmdstan
         id: month
@@ -68,6 +74,10 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         if: matrix.config.cmdstan
         with:
+          # the model is compiled at installation, and CmdStan's makefiles
+          # pass -Wno-* flags that --as-cran reports; the jobs without
+          # CmdStan check as CRAN does
+          args: 'c("--no-manual")'
           upload-snapshots: true
       - uses: r-lib/actions/check-r-package@v2
         if: ${{ !matrix.config.cmdstan }}

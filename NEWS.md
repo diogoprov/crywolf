@@ -1,5 +1,15 @@
 # crywolf (development version)
 
+## Installation
+
+* The Stan model is compiled when the package is installed from source
+  (through 'instantiate'), with threading, if CmdStan 2.40 or later is
+  found; otherwise, as for binary packages, `fp_compile()` compiles it into
+  the user cache on first use, as before. 'cmdstanr' moves from Imports to
+  Suggests (it is not on CRAN) and 'instantiate' joins Imports; the Stan
+  program moves from `inst/stan/` to `src/stan/`, and `fp_stan_file()`
+  finds it in either case. Draws are unchanged.
+
 ## New features
 
 * `fp_occu_mc()` fits the model to several versions of the same data, such

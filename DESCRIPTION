@@ -30,7 +30,7 @@ BugReports: https://github.com/diogoprov/crywolf/issues
 Depends:
     R (>= 4.2)
 Imports:
-    cmdstanr (>= 0.8.0),
+    instantiate (>= 0.2.4),
     loo,
     parallel,
     posterior,
@@ -42,6 +42,7 @@ Imports:
 Suggests:
     arrow,
     bayesplot,
+    cmdstanr (>= 0.8.0),
     furrr,
     future,
     ggplot2,
@@ -54,8 +55,6 @@ Suggests:
     unmarked
 VignetteBuilder:
     knitr
-Remotes:
-    stan-dev/cmdstanr
 Additional_repositories: https://stan-dev.r-universe.dev,
     https://diogoprov.r-universe.dev
 SystemRequirements: CmdStan (>= 2.40; https://mc-stan.org/users/interfaces/cmdstan)

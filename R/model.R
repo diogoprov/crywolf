@@ -27,25 +27,33 @@
 fp_compile <- function(force = FALSE, quiet = TRUE) {
   if (!force && !is.null(.fp_env$model)) return(invisible(.fp_env$model))
   .check_cmdstan()
-  src <- system.file("stan", "fp_occu.stan", package = "crywolf", mustWork = TRUE)
-  dir <- tools::R_user_dir("crywolf", which = "cache")
-  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
-  dst <- file.path(dir, "fp_occu.stan")
-  # copy only when the source changed, so the executable stays up to date
-  # without triggering a recompile in every session
-  if (!file.exists(dst) || !identical(readLines(src), readLines(dst))) {
-    file.copy(src, dst, overwrite = TRUE)
+  # the executable compiled when the package was installed from source (if
+  # it is missing, stan_package_model() would compile one without threads)
+  exe <- file.path(dirname(fp_stan_file()),
+                   if (.Platform$OS.type == "windows") "fp_occu.exe" else "fp_occu")
+  mod <- if (!force && file.exists(exe)) {
+    tryCatch(instantiate::stan_package_model(name = "fp_occu", package = "crywolf"),
+             error = function(e) NULL)
   }
-  threads <- list(stan_threads = TRUE)
-  mod <- suppressWarnings(
-    cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = force,
-                            cpp_options = threads)
-  )
-  # an executable built without threading (by an earlier version of the
-  # package) is not rebuilt by cmdstanr unless asked
-  if (!.has_threads(mod)) {
-    mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = TRUE,
-                                   cpp_options = threads)
+  if (is.null(mod) || !.has_threads(mod)) {
+    # binary packages (such as those on CRAN), or an installation without a
+    # recent enough CmdStan, come without it: compile once into the user cache
+    src <- fp_stan_file()
+    dir <- tools::R_user_dir("crywolf", which = "cache")
+    dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+    dst <- file.path(dir, "fp_occu.stan")
+    if (!file.exists(dst) || !identical(readLines(src), readLines(dst))) {
+      file.copy(src, dst, overwrite = TRUE)
+    }
+    threads <- list(stan_threads = TRUE)
+    mod <- suppressWarnings(
+      cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = force,
+                              cpp_options = threads)
+    )
+    if (!.has_threads(mod)) {
+      mod <- cmdstanr::cmdstan_model(dst, quiet = quiet, force_recompile = TRUE,
+                                     cpp_options = threads)
+    }
   }
   .fp_env$model <- mod
   invisible(mod)
@@ -59,7 +67,13 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
 #' @examples
 #' fp_stan_file()
 fp_stan_file <- function() {
-  system.file("stan", "fp_occu.stan", package = "crywolf", mustWork = TRUE)
+  path <- system.file("bin", "stan", "fp_occu.stan", package = "crywolf")
+  # under devtools::load_all() the program is still in the sources
+  if (!nzchar(path)) {
+    path <- system.file("src", "stan", "fp_occu.stan", package = "crywolf",
+                        mustWork = TRUE)
+  }
+  path
 }
 
 .has_threads <- function(mod) {

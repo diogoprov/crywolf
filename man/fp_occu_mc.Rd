@@ -88,7 +88,7 @@ updated by the occupancy model (a "cut" model): information about the
 state of a site does not flow back to how likely its detections are to
 be true.
 
-\strong{Between and within.} \code{\link[=summary]{summary()}} splits the posterior variance of
+\strong{Between and within.} \code{summary()} splits the posterior variance of
 each quantity into the part within fits (uncertainty given one version of
 the histories) and the part between fits (uncertainty about the
 histories), by the law of total variance: the squares of \code{sd_within}

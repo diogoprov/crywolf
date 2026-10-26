@@ -16,7 +16,10 @@
   prediction is judged true with its calibrated probability (`rule =
   "sample"`, the default) or when that probability reaches `p_min` (`rule =
   "threshold"`). The sites of the model can be other than the recorders
-  (for instance, site-nights). Needs the 'arrow' package (Suggests).
+  (for instance, site-nights). A calibration by month (`"month"` among the
+  keys of the export) is matched by the month of recording; an occasion with
+  a prediction that has no calibration is left unsurveyed (`NA`), not counted
+  as a non-detection. Needs the 'arrow' package (Suggests).
 * `fp_to_unmarked()` turns an `fp_data` object into the
   `unmarkedFrameOccuFP` of `unmarked::occuFP()`, the reverse of
   `fp_data_wide()`: verified occasions first, a `METH` covariate that tells

@@ -87,8 +87,9 @@ dependence of the false-positive rate on something you did not measure
 is not part of the generating model.
 
 Each replicate refits every model, so the cost is that of `reps` times
-the number of models fits of the size of the real data. Use `parallel`,
-and `threads_per_chain` in `fit_args` for large datasets.
+the number of models fits of the size of the real data. Use `parallel`
+for large datasets; each fit runs on one thread per chain unless
+`fit_args` sets `threads_per_chain`.
 
 ## See also
 

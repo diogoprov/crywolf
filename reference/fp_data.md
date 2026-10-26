@@ -72,10 +72,11 @@ fp_data(
 
 ## Value
 
-An object of class `fp_data`: a list with the three tables (rows with a
-missing detection dropped), the column names, and the vector
-`known_present`, which flags sites with at least one verified detection
-or confirmed true observation.
+An object of class `fp_data`: a list with the tables `auto`, `verified`
+and `sites` (rows with a missing detection dropped), the column names
+`site`, `y`, `recorder` and `confirmed`, and the vector `known_present`,
+which flags sites with at least one verified detection or confirmed true
+observation.
 
 ## Details
 

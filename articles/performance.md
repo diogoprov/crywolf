@@ -39,13 +39,17 @@ parallel. On the `curiango` data, 150 iterations of one chain took:
 |---------|--------|--------|--------|--------|
 | Time    | 55.1 s | 28.8 s | 16.1 s | 10.3 s |
 
-The default is one thread (it becomes `"auto"` in crywolf 2.0.0),
-because with more than one the partial sums are added in an order that
-changes from run to run. A fit with several threads is therefore not
-reproduced exactly by its seed, even on the same computer, although its
-posterior is the same. Use threads for exploratory fits and large
-datasets, and one thread when exact reproduction matters. A fit whose
-chains took more than a minute on one core prints a reminder.
+`"auto"` is the default since crywolf 2.0.0 (it was one thread before).
+With more than one thread the partial sums are added in an order that
+changes from run to run, so a fit is not reproduced exactly by its seed,
+even on the same computer, although its posterior is the same. Set
+`threads_per_chain = 1` when exact reproduction matters (published
+analyses, saved results).
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
+[`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md)
+and [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md) use
+one thread per chain unless told otherwise, because their fits run side
+by side in parallel workers.
 
 **Run chains in parallel.** `parallel_chains` defaults to the number of
 chains, so the four chains of a fit run at the same time when there are

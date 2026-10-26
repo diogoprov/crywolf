@@ -9,13 +9,15 @@ keep the same names in `as_draws_df(fit)`, `summary(fit)$table`, and
 
 From crywolf 1.9.0, the names documented on this page are frozen: the
 readable parameter and derived-quantity names, the columns of the
-summaries and of the other results described below (results of other
-functions are not covered yet), and the fields of the fitted object
-listed under "Readable draws and raw Stan names". They change only in a
-major version, announced in the previous minor version. New options may
-add names (as `random_det` added `sd_det_site`) without changing
-existing ones. Raw Stan names and the fields of `design` and `stan_data`
-are implementation details and are not covered.
+summaries and of the other results described below, and the fields of
+the fitted object listed under "Readable draws and raw Stan names". They
+change only in a major version, announced in the previous minor version.
+New options may add names (as `random_det` added `sd_det_site`) without
+changing existing ones. Raw Stan names and the fields of `design` and
+`stan_data` are implementation details and are not covered. From 2.0.0
+the guarantee extends to arguments, classes and the results of the other
+stable functions: see
+[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md).
 
 ## Coefficient names
 

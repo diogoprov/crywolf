@@ -66,6 +66,13 @@ of the observation-confirmation design (`confirmed` in
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)) are
 not supported.
 
+## Experimental
+
+This function is experimental (new in 2.0.0, part of the integration
+with 'sheepdog'): its arguments and results may change in a minor
+version. See
+[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md).
+
 ## See also
 
 [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md),

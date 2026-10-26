@@ -26,7 +26,7 @@ fp_loo_weights(..., method = c("stacking", "pseudobma"))
 
 ## Value
 
-A named vector of weights summing to one.
+A vector of weights summing to one, named by the arguments in `...`.
 
 ## References
 

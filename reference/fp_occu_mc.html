@@ -118,7 +118,9 @@ priors, sampler settings).</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer: fit <code>i</code> uses seed <code>seed + i - 1</code>.</p></dd>
+<dd><p>Optional integer: fit <code>i</code> uses seed <code>seed + i - 1</code>. The
+fits are reproduced draw for draw only with one thread per chain
+(<code>threads_per_chain = 1</code>, the setting when <code>parallel = TRUE</code>).</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
@@ -209,6 +211,15 @@ lists every fit, with <code>kept</code> marking those in the pool.</p>
 versions. The between-fit variance is estimated from the versions, so
 it needs several of them; check that the estimates of interest are
 stable as versions are added.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="experimental">Experimental<a class="anchor" aria-label="anchor" href="#experimental"></a></h2>
+
+
+<p>This function is experimental (new in 2.0.0, part of the integration with
+'sheepdog'): its arguments, its class and methods, and its results may
+change in a minor version.
+See <a href="crywolf-api.html">crywolf-api</a>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

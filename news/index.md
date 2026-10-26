@@ -2,6 +2,43 @@
 
 ## crywolf (development version)
 
+### Stable interface
+
+- The interface of the stable functions is frozen
+  ([`help("crywolf-api")`](https://provetelab.org/crywolf/reference/crywolf-api.md)),
+  extending the freeze of the names in
+  [`help("crywolf-output")`](https://provetelab.org/crywolf/reference/crywolf-output.md)
+  made in 1.9.0: the names, order and defaults of the arguments of these
+  functions and of their methods, the crywolf classes of their results
+  (and of the design warnings of
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)),
+  and the components and columns described in their help. These change
+  only in a major version, announced in the NEWS of the previous minor
+  version; a minor version may add arguments and columns. A test records
+  the arguments of every stable function and method.
+  [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md),
+  [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  and
+  [`fp_to_unmarked()`](https://provetelab.org/crywolf/reference/fp_to_unmarked.md)
+  are experimental and say so in their help.
+
+### Breaking changes
+
+- `threads_per_chain` of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  defaults to `"auto"`, as announced in 1.9.0: each chain uses its share
+  of the physical cores. Fits are faster, but with more than one thread
+  a fit is no longer reproduced exactly by its `seed` (the posterior is
+  the same). Set `threads_per_chain = 1` to keep exact reproduction, for
+  example to rerun an analysis made with an earlier version. The
+  once-per-session notice of 1.9.0 and the advice after slow one-thread
+  fits are gone.
+  [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
+  [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md)
+  and [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md)
+  keep one thread per chain unless `fit_args` says otherwise, since
+  their fits run side by side in parallel workers.
+
 ### Installation
 
 - The Stan model is compiled when the package is installed from source
@@ -25,7 +62,8 @@
   “cut” model, in which the calibration does not learn from occupancy).
   [`summary()`](https://rdrr.io/r/base/summary.html) splits each
   variance into parts within and between fits, and reports convergence
-  fit by fit. With a single version it reproduces
+  fit by fit. With a single version and one thread per chain it
+  reproduces
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   draw for draw. Fits that did not converge (largest R-hat above
   `max_rhat`, 1.05 by default) are left out of the pool with a warning

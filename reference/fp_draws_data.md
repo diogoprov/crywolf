@@ -114,6 +114,13 @@ process fitted to them (the default of
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)) is
 informed mostly by its priors; compare with `fp = NULL`.
 
+## Experimental
+
+This function is experimental (new in 2.0.0, part of the integration
+with 'sheepdog'): its arguments and results may change in a minor
+version. See
+[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md).
+
 ## See also
 
 [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md),

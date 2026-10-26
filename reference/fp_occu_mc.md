@@ -49,7 +49,9 @@ as_draws_df(x, ...)
 
 - seed:
 
-  Optional integer: fit `i` uses seed `seed + i - 1`.
+  Optional integer: fit `i` uses seed `seed + i - 1`. The fits are
+  reproduced draw for draw only with one thread per chain
+  (`threads_per_chain = 1`, the setting when `parallel = TRUE`).
 
 - parallel:
 
@@ -150,6 +152,13 @@ marking those in the pool.
 versions. The between-fit variance is estimated from the versions, so it
 needs several of them; check that the estimates of interest are stable
 as versions are added.
+
+## Experimental
+
+This function is experimental (new in 2.0.0, part of the integration
+with 'sheepdog'): its arguments, its class and methods, and its results
+may change in a minor version. See
+[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md).
 
 ## See also
 

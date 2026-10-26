@@ -47,7 +47,8 @@ fp_data_wide(
 
 ## Value
 
-An object of class `fp_data`.
+An object of class `fp_data`, as from
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md).
 
 ## See also
 

@@ -12,7 +12,14 @@ reaches the occupancy estimates (Monte Carlo propagation).
 ## Usage
 
 ``` r
-fp_occu_mc(data_list, ..., seed = NULL, parallel = FALSE, keep_fits = FALSE)
+fp_occu_mc(
+  data_list,
+  ...,
+  seed = NULL,
+  parallel = FALSE,
+  max_rhat = 1.05,
+  keep_fits = FALSE
+)
 
 # S3 method for class 'fp_occu_mc'
 summary(object, prob = 0.95, ...)
@@ -51,6 +58,11 @@ as_draws_df(x, ...)
   Unless set in `...`, `parallel_chains` and `threads_per_chain` are
   then 1, so that each worker uses one core.
 
+- max_rhat:
+
+  Fits whose largest R-hat exceeds this value are left out of the pooled
+  draws, with a warning that names them. `Inf` keeps every fit.
+
 - keep_fits:
 
   Keep the
@@ -78,10 +90,10 @@ An object of class `fp_occu_mc`: `draws` (the pooled draws, in the
 readable names of
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md), the
 chains of fit `i` following those of fit `i - 1`), `summaries` (the
-posterior summary of each fit), `diagnostics` (one row per fit: number
-of draws, divergences, largest R-hat, smallest bulk and tail effective
-sample sizes), `fits` (with `keep_fits = TRUE`), `n_fits` (the fits that
-succeeded), and `call`.
+posterior summary of each fit), `diagnostics` (one row per fit that ran:
+number of draws, divergences, largest R-hat, smallest bulk and tail
+effective sample sizes, and `kept`), `fits` (with `keep_fits = TRUE`,
+the fits kept), `n_fits` (the fits in the pool), and `call`.
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns, for each
 quantity, the pooled posterior mean, standard deviation and interval,
@@ -118,9 +130,21 @@ warns when the fits have different numbers of draws.
 
 **Convergence.** R-hat over the pooled draws would mix differences
 between fits with lack of convergence, so it is not reported for the
-pool. Each fit is checked on its own: the summary reports the largest
-R-hat and the smallest effective sample size over the fits, and
-`diagnostics` lists them by fit.
+pool. Each fit is checked on its own: a fit whose largest R-hat exceeds
+`max_rhat` (1.05 by default) has not converged and is left out, with a
+warning; report how many were left out. This is looser than the 1.01
+that [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+warns about, because mixing error within one fit mostly widens the
+within-fit part of the pooled variance; fits between the two values are
+kept, and their warnings show in `diagnostics`. Divergent transitions do
+not exclude a fit. Leaving fits out conditions the propagation on the
+versions that converged: if non-convergence depends on the version (for
+instance, histories with very few detections), the pooled posterior is
+biased and the between-fit variance understated. Rather than dropping
+them, refit those versions with longer chains or a higher `adapt_delta`.
+The summary reports the largest R-hat and the smallest effective sample
+size over the fits kept, and `diagnostics` lists every fit, with `kept`
+marking those in the pool.
 
 **Number of versions.** The cost is that of one fit times the number of
 versions. The between-fit variance is estimated from the versions, so it

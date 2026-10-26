@@ -42,7 +42,13 @@ O que toca o crywolf, em ordem de prioridade:
   esconde); o FP volta a crescer com a temperatura, como no limiar 0,2, e
   modelá-lo aproxima o efeito da temperatura do valor do limiar 0,4.
   Ideia: `fp_occu_mc()` poderia avisar ou excluir ajustes que não
-  convergem.
+  convergem. **Não** pôr covariáveis da noite em P(TP) como atalho
+  (argumento da sessão do sheepdog, 25/10/2026): uma calibração
+  discriminativa P(TP | score, temp) absorve a prevalência do canto, que
+  também depende da temperatura, e contaria a prevalência duas vezes. O
+  caminho com princípio é a Fase 2 (covariáveis nas distribuições dos
+  scores f1 e f0, prevalência vinda de ψ e θ); até lá, `fp ~ temp + rh`
+  é a correção do lado do crywolf.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

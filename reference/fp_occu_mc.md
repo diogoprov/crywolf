@@ -49,9 +49,7 @@ as_draws_df(x, ...)
 
 - seed:
 
-  Optional integer: fit `i` uses seed `seed + i - 1`. The fits are
-  reproduced draw for draw only with one thread per chain
-  (`threads_per_chain = 1`, the setting when `parallel = TRUE`).
+  Optional integer: fit `i` uses seed `seed + i - 1`.
 
 - parallel:
 

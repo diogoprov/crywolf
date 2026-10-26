@@ -122,10 +122,9 @@ unlist(m$diagnostics)
 #>      0.000000      0.000000      1.002267   4226.414820   2780.940477
 ```
 
-If the chains used more than one thread (`threads_per_chain`, `"auto"`
-by default, recorded in `m$sampler`), say so: the posterior is the same,
-but the draws cannot be reproduced exactly from the seed. Fit with
-`threads_per_chain = 1` when they must be.
+If the threads option was used (`threads_per_chain > 1`), say so: the
+posterior is the same, but the draws cannot be reproduced exactly from
+the seed.
 
 ## 4. Model adequacy and comparison
 

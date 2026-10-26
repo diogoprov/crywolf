@@ -149,11 +149,9 @@ deviation is zero produces divergent transitions. With the chains of
 each fit run one after another, the cost is proportional to <code>chains</code>:
 <code>chains = 2</code> takes half the time of four and still gives an effective
 sample size of about 2000 per parameter in designs like the default
-one, ample for the 95% intervals that are scored. Each fit runs on one
-thread per chain (<code>threads_per_chain = 1</code>, unlike <code><a href="fp_occu.html">fp_occu()</a></code>, whose
-default is <code>"auto"</code>): <code>"auto"</code> divides the cores among the chains of one
-fit, not among parallel workers, and one thread keeps every replicate
-reproducible by its seed.</p></dd>
+one, ample for the 95% intervals that are scored. Keep
+<code>threads_per_chain = 1</code> (the default) when fitting in parallel: <code>"auto"</code>
+divides the cores among the chains of one fit, not among workers.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -152,9 +152,8 @@ This answers the question for the fitted structure only: a dependence of
 the false-positive rate on something you did not measure is not part of
 the generating model.</p>
 <p>Each replicate refits every model, so the cost is that of <code>reps</code> times
-the number of models fits of the size of the real data. Use <code>parallel</code>
-for large datasets; each fit runs on one thread per chain unless
-<code>fit_args</code> sets <code>threads_per_chain</code>.</p>
+the number of models fits of the size of the real data. Use <code>parallel</code>,
+and <code>threads_per_chain</code> in <code>fit_args</code> for large datasets.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

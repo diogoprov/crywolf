@@ -219,12 +219,12 @@ the Stan program.</p>
     <h2 id="computation">Computation<a class="anchor" aria-label="anchor" href="#computation"></a></h2>
 
 
-<p>By default (<code>threads_per_chain = "auto"</code>, since crywolf 2.0.0) each chain
-uses its share of the physical cores; set <code>threads_per_chain = 1</code> for
-draws reproduced exactly by <code>seed</code> (see <code><a href="fp_occu.html">fp_occu()</a></code>). The likelihood is
-summed over sites with Stan's <code>reduce_sum()</code>, so <code>threads_per_chain</code> in
-<code><a href="fp_occu.html">fp_occu()</a></code> splits each chain among several cores, which pays off with
-many sites or occasions. Keep <code>parallel_chains * threads_per_chain</code> at or below the
+<p>Each chain runs on one core by default; the default becomes
+<code>threads_per_chain = "auto"</code> in crywolf 2.0.0 (see <code><a href="fp_occu.html">fp_occu()</a></code> for what
+that changes in reproduction by <code>seed</code>). The likelihood is summed over
+sites with Stan's <code>reduce_sum()</code>, so <code>threads_per_chain</code> in <code><a href="fp_occu.html">fp_occu()</a></code>
+splits each chain among several cores, which pays off with many sites or
+occasions. Keep <code>parallel_chains * threads_per_chain</code> at or below the
 number of physical cores. <code><a href="fp_calibrate.html">fp_calibrate()</a></code> fits many models, one chain per
 worker; compile the model with <code><a href="fp_compile.html">fp_compile()</a></code> before starting workers.</p>
     </div>

@@ -161,7 +161,7 @@ Ordem pedida pelo Diogo, depois de fechar o `random_det`:
 - `R CMD check --as-cran` limpo nas três plataformas; exemplos e vinhetas
   dentro dos limites de tempo e de núcleos do CRAN (as vinhetas longas já
   são pré-computadas).
-- **Em andamento (26/10/2026, branch `instantiate-backend`):** patch
+- **Feito (26/10/2026, PR #5, CI verde nas três plataformas):** patch
   aplicado, com quatro correções da revisão: sem executável instalado,
   `fp_compile()` vai direto ao cache (o `instantiate` compilaria um sem
   threads na biblioteca); o `install.libs.R` não compila na instalação

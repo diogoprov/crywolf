@@ -118,7 +118,9 @@ priors, sampler settings).</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer: fit <code>i</code> uses seed <code>seed + i - 1</code>.</p></dd>
+<dd><p>Optional integer: fit <code>i</code> uses seed <code>seed + i - 1</code>. The
+fits are reproduced draw for draw only with one thread per chain
+(<code>threads_per_chain = 1</code>, the setting when <code>parallel = TRUE</code>).</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>

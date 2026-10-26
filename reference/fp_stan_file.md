@@ -17,5 +17,5 @@ to read the model or modify a copy of it.
 
 ``` r
 fp_stan_file()
-#> [1] "/home/runner/work/_temp/Library/crywolf/stan/fp_occu.stan"
+#> [1] "/home/runner/work/_temp/Library/crywolf/bin/stan/fp_occu.stan"
 ```

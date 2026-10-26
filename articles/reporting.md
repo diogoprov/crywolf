@@ -101,7 +101,7 @@ c(crywolf = as.character(utils::packageVersion("crywolf")),
   cmdstanr = as.character(utils::packageVersion("cmdstanr")),
   CmdStan = cmdstanr::cmdstan_version())
 #>      crywolf     cmdstanr      CmdStan 
-#> "1.9.0.9000" "0.9.0.9002"     "2.40.0"
+#> "1.9.0.9000"      "0.9.0"     "2.40.0"
 unlist(m$sampler)
 #>            chains   parallel_chains threads_per_chain       iter_warmup 
 #>              4.00              4.00              1.00           1000.00 
@@ -122,9 +122,10 @@ unlist(m$diagnostics)
 #>      0.000000      0.000000      1.002267   4226.414820   2780.940477
 ```
 
-If the threads option was used (`threads_per_chain > 1`), say so: the
-posterior is the same, but the draws cannot be reproduced exactly from
-the seed.
+If the chains used more than one thread (`threads_per_chain`, `"auto"`
+by default, recorded in `m$sampler`), say so: the posterior is the same,
+but the draws cannot be reproduced exactly from the seed. Fit with
+`threads_per_chain = 1` when they must be.
 
 ## 4. Model adequacy and comparison
 

@@ -185,6 +185,16 @@ Ordem pedida pelo Diogo, depois de fechar o `random_det`:
   (2.0.x).
 - Release no GitHub, DOI de versão no Zenodo, build no R-universe e
   submissão ao CRAN.
+- **Lançado em 26/10/2026:** PR #6 (merge 69483a6), tag v2.0.0, DOI de
+  versão 10.5281/zenodo.23677193. `cran-comments.md` pronto; a submissão
+  ao CRAN fica com o Diogo.
+
+## 2.1.0 (27/10/2026)
+
+Release só da integração com o sheepdog, experimental
+(`roadmap-integration.md`): leitura dos esquemas 1.1 e 1.2 do export
+(ffd4ffc, d5ddc78), PR #7 (merge f4610c8), DOI de versão
+10.5281/zenodo.23692218. Interface estável sem mudanças.
 
 ## Riscos
 

@@ -42,7 +42,8 @@ O que toca o crywolf, em ordem de prioridade:
   esconde); o FP volta a crescer com a temperatura, como no limiar 0,2, e
   modelá-lo aproxima o efeito da temperatura do valor do limiar 0,4.
   Ideia: `fp_occu_mc()` poderia avisar ou excluir ajustes que não
-  convergem. **Não** pôr covariáveis da noite em P(TP) como atalho
+  convergem (**feito no 2.0.0:** `max_rhat = 1.05` deixa de fora, com
+  aviso, os ajustes cujo maior R-hat passa do limite). **Não** pôr covariáveis da noite em P(TP) como atalho
   (argumento da sessão do sheepdog, 25/10/2026): uma calibração
   discriminativa P(TP | score, temp) absorve a prevalência do canto, que
   também depende da temperatura, e contaria a prevalência duas vezes. O
@@ -78,6 +79,30 @@ O que toca o crywolf, em ordem de prioridade:
   classificador e reusa os minutos de teste por mês, então é análise de
   sensibilidade, não o modelo principal; o caminho com princípio continua
   sendo a Fase 2.
+- **Esquemas 1.1 e 1.2 do export (crywolf 2.1.0, 27/10/2026; lado do
+  sheepdog em sheepdog#43 e #44):**
+  - 1.1: `fp_read_sheepdog()` aceita qualquer 1.x (2.x é recusado); as
+    covariáveis de ocasião viram colunas de `occasions`, e as chaves da
+    calibração são lidas como texto. `fp_draws_data()` casa cada chave
+    de `schema$calibration$keys` (mês, estação, gravador) pela coluna de
+    mesmo nome nas ocasiões; ocasião sem valor de uma chave fica como não
+    amostrada. Exports 1.0 calibrados por mês ainda tiram o mês da data.
+  - 1.2: `fp_draws_data()` lê os históricos já sorteados pelo sheepdog
+    (`occasion_draws.parquet`) quando espécie, regra, semente ou `p_min`
+    e ocasiões batem; senão sorteia como antes. Na fixture, o lido é
+    idêntico ao calculado.
+  - Fixture `tests/testthat/fixtures/sheepdog-export`: cópia do
+    `export-1.2` do sheepdog. `dev/check-sheepdog-fixture.R` confere que
+    continua idêntica (SHAs de blob pela API do GitHub; `--update` copia).
+    Não roda no CI: rodar quando o sheepdog mudar a fixture.
+  - Do lado do sheepdog: teste de contrato com o crywolf (item 7,
+    sheepdog#46) e fluxo de ponta a ponta do Curiango na vinheta
+    `crywolf-integration` com `fp_occu_mc()` e M = 20 (item 6,
+    sheepdog#45). O CI do sheepdog não instala o crywolf, então a parte
+    do teste que usa o crywolf só roda localmente.
+  - Pendente do lado do sheepdog: rodar de novo o modo sazonal do
+    `dev/benchmarks/curiango-export.R`, que agora usa
+    `calibration_keys = "month"`.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **[decidir]**

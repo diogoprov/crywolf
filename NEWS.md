@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 2.1.0
 
 ## Integration with 'sheepdog' (experimental)
 

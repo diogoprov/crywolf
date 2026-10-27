@@ -141,7 +141,9 @@ every exported prediction and no more.</p>
 and the keys of the calibration (such as <code>month</code>) are read as text. The
 occasion covariates of the export (<code>schema$occasion_covariates</code>, from
 schema version 1.1) are extra columns of <code>occasions</code>. The calibration draws
-(<code>calibration_draws.parquet</code>), when present, are not read here; their
+(<code>calibration_draws.parquet</code>) and the detection histories sheepdog
+drew from them (<code>occasion_draws.parquet</code>, schema 1.2), when present, are
+not read here; their
 path is in <code>files</code>.</p>
     </div>
     <div class="section level2">

@@ -107,6 +107,14 @@ keys, or a key missing for its occasion) cannot be scored: its occasion
 is set to `NA` (not surveyed) in every version, with a warning, rather
 than counted as a non-detection.
 
+**Histories drawn by sheepdog.** An export of schema 1.2 may hold the
+histories sheepdog drew with `sheepdog::occasion_draws()`
+(`occasion_draws.parquet`), by the same rules. They are read instead of
+drawn again when they were made for the target species with the same
+`rule`, the same `seed` (`"sample"`, which then needs `seed`) or `p_min`
+(`"threshold"`), at least the draws asked for, and every prediction has
+its occasion in `occasions`; the values are the same.
+
 The recordings annotated by ear (`x$verified`) are the verified
 occasions of every version: they do not depend on the calibration. The
 reviewed clips (`x$validation`) are not used here; they are the data of

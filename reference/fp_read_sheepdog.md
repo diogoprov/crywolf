@@ -79,8 +79,9 @@ Identifiers, dates and the keys of the calibration (such as `month`) are
 read as text. The occasion covariates of the export
 (`schema$occasion_covariates`, from schema version 1.1) are extra
 columns of `occasions`. The calibration draws
-(`calibration_draws.parquet`), when present, are not read here; their
-path is in `files`.
+(`calibration_draws.parquet`) and the detection histories sheepdog drew
+from them (`occasion_draws.parquet`, schema 1.2), when present, are not
+read here; their path is in `files`.
 
 ## See also
 

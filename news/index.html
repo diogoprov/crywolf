@@ -64,6 +64,8 @@
 <code><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog()</a></code> reads exports of the <code>sheepdog-occupancy</code> schema 1.1 (any 1.x; 2.x is still refused). Its occasion covariates (<code>schema$occasion_covariates</code>) are extra columns of <code>occasions</code>, and the keys of the calibration are read as text.</li>
 <li>
 <code><a href="../reference/fp_draws_data.html">fp_draws_data()</a></code> matches every key of the calibration (<code>schema$calibration$keys</code> beyond site and species, such as month, season or recorder) by the column of that name in the occasions of the export. An occasion without a value of a key is treated as not surveyed, like one without calibration draws. Exports of schema 1.0 calibrated by month still take the month from the recording date.</li>
+<li>
+<code><a href="../reference/fp_draws_data.html">fp_draws_data()</a></code> reads the detection histories that sheepdog drew (<code>occasion_draws.parquet</code>, schema 1.2) when they were drawn for the same species, rule, seed or <code>p_min</code>, and occasions; they are the histories it would draw itself.</li>
 </ul></div>
 </div>
     <div class="section level2">

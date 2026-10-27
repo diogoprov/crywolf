@@ -43,7 +43,9 @@
 #' and the keys of the calibration (such as `month`) are read as text. The
 #' occasion covariates of the export (`schema$occasion_covariates`, from
 #' schema version 1.1) are extra columns of `occasions`. The calibration draws
-#' (`calibration_draws.parquet`), when present, are not read here; their
+#' (`calibration_draws.parquet`) and the detection histories sheepdog
+#' drew from them (`occasion_draws.parquet`, schema 1.2), when present, are
+#' not read here; their
 #' path is in `files`.
 #'
 #' @return A list of class `fp_sheepdog` with the data frames `occasions`
@@ -171,8 +173,10 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
     }
     verified$y <- as.integer(verified$y)
   }
-  parquet <- file.path(path, "calibration_draws.parquet")
-  if (file.exists(parquet)) files <- c(files, calibration_draws = parquet)
+  for (draws in c("calibration_draws", "occasion_draws")) {
+    parquet <- file.path(path, paste0(draws, ".parquet"))
+    if (file.exists(parquet)) files[[draws]] <- parquet
+  }
 
   structure(list(occasions = occasions, detections = detections, scores = scores,
                  validation = validation, verified = verified, sites = sites,

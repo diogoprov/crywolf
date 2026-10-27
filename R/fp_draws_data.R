@@ -51,6 +51,14 @@
 #' set to `NA` (not surveyed) in every version, with a warning, rather than
 #' counted as a non-detection.
 #'
+#' **Histories drawn by sheepdog.** An export of schema 1.2 may hold the
+#' histories sheepdog drew with `sheepdog::occasion_draws()`
+#' (`occasion_draws.parquet`), by the same rules. They are read instead of
+#' drawn again when they were made for the target species with the same
+#' `rule`, the same `seed` (`"sample"`, which then needs `seed`) or
+#' `p_min` (`"threshold"`), at least the draws asked for, and every
+#' prediction has its occasion in `occasions`; the values are the same.
+#'
 #' The recordings annotated by ear (`x$verified`) are the verified
 #' occasions of every version: they do not depend on the calibration. The
 #' reviewed clips (`x$validation`) are not used here; they are the data of
@@ -164,6 +172,10 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
             length(unscored), " occasion(s) are treated as not surveyed.",
             call. = FALSE)
   }
+  # the histories sheepdog drew with the same settings, when it wrote them
+  # (occasion_draws.parquet, schema 1.2): the same values, computed once
+  saved <- .saved_occasion_draws(x, rule, p_min, seed, ids, unique(det$species),
+                                 complete = !anyNA(o))
   keep <- !is.na(k) & !is.na(o) & !(o %in% unscored)
   if (!any(keep)) {
     stop("No prediction could be matched to the calibration draws.", call. = FALSE)
@@ -182,7 +194,12 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
     verified <- verified[!is.na(v), , drop = FALSE]
   }
   if (!is.null(verified)) verified <- verified[c(site, setdiff(names(verified), site))]
-  if (!is.null(seed) && rule == "sample") {
+  if (!is.null(saved)) {
+    # occasions without predictions are not in the table: no detection
+    Y <- matrix(0L, nrow(occasions), length(ids))
+    Y[cbind(match(paste(saved$site, saved$occasion_id, sep = "\r"), occ_key),
+            match(saved$draw, ids))] <- saved$y
+  } else if (!is.null(seed) && rule == "sample") {
     # the user's random numbers continue as if this call had drawn none
     old <- if (exists(".Random.seed", envir = globalenv())) {
       get(".Random.seed", envir = globalenv())
@@ -196,15 +213,41 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
   }
 
   out <- purrr::imap(ids, function(id, j) {
-    p <- P[k, j]
-    true <- if (rule == "sample") stats::runif(length(p)) < p else p >= p_min
     auto <- occasions
-    auto$y <- as.integer(tabulate(o[true], nbins = nrow(occasions)) > 0)
-    auto$y[unscored] <- NA
+    if (is.null(saved)) {
+      p <- P[k, j]
+      true <- if (rule == "sample") stats::runif(length(p)) < p else p >= p_min
+      auto$y <- as.integer(tabulate(o[true], nbins = nrow(occasions)) > 0)
+      auto$y[unscored] <- NA
+    } else {
+      auto$y <- Y[, j]
+    }
     # the design checks of fp_data() speak once, for the first version
     if (j == 1) return(fp_data(auto, sites, verified, site = site))
     withCallingHandlers(fp_data(auto, sites, verified, site = site),
                         crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
   })
   structure(out, draws = ids, rule = rule)
+}
+
+# The detection histories of occasion_draws.parquet, when sheepdog drew them
+# as fp_draws_data() would here: same species, rule, p_min or seed, at least
+# these draws, and every prediction in `occasions` (`complete`). NULL
+# otherwise.
+.saved_occasion_draws <- function(x, rule, p_min, seed, ids, species, complete) {
+  od <- x$schema$occasion_draws
+  if (is.null(od) || !"occasion_draws" %in% names(x$files) || !complete ||
+      !identical(od$rule, rule) || !all(species %in% unlist(od$species))) {
+    return(NULL)
+  }
+  same <- if (rule == "sample") {
+    !is.null(seed) && !is.null(od$seed) && isTRUE(all.equal(od$seed, seed))
+  } else {
+    !is.null(od$p_min) && isTRUE(all.equal(od$p_min, p_min))
+  }
+  if (!same) return(NULL)
+  saved <- as.data.frame(arrow::read_parquet(x$files[["occasion_draws"]]))
+  saved <- saved[saved$species %in% species & saved$draw %in% ids, , drop = FALSE]
+  if (!all(ids %in% saved$draw)) return(NULL)
+  saved
 }

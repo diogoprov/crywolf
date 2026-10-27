@@ -135,13 +135,14 @@ test_that("the export of sheepdog itself is read", {
   expect_equal(nrow(auto), nrow(x$occasions))
 })
 
-test_that("an export of schema 1.1 brings occasion covariates and text keys", {
+test_that("an export of schema 1.2 brings occasion covariates and text keys", {
   skip_if_not_installed("jsonlite")
   # written by sheepdog (data-raw/make_export_fixture.R of sheepdog);
   # validation.csv trimmed to the target species, to keep the package small
-  dir <- test_path("fixtures", "sheepdog-export-1.1")
+  dir <- test_path("fixtures", "sheepdog-export")
   expect_warning(x <- fp_read_sheepdog(dir, species = "phy_cuv"), "sampling_mode = \"top\"")
-  expect_equal(x$schema$schema_version, 1.1)
+  expect_equal(x$schema$schema_version, 1.2)
+  expect_true(all(c("calibration_draws", "occasion_draws") %in% names(x$files)))
   expect_identical(x$schema$occasion_covariates, c("hour", "month"))
   expect_true(is.numeric(x$occasions$hour))
   expect_type(x$occasions$month, "character")   # a key of the calibration

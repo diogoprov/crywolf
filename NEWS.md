@@ -12,6 +12,10 @@
   export. An occasion without a value of a key is treated as not surveyed,
   like one without calibration draws. Exports of schema 1.0 calibrated by
   month still take the month from the recording date.
+* `fp_draws_data()` reads the detection histories that sheepdog drew
+  (`occasion_draws.parquet`, schema 1.2) when they were drawn for the same
+  species, rule, seed or `p_min`, and occasions; they are the histories it
+  would draw itself.
 
 # crywolf 2.0.0
 

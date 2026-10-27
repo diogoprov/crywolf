@@ -66,7 +66,9 @@ Occasions are identified by \code{site} and \code{occasion_id}; pass
 and the keys of the calibration (such as \code{month}) are read as text. The
 occasion covariates of the export (\code{schema$occasion_covariates}, from
 schema version 1.1) are extra columns of \code{occasions}. The calibration draws
-(\code{calibration_draws.parquet}), when present, are not read here; their
+(\code{calibration_draws.parquet}) and the detection histories sheepdog
+drew from them (\code{occasion_draws.parquet}, schema 1.2), when present, are
+not read here; their
 path is in \code{files}.
 }
 \examples{

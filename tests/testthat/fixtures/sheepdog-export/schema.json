@@ -1,6 +1,6 @@
 {
   "schema": "sheepdog-occupancy",
-  "schema_version": 1.1,
+  "schema_version": 1.2,
   "created": "2026-10-27T00:00:00-0400",
   "sheepdog_version": "3.2.1.9000",
   "classifier": "example",
@@ -25,7 +25,7 @@
     },
     "validation": {
       "file": "validation.csv",
-      "rows": 2467
+      "rows": 320
     },
     "sites": {
       "file": "sites.csv",
@@ -33,7 +33,11 @@
     },
     "calibration_draws": {
       "file": "calibration_draws.parquet",
-      "rows": 8640
+      "rows": 8460
+    },
+    "occasion_draws": {
+      "file": "occasion_draws.parquet",
+      "rows": 5320
     }
   },
   "calibration": {
@@ -44,5 +48,12 @@
     "grid_min": 0.1,
     "keys": ["site", "species", "month", "grid_index"],
     "new_levels": "uncertainty"
+  },
+  "occasion_draws": {
+    "file": "occasion_draws.parquet",
+    "rule": "sample",
+    "seed": 2026,
+    "n_draws": 20,
+    "species": ["phy_cuv"]
   }
 }

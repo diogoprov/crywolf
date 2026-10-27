@@ -173,22 +173,66 @@ test_that("the keys of the calibration are columns of the occasions", {
 test_that("an export of sheepdog with a calibration by month is read", {
   skip_if_not_installed("jsonlite")
   skip_if_not_installed("arrow")
-  dir <- test_path("fixtures", "sheepdog-export-1.1")
+  # written by sheepdog (data-raw/make_export_fixture.R of sheepdog), schema
+  # 1.2; the calibration lacks the scores above 0.5 at NHE in 202112
+  dir <- test_path("fixtures", "sheepdog-export")
   x <- suppressWarnings(fp_read_sheepdog(dir, species = "phy_cuv"))
-  v <- withCallingHandlers(fp_draws_data(x, rule = "threshold", p_min = 0.5),
-                           crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
+  x$files <- x$files[names(x$files) != "occasion_draws"]   # computed here
+  expect_warning(
+    v <- withCallingHandlers(fp_draws_data(x, rule = "threshold", p_min = 0.5),
+                             crywolf_design_warning = function(w) invokeRestart("muffleWarning")),
+    "14 occasion\\(s\\) are treated as not surveyed")
   expect_length(v, 20)
   # the same histories, computed by hand from the parquet
   cal <- as.data.frame(arrow::read_parquet(file.path(dir, "calibration_draws.parquet")))
   det <- x$detections
-  det$month <- x$occasions$month[match(paste(det$site, det$occasion_id),
-                                       paste(x$occasions$site, x$occasions$occasion_id))]
+  occ <- paste(x$occasions$site, x$occasions$occasion_id)
+  det$month <- x$occasions$month[match(paste(det$site, det$occasion_id), occ)]
   det$grid_index <- pmin(pmax(round((det$confidence - 0.1) / 0.05) + 1, 1),
                          max(cal$grid_index))
   d1 <- merge(det, cal[cal$draw == attr(v, "draws")[1], ],
-              by = c("site", "species", "month", "grid_index"))
-  hit <- unique(paste(d1$site, d1$occasion_id)[d1$p_tp >= 0.5])
-  expect_identical(v[[1]]$auto$y,
-                   as.integer(paste(x$occasions$site, x$occasions$occasion_id) %in% hit))
+              by = c("site", "species", "month", "grid_index"), all.x = TRUE)
+  unscored <- unique(paste(d1$site, d1$occasion_id)[is.na(d1$p_tp)])
+  hit <- unique(paste(d1$site, d1$occasion_id)[!is.na(d1$p_tp) & d1$p_tp >= 0.5])
+  expect_length(unscored, 14)
+  # fp_data() keeps the surveyed occasions only
+  expect_identical(v[[1]]$auto$y, as.integer(setdiff(occ, unscored) %in% hit))
   expect_gt(sum(v[[1]]$auto$y), 0)
+})
+
+test_that("the histories drawn by sheepdog are those of fp_draws_data()", {
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("arrow")
+  quiet <- function(e) suppressWarnings(withCallingHandlers(
+    e, crywolf_design_warning = function(w) invokeRestart("muffleWarning")))
+  dir <- test_path("fixtures", "sheepdog-export")
+  x <- suppressWarnings(fp_read_sheepdog(dir, species = "phy_cuv"))
+  computed <- x
+  computed$files <- computed$files[names(computed$files) != "occasion_draws"]
+  y <- function(v) lapply(v, function(d) d$auto$y)
+  # rule "sample", seed 2026, 20 draws in occasion_draws.parquet
+  expect_identical(y(quiet(fp_draws_data(x, seed = 2026))),
+                   y(quiet(fp_draws_data(computed, seed = 2026))))
+  expect_identical(y(quiet(fp_draws_data(x, seed = 2026, n_draws = 5))),
+                   y(quiet(fp_draws_data(computed, seed = 2026)))[1:5])
+
+  # the table is read only for the settings it was drawn with: a copy with
+  # every scored occasion detected tells which way the values came
+  copy <- file.path(tempdir(), "sheepdog-export-draws")
+  dir.create(copy, showWarnings = FALSE)
+  file.copy(list.files(dir, full.names = TRUE), copy, overwrite = TRUE)
+  od <- as.data.frame(arrow::read_parquet(file.path(dir, "occasion_draws.parquet")))
+  od$y[!is.na(od$y)] <- 1L
+  unlink(file.path(copy, "occasion_draws.parquet"))
+  arrow::write_parquet(od, file.path(copy, "occasion_draws.parquet"))
+  x <- suppressWarnings(fp_read_sheepdog(copy, species = "phy_cuv"))
+  # detections in the first draw: every scored occasion of the table
+  all_one <- function(v) sum(v[[1]]$auto$y) == sum(!is.na(od$y[od$draw == min(od$draw)]))
+  expect_true(all_one(quiet(fp_draws_data(x, seed = 2026))))
+  expect_false(all_one(quiet(fp_draws_data(x, seed = 1))))
+  expect_false(all_one(quiet(fp_draws_data(x))))
+  expect_false(all_one(quiet(fp_draws_data(x, rule = "threshold"))))
+  # an occasion with predictions left out of `occasions`: computed here
+  drop <- x$occasions$occasion_id != x$detections$occasion_id[1]
+  expect_false(all_one(quiet(fp_draws_data(x, seed = 2026, occasions = x$occasions[drop, ]))))
 })

@@ -211,6 +211,15 @@ Release só da integração com o sheepdog, experimental
 **Decidido em 22/10/2026:** vem antes do multiespécies, por exigir menos
 esforço e reaproveitar mais do que já existe. Função nova,
 `fp_occu_dyn()`; a API do `fp_occu()` congelada no 2.0 não muda.
+**Decidido em 27/10/2026:** vem também antes da Fase 2 da integração
+(`fp_occu_score()`, ver `roadmap-integration.md`).
+
+O período primário (temporada) é um argumento do `fp_occu_dyn()`, não uma
+coluna do esquema do sheepdog: ele sai de `night` ou `recording_date`,
+que as ocasiões do export já têm (inclusive as sem predição), ou de uma
+covariável de ocasião. Se a calibração usar o mesmo agrupamento (por
+exemplo `calibration_keys = "month"`), a chave já vem como texto nas
+ocasiões.
 
 ### O modelo
 

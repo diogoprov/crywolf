@@ -105,9 +105,26 @@ O que toca o crywolf, em ordem de prioridade:
     `calibration_keys = "month"`.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
-  positivos, o termo de Markov e o desenho de verificação. **[decidir]**
-  onde entra na fila depois do 2.0.0: antes do `fp_occu_dyn()`, depois dele
-  ou dentro dele.
+  positivos, o termo de Markov e o desenho de verificação. **Decidido em
+  27/10/2026 (Diogo, com a posição da sessão do sheepdog):** entra
+  **depois** do `fp_occu_dyn()`, como função própria, sem misturar com o
+  dinâmico. Nada do lado do sheepdog pede a Fase 2 antes: os itens da
+  integração estão feitos e só a Fase 3 depende dela.
+  - Primeiro teste da simulação: a hipótese de que a calibração
+    discriminativa P(TP | score) mistura prevalência e comportamento do
+    classificador ainda é inferência, não foi testada. Conferir antes de
+    usá-la como argumento.
+  - Dados: o esquema 1.x atual basta, sem 1.3 nem 2.0. `scores.csv` tem o
+    score máximo por ocasião × espécie (censurado em `min_confidence`; par
+    ausente = censurado), que é o s_ij do modelo; `detections.csv` tem
+    todas as predições, se f1/f0 for por janela; `validation.csv` tem o
+    `confidence` de cada clipe (um clipe negativo informa f0 naquele
+    score); `recordings_verified.csv` traz as gravações aleatórias com o w
+    observado; as covariáveis U_ij entram como `occasion_covariates`. O
+    que faltar entra como acréscimo 1.x (por exemplo o score do clipe
+    revisado quando difere do da ocasião).
+  - Divisão: o sheepdog escreve dados e desenho; f1/f0 e o ajuste ficam
+    só no crywolf.
 - **Fase 3:** `fp_review_priority()` para a camada dirigida da validação.
 - **Fases 4 e 5:** atividade vocal e comunidade, alinhadas com a Fase A do
   multiespécies do [roadmap v2](roadmap-v2.md). A confusão entre espécies

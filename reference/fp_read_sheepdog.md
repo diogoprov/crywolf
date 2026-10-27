@@ -2,7 +2,7 @@
 
 Reads the folder written by
 [`sheepdog::export_occupancy_data()`](https://provetelab.org/sheepdog/reference/export_occupancy_data.html),
-which follows the `sheepdog-occupancy` schema (version 1): every
+which follows the `sheepdog-occupancy` schema (version 1.x): every
 occasion of a passive acoustic survey, the classifier predictions, the
 reviewed clips with their sampling design, and the recordings annotated
 by ear. The tables come back in the forms that
@@ -39,15 +39,15 @@ fp_read_sheepdog(path, species = NULL, keep_top = FALSE)
 
 A list of class `fp_sheepdog` with the data frames `occasions` (`site`,
 `occasion_id`, `source_audio`, `recording_date`, `recording_hour`,
-`night`, `start`, `duration`), `detections` (one row per prediction:
-`site`, `occasion_id`, `species_code`, `species`, `start`,
-`confidence`), `scores` (highest score and number of predictions per
-occasion and species), `validation` (one row per reviewed clip, with
-`start`, `end`, `confidence`, `sampling_mode`, `inclusion_prob`,
-`verdict` as `TRUE`, `FALSE` or `NA`), `verified` (one row per annotated
-recording, with `y`, 1 or 0, and `inclusion_prob`), `sites`, the parsed
-`schema`, and `files` (paths of the tables found). Tables absent from
-the export are `NULL`.
+`night`, `start`, `duration`, then any occasion covariates),
+`detections` (one row per prediction: `site`, `occasion_id`,
+`species_code`, `species`, `start`, `confidence`), `scores` (highest
+score and number of predictions per occasion and species), `validation`
+(one row per reviewed clip, with `start`, `end`, `confidence`,
+`sampling_mode`, `inclusion_prob`, `verdict` as `TRUE`, `FALSE` or
+`NA`), `verified` (one row per annotated recording, with `y`, 1 or 0,
+and `inclusion_prob`), `sites`, the parsed `schema`, and `files` (paths
+of the tables found). Tables absent from the export are `NULL`.
 
 ## Details
 
@@ -75,7 +75,10 @@ every exported prediction and no more.
 Occasions are identified by `site` and `occasion_id`; pass
 `by = c("site", "occasion_id")` to
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md).
-Identifiers and dates are read as text. The calibration draws
+Identifiers, dates and the keys of the calibration (such as `month`) are
+read as text. The occasion covariates of the export
+(`schema$occasion_covariates`, from schema version 1.1) are extra
+columns of `occasions`. The calibration draws
 (`calibration_draws.parquet`), when present, are not read here; their
 path is in `files`.
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## crywolf (development version)
+
+### Integration with ‘sheepdog’ (experimental)
+
+- [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+  reads exports of the `sheepdog-occupancy` schema 1.1 (any 1.x; 2.x is
+  still refused). Its occasion covariates (`schema$occasion_covariates`)
+  are extra columns of `occasions`, and the keys of the calibration are
+  read as text.
+- [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  matches every key of the calibration (`schema$calibration$keys` beyond
+  site and species, such as month, season or recorder) by the column of
+  that name in the occasions of the export. An occasion without a value
+  of a key is treated as not surveyed, like one without calibration
+  draws. Exports of schema 1.0 calibrated by month still take the month
+  from the recording date.
+
 ## crywolf 2.0.0
 
 The first major version: the interface of the stable functions is

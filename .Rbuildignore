@@ -14,3 +14,4 @@
 ^\.claude$
 ^data-raw$
 ^cran-comments\.md$
+^AI interaction log\.md$

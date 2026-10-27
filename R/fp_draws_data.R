@@ -37,14 +37,17 @@
 #' occasions), about 8% of the minutes with `"sample"` against about 1%
 #' with `"threshold"`.
 #'
-#' When the calibration depends on the month (`"month"` among
-#' `schema$calibration$keys`), a prediction takes the value of the month of
-#' its recording, from the recording date of its occasion in the export.
+#' When the calibration has keys beyond site and species
+#' (`schema$calibration$keys`, such as `"month"`), a prediction takes the
+#' value of its occasion: each such key is a column of the occasions of the
+#' export and of `calibration_draws.parquet`. In an export of schema
+#' version 1.0, without a `month` column, the month is taken from the
+#' recording date of the occasion.
 #'
 #' A prediction takes the calibration value of the grid point nearest its
 #' score, as in sheepdog: grid index
 #' `round((score - grid_min) / grid_step) + 1`, within the grid. A prediction without calibration draws (no draws
-#' for its site and species, or month) cannot be scored: its occasion is
+#' for its site, species and keys, or a key missing for its occasion) cannot be scored: its occasion is
 #' set to `NA` (not surveyed) in every version, with a warning, rather than
 #' counted as a non-detection.
 #'
@@ -100,35 +103,42 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
   ids <- sort(unique(cal$draw))
   if (!is.null(n_draws)) ids <- utils::head(ids, n_draws)
 
-  # a calibration by month (keys holding "month") gives P(TP) for each
-  # month of recording, "YYYYMM" from the recording date of the occasion
-  by_month <- "month" %in% x$schema$calibration$keys
-  if (by_month != ("month" %in% names(cal))) {
-    stop("schema.json and calibration_draws.parquet disagree on whether the ",
-         "calibration depends on the month.", call. = FALSE)
+  # keys of the calibration beyond site, species and the grid (such as
+  # "month"): columns of the occasions of the export and of the parquet
+  keys <- setdiff(unlist(x$schema$calibration$keys), c("site", "species", "grid_index"))
+  # (a key column the schema does not announce shows up below as several
+  # values per key and draw)
+  if (!all(keys %in% names(cal))) {
+    stop("schema.json and calibration_draws.parquet disagree on the keys of ",
+         "the calibration: the parquet lacks ",
+         paste(setdiff(keys, names(cal)), collapse = ", "), ".", call. = FALSE)
   }
-  if (by_month) {
-    oe <- x$occasions
-    mo <- substr(oe$recording_date, 1, 6)
-    det_month <- mo[match(paste(det$site, det$occasion_id, sep = "\r"),
-                          paste(oe$site, oe$occasion_id, sep = "\r"))]
-  } else {
-    det_month <- rep("", nrow(det))
-    cal$month <- rep("", nrow(cal))
+  oe <- x$occasions
+  # exports of schema 1.0 have no month column: the month of recording
+  if ("month" %in% keys && !"month" %in% names(oe)) {
+    oe$month <- substr(oe$recording_date, 1, 6)
   }
-  # P(TP) as a matrix: one row per site x species (x month) x grid point,
+  if (!all(keys %in% names(oe))) {
+    stop("The occasions of the export lack the calibration key(s) ",
+         paste(setdiff(keys, names(oe)), collapse = ", "), ".", call. = FALSE)
+  }
+  e <- match(paste(det$site, det$occasion_id, sep = "\r"),
+             paste(oe$site, oe$occasion_id, sep = "\r"))
+  det_keys <- lapply(keys, function(k) as.character(oe[[k]][e]))
+  # P(TP) as a matrix: one row per site x species (x keys) x grid point,
   # one column per draw
-  key <- function(s, sp, m, g) paste(s, sp, m, g, sep = "\r")
+  key <- function(...) paste(..., sep = "\r")
   cal <- cal[cal$draw %in% ids, , drop = FALSE]
-  rows <- unique(key(cal$site, cal$species, cal$month, cal$grid_index))
-  if (anyDuplicated(cbind(key(cal$site, cal$species, cal$month, cal$grid_index),
-                          cal$draw))) {
+  cal_key <- do.call(key, c(list(cal$site, cal$species),
+                            lapply(keys, function(k) as.character(cal[[k]])),
+                            list(cal$grid_index)))
+  rows <- unique(cal_key)
+  if (anyDuplicated(cbind(cal_key, cal$draw))) {
     stop("calibration_draws.parquet has more than one value for some key and ",
          "draw; is a key column missing from schema.json?", call. = FALSE)
   }
   P <- matrix(NA_real_, length(rows), length(ids))
-  P[cbind(match(key(cal$site, cal$species, cal$month, cal$grid_index), rows),
-          match(cal$draw, ids))] <- cal$p_tp
+  P[cbind(match(cal_key, rows), match(cal$draw, ids))] <- cal$p_tp
   step <- x$schema$calibration$grid_step
   g <- round((det$confidence - grid_min) / step) + 1
   g <- pmin(pmax(g, 1), max(cal$grid_index))
@@ -137,7 +147,9 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
     stop("`occasions` must have one row per site and occasion_id.", call. = FALSE)
   }
   o <- match(paste(det$site, det$occasion_id, sep = "\r"), occ_key)
-  k <- match(key(det$site, det$species, det_month, g), rows)
+  k <- match(do.call(key, c(list(det$site, det$species), det_keys, list(g))), rows)
+  # an occasion without a value of a key cannot be matched to a calibration
+  k[Reduce(`|`, lapply(det_keys, is.na), FALSE)] <- NA
   if (any(is.na(o))) {
     warning(sum(is.na(o)), " prediction(s) are not in `occasions` and were ",
             "left out.", call. = FALSE)
@@ -147,7 +159,8 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
   unscored <- unique(o[is.na(k) & !is.na(o)])
   if (length(unscored)) {
     warning(sum(is.na(k) & !is.na(o)), " prediction(s) of site x species",
-            if (by_month) " x month", " without calibration draws: their ",
+            paste0(" x ", keys, collapse = ""), " without calibration draws",
+            if (length(keys)) " or without a value of a key", ": their ",
             length(unscored), " occasion(s) are treated as not surveyed.",
             call. = FALSE)
   }

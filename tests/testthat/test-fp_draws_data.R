@@ -94,7 +94,11 @@ test_that("keys of schema.json and the parquet must agree", {
   dir <- write_cal_export(file.path(tempdir(), "cal-export-keys"),
                           function(cal) rbind(transform(cal, month = "202401"),
                                               transform(cal, month = "202402")))
-  expect_error(fp_draws_data(fp_read_sheepdog(dir)), "disagree")
+  expect_error(fp_draws_data(fp_read_sheepdog(dir)), "more than one value")
+  # a key the schema announces and the parquet lacks
+  x <- fp_read_sheepdog(write_cal_export(file.path(tempdir(), "cal-export-keys3")))
+  x$schema$calibration$keys <- c("site", "species", "month", "grid_index")
+  expect_error(fp_draws_data(x), "disagree.*lacks month")
   # a key column missing from both: two values per key and draw
   dir <- write_cal_export(file.path(tempdir(), "cal-export-keys2"),
                           function(cal) rbind(cal, cal))
@@ -139,4 +143,52 @@ test_that("an export without calibration draws is refused", {
   unlink(file.path(dir, "calibration_draws.parquet"))
   x <- fp_read_sheepdog(dir)
   expect_error(fp_draws_data(x), "no calibration draws")
+})
+
+test_that("the keys of the calibration are columns of the occasions", {
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("arrow")
+  # a calibration by recorder: r1 every prediction true, r2 none
+  by_rec <- function(cal) rbind(transform(cal, recorder = "r1", p_tp = 1),
+                                transform(cal, recorder = "r2", p_tp = 0))
+  dir <- write_cal_export(file.path(tempdir(), "cal-export-recorder"), by_rec)
+  occ <- utils::read.csv(file.path(dir, "occasions.csv"))
+  occ$recorder <- c("r1", "r1", "r2", NA)
+  utils::write.csv(occ, file.path(dir, "occasions.csv"), row.names = FALSE, na = "")
+  sc <- jsonlite::read_json(file.path(dir, "schema.json"))
+  sc$calibration$keys <- list("site", "species", "recorder", "grid_index")
+  jsonlite::write_json(sc, file.path(dir, "schema.json"), auto_unbox = TRUE)
+  x <- fp_read_sheepdog(dir)
+  # b2 has no recorder: it cannot be scored
+  expect_warning(
+    v <- withCallingHandlers(fp_draws_data(x, rule = "threshold", p_min = 0.5),
+                             crywolf_design_warning = function(w) invokeRestart("muffleWarning")),
+    "site x species x recorder without calibration draws or without a value of a key: their 1 occasion")
+  expect_equal(v[[1]]$auto$y, c(1L, 0L, 0L))
+  # a key the occasions do not have
+  x$occasions$recorder <- NULL
+  expect_error(fp_draws_data(x), "lack the calibration key\\(s\\) recorder")
+})
+
+test_that("an export of sheepdog with a calibration by month is read", {
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("arrow")
+  dir <- test_path("fixtures", "sheepdog-export-1.1")
+  x <- suppressWarnings(fp_read_sheepdog(dir, species = "phy_cuv"))
+  v <- withCallingHandlers(fp_draws_data(x, rule = "threshold", p_min = 0.5),
+                           crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
+  expect_length(v, 20)
+  # the same histories, computed by hand from the parquet
+  cal <- as.data.frame(arrow::read_parquet(file.path(dir, "calibration_draws.parquet")))
+  det <- x$detections
+  det$month <- x$occasions$month[match(paste(det$site, det$occasion_id),
+                                       paste(x$occasions$site, x$occasions$occasion_id))]
+  det$grid_index <- pmin(pmax(round((det$confidence - 0.1) / 0.05) + 1, 1),
+                         max(cal$grid_index))
+  d1 <- merge(det, cal[cal$draw == attr(v, "draws")[1], ],
+              by = c("site", "species", "month", "grid_index"))
+  hit <- unique(paste(d1$site, d1$occasion_id)[d1$p_tp >= 0.5])
+  expect_identical(v[[1]]$auto$y,
+                   as.integer(paste(x$occasions$site, x$occasions$occasion_id) %in% hit))
+  expect_gt(sum(v[[1]]$auto$y), 0)
 })

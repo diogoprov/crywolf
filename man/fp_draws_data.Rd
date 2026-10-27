@@ -65,14 +65,17 @@ detections: on the \code{curiango} data (custom classifier, minute
 occasions), about 8\% of the minutes with \code{"sample"} against about 1\%
 with \code{"threshold"}.
 
-When the calibration depends on the month (\code{"month"} among
-\code{schema$calibration$keys}), a prediction takes the value of the month of
-its recording, from the recording date of its occasion in the export.
+When the calibration has keys beyond site and species
+(\code{schema$calibration$keys}, such as \code{"month"}), a prediction takes the
+value of its occasion: each such key is a column of the occasions of the
+export and of \code{calibration_draws.parquet}. In an export of schema
+version 1.0, without a \code{month} column, the month is taken from the
+recording date of the occasion.
 
 A prediction takes the calibration value of the grid point nearest its
 score, as in sheepdog: grid index
 \code{round((score - grid_min) / grid_step) + 1}, within the grid. A prediction without calibration draws (no draws
-for its site and species, or month) cannot be scored: its occasion is
+for its site, species and keys, or a key missing for its occasion) cannot be scored: its occasion is
 set to \code{NA} (not surveyed) in every version, with a warning, rather than
 counted as a non-detection.
 

@@ -21,7 +21,8 @@ See Details.}
 \value{
 A list of class \code{fp_sheepdog} with the data frames \code{occasions}
 (\code{site}, \code{occasion_id}, \code{source_audio}, \code{recording_date},
-\code{recording_hour}, \code{night}, \code{start}, \code{duration}), \code{detections} (one row
+\code{recording_hour}, \code{night}, \code{start}, \code{duration}, then any occasion
+covariates), \code{detections} (one row
 per prediction: \code{site}, \code{occasion_id}, \code{species_code}, \code{species},
 \code{start}, \code{confidence}), \code{scores} (highest score and number of
 predictions per occasion and species), \code{validation} (one row per
@@ -33,7 +34,7 @@ the tables found). Tables absent from the export are \code{NULL}.
 }
 \description{
 Reads the folder written by \code{sheepdog::export_occupancy_data()}, which
-follows the \code{sheepdog-occupancy} schema (version 1): every occasion of a
+follows the \code{sheepdog-occupancy} schema (version 1.x): every occasion of a
 passive acoustic survey, the classifier predictions, the reviewed clips
 with their sampling design, and the recordings annotated by ear. The
 tables come back in the forms that \code{\link[=fp_aggregate]{fp_aggregate()}} and \code{\link[=fp_data]{fp_data()}}
@@ -61,8 +62,10 @@ to \code{verified}, the verified method of \code{\link[=fp_data]{fp_data()}}.
 every exported prediction and no more.
 
 Occasions are identified by \code{site} and \code{occasion_id}; pass
-\code{by = c("site", "occasion_id")} to \code{\link[=fp_aggregate]{fp_aggregate()}}. Identifiers and
-dates are read as text. The calibration draws
+\code{by = c("site", "occasion_id")} to \code{\link[=fp_aggregate]{fp_aggregate()}}. Identifiers, dates
+and the keys of the calibration (such as \code{month}) are read as text. The
+occasion covariates of the export (\code{schema$occasion_covariates}, from
+schema version 1.1) are extra columns of \code{occasions}. The calibration draws
 (\code{calibration_draws.parquet}), when present, are not read here; their
 path is in \code{files}.
 }

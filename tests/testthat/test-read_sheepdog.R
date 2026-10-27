@@ -106,6 +106,9 @@ test_that("other schemas and versions are refused", {
   skip_if_not_installed("jsonlite")
   dir <- write_export(file.path(tempdir(), "sheepdog-export-v2"), version = 2L)
   expect_error(fp_read_sheepdog(dir), "Version 2")
+  # minor versions only add to the schema
+  dir <- write_export(file.path(tempdir(), "sheepdog-export-v1.1"), version = 1.1)
+  expect_s3_class(suppressWarnings(fp_read_sheepdog(dir)), "fp_sheepdog")
   expect_error(fp_read_sheepdog(tempdir()), "No schema.json")
 })
 
@@ -130,4 +133,19 @@ test_that("the export of sheepdog itself is read", {
   auto <- fp_aggregate(x$occasions, x$detections, threshold = 0.5,
                        by = c("site", "occasion_id"), validation = x$validation)
   expect_equal(nrow(auto), nrow(x$occasions))
+})
+
+test_that("an export of schema 1.1 brings occasion covariates and text keys", {
+  skip_if_not_installed("jsonlite")
+  # written by sheepdog (data-raw/make_export_fixture.R of sheepdog);
+  # validation.csv trimmed to the target species, to keep the package small
+  dir <- test_path("fixtures", "sheepdog-export-1.1")
+  expect_warning(x <- fp_read_sheepdog(dir, species = "phy_cuv"), "sampling_mode = \"top\"")
+  expect_equal(x$schema$schema_version, 1.1)
+  expect_identical(x$schema$occasion_covariates, c("hour", "month"))
+  expect_true(is.numeric(x$occasions$hour))
+  expect_type(x$occasions$month, "character")   # a key of the calibration
+  expect_identical(sort(unique(x$occasions$month)),
+                   c("202110", "202111", "202112", "202201", "202202", "202203"))
+  expect_identical(unique(x$detections$species), "phy_cuv")
 })

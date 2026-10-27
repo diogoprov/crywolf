@@ -1,7 +1,7 @@
 #' Read an export of the sheepdog package
 #'
 #' Reads the folder written by `sheepdog::export_occupancy_data()`, which
-#' follows the `sheepdog-occupancy` schema (version 1): every occasion of a
+#' follows the `sheepdog-occupancy` schema (version 1.x): every occasion of a
 #' passive acoustic survey, the classifier predictions, the reviewed clips
 #' with their sampling design, and the recordings annotated by ear. The
 #' tables come back in the forms that [fp_aggregate()] and [fp_data()]
@@ -39,14 +39,17 @@
 #' every exported prediction and no more.
 #'
 #' Occasions are identified by `site` and `occasion_id`; pass
-#' `by = c("site", "occasion_id")` to [fp_aggregate()]. Identifiers and
-#' dates are read as text. The calibration draws
+#' `by = c("site", "occasion_id")` to [fp_aggregate()]. Identifiers, dates
+#' and the keys of the calibration (such as `month`) are read as text. The
+#' occasion covariates of the export (`schema$occasion_covariates`, from
+#' schema version 1.1) are extra columns of `occasions`. The calibration draws
 #' (`calibration_draws.parquet`), when present, are not read here; their
 #' path is in `files`.
 #'
 #' @return A list of class `fp_sheepdog` with the data frames `occasions`
 #'   (`site`, `occasion_id`, `source_audio`, `recording_date`,
-#'   `recording_hour`, `night`, `start`, `duration`), `detections` (one row
+#'   `recording_hour`, `night`, `start`, `duration`, then any occasion
+#'   covariates), `detections` (one row
 #'   per prediction: `site`, `occasion_id`, `species_code`, `species`,
 #'   `start`, `confidence`), `scores` (highest score and number of
 #'   predictions per occasion and species), `validation` (one row per
@@ -80,7 +83,7 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
   }
   if (!identical(as.integer(schema$schema_version), 1L)) {
     stop("Version ", schema$schema_version, " of the sheepdog-occupancy ",
-         "schema is not supported (only version 1); update crywolf.",
+         "schema is not supported (only versions 1.x); update crywolf.",
          call. = FALSE)
   }
   tables <- c("occasions", "detections", "scores", "validation",
@@ -99,8 +102,11 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
                     check.names = FALSE, fileEncoding = "UTF-8",
                     colClasses = stats::setNames(rep("character", length(text)), text))
   }
+  # keys of the calibration beyond site, species and the grid are columns
+  # of the occasions (schema 1.1), text like the identifiers
+  keys <- setdiff(unlist(schema$calibration$keys), c("site", "species", "grid_index"))
   occasions <- read("occasions", c("source_audio", "recording_date",
-                                   "recording_hour", "night"))
+                                   "recording_hour", "night", keys))
   detections <- read("detections")
   scores <- read("scores")
   validation <- read("validation", c("sampling_mode", "verdict", "reviewer"))

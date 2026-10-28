@@ -236,3 +236,57 @@ test_that("the histories drawn by sheepdog are those of fp_draws_data()", {
   drop <- x$occasions$occasion_id != x$detections$occasion_id[1]
   expect_false(all_one(quiet(fp_draws_data(x, seed = 2026, occasions = x$occasions[drop, ]))))
 })
+
+test_that("a calibration with continuous covariates gives sheepdog's histories", {
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("arrow")
+  quiet <- function(e) suppressWarnings(withCallingHandlers(
+    e, crywolf_design_warning = function(w) invokeRestart("muffleWarning")))
+  # schema 1.3: tp ~ logit_conf + temp_z, 20 histories drawn by sheepdog with
+  # rule "sample" and seed 2026, and no calibration_draws.parquet
+  dir <- test_path("fixtures", "sheepdog-export-1.3")
+  x <- suppressWarnings(fp_read_sheepdog(dir, species = "phy_cuv"))
+  expect_false("calibration_draws" %in% names(x$files))
+  expect_output(print(x), "temp_z")
+  od <- as.data.frame(arrow::read_parquet(file.path(dir, "occasion_draws.parquet")))
+  v <- quiet(fp_draws_data(x))
+  expect_length(v, 20)
+  expect_identical(attr(v, "draws"), sort(unique(od$draw)))
+  expect_identical(attr(v, "rule"), "sample")
+  # by hand: the value sheepdog drew, 0 for the occasions without predictions
+  first <- od[od$draw == min(od$draw), ]
+  m <- match(paste(x$occasions$site, x$occasions$occasion_id),
+             paste(first$site, first$occasion_id))
+  expect_identical(v[[1]]$auto$y, ifelse(is.na(m), 0L, first$y[m]))
+  # the settings it was drawn with are the only ones there are
+  expect_identical(lapply(quiet(fp_draws_data(x, seed = 2026, n_draws = 5)),
+                          function(d) d$auto$y),
+                   lapply(v[1:5], function(d) d$auto$y))
+  expect_error(fp_draws_data(x, seed = 1), "seed = 2026, not 1")
+  expect_error(fp_draws_data(x, rule = "threshold"), "rule = \"sample\"")
+  expect_error(fp_draws_data(x, n_draws = 30), "n_draws = 20, not 30")
+  without <- x
+  without$files <- without$files[names(without$files) != "occasion_draws"]
+  expect_error(fp_draws_data(without), "continuous covariates \\(temp_z\\)")
+
+  # occasions sheepdog could not score are not surveyed; occasions left out
+  # of `occasions` are dropped
+  copy <- file.path(tempdir(), "sheepdog-export-1.3-na")
+  dir.create(copy, showWarnings = FALSE)
+  file.copy(list.files(dir, full.names = TRUE), copy, overwrite = TRUE)
+  na_occ <- first$occasion_id[1]
+  od$y[od$occasion_id == na_occ] <- NA
+  unlink(file.path(copy, "occasion_draws.parquet"))
+  arrow::write_parquet(od, file.path(copy, "occasion_draws.parquet"))
+  x <- suppressWarnings(fp_read_sheepdog(copy, species = "phy_cuv"))
+  design <- function(e) withCallingHandlers(
+    e, crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
+  expect_warning(v <- design(fp_draws_data(x)), "1 occasion\\(s\\) with predictions were not scored")
+  # fp_data() keeps only the surveyed occasions
+  expect_false(na_occ %in% v[[1]]$auto$occasion_id)
+  expect_equal(nrow(v[[1]]$auto), nrow(x$occasions) - 1)
+  keep <- !x$occasions$occasion_id %in% first$occasion_id[1:2]
+  expect_warning(v <- design(fp_draws_data(x, occasions = x$occasions[keep, ])),
+                 "2 occasion\\(s\\) with predictions are not in `occasions`")
+  expect_equal(nrow(v[[1]]$auto), sum(keep))
+})

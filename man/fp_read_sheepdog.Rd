@@ -69,7 +69,9 @@ schema version 1.1) are extra columns of \code{occasions}. The calibration draws
 (\code{calibration_draws.parquet}) and the detection histories sheepdog
 drew from them (\code{occasion_draws.parquet}, schema 1.2), when present, are
 not read here; their
-path is in \code{files}.
+path is in \code{files}. When the calibration has continuous covariates
+(\code{schema$calibration$covariates}, schema 1.3), the export holds only the
+histories sheepdog drew, and no calibration draws.
 }
 \examples{
 \dontrun{

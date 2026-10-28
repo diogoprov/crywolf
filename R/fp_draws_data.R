@@ -59,6 +59,18 @@
 #' `p_min` (`"threshold"`), at least the draws asked for, and every
 #' prediction has its occasion in `occasions`; the values are the same.
 #'
+#' **Calibrations with continuous covariates.** When the calibration has
+#' continuous covariates (`schema$calibration$covariates`, schema 1.3, such
+#' as a standardised temperature of the night), the probability that a
+#' prediction is true depends on its occasion, not only on its score, and
+#' sheepdog draws the histories when it exports; the export holds no
+#' calibration draws. The histories are then read as they are: `rule`,
+#' `p_min` and `seed` left at their defaults take the values of the export,
+#' and other values, or more draws than were drawn, are an error (export
+#' again). Occasions sheepdog could not score (without a value of a
+#' covariate) are treated as not surveyed, with a warning, and occasions
+#' not in `occasions` are left out.
+#'
 #' The recordings annotated by ear (`x$verified`) are the verified
 #' occasions of every version: they do not depend on the calibration. The
 #' reviewed clips (`x$validation`) are not used here; they are the data of
@@ -87,101 +99,129 @@
 fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
                           n_draws = NULL, seed = NULL, occasions = x$occasions,
                           sites = x$sites, site = "site") {
+  rule_given <- !missing(rule)
+  p_min_given <- !missing(p_min)
   rule <- match.arg(rule)
   if (!inherits(x, "fp_sheepdog")) {
     stop("`x` must be an export read by fp_read_sheepdog().", call. = FALSE)
   }
-  if (!"calibration_draws" %in% names(x$files) || is.null(x$schema$calibration)) {
+  # continuous covariates of the calibration (schema 1.3): sheepdog drew the
+  # histories when it exported, and there are no calibration draws to draw
+  # them from here
+  covariates <- unlist(x$schema$calibration$covariates)
+  if (is.null(x$schema$calibration) ||
+      (!length(covariates) && !"calibration_draws" %in% names(x$files))) {
     stop("The export has no calibration draws; write it with ",
          "sheepdog::export_occupancy_data(fit = ).", call. = FALSE)
   }
   .require_pkg("arrow")
   .check_df(occasions, "occasions", c("site", "occasion_id", site))
-  cal <- as.data.frame(arrow::read_parquet(x$files[["calibration_draws"]]))
-  # the origin of the grid with the exact bits sheepdog used: the value
-  # read back from schema.json can differ in the last digit and send a
-  # score half-way between two points to the other one
-  grid_min <- min(cal$confidence[cal$grid_index == 1])
   det <- x$detections
   if (length(unique(det$species)) > 1) {
     stop("The export holds several species; read it with ",
          "fp_read_sheepdog(species = ) set to the target species.", call. = FALSE)
   }
-  cal <- cal[cal$species %in% unique(det$species), , drop = FALSE]
-  ids <- sort(unique(cal$draw))
-  if (!is.null(n_draws)) ids <- utils::head(ids, n_draws)
-
-  # keys of the calibration beyond site, species and the grid (such as
-  # "month"): columns of the occasions of the export and of the parquet
-  keys <- setdiff(unlist(x$schema$calibration$keys), c("site", "species", "grid_index"))
-  # (a key column the schema does not announce shows up below as several
-  # values per key and draw)
-  if (!all(keys %in% names(cal))) {
-    stop("schema.json and calibration_draws.parquet disagree on the keys of ",
-         "the calibration: the parquet lacks ",
-         paste(setdiff(keys, names(cal)), collapse = ", "), ".", call. = FALSE)
-  }
-  oe <- x$occasions
-  # exports of schema 1.0 have no month column: the month of recording
-  if ("month" %in% keys && !"month" %in% names(oe)) {
-    oe$month <- substr(oe$recording_date, 1, 6)
-  }
-  if (!all(keys %in% names(oe))) {
-    stop("The occasions of the export lack the calibration key(s) ",
-         paste(setdiff(keys, names(oe)), collapse = ", "), ".", call. = FALSE)
-  }
-  e <- match(paste(det$site, det$occasion_id, sep = "\r"),
-             paste(oe$site, oe$occasion_id, sep = "\r"))
-  det_keys <- lapply(keys, function(k) as.character(oe[[k]][e]))
-  # P(TP) as a matrix: one row per site x species (x keys) x grid point,
-  # one column per draw
-  key <- function(...) paste(..., sep = "\r")
-  cal <- cal[cal$draw %in% ids, , drop = FALSE]
-  cal_key <- do.call(key, c(list(cal$site, cal$species),
-                            lapply(keys, function(k) as.character(cal[[k]])),
-                            list(cal$grid_index)))
-  rows <- unique(cal_key)
-  if (anyDuplicated(cbind(cal_key, cal$draw))) {
-    stop("calibration_draws.parquet has more than one value for some key and ",
-         "draw; is a key column missing from schema.json?", call. = FALSE)
-  }
-  P <- matrix(NA_real_, length(rows), length(ids))
-  P[cbind(match(cal_key, rows), match(cal$draw, ids))] <- cal$p_tp
-  step <- x$schema$calibration$grid_step
-  g <- round((det$confidence - grid_min) / step) + 1
-  g <- pmin(pmax(g, 1), max(cal$grid_index))
   occ_key <- paste(occasions$site, occasions$occasion_id, sep = "\r")
   if (anyDuplicated(occ_key)) {
     stop("`occasions` must have one row per site and occasion_id.", call. = FALSE)
   }
-  o <- match(paste(det$site, det$occasion_id, sep = "\r"), occ_key)
-  k <- match(do.call(key, c(list(det$site, det$species), det_keys, list(g))), rows)
-  # an occasion without a value of a key cannot be matched to a calibration
-  k[Reduce(`|`, lapply(det_keys, is.na), FALSE)] <- NA
-  if (any(is.na(o))) {
-    warning(sum(is.na(o)), " prediction(s) are not in `occasions` and were ",
-            "left out.", call. = FALSE)
+  if (length(covariates)) {
+    d <- .covariate_draws(x, if (rule_given) rule, if (p_min_given) p_min, seed,
+                          n_draws, unique(det$species))
+    ids <- d$ids
+    rule <- d$rule
+    saved <- d$saved
+    o <- match(paste(saved$site, saved$occasion_id, sep = "\r"), occ_key)
+    if (anyNA(o)) {
+      warning(length(unique(paste(saved$site, saved$occasion_id)[is.na(o)])),
+              " occasion(s) with predictions are not in `occasions` and were ",
+              "left out.", call. = FALSE)
+    }
+    saved <- saved[!is.na(o), , drop = FALSE]
+    n_na <- sum(is.na(saved$y[saved$draw == ids[1]]))
+    if (n_na) {
+      warning(n_na, " occasion(s) with predictions were not scored by sheepdog ",
+              "(no value of a covariate or key of the calibration): they are ",
+              "treated as not surveyed.", call. = FALSE)
+    }
+  } else {
+    cal <- as.data.frame(arrow::read_parquet(x$files[["calibration_draws"]]))
+    # the origin of the grid with the exact bits sheepdog used: the value
+    # read back from schema.json can differ in the last digit and send a
+    # score half-way between two points to the other one
+    grid_min <- min(cal$confidence[cal$grid_index == 1])
+    cal <- cal[cal$species %in% unique(det$species), , drop = FALSE]
+    ids <- sort(unique(cal$draw))
+    if (!is.null(n_draws)) ids <- utils::head(ids, n_draws)
+
+    # keys of the calibration beyond site, species and the grid (such as
+    # "month"): columns of the occasions of the export and of the parquet
+    keys <- setdiff(unlist(x$schema$calibration$keys), c("site", "species", "grid_index"))
+    # (a key column the schema does not announce shows up below as several
+    # values per key and draw)
+    if (!all(keys %in% names(cal))) {
+      stop("schema.json and calibration_draws.parquet disagree on the keys of ",
+           "the calibration: the parquet lacks ",
+           paste(setdiff(keys, names(cal)), collapse = ", "), ".", call. = FALSE)
+    }
+    oe <- x$occasions
+    # exports of schema 1.0 have no month column: the month of recording
+    if ("month" %in% keys && !"month" %in% names(oe)) {
+      oe$month <- substr(oe$recording_date, 1, 6)
+    }
+    if (!all(keys %in% names(oe))) {
+      stop("The occasions of the export lack the calibration key(s) ",
+           paste(setdiff(keys, names(oe)), collapse = ", "), ".", call. = FALSE)
+    }
+    e <- match(paste(det$site, det$occasion_id, sep = "\r"),
+               paste(oe$site, oe$occasion_id, sep = "\r"))
+    det_keys <- lapply(keys, function(k) as.character(oe[[k]][e]))
+    # P(TP) as a matrix: one row per site x species (x keys) x grid point,
+    # one column per draw
+    key <- function(...) paste(..., sep = "\r")
+    cal <- cal[cal$draw %in% ids, , drop = FALSE]
+    cal_key <- do.call(key, c(list(cal$site, cal$species),
+                              lapply(keys, function(k) as.character(cal[[k]])),
+                              list(cal$grid_index)))
+    rows <- unique(cal_key)
+    if (anyDuplicated(cbind(cal_key, cal$draw))) {
+      stop("calibration_draws.parquet has more than one value for some key and ",
+           "draw; is a key column missing from schema.json?", call. = FALSE)
+    }
+    P <- matrix(NA_real_, length(rows), length(ids))
+    P[cbind(match(cal_key, rows), match(cal$draw, ids))] <- cal$p_tp
+    step <- x$schema$calibration$grid_step
+    g <- round((det$confidence - grid_min) / step) + 1
+    g <- pmin(pmax(g, 1), max(cal$grid_index))
+    o <- match(paste(det$site, det$occasion_id, sep = "\r"), occ_key)
+    k <- match(do.call(key, c(list(det$site, det$species), det_keys, list(g))), rows)
+    # an occasion without a value of a key cannot be matched to a calibration
+    k[Reduce(`|`, lapply(det_keys, is.na), FALSE)] <- NA
+    if (any(is.na(o))) {
+      warning(sum(is.na(o)), " prediction(s) are not in `occasions` and were ",
+              "left out.", call. = FALSE)
+    }
+    # an occasion with a prediction that has no calibration cannot be scored:
+    # it is treated as not surveyed (y = NA), not as a non-detection
+    unscored <- unique(o[is.na(k) & !is.na(o)])
+    if (length(unscored)) {
+      warning(sum(is.na(k) & !is.na(o)), " prediction(s) of site x species",
+              paste0(" x ", keys, collapse = ""), " without calibration draws",
+              if (length(keys)) " or without a value of a key", ": their ",
+              length(unscored), " occasion(s) are treated as not surveyed.",
+              call. = FALSE)
+    }
+    # the histories sheepdog drew with the same settings, when it wrote them
+    # (occasion_draws.parquet, schema 1.2): the same values, computed once
+    saved <- .saved_occasion_draws(x, rule, p_min, seed, ids, unique(det$species),
+                                   complete = !anyNA(o))
+    keep <- !is.na(k) & !is.na(o) & !(o %in% unscored)
+    if (!any(keep)) {
+      stop("No prediction could be matched to the calibration draws.", call. = FALSE)
+    }
+    k <- k[keep]
+    o <- o[keep]
   }
-  # an occasion with a prediction that has no calibration cannot be scored:
-  # it is treated as not surveyed (y = NA), not as a non-detection
-  unscored <- unique(o[is.na(k) & !is.na(o)])
-  if (length(unscored)) {
-    warning(sum(is.na(k) & !is.na(o)), " prediction(s) of site x species",
-            paste0(" x ", keys, collapse = ""), " without calibration draws",
-            if (length(keys)) " or without a value of a key", ": their ",
-            length(unscored), " occasion(s) are treated as not surveyed.",
-            call. = FALSE)
-  }
-  # the histories sheepdog drew with the same settings, when it wrote them
-  # (occasion_draws.parquet, schema 1.2): the same values, computed once
-  saved <- .saved_occasion_draws(x, rule, p_min, seed, ids, unique(det$species),
-                                 complete = !anyNA(o))
-  keep <- !is.na(k) & !is.na(o) & !(o %in% unscored)
-  if (!any(keep)) {
-    stop("No prediction could be matched to the calibration draws.", call. = FALSE)
-  }
-  k <- k[keep]
-  o <- o[keep]
 
   verified <- x$verified
   if (!is.null(verified) && site != "site") {
@@ -250,4 +290,46 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
   saved <- saved[saved$species %in% species & saved$draw %in% ids, , drop = FALSE]
   if (!all(ids %in% saved$draw)) return(NULL)
   saved
+}
+
+# The detection histories sheepdog drew at export for a calibration with
+# continuous covariates (schema 1.3), the only ones there are: `rule`,
+# `p_min` and `seed` left NULL take the ones of the export, and other values
+# are an error. A list with `saved` (occasion_draws.parquet, target species,
+# the draws used), `ids` and `rule`.
+.covariate_draws <- function(x, rule, p_min, seed, n_draws, species) {
+  od <- x$schema$occasion_draws
+  covariates <- paste(unlist(x$schema$calibration$covariates), collapse = ", ")
+  again <- paste0("; export it again with sheepdog::export_occupancy_data() ",
+                  "set to the histories needed.")
+  if (is.null(od) || !"occasion_draws" %in% names(x$files)) {
+    stop("The calibration of the export has continuous covariates (", covariates,
+         ") and the export holds no histories drawn by sheepdog ",
+         "(occasion_draws.parquet)", again, call. = FALSE)
+  }
+  differ <- function(what, asked, drawn) {
+    stop("The calibration of the export has continuous covariates (", covariates,
+         "), so the histories can only be those sheepdog drew, with ", what, " = ",
+         drawn, ", not ", asked, again, call. = FALSE)
+  }
+  if (!all(species %in% unlist(od$species))) {
+    differ("species", paste(species, collapse = ", "),
+           paste(unlist(od$species), collapse = ", "))
+  }
+  if (is.null(rule)) rule <- od$rule
+  if (!identical(rule, od$rule)) differ("rule", dQuote(rule, FALSE), dQuote(od$rule, FALSE))
+  if (rule == "sample" && !is.null(seed) && !isTRUE(all.equal(od$seed, seed))) {
+    differ("seed", seed, od$seed)
+  }
+  if (rule == "threshold" && !is.null(p_min) && !isTRUE(all.equal(od$p_min, p_min))) {
+    differ("p_min", p_min, od$p_min)
+  }
+  saved <- as.data.frame(arrow::read_parquet(x$files[["occasion_draws"]]))
+  saved <- saved[saved$species %in% species, , drop = FALSE]
+  ids <- sort(unique(saved$draw))
+  if (!is.null(n_draws)) {
+    if (n_draws > length(ids)) differ("n_draws", n_draws, length(ids))
+    ids <- utils::head(ids, n_draws)
+  }
+  list(saved = saved[saved$draw %in% ids, , drop = FALSE], ids = ids, rule = rule)
 }

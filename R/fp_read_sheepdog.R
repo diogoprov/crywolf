@@ -46,7 +46,9 @@
 #' (`calibration_draws.parquet`) and the detection histories sheepdog
 #' drew from them (`occasion_draws.parquet`, schema 1.2), when present, are
 #' not read here; their
-#' path is in `files`.
+#' path is in `files`. When the calibration has continuous covariates
+#' (`schema$calibration$covariates`, schema 1.3), the export holds only the
+#' histories sheepdog drew, and no calibration draws.
 #'
 #' @return A list of class `fp_sheepdog` with the data frames `occasions`
 #'   (`site`, `occasion_id`, `source_audio`, `recording_date`,
@@ -201,5 +203,8 @@ print.fp_sheepdog <- function(x, ...) {
                 paste(names(table(x$validation$sampling_mode)), collapse = ", ")))
   }
   cat(sprintf("  annotated recordings: %d\n", n(x$verified)))
+  if (!is.null(s$calibration)) {
+    cat("  calibration:          ", s$calibration$formula, "\n", sep = "")
+  }
   invisible(x)
 }

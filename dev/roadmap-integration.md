@@ -103,6 +103,15 @@ O que toca o crywolf, em ordem de prioridade:
   - Pendente do lado do sheepdog: rodar de novo o modo sazonal do
     `dev/benchmarks/curiango-export.R`, que agora usa
     `calibration_keys = "month"`.
+- **Calibração com covariável ambiental ou índice acústico (esquema 1.3,
+  aprovado em 28/10/2026):** proposta em
+  [`proposal-calibration-covariates.md`](proposal-calibration-covariates.md).
+  Com covariável contínua, o sheepdog sorteia as versões no export
+  (`occasion_draws.parquet` obrigatório, sem `calibration_draws.parquet`) e
+  o crywolf só as lê; análise de sensibilidade 2 × 2 (calibração com e sem
+  x, `fp ~ 1` e `fp ~ x`) até um cenário do fpcalib dizer qual é a
+  principal; sem pesos 1/`inclusion_prob`. Lado do crywolf depois do artigo
+  da MEE.
 - **Fase 2, modelo conjunto score–ocupação:** `fp_occu_score()`, função
   nova, com as distribuições dos scores dos verdadeiros e dos falsos
   positivos, o termo de Markov e o desenho de verificação. **Decidido em

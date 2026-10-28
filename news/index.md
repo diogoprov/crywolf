@@ -1,5 +1,25 @@
 # Changelog
 
+## crywolf (development version)
+
+### Integration with ‘sheepdog’ (experimental)
+
+- [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  reads exports of schema 1.3, whose calibration has continuous
+  covariates (`schema$calibration$covariates`, such as a standardised
+  temperature of the night). The probability that a prediction is true
+  then depends on its occasion, so sheepdog draws the histories when it
+  exports and writes no calibration draws:
+  [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  reads those histories as they are, takes `rule`, `p_min` and `seed`
+  from the export when they are left at their defaults, and stops with
+  an error when asked for other values or more draws. crywolf 2.1.0
+  stops with an error on these exports, rather than ignoring the
+  covariates.
+- The [`print()`](https://rdrr.io/r/base/print.html) method of
+  [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+  shows the formula of the calibration.
+
 ## crywolf 2.1.0
 
 ### Integration with ‘sheepdog’ (experimental)

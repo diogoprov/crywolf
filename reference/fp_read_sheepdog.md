@@ -81,7 +81,9 @@ read as text. The occasion covariates of the export
 columns of `occasions`. The calibration draws
 (`calibration_draws.parquet`) and the detection histories sheepdog drew
 from them (`occasion_draws.parquet`, schema 1.2), when present, are not
-read here; their path is in `files`.
+read here; their path is in `files`. When the calibration has continuous
+covariates (`schema$calibration$covariates`, schema 1.3), the export
+holds only the histories sheepdog drew, and no calibration draws.
 
 ## See also
 

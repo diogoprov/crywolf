@@ -115,6 +115,18 @@ drawn again when they were made for the target species with the same
 (`"threshold"`), at least the draws asked for, and every prediction has
 its occasion in `occasions`; the values are the same.
 
+**Calibrations with continuous covariates.** When the calibration has
+continuous covariates (`schema$calibration$covariates`, schema 1.3, such
+as a standardised temperature of the night), the probability that a
+prediction is true depends on its occasion, not only on its score, and
+sheepdog draws the histories when it exports; the export holds no
+calibration draws. The histories are then read as they are: `rule`,
+`p_min` and `seed` left at their defaults take the values of the export,
+and other values, or more draws than were drawn, are an error (export
+again). Occasions sheepdog could not score (without a value of a
+covariate) are treated as not surveyed, with a warning, and occasions
+not in `occasions` are left out.
+
 The recordings annotated by ear (`x$verified`) are the verified
 occasions of every version: they do not depend on the calibration. The
 reviewed clips (`x$validation`) are not used here; they are the data of

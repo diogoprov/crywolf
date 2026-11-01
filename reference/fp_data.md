@@ -18,7 +18,8 @@ fp_data(
   site = "site",
   y = "y",
   recorder = NULL,
-  confirmed = NULL
+  confirmed = NULL,
+  season = NULL
 )
 ```
 
@@ -70,13 +71,28 @@ fp_data(
   observation, and one without has none. See Details of
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
 
+- season:
+
+  Optional name of a column of `auto` (and of `verified`, if given)
+  holding the season, or primary period, of each occasion, for the
+  dynamic model. Seasons are ordered by the levels of a factor, and
+  otherwise by sorting their values, so numbers, dates and ISO dates as
+  text (such as `night` or `recording_date` of a 'sheepdog' export) all
+  work. Consecutive seasons are treated as one transition apart, even if
+  time between them is missing. A site without data in a season
+  contributes to that season only through the transitions of its
+  occupancy state.
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  ignores this column.
+
 ## Value
 
 An object of class `fp_data`: a list with the tables `auto`, `verified`
 and `sites` (rows with a missing detection dropped), the column names
-`site`, `y`, `recorder` and `confirmed`, and the vector `known_present`,
-which flags sites with at least one verified detection or confirmed true
-observation.
+`site`, `y`, `recorder`, `confirmed` and `season`, the vector
+`known_present`, which flags sites with at least one verified detection
+or confirmed true observation, and, with `season`, the seasons in time
+order in `seasons`.
 
 ## Details
 
@@ -86,7 +102,10 @@ no automated occasion (often a failed join of `auto` and `sites`), very
 unequal automated effort among sites (ten times or more), automated
 occasions that are all detections or all non-detections, verified data
 without any detection, and confirmed occasions without any false
-observation.
+observation. With `season`, it also warns about seasons without data at
+any site (unused levels of a factor) and about seasons without verified
+or confirmed data, in which colonization and extinction are hard to tell
+from false positives.
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 builds `auto` from classifier output.
 

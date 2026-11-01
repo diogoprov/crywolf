@@ -105,12 +105,21 @@ names: see
 `markov`, `design`, `data`, `random_recorder`, `random_fp`,
 `random_det`, `priors`, `sampler`, `diagnostics` and `call`. Its methods
 are [`print()`](https://rdrr.io/r/base/print.html),
-[`summary()`](https://rdrr.io/r/base/summary.html) and
-[`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html).
+[`summary()`](https://rdrr.io/r/base/summary.html),
+[`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)
+and [`simulate()`](https://rdrr.io/r/stats/simulate.html);
+[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+gives the occupancy of each site-season and
+[`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) checks
+the fit.
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns an object of
 class `summary.fp_occu`, as for
-[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+whose table has also a `season` column: the season of the derived
+quantities `psi_mean[t]`, `psi_fs[t]` and `turnover[t]`, and empty for
+the other rows (see
+[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md)).
 
 ## Details
 
@@ -134,24 +143,29 @@ like a colonization followed by an extinction: without verified or
 confirmed data in the seasons, the two processes are hard to separate
 from false positives.
 
+The fit also gives, per season, the expected and the realized occupancy
+over sites (`psi_mean`, `psi_fs`) and the turnover, and, with constant
+transitions, the equilibrium occupancy (`psi_eq`); see
+[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md).
+[`summary()`](https://rdrr.io/r/base/summary.html) lists them with their
+season; [`print()`](https://rdrr.io/r/base/print.html) shows only the
+parameters.
+
 ## See also
 
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
 [crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md)
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-# three seasons of two occasions each, from a single-season simulation
-sim <- simulate_fp(nsite = 150, nocc = 6, frac_verified = 0.3, seed = 1)
-d <- sim$data
-d$auto$season <- ceiling(d$auto$occasion / 2)
-d$verified$season <- ceiling(d$verified$occasion * 3 / max(d$verified$occasion))
-dd <- fp_data(d$auto, d$sites, verified = d$verified, season = "season")
-m <- fp_occu_dyn(dd, psi1 = ~ x, col = ~ 1, ext = ~ 1, fp = ~ 1,
+s <- simulate_fp_dyn(nsite = 150, nseason = 4, b_col = 1, b_ext = -1, seed = 1)
+m <- fp_occu_dyn(s$data, psi1 = ~ x, col = ~ rain, ext = ~ x,
                  random_recorder = FALSE)
 m
+head(fp_sites(m))   # one row per site-season
 } # }
 ```

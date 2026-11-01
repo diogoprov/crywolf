@@ -20,7 +20,8 @@ plot(x, coords = NULL, ...)
 
 - object:
 
-  An `fp_occu` object.
+  An `fp_occu` object, or an `fp_occu_dyn` object (experimental; see
+  Details).
 
 - prob:
 
@@ -51,17 +52,31 @@ plot(x, coords = NULL, ...)
 
 ## Value
 
-A data frame of class `fp_sites`, one row per site, with the site
-columns of the data, `psi` (occupancy probability, with `psi_lower` and
-`psi_upper`), `occupied` (posterior probability that the site is
-occupied given its data), `occupied_lower` and `occupied_upper`
-(quantiles over the posterior draws of that conditional probability;
-they show how much it depends on the uncertain parameters, not the
-uncertainty of the occupancy state itself, which `occupied` already
-gives), `p10` (posterior mean false-positive rate, when the model has
-false positives), `detections` (number of automated detections), and
-`verified` (whether a verified detection proves occupancy).
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws it.
+A data frame of class `fp_sites`, one row per site (per site-season for
+a dynamic model), with the site columns of the data, `psi` (occupancy
+probability, with `psi_lower` and `psi_upper`), `occupied` (posterior
+probability that the site is occupied given its data), `occupied_lower`
+and `occupied_upper` (quantiles over the posterior draws of that
+conditional probability; they show how much it depends on the uncertain
+parameters, not the uncertainty of the occupancy state itself, which
+`occupied` already gives), `p10` (posterior mean false-positive rate,
+when the model has false positives), `detections` (number of automated
+detections), and `verified` (whether a verified detection proves
+occupancy). [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+draws it.
+
+## Details
+
+For a dynamic model
+([`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md))
+the result has one row per site and season, with the site and season
+columns and the season covariates. `psi` is then the probability of
+occupancy in that season given the covariates alone (initial occupancy
+carried forward by colonization and extinction), and `occupied` the
+probability that the site-season is occupied given all the data of the
+site, in every season (computed by the forward-backward algorithm for
+each posterior draw). `detections`, `verified` and `p10` refer to the
+site-season.
 
 ## Examples
 

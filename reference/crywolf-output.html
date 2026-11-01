@@ -203,8 +203,20 @@ and <code>col_&lt;term&gt;</code>, and of extinction, <code>ext_(Intercept)</cod
 between consecutive seasons. <code>p10_bar</code> averages over site-seasons in
 place of sites. <code>log_lik[i]</code> is the log-likelihood of site <code>i</code> over all
 its seasons. The raw Stan names are <code>beta[k]</code>, <code>beta_col[k]</code> and
-<code>beta_ext[k]</code>. Being experimental, these names may change in a minor
-version (see <a href="crywolf-api.html">crywolf-api</a>).</p>
+<code>beta_ext[k]</code>.</p>
+<p>Derived quantities, one per season <code>t</code> (numbered in the order of the
+seasons; <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> gives the season of each in its <code>season</code> column):
+<code>psi_mean[t]</code>, the occupancy probability expected from the covariates
+(initial occupancy carried forward by colonization and extinction),
+averaged over sites; <code>psi_fs[t]</code>, the realized occupancy, the share of
+sites occupied, with the states drawn from their joint posterior given
+the data by forward filtering, backward sampling; <code>turnover[t]</code>, for
+<code>t &gt;= 2</code>, the probability that a site occupied in season <code>t</code> was
+unoccupied in season <code>t - 1</code>, \(\sum_i (1 - \psi_{i,t-1})
+\gamma_{it} / \sum_i \psi_{it}\), with the expected occupancy \(\psi\); and, when
+colonization and extinction have only an intercept, <code>psi_eq</code>, the
+equilibrium occupancy \(\gamma / (\gamma + \epsilon)\). Being experimental, these names may change in a minor version
+(see <a href="crywolf-api.html">crywolf-api</a>).</p>
     </div>
     <div class="section level2">
     <h2 id="readable-draws-and-raw-stan-names">Readable draws and raw Stan names<a class="anchor" aria-label="anchor" href="#readable-draws-and-raw-stan-names"></a></h2>

@@ -33,6 +33,11 @@ Fit the model and inspect, summarize, predict, and compare fits.
 
 - [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) :
   Fit a Bayesian false-positive occupancy model
+- [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  [`print(`*`<fp_occu_dyn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  [`summary(`*`<fp_occu_dyn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  [`as_draws_df(`*`<fp_occu_dyn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  : Dynamic (multi-season) false-positive occupancy model
 - [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`summary(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`print(`*`<summary.fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
@@ -92,6 +97,8 @@ design.
 
 - [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
   : Simulate data for a false-positive occupancy model
+- [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
+  : Simulate data for a dynamic false-positive occupancy model
 - [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
   : Simulation-based calibration check for a study design
 - [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
@@ -103,6 +110,8 @@ design.
   : Simulation-based calibration
 - [`simulate(`*`<fp_occu>`*`)`](https://provetelab.org/crywolf/reference/simulate.fp_occu.md)
   : Simulate data from a fitted model
+- [`simulate(`*`<fp_occu_dyn>`*`)`](https://provetelab.org/crywolf/reference/simulate.fp_occu_dyn.md)
+  : Simulate data from a fitted dynamic model
 - [`plot(`*`<fp_calibration>`*`)`](https://provetelab.org/crywolf/reference/plot.fp_calibration.md)
   : Plot the results of a calibration check
 

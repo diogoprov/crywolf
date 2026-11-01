@@ -35,6 +35,7 @@
 <url><loc>https://provetelab.org/crywolf/reference/fp_loo_weights.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_occu-methods.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_occu.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/fp_occu_dyn.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_occu_mc.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_ppc.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_prior_predictive.html</loc></url>
@@ -54,6 +55,8 @@
 <url><loc>https://provetelab.org/crywolf/reference/plot.fp_ppc.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/reexports.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/simulate.fp_occu.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/simulate.fp_occu_dyn.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/simulate_fp.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/simulate_fp_dyn.html</loc></url>
 </urlset>
 

@@ -2,11 +2,54 @@
 
 ## crywolf (development version)
 
-### Dynamic model (in development)
+### Dynamic model (experimental)
 
+- New
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
+  experimental: the false-positive occupancy model over several seasons,
+  with initial occupancy (`psi1`), colonization (`col`) and extinction
+  (`ext`) formulas on site and season covariates. Within each season the
+  observation model is that of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  with all its options. The states are summed out by the forward
+  algorithm. It has [`print()`](https://rdrr.io/r/base/print.html),
+  [`summary()`](https://rdrr.io/r/base/summary.html) and
+  [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)
+  methods; its output names (`psi1_*`, `col_*`, `ext_*`) are documented
+  in `crywolf-output`.
+- With a
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  fit,
+  [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  returns one row per site and season, with the occupancy expected from
+  the covariates (`psi`) and the probability that the site-season is
+  occupied given all the data of the site (`occupied`, by
+  forward-backward over seasons).
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md)
+  checks detections per site-season, with the latent states drawn
+  jointly over seasons by forward filtering, backward sampling, and
+  [`simulate()`](https://rdrr.io/r/stats/simulate.html) draws new states
+  and detections with the structure of the data.
+- New
+  [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
+  experimental: simulates data for
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
+  with colonization on a season covariate and initial occupancy and
+  extinction on a site covariate.
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  gains `season_covs`, covariates of each season or of each site and
+  season.
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  fills in seasons that are dates (`Date`, or text as `YYYY-MM-DD` or
+  `YYYYMMDD`, like `night` and `recording_date` of a ‘sheepdog’ export):
+  the dates missing between the first and the last are added as seasons
+  without data, so that every transition spans the same time (one night
+  for nightly seasons). It warns when dates or numbers are unevenly
+  spaced and cannot be filled in.
 - [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   gains `season`, the column of the season (primary period) of each
-  automated and verified occasion, for the dynamic model to come.
+  automated and verified occasion, for
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md).
   Seasons follow the levels of a factor or the sorted values, so `night`
   or `recording_date` of a ‘sheepdog’ export work as they are.
   [`print()`](https://rdrr.io/r/base/print.html) shows the number of
@@ -18,8 +61,8 @@
   ignores the column.
 - The Stan program keeps the likelihood of each site’s observations
   given that it is occupied and given that it is not (its emissions) in
-  `fp_emissions.stanfunctions`, which `fp_occu.stan` includes and the
-  dynamic model will share.
+  `fp_emissions.stanfunctions`, which `fp_occu.stan` includes and
+  `fp_occu_dyn.stan` shares.
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   gives the same draws as before.
 

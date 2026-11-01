@@ -83,7 +83,8 @@ detection matrices, as in 'unmarked'.</p>
 <span>  y <span class="op">=</span> <span class="st">"y"</span>,</span>
 <span>  recorder <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  confirmed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  season <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  season <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  season_covs <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -140,10 +141,25 @@ given) holding the season, or primary period, of each occasion, for the
 dynamic model. Seasons are ordered by the levels of a factor, and
 otherwise by sorting their values, so numbers, dates and ISO dates as
 text (such as <code>night</code> or <code>recording_date</code> of a 'sheepdog' export) all
-work. Consecutive seasons are treated as one transition apart, even if
-time between them is missing. A site without data in a season
-contributes to that season only through the transitions of its
-occupancy state. <code><a href="fp_occu.html">fp_occu()</a></code> ignores this column.</p></dd>
+work. When the seasons are dates (<code>Date</code>, or text as <code>YYYY-MM-DD</code> or
+<code>YYYYMMDD</code>), the dates missing between the first and the last are added
+as seasons without data, in steps of the shortest interval between
+seasons, so that every transition spans the same time (one night, for
+nightly seasons, even when no site recorded on some nights). Other
+seasons (numbers, factors, other text) are taken as they come:
+consecutive seasons are one transition apart, whatever the time between
+them. A site without data in a season contributes to that season only
+through the transitions of its occupancy state. <code><a href="fp_occu.html">fp_occu()</a></code> ignores
+this column.</p></dd>
+
+
+<dt id="arg-season-covs">season_covs<a class="anchor" aria-label="anchor" href="#arg-season-covs"></a></dt>
+<dd><p>Optional data frame of covariates of the seasons, for
+the colonization, extinction and initial occupancy formulas of
+<code><a href="fp_occu_dyn.html">fp_occu_dyn()</a></code> (and its detection and false-positive formulas). It has
+the season column named by <code>season</code> and, for covariates that vary among
+sites too, the site column; one row per season, or per site and season.
+Seasons added between dates need rows only if a formula uses them.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -153,7 +169,9 @@ occupancy state. <code><a href="fp_occu.html">fp_occu()</a></code> ignores this 
 column names <code>site</code>, <code>y</code>, <code>recorder</code>, <code>confirmed</code> and <code>season</code>, the
 vector <code>known_present</code>, which flags sites with at least one verified
 detection or confirmed true observation, and, with <code>season</code>, the
-seasons in time order in <code>seasons</code>.</p>
+seasons in time order in <code>seasons</code>, the step between dates in days in
+<code>season_step</code> (<code>NULL</code> for seasons that are not dates) and the table
+<code>season_covs</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -164,9 +182,10 @@ unequal automated effort among sites (ten times or more), automated
 occasions that are all detections or all non-detections, verified data
 without any detection, and confirmed occasions without any false
 observation. With <code>season</code>, it also warns about seasons without data at
-any site (unused levels of a factor) and about seasons without verified
-or confirmed data, in which colonization and extinction are hard to tell
-from false positives.
+any site (unused levels of a factor, or dates added between the first
+and the last), about seasons without verified or confirmed data, in which
+colonization and extinction are hard to tell from false positives, and
+about seasons at unequal intervals that could not be filled in.
 <code><a href="fp_aggregate.html">fp_aggregate()</a></code> builds <code>auto</code> from classifier output.</p>
     </div>
     <div class="section level2">

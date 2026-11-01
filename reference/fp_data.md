@@ -19,7 +19,8 @@ fp_data(
   y = "y",
   recorder = NULL,
   confirmed = NULL,
-  season = NULL
+  season = NULL,
+  season_covs = NULL
 )
 ```
 
@@ -78,12 +79,27 @@ fp_data(
   dynamic model. Seasons are ordered by the levels of a factor, and
   otherwise by sorting their values, so numbers, dates and ISO dates as
   text (such as `night` or `recording_date` of a 'sheepdog' export) all
-  work. Consecutive seasons are treated as one transition apart, even if
-  time between them is missing. A site without data in a season
-  contributes to that season only through the transitions of its
-  occupancy state.
+  work. When the seasons are dates (`Date`, or text as `YYYY-MM-DD` or
+  `YYYYMMDD`), the dates missing between the first and the last are
+  added as seasons without data, in steps of the shortest interval
+  between seasons, so that every transition spans the same time (one
+  night, for nightly seasons, even when no site recorded on some
+  nights). Other seasons (numbers, factors, other text) are taken as
+  they come: consecutive seasons are one transition apart, whatever the
+  time between them. A site without data in a season contributes to that
+  season only through the transitions of its occupancy state.
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
   ignores this column.
+
+- season_covs:
+
+  Optional data frame of covariates of the seasons, for the
+  colonization, extinction and initial occupancy formulas of
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  (and its detection and false-positive formulas). It has the season
+  column named by `season` and, for covariates that vary among sites
+  too, the site column; one row per season, or per site and season.
+  Seasons added between dates need rows only if a formula uses them.
 
 ## Value
 
@@ -92,7 +108,8 @@ and `sites` (rows with a missing detection dropped), the column names
 `site`, `y`, `recorder`, `confirmed` and `season`, the vector
 `known_present`, which flags sites with at least one verified detection
 or confirmed true observation, and, with `season`, the seasons in time
-order in `seasons`.
+order in `seasons`, the step between dates in days in `season_step`
+(`NULL` for seasons that are not dates) and the table `season_covs`.
 
 ## Details
 
@@ -103,9 +120,10 @@ unequal automated effort among sites (ten times or more), automated
 occasions that are all detections or all non-detections, verified data
 without any detection, and confirmed occasions without any false
 observation. With `season`, it also warns about seasons without data at
-any site (unused levels of a factor) and about seasons without verified
-or confirmed data, in which colonization and extinction are hard to tell
-from false positives.
+any site (unused levels of a factor, or dates added between the first
+and the last), about seasons without verified or confirmed data, in
+which colonization and extinction are hard to tell from false positives,
+and about seasons at unequal intervals that could not be filled in.
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 builds `auto` from classifier output.
 

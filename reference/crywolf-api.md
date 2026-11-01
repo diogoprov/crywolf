@@ -108,6 +108,14 @@ propagate a classifier calibration from 'sheepdog' into the model or
 pass data to 'unmarked', and are still being evaluated. Their arguments,
 classes and results may change in a minor version; the NEWS will say so.
 Each says so in its help.
+[`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
+the dynamic (multi-season) model, with the `fp_occu_dyn` class and its
+methods, and its simulator
+[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
+are experimental in the same way; the `season` and `season_covs`
+arguments of
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) that
+feed it are stable.
 [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md),
 by contrast, reads a versioned export format (`sheepdog-occupancy`,
 schema 1) and is stable.

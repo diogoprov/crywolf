@@ -192,6 +192,21 @@ its truth fields are <code>pars</code> (named generating coefficients), <code>z<
 <code>p10_site</code>, and <code>p10_bar</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="dynamic-model-experimental-">Dynamic model (experimental)<a class="anchor" aria-label="anchor" href="#dynamic-model-experimental-"></a></h2>
+
+
+<p><code><a href="fp_occu_dyn.html">fp_occu_dyn()</a></code> uses the names above, except that the coefficients of
+initial occupancy are <code>psi1_(Intercept)</code> and <code>psi1_&lt;term&gt;</code> (in place of
+<code>occ_*</code>), and adds the coefficients of colonization, <code>col_(Intercept)</code>
+and <code>col_&lt;term&gt;</code>, and of extinction, <code>ext_(Intercept)</code> and
+<code>ext_&lt;term&gt;</code>, on the logit scale of the probability per transition
+between consecutive seasons. <code>p10_bar</code> averages over site-seasons in
+place of sites. <code>log_lik[i]</code> is the log-likelihood of site <code>i</code> over all
+its seasons. The raw Stan names are <code>beta[k]</code>, <code>beta_col[k]</code> and
+<code>beta_ext[k]</code>. Being experimental, these names may change in a minor
+version (see <a href="crywolf-api.html">crywolf-api</a>).</p>
+    </div>
+    <div class="section level2">
     <h2 id="readable-draws-and-raw-stan-names">Readable draws and raw Stan names<a class="anchor" aria-label="anchor" href="#readable-draws-and-raw-stan-names"></a></h2>
 
 

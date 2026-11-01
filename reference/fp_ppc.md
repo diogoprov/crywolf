@@ -22,7 +22,10 @@ fp_ppc(
 
 - object:
 
-  An `fp_occu` object.
+  An `fp_occu` object, or an `fp_occu_dyn` object (experimental), for
+  which detections are summed per site and season and the latent states
+  are drawn jointly over seasons by forward filtering, backward
+  sampling.
 
 - method:
 
@@ -52,7 +55,8 @@ An object of class `fp_ppc`, a list with `y` (observed detections per
 site), `yrep` (matrix of replicated detections, draws in rows and sites
 in columns), `fit_obs` and `fit_rep` (discrepancy of the observed and
 replicated data, one value per draw), `p_value`, `site` (the site
-identifiers of the columns), `method`, and `fit_stat`.
+identifiers of the columns), `method`, and `fit_stat`; for a dynamic
+model, also `season`, the season of each column.
 
 ## Details
 

@@ -17,25 +17,6 @@
   [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)
   methods; its output names (`psi1_*`, `col_*`, `ext_*`) are documented
   in `crywolf-output`.
-- With a
-  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
-  fit,
-  [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
-  returns one row per site and season, with the occupancy expected from
-  the covariates (`psi`) and the probability that the site-season is
-  occupied given all the data of the site (`occupied`, by
-  forward-backward over seasons).
-  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md)
-  checks detections per site-season, with the latent states drawn
-  jointly over seasons by forward filtering, backward sampling, and
-  [`simulate()`](https://rdrr.io/r/stats/simulate.html) draws new states
-  and detections with the structure of the data.
-- New
-  [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
-  experimental: simulates data for
-  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
-  with colonization on a season covariate and initial occupancy and
-  extinction on a site covariate.
 - [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   gains `season_covs`, covariates of each season or of each site and
   season.

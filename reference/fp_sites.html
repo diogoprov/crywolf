@@ -86,8 +86,7 @@ but a high false-positive rate can still be unlikely to be occupied.</p>
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>An <code>fp_occu</code> object, or an <code>fp_occu_dyn</code> object
-(experimental; see Details).</p></dd>
+<dd><p>An <code>fp_occu</code> object.</p></dd>
 
 
 <dt id="arg-prob">prob<a class="anchor" aria-label="anchor" href="#arg-prob"></a></dt>
@@ -119,8 +118,7 @@ the sites are ranked by it.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame of class <code>fp_sites</code>, one row per site (per
-site-season for a dynamic model), with the
+    <p>A data frame of class <code>fp_sites</code>, one row per site, with the
 site columns of the data, <code>psi</code> (occupancy probability, with <code>psi_lower</code>
 and <code>psi_upper</code>), <code>occupied</code> (posterior probability that the site is
 occupied given its data), <code>occupied_lower</code> and <code>occupied_upper</code>
@@ -131,17 +129,6 @@ gives), <code>p10</code> (posterior
 mean false-positive rate, when the model has false positives),
 <code>detections</code> (number of automated detections), and <code>verified</code> (whether
 a verified detection proves occupancy). <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws it.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For a dynamic model (<code><a href="fp_occu_dyn.html">fp_occu_dyn()</a></code>) the result has one row per site and
-season, with the site and season columns and the season covariates.
-<code>psi</code> is then the probability of occupancy in that season given the
-covariates alone (initial occupancy carried forward by colonization and
-extinction), and <code>occupied</code> the probability that the site-season is
-occupied given all the data of the site, in every season (computed by the
-forward-backward algorithm for each posterior draw). <code>detections</code>,
-<code>verified</code> and <code>p10</code> refer to the site-season.</p>
     </div>
 
     <div class="section level2">

@@ -24,8 +24,6 @@
   occasions](https://provetelab.org/crywolf/articles/fp_variation.md):
 - [Site effects on detection and false
   positives](https://provetelab.org/crywolf/articles/site_effects.md):
-- [Use from one night to the
-  next](https://provetelab.org/crywolf/articles/dynamic.md):
 
 ### Design and checks
 

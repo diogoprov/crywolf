@@ -30,7 +30,6 @@
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
-    <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -73,7 +72,6 @@
 <li>
 <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> gives derived quantities per season: expected occupancy over sites (<code>psi_mean[t]</code>), realized occupancy with the states drawn from their joint posterior (<code>psi_fs[t]</code>), turnover (<code>turnover[t]</code>) and, with intercept-only colonization and extinction, the equilibrium occupancy (<code>psi_eq</code>). <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> lists them with a <code>season</code> column.</li>
 <li>New <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code>, experimental: simulates data for <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>, with colonization on a season covariate and initial occupancy and extinction on a site covariate.</li>
-<li>New vignette <code>dynamic</code>: <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> on the <code>curiango</code> data with the nights of each site as seasons (use from one night to the next), compared with the model of independent site-nights by cross-validation on blocks of nights.</li>
 <li>
 <code><a href="../reference/fp_data.html">fp_data()</a></code> gains <code>season_covs</code>, covariates of each season or of each site and season.</li>
 <li>

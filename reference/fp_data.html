@@ -38,6 +38,7 @@ detection matrices, as in 'unmarked'."><meta property="og:image" content="https:
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -84,7 +85,8 @@ detection matrices, as in 'unmarked'.</p>
 <span>  recorder <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  confirmed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  season <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  season_covs <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  season_covs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -161,6 +163,18 @@ the season column named by <code>season</code> and, for covariates that vary amo
 sites too, the site column; one row per season, or per site and season.
 Seasons added between dates need rows only if a formula uses them.</p></dd>
 
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Optional name of a column of <code>auto</code> (and of <code>verified</code>, if
+given) holding the species, for the multispecies model, which is in
+development. The tables are then in long format by species too: one
+row per occasion and species, with every surveyed occasion present for
+every species (<code>y = 0</code> where the species was not detected), since the
+non-detections are data. The species are the levels of a factor, and
+otherwise the sorted values of <code>auto</code> and <code>verified</code>. It cannot be
+combined with <code>season</code> yet, and the single-species models refuse such
+data.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -171,7 +185,8 @@ vector <code>known_present</code>, which flags sites with at least one verified
 detection or confirmed true observation, and, with <code>season</code>, the
 seasons in time order in <code>seasons</code>, the step between dates in days in
 <code>season_step</code> (<code>NULL</code> for seasons that are not dates) and the table
-<code>season_covs</code>.</p>
+<code>season_covs</code>. With <code>species</code>, the species in <code>species_names</code>, and
+<code>known_present</code> is a matrix of sites by species.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -185,7 +200,12 @@ observation. With <code>season</code>, it also warns about seasons without data 
 any site (unused levels of a factor, or dates added between the first
 and the last), about seasons without verified or confirmed data, in which
 colonization and extinction are hard to tell from false positives, and
-about seasons at unequal intervals that could not be filled in.
+about seasons at unequal intervals that could not be filled in. With
+<code>species</code>, it warns about species never detected by the automated method,
+species without any verified detection, whose false-positive rates are
+then informed only by the other species and the priors, and sites where
+the species have unequal numbers of occasions (often occasions without a
+detection left out for some species).
 <code><a href="fp_aggregate.html">fp_aggregate()</a></code> builds <code>auto</code> from classifier output.</p>
     </div>
     <div class="section level2">

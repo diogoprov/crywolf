@@ -30,7 +30,7 @@ fp_draws_data(
   An export read by
   [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md),
   with calibration draws. Read it with `species` set to the target
-  species.
+  species, or to several species for the multispecies model (see Value).
 
 - rule:
 
@@ -79,7 +79,10 @@ fp_draws_data(
 A list of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
 objects, one per calibration draw, with the attributes `draws` (the draw
-identifiers) and `rule`.
+identifiers) and `rule`. When the detections hold several species, each
+version has every occasion once per species, with the column `species`
+(the short codes of sheepdog), as `fp_data(species = "species")`; the
+species are those with predictions.
 
 ## Details
 

@@ -2,6 +2,22 @@
 
 ## crywolf (development version)
 
+### Multispecies data (in development)
+
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  gains `species`, the column of the species, for the multispecies model
+  in development: one row per occasion and species. It warns about
+  species never detected, species without a verified detection, and
+  sites where the species have unequal numbers of occasions;
+  [`print()`](https://rdrr.io/r/base/print.html) adds a table by
+  species, and `known_present` is a matrix of sites by species. The
+  single-species models refuse such data.
+- [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  accepts an export read with several species
+  (`fp_read_sheepdog(species = )` naming them all) and returns data of
+  all of them, as `fp_data(species = "species")`, from the calibration
+  draws or the histories drawn by sheepdog.
+
 ### Dynamic model (experimental)
 
 - New
@@ -43,6 +59,11 @@
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
   with colonization on a season covariate and initial occupancy and
   extinction on a site covariate.
+- New vignette `dynamic`:
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  on the `curiango` data with the nights of each site as seasons (use
+  from one night to the next), compared with the model of independent
+  site-nights by cross-validation on blocks of nights.
 - [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   gains `season_covs`, covariates of each season or of each site and
   season.

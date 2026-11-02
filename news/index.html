@@ -30,6 +30,7 @@
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -59,12 +60,20 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
 <div class="section level3">
+<h3 id="multispecies-data-in-development-development-version">Multispecies data (in development)<a class="anchor" aria-label="anchor" href="#multispecies-data-in-development-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/fp_data.html">fp_data()</a></code> gains <code>species</code>, the column of the species, for the multispecies model in development: one row per occasion and species. It warns about species never detected, species without a verified detection, and sites where the species have unequal numbers of occasions; <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> adds a table by species, and <code>known_present</code> is a matrix of sites by species. The single-species models refuse such data.</li>
+<li>
+<code><a href="../reference/fp_draws_data.html">fp_draws_data()</a></code> accepts an export read with several species (<code>fp_read_sheepdog(species = )</code> naming them all) and returns data of all of them, as <code>fp_data(species = "species")</code>, from the calibration draws or the histories drawn by sheepdog.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="dynamic-model-experimental-development-version">Dynamic model (experimental)<a class="anchor" aria-label="anchor" href="#dynamic-model-experimental-development-version"></a></h3>
 <ul><li>New <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>, experimental: the false-positive occupancy model over several seasons, with initial occupancy (<code>psi1</code>), colonization (<code>col</code>) and extinction (<code>ext</code>) formulas on site and season covariates. Within each season the observation model is that of <code><a href="../reference/fp_occu.html">fp_occu()</a></code>, with all its options. The states are summed out by the forward algorithm. It has <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code> methods; its output names (<code>psi1_*</code>, <code>col_*</code>, <code>ext_*</code>) are documented in <code>crywolf-output</code>.</li>
 <li>With a <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> fit, <code><a href="../reference/fp_sites.html">fp_sites()</a></code> returns one row per site and season, with the occupancy expected from the covariates (<code>psi</code>) and the probability that the site-season is occupied given all the data of the site (<code>occupied</code>, by forward-backward over seasons). <code><a href="../reference/fp_ppc.html">fp_ppc()</a></code> checks detections per site-season, with the latent states drawn jointly over seasons by forward filtering, backward sampling, and <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> draws new states and detections with the structure of the data.</li>
 <li>
 <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> gives derived quantities per season: expected occupancy over sites (<code>psi_mean[t]</code>), realized occupancy with the states drawn from their joint posterior (<code>psi_fs[t]</code>), turnover (<code>turnover[t]</code>) and, with intercept-only colonization and extinction, the equilibrium occupancy (<code>psi_eq</code>). <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> lists them with a <code>season</code> column.</li>
 <li>New <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code>, experimental: simulates data for <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>, with colonization on a season covariate and initial occupancy and extinction on a site covariate.</li>
+<li>New vignette <code>dynamic</code>: <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> on the <code>curiango</code> data with the nights of each site as seasons (use from one night to the next), compared with the model of independent site-nights by cross-validation on blocks of nights.</li>
 <li>
 <code><a href="../reference/fp_data.html">fp_data()</a></code> gains <code>season_covs</code>, covariates of each season or of each site and season.</li>
 <li>

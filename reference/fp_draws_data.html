@@ -38,6 +38,7 @@ when at least one of its predictions is judged true under that draw."><meta prop
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -93,7 +94,8 @@ when at least one of its predictions is judged true under that draw.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>An export read by <code><a href="fp_read_sheepdog.html">fp_read_sheepdog()</a></code>, with calibration draws.
-Read it with <code>species</code> set to the target species.</p></dd>
+Read it with <code>species</code> set to the target species, or to several species
+for the multispecies model (see Value).</p></dd>
 
 
 <dt id="arg-rule">rule<a class="anchor" aria-label="anchor" href="#arg-rule"></a></dt>
@@ -138,7 +140,11 @@ of the model.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of <code><a href="fp_data.html">fp_data()</a></code> objects, one per calibration draw, with
-the attributes <code>draws</code> (the draw identifiers) and <code>rule</code>.</p>
+the attributes <code>draws</code> (the draw identifiers) and <code>rule</code>. When the
+detections hold several species, each version has every occasion once
+per species, with the column <code>species</code> (the short codes of sheepdog),
+as <code>fp_data(species = "species")</code>; the species are those with
+predictions.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -20,7 +20,8 @@ fp_data(
   recorder = NULL,
   confirmed = NULL,
   season = NULL,
-  season_covs = NULL
+  season_covs = NULL,
+  species = NULL
 )
 ```
 
@@ -101,6 +102,18 @@ fp_data(
   too, the site column; one row per season, or per site and season.
   Seasons added between dates need rows only if a formula uses them.
 
+- species:
+
+  Optional name of a column of `auto` (and of `verified`, if given)
+  holding the species, for the multispecies model, which is in
+  development. The tables are then in long format by species too: one
+  row per occasion and species, with every surveyed occasion present for
+  every species (`y = 0` where the species was not detected), since the
+  non-detections are data. The species are the levels of a factor, and
+  otherwise the sorted values of `auto` and `verified`. It cannot be
+  combined with `season` yet, and the single-species models refuse such
+  data.
+
 ## Value
 
 An object of class `fp_data`: a list with the tables `auto`, `verified`
@@ -110,6 +123,8 @@ and `sites` (rows with a missing detection dropped), the column names
 or confirmed true observation, and, with `season`, the seasons in time
 order in `seasons`, the step between dates in days in `season_step`
 (`NULL` for seasons that are not dates) and the table `season_covs`.
+With `species`, the species in `species_names`, and `known_present` is a
+matrix of sites by species.
 
 ## Details
 
@@ -123,7 +138,12 @@ observation. With `season`, it also warns about seasons without data at
 any site (unused levels of a factor, or dates added between the first
 and the last), about seasons without verified or confirmed data, in
 which colonization and extinction are hard to tell from false positives,
-and about seasons at unequal intervals that could not be filled in.
+and about seasons at unequal intervals that could not be filled in. With
+`species`, it warns about species never detected by the automated
+method, species without any verified detection, whose false-positive
+rates are then informed only by the other species and the priors, and
+sites where the species have unequal numbers of occasions (often
+occasions without a detection left out for some species).
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 builds `auto` from classifier output.
 

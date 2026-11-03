@@ -84,6 +84,7 @@ fp_gap_prior(n_true = 46, n_false = 4, p11 = 0.3, psi = 0.4)
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
+#>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
 # with uncertainty in p11
 fp_gap_prior(46, 4, p11 = rbeta(1000, 30, 70), psi = 0.4)
 #> <fp_priors> (logit scale)
@@ -93,4 +94,5 @@ fp_gap_prior(46, 4, p11 = rbeta(1000, 30, 70), psi = 0.4)
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
+#>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
 ```

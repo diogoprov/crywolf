@@ -13,7 +13,8 @@ fp_priors(
   gap_sd = 1.5,
   recorder_sd = 2,
   fp_site_sd = 1,
-  det_site_sd = 1
+  det_site_sd = 1,
+  species_sd = 1
 )
 ```
 
@@ -54,6 +55,14 @@ fp_priors(
   site random intercept on true detection
   (`fp_occu(random_det = TRUE)`).
 
+- species_sd:
+
+  Scale of the half-Normal(0, sd) priors on the standard deviations
+  among species of the multispecies model
+  ([`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)):
+  those of the occupancy coefficients and of the detection intercept, on
+  the logit scale, and that of the logarithm of the gap.
+
 ## Value
 
 A list of class `fp_priors`.
@@ -69,6 +78,7 @@ fp_priors()
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
+#>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
 fp_priors(slope_sd = 1)
 #> <fp_priors> (logit scale)
 #>   intercepts      ~ Normal(0, 1.5)
@@ -77,4 +87,5 @@ fp_priors(slope_sd = 1)
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
+#>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
 ```

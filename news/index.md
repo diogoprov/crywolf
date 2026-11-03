@@ -2,7 +2,7 @@
 
 ## crywolf (development version)
 
-### Multispecies data (in development)
+### Multispecies model (in development)
 
 - [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   gains `species`, the column of the species, for the multispecies model
@@ -17,6 +17,23 @@
   (`fp_read_sheepdog(species = )` naming them all) and returns data of
   all of them, as `fp_data(species = "species")`, from the calibration
   draws or the histories drawn by sheepdog.
+- New
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
+  in development: the false-positive occupancy model for several species
+  at once, with species-specific occupancy coefficients, detection
+  intercepts and gaps drawn from distributions of the community
+  (non-centred), and shared slopes of detection, false positives and the
+  verified method, and a shared recorder effect. It reuses the
+  likelihood of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  with site x species units, and has
+  [`print()`](https://rdrr.io/r/base/print.html),
+  [`summary()`](https://rdrr.io/r/base/summary.html) and
+  [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html)
+  methods; its output names are documented in `crywolf-output`.
+  [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
+  gains `species_sd`, the scale of the half-Normal priors on the
+  standard deviations among species.
 
 ### Dynamic model (experimental)
 

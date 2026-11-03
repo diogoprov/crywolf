@@ -184,6 +184,19 @@ returns a list of datasets, each with `data` and `truth`; its truth
 fields are `pars` (named generating coefficients), `z`, `p10_site`, and
 `p10_bar`.
 
+## Multispecies model (in development)
+
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+gives the community means under the names above (`occ_*`, `det_*`,
+`fp_*`, `fp_gap`, which is the median gap among species, and `p11_ref`,
+`p10_ref` at the community means), the standard deviations among species
+as `sd_occ_<term>`, `sd_det_(Intercept)` and `sd_log_fp_gap` (of the
+logarithm of the gap), and the values of each species with its name in
+brackets: `occ_<term>[species]`, `det_(Intercept)[species]`,
+`fp_gap[species]`, `p11_ref[species]` and `p10_ref[species]`. It has no
+`p10_bar`. `log_lik[i]` is the log-likelihood of unit `i`, site
+`(i - 1) %/% nspecies + 1` and species `(i - 1) %% nspecies + 1`.
+
 ## Dynamic model (experimental)
 
 [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)

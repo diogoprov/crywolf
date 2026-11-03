@@ -38,6 +38,11 @@ Fit the model and inspect, summarize, predict, and compare fits.
   [`summary(`*`<fp_occu_dyn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
   [`as_draws_df(`*`<fp_occu_dyn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
   : Dynamic (multi-season) false-positive occupancy model
+- [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  [`print(`*`<fp_occu_ms>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  [`summary(`*`<fp_occu_ms>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  [`as_draws_df(`*`<fp_occu_ms>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  : Multispecies false-positive occupancy model
 - [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`summary(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`print(`*`<summary.fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)

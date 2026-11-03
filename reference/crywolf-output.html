@@ -193,6 +193,21 @@ its truth fields are <code>pars</code> (named generating coefficients), <code>z<
 <code>p10_site</code>, and <code>p10_bar</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="multispecies-model-in-development-">Multispecies model (in development)<a class="anchor" aria-label="anchor" href="#multispecies-model-in-development-"></a></h2>
+
+
+<p><code><a href="fp_occu_ms.html">fp_occu_ms()</a></code> gives the community means under the names above
+(<code>occ_*</code>, <code>det_*</code>, <code>fp_*</code>, <code>fp_gap</code>, which is the median gap among
+species, and <code>p11_ref</code>, <code>p10_ref</code> at the community means), the
+standard deviations among species as <code>sd_occ_&lt;term&gt;</code>,
+<code>sd_det_(Intercept)</code> and <code>sd_log_fp_gap</code> (of the logarithm of the gap),
+and the values of each species with its name in brackets:
+<code>occ_&lt;term&gt;[species]</code>, <code>det_(Intercept)[species]</code>, <code>fp_gap[species]</code>,
+<code>p11_ref[species]</code> and <code>p10_ref[species]</code>. It has no <code>p10_bar</code>.
+<code>log_lik[i]</code> is the log-likelihood of unit <code>i</code>, site
+<code>(i - 1) %/% nspecies + 1</code> and species <code>(i - 1) %% nspecies + 1</code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="dynamic-model-experimental-">Dynamic model (experimental)<a class="anchor" aria-label="anchor" href="#dynamic-model-experimental-"></a></h2>
 
 

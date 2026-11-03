@@ -32,6 +32,7 @@ pr
 #>   sd_recorder     ~ half-Normal(0, 2)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
+#>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
 ```
 
 The sample must be random among the detections at the threshold you will

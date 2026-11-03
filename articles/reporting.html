@@ -157,7 +157,8 @@ mirror-image solution in which the two are swapped.</p>
 <span><span class="co">#&gt;   fp_gap          ~ Normal(2, 1.5), truncated at 0</span></span>
 <span><span class="co">#&gt;   sd_recorder     ~ half-Normal(0, 2)</span></span>
 <span><span class="co">#&gt;   sd_fp_site      ~ half-Normal(0, 1)</span></span>
-<span><span class="co">#&gt;   sd_det_site     ~ half-Normal(0, 1)</span></span></code></pre></div>
+<span><span class="co">#&gt;   sd_det_site     ~ half-Normal(0, 1)</span></span>
+<span><span class="co">#&gt;   sd among species ~ half-Normal(0, 1) (fp_occu_ms())</span></span></code></pre></div>
 <p>Give a reason for each, even a short one: the intercept and slope
 priors are weakly informative on the logit scale, and the gap prior
 expresses the belief that the classifier is right more often than not.

@@ -116,6 +116,12 @@ are experimental in the same way; the `season` and `season_covs`
 arguments of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) that
 feed it are stable.
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
+the multispecies model, with the `fp_occu_ms` class and its methods, is
+in development and experimental in the same way, as is the `species`
+argument of
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) that
+feeds it.
 [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md),
 by contrast, reads a versioned export format (`sheepdog-occupancy`,
 schema 1) and is stable.

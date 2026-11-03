@@ -105,14 +105,15 @@ fp_data(
 - species:
 
   Optional name of a column of `auto` (and of `verified`, if given)
-  holding the species, for the multispecies model, which is in
-  development. The tables are then in long format by species too: one
-  row per occasion and species, with every surveyed occasion present for
-  every species (`y = 0` where the species was not detected), since the
-  non-detections are data. The species are the levels of a factor, and
-  otherwise the sorted values of `auto` and `verified`. It cannot be
-  combined with `season` yet, and the single-species models refuse such
-  data.
+  holding the species, for the multispecies model
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
+  which is in development. The tables are then in long format by species
+  too: one row per occasion and species, with every surveyed occasion
+  present for every species (`y = 0` where the species was not
+  detected), since the non-detections are data. The species are the
+  levels of a factor, and otherwise the sorted values of `auto` and
+  `verified`. It cannot be combined with `season` yet, and the
+  single-species models refuse such data.
 
 ## Value
 

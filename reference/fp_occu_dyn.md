@@ -156,7 +156,9 @@ parameters.
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
 [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
-[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md)
+[crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md);
+[`vignette("dynamic")`](https://provetelab.org/crywolf/articles/dynamic.md)
+fits it to the `curiango` data, with the nights of each site as seasons.
 
 ## Examples
 

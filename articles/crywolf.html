@@ -52,6 +52,7 @@
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
+    <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -107,11 +108,13 @@ covariates on occupancy (Royle &amp; Link, 2006).</p>
 <p><strong>crywolf</strong> fits the multiple-methods false-positive
 occupancy model of Miller et al. (2011) in a Bayesian framework, using
 Stan through the ‘cmdstanr’ interface. In this design, the automated
-method runs at every site, and a subset of its output, or a separate
-survey, is verified by an expert, so that some detections are known to
-be correct. The verified data tell the model how often the automated
-method is wrong. Chambert et al. (2015) and Clare et al. (2021) review
-this and other designs for false-positive error.</p>
+method runs at every site. At a subset of sites, an expert also surveys
+the species by a second method that does not depend on the classifier.
+For example, the expert annotates whole recordings, whether or not the
+classifier flagged them. The detections of this verified method are
+known to be correct. The verified data tell the model how often the
+automated method is wrong. Chambert et al. (2015) and Clare et
+al. (2021) review this and other designs for false-positive error.</p>
 <p>The package also simulates data under different false-positive
 regimes and checks, by simulation, whether the credible intervals of a
 model are calibrated for a given design. The simulation study behind the
@@ -183,9 +186,10 @@ figures, and set a seed so that the results can be reproduced.</p>
 example <span class="math inline">K_i</span> recordings scanned by a
 classifier. These are the <em>automated</em> occasions; each gives a
 detection (<span class="math inline">y_{ik} = 1</span>) or not (<span class="math inline">y_{ik} = 0</span>), and a detection may be a false
-positive. At a subset of sites, an expert also checks <span class="math inline">M_i</span> occasions, for example by listening to
-clips. These are the <em>verified</em> occasions (<span class="math inline">v_{im}</span>). A verified detection is certain: the
-species was there.</p>
+positive. At a subset of sites, an expert also checks <span class="math inline">M_i</span> occasions, for example by annotating
+whole recordings without looking at the classifier output. These are the
+<em>verified</em> occasions (<span class="math inline">v_{im}</span>). A
+verified detection is certain: the species was there.</p>
 </div>
 <div class="section level3">
 <h3 id="simulated-data">Simulated data<a class="anchor" aria-label="anchor" href="#simulated-data"></a>

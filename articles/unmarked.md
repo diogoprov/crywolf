@@ -123,23 +123,23 @@ d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
 m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, threads_per_chain = 1, seed = 1)
 #> Running MCMC with 4 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 36.3 seconds.
-#> Chain 3 finished in 36.5 seconds.
-#> Chain 4 finished in 37.5 seconds.
-#> Chain 1 finished in 39.4 seconds.
+#> Chain 1 finished in 42.5 seconds.
+#> Chain 4 finished in 47.1 seconds.
+#> Chain 3 finished in 47.5 seconds.
+#> Chain 2 finished in 47.6 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 37.4 seconds.
-#> Total execution time: 39.6 seconds.
+#> Mean chain execution time: 46.2 seconds.
+#> Total execution time: 47.8 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
-#>           0.15887315          -0.76977980           0.42722960 
+#>            0.1558039           -0.7741694            0.4283424 
 #> verified_(Intercept)           p_verified              p11_ref 
-#>           0.66219155           0.65878164           0.60514411 
+#>            0.6590883            0.6580368            0.6054095 
 #>       fp_(Intercept)               fp_gap              p10_ref 
-#>          -2.98190153           3.40913113           0.04860622 
+#>           -2.9825511            3.4108935            0.0485728 
 #>              p10_bar 
-#>           0.04860622
+#>            0.0485728
 ```
 
 Both fits recover the generating values (occupancy intercept 0, slope
@@ -228,9 +228,9 @@ predict(m_um, type = "state", newdata = nd)
 #> 3 0.3519150 0.04165223 0.2751642 0.4371623
 predict(m_cw, newdata = nd, process = "occ")
 #>    x  estimate     lower     upper
-#> 1 -1 0.7152729 0.6394499 0.7873743
-#> 2  0 0.5394848 0.4822685 0.6003674
-#> 3  1 0.3529699 0.2733537 0.4364194
+#> 1 -1 0.7154796 0.6389051 0.7886334
+#> 2  0 0.5387236 0.4787247 0.5986362
+#> 3  1 0.3512636 0.2741131 0.4351901
 ```
 
 ## References

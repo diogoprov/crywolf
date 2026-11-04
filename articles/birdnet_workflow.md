@@ -262,17 +262,17 @@ m <- fp_occu(d, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
 summary(m)
 #> Posterior summary (95% equal-tailed intervals)
 #> 
-#>         variable    mean     sd   lower   upper rhat ess_bulk ess_tail
-#>  occ_(Intercept) -0.0646 0.2792 -0.6259  0.4967    1     4268     2885
-#>            occ_x -0.9257 0.3353 -1.6494 -0.3178    1     4557     2403
-#>  det_(Intercept)  0.4965 0.1424  0.2276  0.7694    1     3412     2791
-#>          p11_ref  0.6448 0.0315  0.5814  0.7035    1     3893     2873
-#>   fp_(Intercept) -2.7320 0.2362 -3.2126 -2.2963    1     5341     3096
-#>           fp_gap  3.2285 0.2818  2.7063  3.8093    1     3473     2585
-#>          p10_ref  0.0625 0.0137  0.0387  0.0914    1     5341     3096
-#>          p10_bar  0.0625 0.0137  0.0387  0.0914    1     5341     3096
+#>         variable    mean     sd   lower   upper  rhat ess_bulk ess_tail
+#>  occ_(Intercept) -0.0659 0.2789 -0.6224  0.4946 1.000     4184     2634
+#>            occ_x -0.9275 0.3266 -1.5987 -0.3292 0.999     4261     3111
+#>  det_(Intercept)  0.4962 0.1411  0.2280  0.7664 1.001     3526     3028
+#>          p11_ref  0.6445 0.0312  0.5831  0.7033 1.001     3863     3262
+#>   fp_(Intercept) -2.7379 0.2268 -3.2068 -2.3049 1.001     4944     3108
+#>           fp_gap  3.2340 0.2732  2.7051  3.7840 1.000     3482     2720
+#>          p10_ref  0.0621 0.0131  0.0389  0.0907 1.001     4944     3108
+#>          p10_bar  0.0621 0.0131  0.0389  0.0907 1.001     4944     3108
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.002, min bulk/tail ESS 3412/2403
+#>   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 3482/2634
 ```
 
 The simulation used an occupancy slope of -0.8 and a false-positive rate

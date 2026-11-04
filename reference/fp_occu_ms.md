@@ -24,6 +24,7 @@ fp_occu_ms(
   random_recorder = !is.null(data$recorder),
   ver = ~1,
   priors = fp_priors(),
+  centered = FALSE,
   chains = 4,
   parallel_chains = chains,
   threads_per_chain = "auto",
@@ -60,6 +61,15 @@ as_draws_df(x, ...)
   `fp_priors(species_sd = )`; the community means have the priors of the
   intercepts, slopes and gap of
   [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md).
+
+- centered:
+
+  Use the centred parametrization of the detection intercepts, gaps and
+  recorder effects? The model is the same. `TRUE` suits passive acoustic
+  monitoring, with thousands of occasions per species: their posteriors
+  are then so narrow that the default takes very small steps and reaches
+  the maximum tree depth. Keep `FALSE` with few occasions per species or
+  recorder.
 
 - chains, parallel_chains, threads_per_chain, iter_warmup,
   iter_sampling, adapt_delta, seed, refresh, ...:

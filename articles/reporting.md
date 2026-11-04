@@ -40,18 +40,18 @@ m
 #>   data:            200 sites, 2000 automated and 138 verified occasions
 #> 
 #>              variable    mean      sd   lower   upper rhat ess_bulk ess_tail
-#>       occ_(Intercept)  0.0628 0.15491 -0.2391  0.3671    1     4371     3002
-#>                 occ_x -0.5215 0.15398 -0.8254 -0.2316    1     4698     2781
-#>       det_(Intercept)  0.3789 0.06781  0.2481  0.5153    1     4437     3065
-#>  verified_(Intercept)  0.5922 0.23850  0.1375  1.0683    1     4226     3038
-#>            p_verified  0.6420 0.05403  0.5343  0.7443    1     4226     3038
-#>               p11_ref  0.5935 0.01634  0.5617  0.6260    1     4437     3065
-#>        fp_(Intercept) -2.8478 0.16377 -3.1823 -2.5423    1     5025     3274
-#>                fp_gap  3.2268 0.16563  2.9120  3.5628    1     4391     3268
-#>               p10_ref  0.0554 0.00846  0.0398  0.0729    1     5025     3274
-#>               p10_bar  0.0554 0.00846  0.0398  0.0729    1     5025     3274
+#>       occ_(Intercept)  0.0632 0.15216 -0.2369  0.3638    1     4136     3011
+#>                 occ_x -0.5196 0.15798 -0.8399 -0.2173    1     4470     2496
+#>       det_(Intercept)  0.3774 0.06691  0.2402  0.5057    1     4134     2467
+#>  verified_(Intercept)  0.5939 0.24055  0.1305  1.0800    1     4163     2925
+#>            p_verified  0.6424 0.05453  0.5326  0.7465    1     4163     2925
+#>               p11_ref  0.5931 0.01614  0.5598  0.6238    1     4134     2467
+#>        fp_(Intercept) -2.8435 0.15521 -3.1599 -2.5521    1     4416     2877
+#>                fp_gap  3.2209 0.15815  2.9210  3.5493    1     3813     2912
+#>               p10_ref  0.0556 0.00807  0.0407  0.0723    1     4416     2877
+#>               p10_bar  0.0556 0.00807  0.0407  0.0723    1     4416     2877
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.002, min bulk/tail ESS 4226/2781
+#>   Sampler: 0 divergent transitions, max R-hat 1.001, min bulk/tail ESS 3813/2467
 ```
 
 The equations of
@@ -120,7 +120,7 @@ parameter, and the fit keeps the extremes:
 
 unlist(m$diagnostics)
 #>   divergences max_treedepth      max_rhat  min_ess_bulk  min_ess_tail 
-#>      0.000000      0.000000      1.002267   4226.414820   2780.940477
+#>      0.000000      0.000000      1.001209   3813.305312   2466.593563
 ```
 
 If the chains used more than one thread (`threads_per_chain`, `"auto"`
@@ -167,9 +167,9 @@ s[s$variable %in% c("occ_x", "p11_ref", "p10_bar"), cols]
 #> # A tibble: 3 × 4
 #>   variable    mean   lower   upper
 #>   <chr>      <dbl>   <dbl>   <dbl>
-#> 1 occ_x    -0.521  -0.825  -0.232 
-#> 2 p11_ref   0.594   0.562   0.626 
-#> 3 p10_bar   0.0554  0.0398  0.0729
+#> 1 occ_x    -0.520  -0.840  -0.217 
+#> 2 p11_ref   0.593   0.560   0.624 
+#> 3 p10_bar   0.0556  0.0407  0.0723
 ```
 
 ## 6. Sensitivity to the priors
@@ -197,15 +197,15 @@ out <- purrr::imap(sens, function(t, nm) data.frame(priors = nm, t)) |>
 out[c("mean", "lower", "upper")] <- round(out[c("mean", "lower", "upper")], 3)
 out
 #>         priors variable   mean  lower  upper
-#> 1      default    occ_x -0.521 -0.825 -0.232
-#> 2      default  p10_bar  0.055  0.040  0.073
-#> 3   narrow_gap    occ_x -0.521 -0.832 -0.230
+#> 1      default    occ_x -0.520 -0.840 -0.217
+#> 2      default  p10_bar  0.056  0.041  0.072
+#> 3   narrow_gap    occ_x -0.520 -0.835 -0.213
 #> 4   narrow_gap  p10_bar  0.060  0.045  0.078
-#> 5 tight_slopes    occ_x -0.513 -0.817 -0.215
-#> 6 tight_slopes  p10_bar  0.056  0.040  0.073
+#> 5 tight_slopes    occ_x -0.514 -0.822 -0.221
+#> 6 tight_slopes  p10_bar  0.055  0.040  0.073
 ```
 
-Here the posterior mean of the occupancy slope moves by at most 0.008
+Here the posterior mean of the occupancy slope moves by at most 0.006
 across the three sets of priors. When they do change, report it: it
 means the data alone do not settle the question.
 
@@ -228,15 +228,15 @@ The text below is filled in from the fit above; adapt it to the study.
 > intercept minus a positive gap, with a Normal(2, 1.5) prior truncated
 > at zero; intercepts had Normal(0, 1.5) priors and slopes Normal(0,
 > 2.5) priors on the logit scale. We ran 4 chains of 1000 warm-up and
-> 1000 sampling iterations. The largest R-hat was 1.002, the smallest
-> bulk effective sample size was 4226, and there were 0 divergent
+> 1000 sampling iterations. The largest R-hat was 1.001, the smallest
+> bulk effective sample size was 3813, and there were 0 divergent
 > transitions. A posterior predictive check based on the Freeman-Tukey
 > discrepancy gave a Bayesian p-value of 0.03.
 >
-> Occupancy decreased with *x* (slope -0.52, 95% credible interval -0.83
-> to -0.23). The mean false-positive rate per automated occasion was
-> 0.055 (0.040 to 0.073). With a narrower gap prior or tighter slope
-> priors, the posterior mean of the slope changed by at most 0.008.
+> Occupancy decreased with *x* (slope -0.52, 95% credible interval -0.84
+> to -0.22). The mean false-positive rate per automated occasion was
+> 0.056 (0.041 to 0.072). With a narrower gap prior or tighter slope
+> priors, the posterior mean of the slope changed by at most 0.006.
 
 ## References
 

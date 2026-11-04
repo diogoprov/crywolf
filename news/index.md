@@ -21,10 +21,9 @@
   [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
   in development: the false-positive occupancy model for several species
   at once, with species-specific occupancy coefficients, detection
-  intercepts and gaps drawn from distributions of the community
-  (non-centred), and shared slopes of detection, false positives and the
-  verified method, and a shared recorder effect. It reuses the
-  likelihood of
+  intercepts and gaps drawn from distributions of the community, and
+  shared slopes of detection, false positives and the verified method,
+  and a shared recorder effect. It reuses the likelihood of
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
   with site x species units, and has
   [`print()`](https://rdrr.io/r/base/print.html),
@@ -33,7 +32,11 @@
   methods; its output names are documented in `crywolf-output`.
   [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
   gains `species_sd`, the scale of the half-Normal priors on the
-  standard deviations among species.
+  standard deviations among species. `centered = TRUE` uses a centred
+  parametrization of the detection intercepts, gaps and recorder
+  effects, the same model, for data with thousands of occasions per
+  species: on 16 species and 310,000 occasions, 1,000 iterations per
+  chain took 14 minutes, against 10.8 hours for 4,000 with the default.
 
 ### Dynamic model (experimental)
 

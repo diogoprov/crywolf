@@ -141,7 +141,17 @@ in the missing dates, so colonization and extinction are probabilities
 per step (per night, for nightly seasons). A single false positive looks
 like a colonization followed by an extinction: without verified or
 confirmed data in the seasons, the two processes are hard to separate
-from false positives.
+from false positives. In simulations with 100 sites (see
+[`vignette("dynamic")`](https://provetelab.org/crywolf/articles/dynamic.md)),
+the model was calibrated with \\p\_{11} \ge 0.30\\ and at least 10% of
+site-seasons verified. With \\p\_{11} = 0.15\\ and no verification,
+colonization and extinction were biased upwards by 0.09 to 0.17 and fits
+often did not converge; with 10% verified, the bias stayed above 0.05
+with fewer than 10 seasons. With site effects on detection of SD 1,
+`random_det` needed 2000 + 2000 iterations for R-hat below 1.01 in
+nearly all fits.
+[`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
+does not simulate dynamic designs.
 
 The fit also gives, per season, the expected and the realized occupancy
 over sites (`psi_mean`, `psi_fs`) and the turnover, and, with constant

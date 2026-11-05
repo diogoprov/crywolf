@@ -101,9 +101,10 @@ it up tonight than one that has been silent for a month.
 <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> drops that assumption. It fits the dynamic
 occupancy model (MacKenzie et al., 2003) with the false positives of the
 multiple-methods design (Miller et al., 2013), with the nights of each
-site as seasons. This article fits it to the <code>curiango</code> data
-and compares it with the model of independent site-nights by blocked
-cross-validation.</p>
+site as seasons. This article fits it to the <code>curiango</code> data,
+compares it with the model of independent site-nights by blocked
+cross-validation, reports how it behaved in simulations, and applies it
+to a second data set.</p>
 <div class="section level2">
 <h2 id="the-model">The model<a class="anchor" aria-label="anchor" href="#the-model"></a>
 </h2>
@@ -122,6 +123,18 @@ nights in use, false positives with probability <span class="math inline">p_{10}
 recordings that settle what was recorded. The states are summed out by
 the forward algorithm, so the model has no latent discrete parameters
 for Stan to sample.</p>
+<div class="figure">
+<img src="dynamic-dag.png" class="r-plt" alt="Directed acyclic graph of the model fitted by `fp_occu_dyn()`. Hexagons are priors (defaults of `fp_priors()`), yellow ellipses are parameters, blue boxes are covariates, green ellipses are latent quantities and linear predictors, and octagons are the observed data. Dashed outlines mark optional components. The false-positive coefficients are called eta here because gamma is colonization. The options `markov`, `random_det` and `random_fp` are not drawn." width="100%"><p class="caption">
+Directed acyclic graph of the model fitted by
+<code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>. Hexagons are priors (defaults of
+<code><a href="../reference/fp_priors.html">fp_priors()</a></code>), yellow ellipses are parameters, blue boxes
+are covariates, green ellipses are latent quantities and linear
+predictors, and octagons are the observed data. Dashed outlines mark
+optional components. The false-positive coefficients are called eta here
+because gamma is colonization. The options <code>markov</code>,
+<code>random_det</code> and <code>random_fp</code> are not drawn.
+</p>
+</div>
 <p>With nights as seasons, “occupancy” means use of the site on a given
 night. Colonization is the start of use after a night without it, and
 extinction is the end of use after a night with it. Neither is a change
@@ -162,46 +175,37 @@ the temperature and humidity at the site that night.</p>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu_dyn.html">fp_occu_dyn</a></span><span class="op">(</span><span class="va">d</span>, psi1 <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="op">~</span> <span class="va">temp_d</span> <span class="op">+</span> <span class="va">rh_d</span>, ext <span class="op">=</span> <span class="op">~</span> <span class="va">temp_d</span> <span class="op">+</span> <span class="va">rh_d</span>,</span>
 <span>                   det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span> <span class="op">+</span> <span class="va">aci</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">temp</span> <span class="op">+</span> <span class="va">rh</span>, threads_per_chain <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p>The fit took about 35 minutes with four chains of two threads. It
-converged: the largest R-hat was 1.003, the smallest bulk effective
-sample size 783, with 0 divergent transitions.</p>
+<p>The fit took about 38 minutes with four chains of two threads. It
+converged: the largest R-hat was 1.006, the smallest bulk effective
+sample size 1051, with 0 divergent transitions.</p>
 </div>
 <div class="section level2">
 <h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col_(Intercept)"</span>, <span class="st">"col_temp_d"</span>, <span class="st">"col_rh_d"</span>, <span class="st">"ext_(Intercept)"</span>,</span>
-<span>          <span class="st">"ext_temp_d"</span>, <span class="st">"ext_rh_d"</span>, <span class="st">"p11_ref"</span>, <span class="st">"p10_ref"</span><span class="op">)</span></span>
-<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span><span class="va">res</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">variable</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">vars</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"variable"</span>, <span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">est</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">est</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="va">est</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 4</span></span></span>
-<span><span class="co">#&gt;   variable            mean    lower   upper</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> p11_ref          0.058<span style="text-decoration: underline;">4</span>   0.024<span style="text-decoration: underline;">9</span>   0.13  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> p10_ref          0.003<span style="text-decoration: underline;">06</span>  0.002<span style="text-decoration: underline;">64</span>  0.003<span style="text-decoration: underline;">5</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> col_(Intercept) -<span style="color: #BB0000;">3.05</span>    -<span style="color: #BB0000;">3.34</span>    -<span style="color: #BB0000;">2.77</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> col_temp_d      -<span style="color: #BB0000;">0.237</span>   -<span style="color: #BB0000;">0.486</span>    0.015<span style="text-decoration: underline;">3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> col_rh_d        -<span style="color: #BB0000;">0.761</span>   -<span style="color: #BB0000;">1.09</span>    -<span style="color: #BB0000;">0.414</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> ext_(Intercept) -<span style="color: #BB0000;">1.23</span>    -<span style="color: #BB0000;">1.61</span>    -<span style="color: #BB0000;">0.879</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> ext_temp_d      -<span style="color: #BB0000;">0.38</span>    -<span style="color: #BB0000;">0.804</span>    0.026<span style="text-decoration: underline;">6</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> ext_rh_d         0.402   -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">7</span>   0.854</span></span></code></pre></div>
+<div class="figure">
+<img src="dynamic_files/figure-html/estimates-1.png" class="r-plt" alt="Posterior distributions of the parameters of `curiango`, from 1,000 draws. Points are medians, and the thick and thin bars are the 66% and 95% intervals. Coefficients are on the logit scale, and the dashed line marks zero." width="100%"><p class="caption">
+Posterior distributions of the parameters of <code>curiango</code>, from
+1,000 draws. Points are medians, and the thick and thin bars are the 66%
+and 95% intervals. Coefficients are on the logit scale, and the dashed
+line marks zero.
+</p>
+</div>
 <p>On a night of average temperature and humidity, a site not in use
 starts being used with probability 0.045. A site in use stops with
 probability 0.23, so a spell of use lasts about 4.4 nights on average.
 Humid nights start fewer spells: the humidity coefficient of
-colonization is -0.76 (-1.09 to -0.41). Its coefficient of extinction,
-0.40 (-0.01 to 0.85), points to humid nights also ending spells, but its
+colonization is -0.76 (-1.10 to -0.39). Its coefficient of extinction,
+0.41 (-0.01 to 0.86), points to humid nights also ending spells, but its
 interval reaches zero. The intervals of both temperature coefficients
 include zero.</p>
 <p>A minute of a night in use yields a true detection with probability
-0.058 (0.025 to 0.130) at the reference values. A minute yields a false
+0.059 (0.025 to 0.125) at the reference values. A minute yields a false
 positive with probability 0.0031 (0.0026 to 0.0035).</p>
 <p>The model also estimates, for each night, the fraction of the seven
 sites in use (<code>psi_fs</code>, from the states sampled given all the
 data). On nights when a site was not recorded, its state is inferred
 from the nights around it.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fs</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^psi_fs\\["</span>, <span class="va">res</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">fs</span><span class="op">$</span><span class="va">night</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">fs</span><span class="op">$</span><span class="va">season</span><span class="op">)</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">fs</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">night</span>, <span class="va">mean</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -218,7 +222,7 @@ interval of psi_fs).
 </div>
 <p><code><a href="../reference/fp_sites.html">fp_sites()</a></code> gives, for each site and night, the
 probability that the site was in use given all its data:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">sites</span></span>
 <span><span class="va">rec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">site</span>, <span class="va">s</span><span class="op">$</span><span class="va">night</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">curiango</span><span class="op">$</span><span class="va">nights</span><span class="op">$</span><span class="va">site</span>, <span class="va">curiango</span><span class="op">$</span><span class="va">nights</span><span class="op">$</span><span class="va">night</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">recorded</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">rec</span>, <span class="st">"recorded"</span>, <span class="st">"not recorded"</span><span class="op">)</span></span>
@@ -239,14 +243,14 @@ Nights without recordings at a site are paler.
 </h3>
 <p>The posterior predictive check compares the detections of each
 site-night with those replicated from the fit. It gives p = 0: the
-observed discrepancy (median 566) exceeds the replicated one (median
-385) on every draw. The model of independent site-nights fails this
+observed discrepancy (median 568) exceeds the replicated one (median
+384) on every draw. The model of independent site-nights fails this
 check by a similar margin (<code><a href="../articles/markov.html">vignette("markov")</a></code>). The misfit
 therefore lies within nights, where the minutes are taken as
 independent, and not in the dynamics across nights.
 <code>fp_occu_dyn(markov = )</code> adds the Markov term of
-<code><a href="../articles/markov.html">vignette("markov")</a></code> for runs of detections within a night;
-it is not fitted here.</p>
+<code><a href="../articles/markov.html">vignette("markov")</a></code> for runs of detections within a night.
+The next section compares it by cross-validation.</p>
 </div>
 </div>
 <div class="section level2">
@@ -267,35 +271,185 @@ detection, false-positive and recorder terms, with
 <code>occ ~ temp_d + rh_d</code>. The score of each site and fold is the
 log of the posterior predictive density of its left-out minutes and
 verified recordings (elpd).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">cv</span>, elpd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">elpd</span>, <span class="fl">1</span><span class="op">)</span>, se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">se</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       model    elpd    se</span></span>
-<span><span class="co">#&gt; 1       dyn -6369.9 890.9</span></span>
-<span><span class="co">#&gt; 2       ind -6561.4 910.1</span></span>
-<span><span class="co">#&gt; 3 dyn - ind   191.5  29.0</span></span></code></pre></div>
-<p>The dynamic model predicts the left-out nights better, by 191.5 (SE
-29.0) in elpd over 69 site and fold units. It does better in all ten
-folds and at all seven sites:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">by_site</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">cv</span><span class="op">$</span><span class="va">by_site</span></span>
-<span><span class="va">by_site</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">by_site</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">by_site</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"site"</span>, <span class="st">"minutes left out"</span>, <span class="st">"dynamic"</span>, <span class="st">"independent"</span>, <span class="st">"difference"</span><span class="op">)</span></span>
-<span><span class="va">by_site</span></span>
-<span><span class="co">#&gt;   site minutes left out dynamic independent difference</span></span>
-<span><span class="co">#&gt; 1  ARA            18479 -1463.1     -1494.1       31.0</span></span>
-<span><span class="co">#&gt; 2  BAI            12302  -688.6      -712.9       24.3</span></span>
-<span><span class="co">#&gt; 3  BEP             7615  -148.1      -156.2        8.1</span></span>
-<span><span class="co">#&gt; 4  MIM            19370 -2059.1     -2122.2       63.0</span></span>
-<span><span class="co">#&gt; 5  REF            12212  -972.2     -1009.5       37.3</span></span>
-<span><span class="co">#&gt; 6  UEM            12460  -313.1      -328.5       15.4</span></span>
-<span><span class="co">#&gt; 7  XAR            13438  -725.7      -738.0       12.3</span></span></code></pre></div>
-<p>Two caveats apply. The SE treats the site and fold units as
+<p>The comparison has five models. <code>dyn</code> is the fit above and
+<code>ind</code> the model of independent site-nights.
+<code>dyn_mk</code> and <code>ind_mk</code> add
+<code>markov = "time"</code>. <code>ind_rd</code> adds
+<code>random_det</code> to <code>ind</code>, a detection effect for each
+site-night, which competes with the dynamics for the variation between
+nights.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/cv-1.png" class="r-plt" alt="Difference in elpd from `dyn` in the blocked cross-validation. Bars are two standard errors of the difference, and `dyn` itself has none." width="100%"><p class="caption">
+Difference in elpd from <code>dyn</code> in the blocked
+cross-validation. Bars are two standard errors of the difference, and
+<code>dyn</code> itself has none.
+</p>
+</div>
+<p>The dynamic model predicts the left-out nights better than the
+independent one, by 191.5 (SE 29.0) in elpd over 69 site and fold units.
+The same holds with the Markov term, by 206.9 (SE 33.4). The Markov term
+itself gains more than the dynamics: 465.9 (SE 114.9) over
+<code>ind</code>. The two gains add up, and <code>dyn_mk</code> has the
+highest elpd in all ten folds and at all seven sites:</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/cv-site-1.png" class="r-plt" alt="Gain in elpd over `ind` at each site and in each fold. Positive values favour the model over independent site-nights." width="100%"><p class="caption">
+Gain in elpd over <code>ind</code> at each site and in each fold.
+Positive values favour the model over independent site-nights.
+</p>
+</div>
+<p><code>random_det</code> also improves on <code>ind</code>, by 311.3
+(SE 100.1), but less than the Markov term does. Runs of detections,
+then, explain more of these data than differences between nights
+alone.</p>
+<p>Three caveats apply. The SE treats the site and fold units as
 independent, although the units of a fold share a training fit, so it is
-likely too small. And each left-out week has nights in the training data
-on both sides, so the dynamic model interpolates as well as forecasts.
-All 20 training fits converged; one fit of the independent model was
-rerun with another seed after a chain stuck in a second mode (see
+likely too small. Each left-out week has nights in the training data on
+both sides, so the dynamic model interpolates as well as forecasts. And
+the elpd of <code>ind_rd</code> comes from 400 posterior draws, because
+integrating its effects is slow, against 4,000 for the other models. All
+50 training fits converged; one fit of the independent model was rerun
+with another seed after a chain stuck in a second mode (see
 <code>dev/dyn-kfold/README.md</code> in the source repository).</p>
+</div>
+<div class="section level2">
+<h2 id="validation-in-simulation">Validation in simulation<a class="anchor" aria-label="anchor" href="#validation-in-simulation"></a>
+</h2>
+<p>We simulated data with <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code> and fitted the
+model to them, in 6,320 tasks, with none ending in error. The criteria
+were set before the results, and the tables are in
+<code>dev/dyn-val/</code> in the source repository. All the designs had
+100 sites.</p>
+<p>With p11 of at least 0.30 and at least 10% of site-seasons verified,
+the model was well calibrated. Coverage of the 95% intervals of initial
+occupancy, colonization, extinction, <code>p10_bar</code> and
+<code>psi_fs</code> was at least 0.90, and the absolute bias was at most
+0.024. Observation-confirmation, with 10% or 30% of occasions confirmed,
+met the same thresholds. Simulation-based calibration found no departure
+from uniform ranks in 1,000 replicates.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/val-bias-1.png" class="r-plt" alt="Bias of the posterior mean in the designs with low detection, by the fraction of site-seasons verified. Dashed lines mark the threshold of 0.05." width="100%"><p class="caption">
+Bias of the posterior mean in the designs with low detection, by the
+fraction of site-seasons verified. Dashed lines mark the threshold of
+0.05.
+</p>
+</div>
+<div class="figure">
+<img src="dynamic_files/figure-html/val-coverage-1.png" class="r-plt" alt="Coverage of the 95% intervals in the same designs. The dashed line marks the threshold of 0.90." width="100%"><p class="caption">
+Coverage of the 95% intervals in the same designs. The dashed line marks
+the threshold of 0.90.
+</p>
+</div>
+<p>The limits lie at low detection with little verification:</p>
+<ul>
+<li>With p11 = 0.15 and no verification, colonization was biased upwards
+by 0.12 to 0.17 and extinction by 0.09 to 0.13, and up to 40% of fits
+did not converge.</li>
+<li>With p11 = 0.15 and 10% verified, both biases stayed above 0.05 with
+3 or 6 seasons, and fell below it with 10 seasons.</li>
+<li>With p11 = 0.15 and 20% or more verified, the thresholds were
+met.</li>
+</ul>
+<div class="figure">
+<img src="dynamic_files/figure-html/val-converged-1.png" class="r-plt" alt="Fraction of the fits of each design cell with R-hat below 1.01. Each point is a cell, and the dashed line marks the threshold of 0.95." width="100%"><p class="caption">
+Fraction of the fits of each design cell with R-hat below 1.01. Each
+point is a cell, and the dashed line marks the threshold of 0.95.
+</p>
+</div>
+<p>Ignoring a source of variation was costly. When false positives
+varied with a covariate, <code>fp ~ 1</code> kept <code>psi_fs</code>
+nearly unbiased (at most 0.018), but the coverage of
+<code>p10_bar</code> fell to between 0.72 and 0.89. When site effects on
+detection had an SD of 1, leaving out <code>random_det</code> gave a
+bias of -0.10 in <code>psi_fs</code> and a coverage of 0.01. With runs
+of detections of strength 2 on the logit scale, leaving out
+<code>markov</code> gave a coverage of 0.44 for <code>psi_fs</code>.
+With the option on, both models recovered these quantities, with a
+coverage of at least 0.90 for <code>sd_det_site</code> and
+<code>det_y_prev</code>.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/val-omit-1.png" class="r-plt" alt="Coverage of the 95% intervals when the data have a source of variation and the model leaves it out or includes it. The dashed line marks the threshold of 0.90. False positives on a covariate are shown for the design with 20% of site-seasons verified." width="100%"><p class="caption">
+Coverage of the 95% intervals when the data have a source of variation
+and the model leaves it out or includes it. The dashed line marks the
+threshold of 0.90. False positives on a covariate are shown for the
+design with 20% of site-seasons verified.
+</p>
+</div>
+<p>With strong site effects, <code>random_det</code> needed longer
+chains. With an SD of 1 and 1,000 + 1,000 iterations, 93% of fits
+reached R-hat below 1.01. With 2,000 + 2,000 iterations on the same
+data, 99% did, and the estimates did not change.</p>
+</div>
+<div class="section level2">
+<h2 id="a-second-data-set">A second data set<a class="anchor" aria-label="anchor" href="#a-second-data-set"></a>
+</h2>
+<p>We also fitted the model to surveys of the American pika
+(<em>Ochotona princeps</em>) by Goldman et al. (2023), with 771 plots in
+five park units from 2010 to 2021. Years are the seasons, and 2015 and
+2016 are seasons without data. Each survey gives one occasion for each
+ambiguous sign (fresh scat, fresh haypile, call), with the sign as a
+covariate of <code>det</code> and <code>fp</code>. Sightings and
+unambiguous fresh scat form the verified method. Unlike the article,
+this model does not give each sign its own detection process.</p>
+<p>The dynamic model has <code>psi1 ~ park</code>, with constant
+colonization and extinction. The independent model treats each plot-year
+as a site, with <code>occ ~ park + year</code>. All five fits had no
+divergent transitions, R-hat of at most 1.004, and a bulk effective
+sample size of at least 1109.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/pika-rates-1.png" class="r-plt" alt="Posterior distributions of the rates of the pika model, from 1,000 draws. `psi_eq` is the occupancy implied by colonization and extinction at equilibrium." width="100%"><p class="caption">
+Posterior distributions of the rates of the pika model, from 1,000
+draws. <code>psi_eq</code> is the occupancy implied by colonization and
+extinction at equilibrium.
+</p>
+</div>
+<p>Colonization was 0.048 (0.040 to 0.059) and extinction 0.071 (0.053
+to 0.090) per year. Occupancy at equilibrium was 0.41 (0.35 to 0.48). A
+call, the reference sign, was recorded on a survey of an occupied plot
+with probability 0.38 (0.35 to 0.40), and on a survey of an unoccupied
+plot with probability 0.026 (0.019 to 0.033). Goldman et al. (2023)
+report about 0.06 for both colonization and extinction with a different
+model, so the comparison is only of order of magnitude.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/pika-occ-1.png" class="r-plt" alt="Mean probability that the plots of each park unit were occupied in each year, given all the data. The shaded years have no surveys, so their states come from the years around them." width="100%"><p class="caption">
+Mean probability that the plots of each park unit were occupied in each
+year, given all the data. The shaded years have no surveys, so their
+states come from the years around them.
+</p>
+</div>
+<p>Occupancy moved towards the equilibrium in most park units.
+Colonization and extinction are constant and shared in this model, so
+that movement is built in. It is not evidence of a trend in any park
+unit.</p>
+<p>The posterior predictive checks gave p = 0.78 for the automated
+method and p = 0.16 for the verified one, so the misfit seen on
+<code>curiango</code> did not appear here. The independent model gave p
+= 0.21 for the automated method.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/pika-ppc-1.png" class="r-plt" alt="Posterior predictive checks of the pika models. Each point is a draw, and points on the line have equal observed and replicated discrepancies." width="100%"><p class="caption">
+Posterior predictive checks of the pika models. Each point is a draw,
+and points on the line have equal observed and replicated discrepancies.
+</p>
+</div>
+<p>Prior means of 1 to 3 for <code>fp_gap</code>, and a doubled prior
+SD, left the estimates nearly unchanged.</p>
+<div class="figure">
+<img src="dynamic_files/figure-html/pika-priors-1.png" class="r-plt" alt="Posterior means and 95% intervals of the pika model under four priors of `fp_gap`, on the scale of each parameter." width="100%"><p class="caption">
+Posterior means and 95% intervals of the pika model under four priors of
+<code>fp_gap</code>, on the scale of each parameter.
+</p>
+</div>
+<p>Leaving out whole plots, PSIS-LOO favoured the dynamic model over
+independent plot-years by 178.7 (SE 42.6) in elpd, with no Pareto k
+above 0.7. With 771 plots, leaving one out removes little of the data,
+which is why LOO works here and not on the seven sites of
+<code>curiango</code>.</p>
+<p>Two simplifications matter. The verified occasion shares its survey
+with the automated ones, and unambiguous scat is a subset of fresh scat,
+so the two methods are not fully independent given the state. The sign
+also enters <code>det</code> and <code>fp</code> as a covariate, whereas
+the article gives each sign its own model.</p>
+<p>The script and data are in <code>dev/dyn-pika/</code> in the source
+repository.</p>
 </div>
 <div class="section level2">
 <h2 id="when-to-use-it">When to use it<a class="anchor" aria-label="anchor" href="#when-to-use-it"></a>
@@ -308,11 +462,25 @@ information.</li>
 seasons without data. Choose covariates that exist on every night.</li>
 <li>Compare with the independent model on blocks of seasons, not by LOO,
 whenever the sites are few.</li>
+<li>Verify recordings in at least 10% of site-seasons, and more when
+detection is low. Without verification, colonization and extinction are
+biased at low detection.</li>
+<li>Runs of detections are common in passive acoustic monitoring, where
+occasions are minutes close in time. Check for them and consider
+<code>markov</code>.</li>
+<li>
+<code><a href="../reference/fp_calibrate.html">fp_calibrate()</a></code> simulates only single-season designs, so
+it does not plan a dynamic study; <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code> is the
+starting point for that.</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<p>Goldman, M. R., Shinderman, M., Jeffress, M. R., Rodhouse, T. J.,
+&amp; Shoemaker, K. T. (2023). Integrating multiple sign types to
+improve occupancy estimation for inconspicuous species. <em>Ecology and
+Evolution</em>, 13(5), e10019. <a href="https://doi.org/10.1002/ece3.10019" class="external-link uri">https://doi.org/10.1002/ece3.10019</a></p>
 <p>MacKenzie, D. I., Nichols, J. D., Hines, J. E., Knutson, M. G., &amp;
 Franklin, A. B. (2003). Estimating site occupancy, colonization, and
 local extinction when a species is detected imperfectly.

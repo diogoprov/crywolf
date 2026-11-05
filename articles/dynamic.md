@@ -11,8 +11,9 @@ than one that has been silent for a month.
 drops that assumption. It fits the dynamic occupancy model (MacKenzie et
 al., 2003) with the false positives of the multiple-methods design
 (Miller et al., 2013), with the nights of each site as seasons. This
-article fits it to the `curiango` data and compares it with the model of
-independent site-nights by blocked cross-validation.
+article fits it to the `curiango` data, compares it with the model of
+independent site-nights by blocked cross-validation, reports how it
+behaved in simulations, and applies it to a second data set.
 
 ## The model
 
@@ -32,6 +33,26 @@ with probability p\_{10} on every night, and verified recordings that
 settle what was recorded. The states are summed out by the forward
 algorithm, so the model has no latent discrete parameters for Stan to
 sample.
+
+![Directed acyclic graph of the model fitted by \`fp_occu_dyn()\`.
+Hexagons are priors (defaults of \`fp_priors()\`), yellow ellipses are
+parameters, blue boxes are covariates, green ellipses are latent
+quantities and linear predictors, and octagons are the observed data.
+Dashed outlines mark optional components. The false-positive
+coefficients are called eta here because gamma is colonization. The
+options \`markov\`, \`random_det\` and \`random_fp\` are not
+drawn.](dynamic-dag.png)
+
+Directed acyclic graph of the model fitted by
+[`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md).
+Hexagons are priors (defaults of
+[`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)),
+yellow ellipses are parameters, blue boxes are covariates, green
+ellipses are latent quantities and linear predictors, and octagons are
+the observed data. Dashed outlines mark optional components. The
+false-positive coefficients are called eta here because gamma is
+colonization. The options `markov`, `random_det` and `random_fp` are not
+drawn.
 
 With nights as seasons, “occupancy” means use of the site on a given
 night. Colonization is the start of use after a night without it, and
@@ -77,42 +98,32 @@ fit <- fp_occu_dyn(d, psi1 = ~ 1, col = ~ temp_d + rh_d, ext = ~ temp_d + rh_d,
                    det = ~ bio + aci, fp = ~ temp + rh, threads_per_chain = 2)
 ```
 
-The fit took about 35 minutes with four chains of two threads. It
-converged: the largest R-hat was 1.003, the smallest bulk effective
-sample size 783, with 0 divergent transitions.
+The fit took about 38 minutes with four chains of two threads. It
+converged: the largest R-hat was 1.006, the smallest bulk effective
+sample size 1051, with 0 divergent transitions.
 
 ## Results
 
-``` r
+![Posterior distributions of the parameters of \`curiango\`, from 1,000
+draws. Points are medians, and the thick and thin bars are the 66% and
+95% intervals. Coefficients are on the logit scale, and the dashed line
+marks zero.](dynamic_files/figure-html/estimates-1.png)
 
-vars <- c("col_(Intercept)", "col_temp_d", "col_rh_d", "ext_(Intercept)",
-          "ext_temp_d", "ext_rh_d", "p11_ref", "p10_ref")
-est <- res$summary[res$summary$variable %in% vars, c("variable", "mean", "lower", "upper")]
-est[c("mean", "lower", "upper")] <- signif(est[c("mean", "lower", "upper")], 3)
-est
-#> # A tibble: 8 × 4
-#>   variable            mean    lower   upper
-#>   <chr>              <dbl>    <dbl>   <dbl>
-#> 1 p11_ref          0.0584   0.0249   0.13  
-#> 2 p10_ref          0.00306  0.00264  0.0035
-#> 3 col_(Intercept) -3.05    -3.34    -2.77  
-#> 4 col_temp_d      -0.237   -0.486    0.0153
-#> 5 col_rh_d        -0.761   -1.09    -0.414 
-#> 6 ext_(Intercept) -1.23    -1.61    -0.879 
-#> 7 ext_temp_d      -0.38    -0.804    0.0266
-#> 8 ext_rh_d         0.402   -0.0147   0.854
-```
+Posterior distributions of the parameters of `curiango`, from 1,000
+draws. Points are medians, and the thick and thin bars are the 66% and
+95% intervals. Coefficients are on the logit scale, and the dashed line
+marks zero.
 
 On a night of average temperature and humidity, a site not in use starts
 being used with probability 0.045. A site in use stops with probability
 0.23, so a spell of use lasts about 4.4 nights on average. Humid nights
 start fewer spells: the humidity coefficient of colonization is -0.76
-(-1.09 to -0.41). Its coefficient of extinction, 0.40 (-0.01 to 0.85),
+(-1.10 to -0.39). Its coefficient of extinction, 0.41 (-0.01 to 0.86),
 points to humid nights also ending spells, but its interval reaches
 zero. The intervals of both temperature coefficients include zero.
 
 A minute of a night in use yields a true detection with probability
-0.058 (0.025 to 0.130) at the reference values. A minute yields a false
+0.059 (0.025 to 0.125) at the reference values. A minute yields a false
 positive with probability 0.0031 (0.0026 to 0.0035).
 
 The model also estimates, for each night, the fraction of the seven
@@ -166,15 +177,16 @@ Nights without recordings at a site are paler.
 
 The posterior predictive check compares the detections of each
 site-night with those replicated from the fit. It gives p = 0: the
-observed discrepancy (median 566) exceeds the replicated one (median
-385) on every draw. The model of independent site-nights fails this
+observed discrepancy (median 568) exceeds the replicated one (median
+384) on every draw. The model of independent site-nights fails this
 check by a similar margin
 ([`vignette("markov")`](https://provetelab.org/crywolf/articles/markov.md)).
 The misfit therefore lies within nights, where the minutes are taken as
 independent, and not in the dynamics across nights.
 `fp_occu_dyn(markov = )` adds the Markov term of
 [`vignette("markov")`](https://provetelab.org/crywolf/articles/markov.md)
-for runs of detections within a night; it is not fitted here.
+for runs of detections within a night. The next section compares it by
+cross-validation.
 
 ## Comparison with independent site-nights
 
@@ -196,42 +208,199 @@ detection, false-positive and recorder terms, with
 posterior predictive density of its left-out minutes and verified
 recordings (elpd).
 
-``` r
+The comparison has five models. `dyn` is the fit above and `ind` the
+model of independent site-nights. `dyn_mk` and `ind_mk` add
+`markov = "time"`. `ind_rd` adds `random_det` to `ind`, a detection
+effect for each site-night, which competes with the dynamics for the
+variation between nights.
 
-transform(cv, elpd = round(elpd, 1), se = round(se, 1))
-#>       model    elpd    se
-#> 1       dyn -6369.9 890.9
-#> 2       ind -6561.4 910.1
-#> 3 dyn - ind   191.5  29.0
-```
+![Difference in elpd from \`dyn\` in the blocked cross-validation. Bars
+are two standard errors of the difference, and \`dyn\` itself has
+none.](dynamic_files/figure-html/cv-1.png)
 
-The dynamic model predicts the left-out nights better, by 191.5 (SE
-29.0) in elpd over 69 site and fold units. It does better in all ten
-folds and at all seven sites:
+Difference in elpd from `dyn` in the blocked cross-validation. Bars are
+two standard errors of the difference, and `dyn` itself has none.
 
-``` r
+The dynamic model predicts the left-out nights better than the
+independent one, by 191.5 (SE 29.0) in elpd over 69 site and fold units.
+The same holds with the Markov term, by 206.9 (SE 33.4). The Markov term
+itself gains more than the dynamics: 465.9 (SE 114.9) over `ind`. The
+two gains add up, and `dyn_mk` has the highest elpd in all ten folds and
+at all seven sites:
 
-by_site <- res$cv$by_site
-by_site[-1] <- round(by_site[-1], 1)
-names(by_site) <- c("site", "minutes left out", "dynamic", "independent", "difference")
-by_site
-#>   site minutes left out dynamic independent difference
-#> 1  ARA            18479 -1463.1     -1494.1       31.0
-#> 2  BAI            12302  -688.6      -712.9       24.3
-#> 3  BEP             7615  -148.1      -156.2        8.1
-#> 4  MIM            19370 -2059.1     -2122.2       63.0
-#> 5  REF            12212  -972.2     -1009.5       37.3
-#> 6  UEM            12460  -313.1      -328.5       15.4
-#> 7  XAR            13438  -725.7      -738.0       12.3
-```
+![Gain in elpd over \`ind\` at each site and in each fold. Positive
+values favour the model over independent
+site-nights.](dynamic_files/figure-html/cv-site-1.png)
 
-Two caveats apply. The SE treats the site and fold units as independent,
-although the units of a fold share a training fit, so it is likely too
-small. And each left-out week has nights in the training data on both
-sides, so the dynamic model interpolates as well as forecasts. All 20
-training fits converged; one fit of the independent model was rerun with
-another seed after a chain stuck in a second mode (see
-`dev/dyn-kfold/README.md` in the source repository).
+Gain in elpd over `ind` at each site and in each fold. Positive values
+favour the model over independent site-nights.
+
+`random_det` also improves on `ind`, by 311.3 (SE 100.1), but less than
+the Markov term does. Runs of detections, then, explain more of these
+data than differences between nights alone.
+
+Three caveats apply. The SE treats the site and fold units as
+independent, although the units of a fold share a training fit, so it is
+likely too small. Each left-out week has nights in the training data on
+both sides, so the dynamic model interpolates as well as forecasts. And
+the elpd of `ind_rd` comes from 400 posterior draws, because integrating
+its effects is slow, against 4,000 for the other models. All 50 training
+fits converged; one fit of the independent model was rerun with another
+seed after a chain stuck in a second mode (see `dev/dyn-kfold/README.md`
+in the source repository).
+
+## Validation in simulation
+
+We simulated data with
+[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
+and fitted the model to them, in 6,320 tasks, with none ending in error.
+The criteria were set before the results, and the tables are in
+`dev/dyn-val/` in the source repository. All the designs had 100 sites.
+
+With p11 of at least 0.30 and at least 10% of site-seasons verified, the
+model was well calibrated. Coverage of the 95% intervals of initial
+occupancy, colonization, extinction, `p10_bar` and `psi_fs` was at least
+0.90, and the absolute bias was at most 0.024. Observation-confirmation,
+with 10% or 30% of occasions confirmed, met the same thresholds.
+Simulation-based calibration found no departure from uniform ranks in
+1,000 replicates.
+
+![Bias of the posterior mean in the designs with low detection, by the
+fraction of site-seasons verified. Dashed lines mark the threshold of
+0.05.](dynamic_files/figure-html/val-bias-1.png)
+
+Bias of the posterior mean in the designs with low detection, by the
+fraction of site-seasons verified. Dashed lines mark the threshold of
+0.05.
+
+![Coverage of the 95% intervals in the same designs. The dashed line
+marks the threshold of
+0.90.](dynamic_files/figure-html/val-coverage-1.png)
+
+Coverage of the 95% intervals in the same designs. The dashed line marks
+the threshold of 0.90.
+
+The limits lie at low detection with little verification:
+
+- With p11 = 0.15 and no verification, colonization was biased upwards
+  by 0.12 to 0.17 and extinction by 0.09 to 0.13, and up to 40% of fits
+  did not converge.
+- With p11 = 0.15 and 10% verified, both biases stayed above 0.05 with 3
+  or 6 seasons, and fell below it with 10 seasons.
+- With p11 = 0.15 and 20% or more verified, the thresholds were met.
+
+![Fraction of the fits of each design cell with R-hat below 1.01. Each
+point is a cell, and the dashed line marks the threshold of
+0.95.](dynamic_files/figure-html/val-converged-1.png)
+
+Fraction of the fits of each design cell with R-hat below 1.01. Each
+point is a cell, and the dashed line marks the threshold of 0.95.
+
+Ignoring a source of variation was costly. When false positives varied
+with a covariate, `fp ~ 1` kept `psi_fs` nearly unbiased (at most
+0.018), but the coverage of `p10_bar` fell to between 0.72 and 0.89.
+When site effects on detection had an SD of 1, leaving out `random_det`
+gave a bias of -0.10 in `psi_fs` and a coverage of 0.01. With runs of
+detections of strength 2 on the logit scale, leaving out `markov` gave a
+coverage of 0.44 for `psi_fs`. With the option on, both models recovered
+these quantities, with a coverage of at least 0.90 for `sd_det_site` and
+`det_y_prev`.
+
+![Coverage of the 95% intervals when the data have a source of variation
+and the model leaves it out or includes it. The dashed line marks the
+threshold of 0.90. False positives on a covariate are shown for the
+design with 20% of site-seasons
+verified.](dynamic_files/figure-html/val-omit-1.png)
+
+Coverage of the 95% intervals when the data have a source of variation
+and the model leaves it out or includes it. The dashed line marks the
+threshold of 0.90. False positives on a covariate are shown for the
+design with 20% of site-seasons verified.
+
+With strong site effects, `random_det` needed longer chains. With an SD
+of 1 and 1,000 + 1,000 iterations, 93% of fits reached R-hat below 1.01.
+With 2,000 + 2,000 iterations on the same data, 99% did, and the
+estimates did not change.
+
+## A second data set
+
+We also fitted the model to surveys of the American pika (*Ochotona
+princeps*) by Goldman et al. (2023), with 771 plots in five park units
+from 2010 to 2021. Years are the seasons, and 2015 and 2016 are seasons
+without data. Each survey gives one occasion for each ambiguous sign
+(fresh scat, fresh haypile, call), with the sign as a covariate of `det`
+and `fp`. Sightings and unambiguous fresh scat form the verified method.
+Unlike the article, this model does not give each sign its own detection
+process.
+
+The dynamic model has `psi1 ~ park`, with constant colonization and
+extinction. The independent model treats each plot-year as a site, with
+`occ ~ park + year`. All five fits had no divergent transitions, R-hat
+of at most 1.004, and a bulk effective sample size of at least 1109.
+
+![Posterior distributions of the rates of the pika model, from 1,000
+draws. \`psi_eq\` is the occupancy implied by colonization and
+extinction at equilibrium.](dynamic_files/figure-html/pika-rates-1.png)
+
+Posterior distributions of the rates of the pika model, from 1,000
+draws. `psi_eq` is the occupancy implied by colonization and extinction
+at equilibrium.
+
+Colonization was 0.048 (0.040 to 0.059) and extinction 0.071 (0.053 to
+0.090) per year. Occupancy at equilibrium was 0.41 (0.35 to 0.48). A
+call, the reference sign, was recorded on a survey of an occupied plot
+with probability 0.38 (0.35 to 0.40), and on a survey of an unoccupied
+plot with probability 0.026 (0.019 to 0.033). Goldman et al. (2023)
+report about 0.06 for both colonization and extinction with a different
+model, so the comparison is only of order of magnitude.
+
+![Mean probability that the plots of each park unit were occupied in
+each year, given all the data. The shaded years have no surveys, so
+their states come from the years around
+them.](dynamic_files/figure-html/pika-occ-1.png)
+
+Mean probability that the plots of each park unit were occupied in each
+year, given all the data. The shaded years have no surveys, so their
+states come from the years around them.
+
+Occupancy moved towards the equilibrium in most park units. Colonization
+and extinction are constant and shared in this model, so that movement
+is built in. It is not evidence of a trend in any park unit.
+
+The posterior predictive checks gave p = 0.78 for the automated method
+and p = 0.16 for the verified one, so the misfit seen on `curiango` did
+not appear here. The independent model gave p = 0.21 for the automated
+method.
+
+![Posterior predictive checks of the pika models. Each point is a draw,
+and points on the line have equal observed and replicated
+discrepancies.](dynamic_files/figure-html/pika-ppc-1.png)
+
+Posterior predictive checks of the pika models. Each point is a draw,
+and points on the line have equal observed and replicated discrepancies.
+
+Prior means of 1 to 3 for `fp_gap`, and a doubled prior SD, left the
+estimates nearly unchanged.
+
+![Posterior means and 95% intervals of the pika model under four priors
+of \`fp_gap\`, on the scale of each
+parameter.](dynamic_files/figure-html/pika-priors-1.png)
+
+Posterior means and 95% intervals of the pika model under four priors of
+`fp_gap`, on the scale of each parameter.
+
+Leaving out whole plots, PSIS-LOO favoured the dynamic model over
+independent plot-years by 178.7 (SE 42.6) in elpd, with no Pareto k
+above 0.7. With 771 plots, leaving one out removes little of the data,
+which is why LOO works here and not on the seven sites of `curiango`.
+
+Two simplifications matter. The verified occasion shares its survey with
+the automated ones, and unambiguous scat is a subset of fresh scat, so
+the two methods are not fully independent given the state. The sign also
+enters `det` and `fp` as a covariate, whereas the article gives each
+sign its own model.
+
+The script and data are in `dev/dyn-pika/` in the source repository.
 
 ## When to use it
 
@@ -242,8 +411,24 @@ another seed after a chain stuck in a second mode (see
   seasons without data. Choose covariates that exist on every night.
 - Compare with the independent model on blocks of seasons, not by LOO,
   whenever the sites are few.
+- Verify recordings in at least 10% of site-seasons, and more when
+  detection is low. Without verification, colonization and extinction
+  are biased at low detection.
+- Runs of detections are common in passive acoustic monitoring, where
+  occasions are minutes close in time. Check for them and consider
+  `markov`.
+- [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
+  simulates only single-season designs, so it does not plan a dynamic
+  study;
+  [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
+  is the starting point for that.
 
 ## References
+
+Goldman, M. R., Shinderman, M., Jeffress, M. R., Rodhouse, T. J., &
+Shoemaker, K. T. (2023). Integrating multiple sign types to improve
+occupancy estimation for inconspicuous species. *Ecology and Evolution*,
+13(5), e10019. <https://doi.org/10.1002/ece3.10019>
 
 MacKenzie, D. I., Nichols, J. D., Hines, J. E., Knutson, M. G., &
 Franklin, A. B. (2003). Estimating site occupancy, colonization, and

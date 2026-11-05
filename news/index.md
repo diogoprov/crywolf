@@ -79,6 +79,13 @@
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
   with colonization on a season covariate and initial occupancy and
   extinction on a site covariate.
+- The vignette `dynamic` and the help page of
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  report the validation in simulation and its limits at low detection
+  with little verification; the cross-validation on `curiango` adds
+  `markov` and `random_det`.
+  [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
+  says that it does not simulate dynamic designs.
 - New vignette `dynamic`:
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
   on the `curiango` data with the nights of each site as seasons (use

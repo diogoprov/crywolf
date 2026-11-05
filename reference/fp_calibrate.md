@@ -111,7 +111,9 @@ rate (`fp_w`).
 ## See also
 
 [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md),
-[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
+[`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md);
+for dynamic designs, which this function does not simulate,
+[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
 
 ## Examples
 

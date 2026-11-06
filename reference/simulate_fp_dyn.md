@@ -6,9 +6,7 @@ the occupancy state of each site changes between seasons by colonization
 and extinction, and within each season it is observed as in
 [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md),
 by an automated method with false positives and, at a random subset of
-site-seasons, a verified method without them. **This function is
-experimental** (see
-[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md)).
+site-seasons, a verified method without them.
 
 ## Usage
 

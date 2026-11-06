@@ -20,8 +20,7 @@ plot(x, coords = NULL, ...)
 
 - object:
 
-  An `fp_occu` object, or an `fp_occu_dyn` object (experimental; see
-  Details).
+  An `fp_occu` object, or an `fp_occu_dyn` object (see Details).
 
 - prob:
 

@@ -9,7 +9,7 @@ functions are still experimental."><meta property="og:image" content="https://pr
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@ functions are still experimental."><meta property="og:image" content="https://pr
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Stability of the crywolf interface</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v2.2.0/R/api-stability.R" class="external-link"><code>R/api-stability.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/api-stability.R" class="external-link"><code>R/api-stability.R</code></a></small>
       <div class="d-none name"><code>crywolf-api.Rd</code></div>
     </div>
 
@@ -77,8 +77,8 @@ an argument after the existing named ones (and before a trailing
 <li><p><strong>Classes</strong>: the crywolf classes their results inherit from
 (<code>fp_data</code>, <code>fp_occu</code>, <code>fp_priors</code>, <code>fp_sim</code>, <code>fp_calibration</code>,
 <code>fp_sbc</code>, <code>fp_ppc</code>, <code>fp_prior_predictive</code>, <code>fp_effects</code>, <code>fp_sites</code>,
-<code>fp_threshold_sweep</code>, <code>fp_sheepdog</code>, <code>summary.fp_occu</code>,
-<code>summary.fp_calibration</code>, <code>summary.fp_sbc</code>), and the class of the
+<code>fp_threshold_sweep</code>, <code>fp_sheepdog</code>, <code>fp_occu_dyn</code>, <code>fp_sim_dyn</code>,
+<code>summary.fp_occu</code>, <code>summary.fp_calibration</code>, <code>summary.fp_sbc</code>), and the class of the
 design warnings of <code><a href="fp_data.html">fp_data()</a></code> (<code>crywolf_design_warning</code>), which code
 may catch. Classes of other packages (the <code>CmdStanModel</code> of
 <code><a href="fp_compile.html">fp_compile()</a></code>, the <code>psis_loo</code> of <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code>) are theirs to keep.</p></li>
@@ -113,10 +113,11 @@ and method, so that a change cannot pass unnoticed.</p>
 <code><a href="fp_compile.html">fp_compile()</a></code>, <code><a href="fp_stan_file.html">fp_stan_file()</a></code>, <code><a href="fp_prior_predictive.html">fp_prior_predictive()</a></code>, <code><a href="fp_ppc.html">fp_ppc()</a></code>,
 <code><a href="fp_loo_weights.html">fp_loo_weights()</a></code>, the methods in <a href="fp_occu-methods.html">fp_occu-methods</a> (<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>,
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code>, <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code>) and
-<code><a href="simulate.fp_occu.html">simulate.fp_occu()</a></code>.</p>
+<code><a href="simulate.fp_occu.html">simulate.fp_occu()</a></code>. From 2.3.0, <code><a href="fp_occu_dyn.html">fp_occu_dyn()</a></code>, the dynamic
+(multi-season) model, with its methods and <code><a href="simulate.fp_occu_dyn.html">simulate.fp_occu_dyn()</a></code>.</p>
 <p>Results and simulation: <code><a href="fp_effects.html">fp_effects()</a></code>, <code><a href="fp_sites.html">fp_sites()</a></code>, <code><a href="simulate_fp.html">simulate_fp()</a></code>,
 <code><a href="fp_calibrate.html">fp_calibrate()</a></code>, <code><a href="fp_verification_curve.html">fp_verification_curve()</a></code>, <code><a href="fp_calibrate_fit.html">fp_calibrate_fit()</a></code>,
-<code><a href="fp_sbc.html">fp_sbc()</a></code>.</p>
+<code><a href="fp_sbc.html">fp_sbc()</a></code>, and, from 2.3.0, <code><a href="simulate_fp_dyn.html">simulate_fp_dyn()</a></code>.</p>
 <p>The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> methods of the classes above
 are stable too.</p>
     </div>
@@ -129,10 +130,7 @@ are stable too.</p>
 classifier calibration from 'sheepdog' into the model or pass data to
 'unmarked', and are still being evaluated. Their arguments, classes and
 results may change in a minor version; the NEWS will say so. Each says
-so in its help. <code><a href="fp_occu_dyn.html">fp_occu_dyn()</a></code>, the dynamic (multi-season) model, with
-the <code>fp_occu_dyn</code> class and its methods, and its simulator
-<code><a href="simulate_fp_dyn.html">simulate_fp_dyn()</a></code>, are experimental in the same way; the <code>season</code> and <code>season_covs</code> arguments of <code><a href="fp_data.html">fp_data()</a></code> that feed
-it are stable. <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>, the multispecies model, with the
+so in its help. <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>, the multispecies model, with the
 <code>fp_occu_ms</code> class and its methods, is in development and experimental
 in the same way, as is the <code>species</code> argument of <code><a href="fp_data.html">fp_data()</a></code> that
 feeds it. <code><a href="fp_read_sheepdog.html">fp_read_sheepdog()</a></code>, by contrast, reads a versioned

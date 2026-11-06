@@ -197,7 +197,7 @@ brackets: `occ_<term>[species]`, `det_(Intercept)[species]`,
 `p10_bar`. `log_lik[i]` is the log-likelihood of unit `i`, site
 `(i - 1) %/% nspecies + 1` and species `(i - 1) %% nspecies + 1`.
 
-## Dynamic model (experimental)
+## Dynamic model
 
 [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
 uses the names above, except that the coefficients of initial occupancy

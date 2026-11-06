@@ -8,8 +8,7 @@ which occasions were checked), as
 [`simulate.fp_occu()`](https://provetelab.org/crywolf/reference/simulate.fp_occu.md)
 does for a single season. The latent states are drawn anew over seasons,
 from initial occupancy, colonization and extinction, and the detections
-given them. **Experimental**, like
-[`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md).
+given them.
 
 ## Usage
 

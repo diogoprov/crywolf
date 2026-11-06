@@ -1,8 +1,5 @@
 # Use from one night to the next
 
-*[`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
-is experimental: its interface may change in a later version.*
-
 The other articles on the `curiango` data (Piatti et al., 2026) treat
 each site-night as an independent site. A recorder that picked up the
 Common Pauraque last night is then no more likely to pick it up tonight

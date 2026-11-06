@@ -7,9 +7,7 @@ observation model is that of
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md): the
 multiple-methods and observation-confirmation designs, verified
 detections, recorder and site effects, false-positive covariates and
-runs of detections. **This function is experimental** (see
-[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md)):
-its arguments, results and output names may change in a minor version.
+runs of detections.
 
 ## Usage
 

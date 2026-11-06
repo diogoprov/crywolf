@@ -15,9 +15,9 @@ From crywolf 2.0.0, for the stable functions listed below:
 - **Classes**: the crywolf classes their results inherit from
   (`fp_data`, `fp_occu`, `fp_priors`, `fp_sim`, `fp_calibration`,
   `fp_sbc`, `fp_ppc`, `fp_prior_predictive`, `fp_effects`, `fp_sites`,
-  `fp_threshold_sweep`, `fp_sheepdog`, `summary.fp_occu`,
-  `summary.fp_calibration`, `summary.fp_sbc`), and the class of the
-  design warnings of
+  `fp_threshold_sweep`, `fp_sheepdog`, `fp_occu_dyn`, `fp_sim_dyn`,
+  `summary.fp_occu`, `summary.fp_calibration`, `summary.fp_sbc`), and
+  the class of the design warnings of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   (`crywolf_design_warning`), which code may catch. Classes of other
   packages (the `CmdStanModel` of
@@ -82,6 +82,10 @@ the methods in
 [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html))
 and
 [`simulate.fp_occu()`](https://provetelab.org/crywolf/reference/simulate.fp_occu.md).
+From 2.3.0,
+[`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
+the dynamic (multi-season) model, with its methods and
+[`simulate.fp_occu_dyn()`](https://provetelab.org/crywolf/reference/simulate.fp_occu_dyn.md).
 
 Results and simulation:
 [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md),
@@ -90,7 +94,9 @@ Results and simulation:
 [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
 [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md),
 [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md),
-[`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md).
+[`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md), and,
+from 2.3.0,
+[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md).
 
 The [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
@@ -108,14 +114,6 @@ propagate a classifier calibration from 'sheepdog' into the model or
 pass data to 'unmarked', and are still being evaluated. Their arguments,
 classes and results may change in a minor version; the NEWS will say so.
 Each says so in its help.
-[`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
-the dynamic (multi-season) model, with the `fp_occu_dyn` class and its
-methods, and its simulator
-[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
-are experimental in the same way; the `season` and `season_covs`
-arguments of
-[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) that
-feed it are stable.
 [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
 the multispecies model, with the `fp_occu_ms` class and its methods, is
 in development and experimental in the same way, as is the `species`

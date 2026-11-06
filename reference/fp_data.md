@@ -144,7 +144,13 @@ and about seasons at unequal intervals that could not be filled in. With
 method, species without any verified detection, whose false-positive
 rates are then informed only by the other species and the priors, and
 sites where the species have unequal numbers of occasions (often
-occasions without a detection left out for some species).
+occasions without a detection left out for some species). With
+`verified` and `confirmed`, it warns about occasions present in
+`verified` and as confirmed rows of `auto`, which enter the likelihood
+twice. That is correct only for two independent reviews, not for one
+verdict copied to both tables. Occasions are compared by site and
+`occasion_id`, and also by species with `species` and by season with
+`season`, only when both tables have an `occasion_id` column.
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 builds `auto` from classifier output.
 

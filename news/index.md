@@ -9,6 +9,15 @@
   joined the stable interface after 2.2.0 was released without changes
   to them (see
   [`help("crywolf-api")`](https://provetelab.org/crywolf/reference/crywolf-api.md)).
+- New article `how-crywolf-works`: what the model does and why it needs
+  verified or confirmed data, in figures and without equations.
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  warns about occasions that are both in `verified` and confirmed rows
+  of `auto`, which enter the likelihood twice. That is correct only for
+  two independent reviews, not for one verdict copied to both tables.
+  They are compared by site and `occasion_id` (and species with
+  `species`, season with `season`) when both tables have an
+  `occasion_id` column, as in a ‘sheepdog’ export.
 
 ## crywolf 2.2.0
 

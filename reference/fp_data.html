@@ -27,7 +27,8 @@ detection matrices, as in 'unmarked'."><meta property="og:image" content="https:
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-crywolf-works.html">Illustrating how crywolf works</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>From data to results</h6></li>
     <li><a class="dropdown-item" href="../articles/birdnet_workflow.html">From BirdNET output to an occupancy model</a></li>
     <li><a class="dropdown-item" href="../articles/threshold.html">Choosing a classifier threshold</a></li>
@@ -205,7 +206,13 @@ about seasons at unequal intervals that could not be filled in. With
 species without any verified detection, whose false-positive rates are
 then informed only by the other species and the priors, and sites where
 the species have unequal numbers of occasions (often occasions without a
-detection left out for some species).
+detection left out for some species). With <code>verified</code> and <code>confirmed</code>, it
+warns about occasions present in <code>verified</code> and as confirmed rows of
+<code>auto</code>, which enter the likelihood twice. That is correct only for two
+independent reviews, not for one verdict copied to both tables. Occasions
+are compared by site and <code>occasion_id</code>, and also by species with <code>species</code>
+and by season with <code>season</code>, only when both tables have an <code>occasion_id</code>
+column.
 <code><a href="fp_aggregate.html">fp_aggregate()</a></code> builds <code>auto</code> from classifier output.</p>
     </div>
     <div class="section level2">

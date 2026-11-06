@@ -4,6 +4,8 @@
 
 - [Introduction to
   crywolf](https://provetelab.org/crywolf/articles/crywolf.md):
+- [Illustrating how crywolf
+  works](https://provetelab.org/crywolf/articles/how-crywolf-works.md):
 
 ### From data to results
 

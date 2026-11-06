@@ -8,6 +8,7 @@ articles:
   curiango: curiango.html
   dynamic: dynamic.html
   fp_variation: fp_variation.html
+  articles/how-crywolf-works: how-crywolf-works.html
   markov: markov.html
   performance: performance.html
   planning: planning.html
@@ -17,7 +18,7 @@ articles:
   stan_model: stan_model.html
   threshold: threshold.html
   unmarked: unmarked.html
-last_built: 2026-11-06T20:41Z
+last_built: 2026-11-06T22:39Z
 urls:
   reference: https://provetelab.org/crywolf/reference
   article: https://provetelab.org/crywolf/articles

@@ -19,7 +19,8 @@
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/how-crywolf-works.html">Illustrating how crywolf works</a></li>
+    <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>From data to results</h6></li>
     <li><a class="dropdown-item" href="../articles/birdnet_workflow.html">From BirdNET output to an occupancy model</a></li>
     <li><a class="dropdown-item" href="../articles/threshold.html">Choosing a classifier threshold</a></li>
@@ -61,6 +62,7 @@
 <h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
 <ul><li>
 <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>, <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code> and the <code>fp_occu_dyn</code> and <code>fp_sim_dyn</code> classes and their methods are no longer experimental. Their arguments, classes and output names joined the stable interface after 2.2.0 was released without changes to them (see <code><a href="../reference/crywolf-api.html">help("crywolf-api")</a></code>).</li>
+<li>New article <code>how-crywolf-works</code>: what the model does and why it needs verified or confirmed data, in figures and without equations.</li>
 <li>
 <code><a href="../reference/fp_data.html">fp_data()</a></code> warns about occasions that are both in <code>verified</code> and confirmed rows of <code>auto</code>, which enter the likelihood twice. That is correct only for two independent reviews, not for one verdict copied to both tables. They are compared by site and <code>occasion_id</code> (and species with <code>species</code>, season with <code>season</code>) when both tables have an <code>occasion_id</code> column, as in a ‘sheepdog’ export.</li>
 </ul></div>

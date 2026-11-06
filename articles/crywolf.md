@@ -38,10 +38,6 @@ value, and verifying up to 90% of the sites did not fix it. Letting the
 false-positive rate depend on covariates did. Weak confusion left the
 constant-rate model calibrated.
 
-For a visual walk-through of the model, without equations, see
-[Illustrating how crywolf
-works](https://provetelab.org/crywolf/articles/how-crywolf-works.html).
-
 This vignette walks through a complete analysis with simulated data:
 
 - assembling data with
@@ -1185,11 +1181,6 @@ the logit of s_1 (true value 0.6, so 0.41 on the logit scale), are all
 estimated without verified surveys. Both kinds of known truth can be
 combined: keep a verified method in `verified` and add confirmed
 occasions to `auto`.
-
-The [visual
-walk-through](https://provetelab.org/crywolf/articles/how-crywolf-works.html#it-needs-some-known-truth)
-compares the multiple-methods and observation-confirmation designs: what
-each recovers best, what it anchors and what it cannot see.
 
 ## Next steps
 

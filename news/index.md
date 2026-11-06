@@ -1,6 +1,6 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 2.2.0
 
 ### Multispecies model (in development)
 

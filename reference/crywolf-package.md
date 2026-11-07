@@ -31,8 +31,9 @@ The package has three parts:
   and
   [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
   build the data from classifier output, and
-  [curiango](https://provetelab.org/crywolf/reference/curiango.md) holds
-  a real dataset.
+  [curiango](https://provetelab.org/crywolf/reference/curiango.md) and
+  [pika](https://provetelab.org/crywolf/reference/pika.md) hold real
+  datasets.
 
 - **Checking and plotting.**
   [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)

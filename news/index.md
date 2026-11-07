@@ -13,6 +13,9 @@
   verified or confirmed data, in figures and without equations.
 - The site has a three-page cheat sheet, in the tab “Cheat sheet”, with
   the figures of that article.
+- New dataset `pika`: surveys of the American pika by Goldman et
+  al. (2023), used in
+  [`vignette("dynamic")`](https://provetelab.org/crywolf/articles/dynamic.md).
 - [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   warns about occasions that are both in `verified` and confirmed rows
   of `auto`, which enter the likelihood twice. That is correct only for

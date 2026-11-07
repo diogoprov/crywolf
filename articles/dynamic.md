@@ -397,7 +397,26 @@ the two methods are not fully independent given the state. The sign also
 enters `det` and `fp` as a covariate, whereas the article gives each
 sign its own model.
 
-The script and data are in `dev/dyn-pika/` in the source repository.
+The checks above also have a limit. Goldman et al. (2023) class fresh
+scat as unambiguous when a fresh haypile was seen on the same survey. In
+this design, the automated scat and haypile occasions therefore never
+coincide. We refitted the model with two other verified methods, which
+return that scat to the automated occasions: sightings and unambiguous
+scat without a fresh haypile, and sightings alone. Both fits converged,
+and both failed the check of the automated method (p = 0.00). The two
+signs then coincided on 423 surveys, 2.5 to 3 times the number expected
+from their marginal rates. Part of this excess may only reflect that
+occupied plots have more signs. Our reading, which we did not test, is
+that signs of one survey are more alike than the model allows. The good
+check above is therefore not evidence that the signs are independent.
+
+Because these two fits failed the check, they only suggest the size of
+the effect. Their `psi_eq` was 0.42 and 0.34, against 0.41 in a refit of
+the model above. Colonization fell from 0.048 to 0.038 and 0.035, and
+extinction from 0.071 to 0.053 and 0.068.
+
+The data are in `pika`, and the scripts are in `dev/dyn-pika/` in the
+source repository.
 
 ## When to use it
 

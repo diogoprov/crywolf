@@ -276,10 +276,13 @@ design.
 
 ## Example data
 
-Passive acoustic monitoring of the Common Pauraque in the Pantanal.
+Passive acoustic monitoring of the Common Pauraque in the Pantanal, and
+surveys of the American pika.
 
 - [`curiango`](https://provetelab.org/crywolf/reference/curiango.md) :
   Passive acoustic monitoring of the Common Pauraque in the Pantanal
+- [`pika`](https://provetelab.org/crywolf/reference/pika.md) : Surveys
+  of the American pika in five park units of the western United States
 
 ## Package
 

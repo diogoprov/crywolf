@@ -43,6 +43,7 @@
     <li><a class="dropdown-item" href="../articles/stan_model.html">The Stan model</a></li>
     <li><a class="dropdown-item" href="../articles/performance.html">Performance</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../cheatsheet/crywolf-cheatsheet.pdf">Cheat sheet</a></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -63,6 +64,7 @@
 <ul><li>
 <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>, <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code> and the <code>fp_occu_dyn</code> and <code>fp_sim_dyn</code> classes and their methods are no longer experimental. Their arguments, classes and output names joined the stable interface after 2.2.0 was released without changes to them (see <code><a href="../reference/crywolf-api.html">help("crywolf-api")</a></code>).</li>
 <li>New article <code>how-crywolf-works</code>: what the model does and why it needs verified or confirmed data, in figures and without equations.</li>
+<li>The site has a three-page cheat sheet, in the tab “Cheat sheet”, with the figures of that article.</li>
 <li>
 <code><a href="../reference/fp_data.html">fp_data()</a></code> warns about occasions that are both in <code>verified</code> and confirmed rows of <code>auto</code>, which enter the likelihood twice. That is correct only for two independent reviews, not for one verdict copied to both tables. They are compared by site and <code>occasion_id</code> (and species with <code>species</code>, season with <code>season</code>) when both tables have an <code>occasion_id</code> column, as in a ‘sheepdog’ export.</li>
 </ul></div>

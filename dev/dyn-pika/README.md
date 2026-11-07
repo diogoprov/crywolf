@@ -56,9 +56,10 @@ verified one, so their estimates only bound the effect and are not better fits. 
 the base design the automated scat and haypile occasions never coincide, because
 scat seen with a haypile moves to the verified occasion. In the alternatives they
 coincide on 423 surveys, 2.5 to 3 times the number expected from their marginal
-rates. Our reading, not tested here, is that signs of one survey are more alike than
-the model allows, and that the rule hides this from the check. The base PPC is
-therefore not evidence that the signs are independent.
+rates. Part of this excess may only reflect that occupied plots have more signs. Our
+reading, not tested here, is that signs of one survey are more alike than the model
+allows, and that the rule hides this from the check. The base PPC is therefore not
+evidence that the signs are independent.
 
 Goldman et al. treat calls as ambiguous, although the false calls they expect
 come from pikas just outside the plot, not from other species.

@@ -2,8 +2,9 @@
 
 `run.R` fits `fp_occu_dyn()` to the American pika surveys of Goldman et al.
 (2023, *Ecology and Evolution* 13: e10019, doi:10.1002/ece3.10019). Its header
-gives the design. `post_process.csv` comes unchanged from Dryad
-(doi:10.5061/dryad.ttdz08m2n, CC0). The data were collected by the OSU Cascades
+gives the design. The data are the `pika` dataset, whose
+`post_process.csv` comes unchanged from Dryad (doi:10.5061/dryad.ttdz08m2n, CC0)
+and is in `data-raw/`. The data were collected by the OSU Cascades
 Human and Ecosystem Resilience and Sustainability Lab with support from the
 National Park Service, and uses of them should attribute that source.
 

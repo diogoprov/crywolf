@@ -2,7 +2,7 @@
 # dev/dyn-pika/run.R
 # Criterion 8 of dev/dyn-val/README.md: fp_occu_dyn() on a second data set,
 # independent of curiango. American pika surveys of Goldman et al. (2023,
-# Ecology and Evolution 13: e10019), post_process.csv from Dryad
+# Ecology and Evolution 13: e10019), the `pika` dataset, from Dryad
 # (doi:10.5061/dryad.ttdz08m2n, CC0), collected by the OSU Cascades Human and
 # Ecosystem Resilience and Sustainability Lab with support from the National
 # Park Service.
@@ -25,7 +25,7 @@
 
 library(crywolf)
 dir <- file.path("dev", "dyn-pika")
-raw <- read.csv(file.path(dir, "post_process.csv"), na.strings = c("NA", ""))
+raw <- pika
 raw$FS_U[is.na(raw$FS_U)] <- 0
 years <- as.character(2010:2021)
 

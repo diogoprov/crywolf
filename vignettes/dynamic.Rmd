@@ -484,7 +484,7 @@ automated ones, and unambiguous scat is a subset of fresh scat, so the two metho
 are not fully independent given the state. The sign also enters `det` and `fp` as a
 covariate, whereas the article gives each sign its own model.
 
-The script and data are in `dev/dyn-pika/` in the source repository.
+The data are in `pika`, and the script is in `dev/dyn-pika/` in the source repository.
 
 ## When to use it
 

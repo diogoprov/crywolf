@@ -15,14 +15,17 @@ A data frame with 5,126 rows, one per survey, and 29 columns:
 \item{\code{Field_Date}, \code{Year}, \code{Month}, \code{Yday}}{Date of the survey
 (day/month/year, as text), and its year, month and day of the year.}
 \item{\code{Season}, \code{ssn}}{Season of the survey, as text (\code{summer}, or \code{autumm}
-as spelled in the source) and as 0 or 1.}
+as spelled in the source) and as 0 or 1. The source describes \code{ssn} as
+the original survey (summer) or the resurvey (autumn), but 2,489 surveys
+are in autumn and 1,107 are resurveys by \code{resurv}.}
 \item{\code{FS}, \code{OS}, \code{FH}, \code{OH}}{Number of fresh and old scat and fresh and old
 haypile observations.}
 \item{\code{PC}, \code{PS}}{Number of calls and sightings.}
 \item{\code{FS_U}}{Number of fresh scat observations classed as unambiguous. See
 Details.}
 \item{\code{hassign}}{1 if the survey recorded any of the six signs above.}
-\item{\code{resurv}}{1 for the second survey of a plot-year.}
+\item{\code{resurv}}{1 for a resurvey, 0 for the original survey. These 1,107 are
+the second surveys of a plot-year; the seven third surveys have 0.}
 \item{\code{PerClass_Rock}, \code{PerClass_Bare}, \code{PerClass_Grass}, \code{PerClass_Shrub},
 \code{PerClass_Tree}, \code{PerClass_Forb}}{Cover class of rock, bare ground,
 grasses, shrubs, trees and forbs, as text. Goldman et al. (2023) give
@@ -57,7 +60,7 @@ a false-positive occupancy model with a verified method.
 }
 \details{
 Rows and columns are those of \code{post_process.csv} in the public deposit, with
-empty cells as \code{NA}. The script is \code{data-raw/pika.R} in the package
+empty cells, which the source defines as no data available, as \code{NA}. The script is \code{data-raw/pika.R} in the package
 repository.
 
 Fresh scat is unambiguous when the surveyor's notes describe fresh mucous

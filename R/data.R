@@ -80,14 +80,17 @@
 #'   \item{`Field_Date`, `Year`, `Month`, `Yday`}{Date of the survey
 #'     (day/month/year, as text), and its year, month and day of the year.}
 #'   \item{`Season`, `ssn`}{Season of the survey, as text (`summer`, or `autumm`
-#'     as spelled in the source) and as 0 or 1.}
+#'     as spelled in the source) and as 0 or 1. The source describes `ssn` as
+#'     the original survey (summer) or the resurvey (autumn), but 2,489 surveys
+#'     are in autumn and 1,107 are resurveys by `resurv`.}
 #'   \item{`FS`, `OS`, `FH`, `OH`}{Number of fresh and old scat and fresh and old
 #'     haypile observations.}
 #'   \item{`PC`, `PS`}{Number of calls and sightings.}
 #'   \item{`FS_U`}{Number of fresh scat observations classed as unambiguous. See
 #'     Details.}
 #'   \item{`hassign`}{1 if the survey recorded any of the six signs above.}
-#'   \item{`resurv`}{1 for the second survey of a plot-year.}
+#'   \item{`resurv`}{1 for a resurvey, 0 for the original survey. These 1,107 are
+#'     the second surveys of a plot-year; the seven third surveys have 0.}
 #'   \item{`PerClass_Rock`, `PerClass_Bare`, `PerClass_Grass`, `PerClass_Shrub`,
 #'     `PerClass_Tree`, `PerClass_Forb`}{Cover class of rock, bare ground,
 #'     grasses, shrubs, trees and forbs, as text. Goldman et al. (2023) give
@@ -103,7 +106,7 @@
 #'
 #' @details
 #' Rows and columns are those of `post_process.csv` in the public deposit, with
-#' empty cells as `NA`. The script is `data-raw/pika.R` in the package
+#' empty cells, which the source defines as no data available, as `NA`. The script is `data-raw/pika.R` in the package
 #' repository.
 #'
 #' Fresh scat is unambiguous when the surveyor's notes describe fresh mucous

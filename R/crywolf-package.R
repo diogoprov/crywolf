@@ -23,7 +23,7 @@
 #'   expert checks the detections of some automated occasions, is supported
 #'   through the `confirmed` argument of [fp_data()]. [fp_read_birdnet()],
 #'   [fp_read_validation()], and [fp_aggregate()] build the data from
-#'   classifier output, and [curiango] holds a real dataset.
+#'   classifier output, and [curiango] and [pika] hold real datasets.
 #' * **Checking and plotting.** [fp_prior_predictive()] checks the priors
 #'   against the data, [fp_ppc()] runs a posterior predictive check, and
 #'   [plot.fp_occu()], [fp_effects()], and [fp_sites()] show the

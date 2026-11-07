@@ -72,9 +72,12 @@ reference:
       - simulate.fp_occu_dyn
       - plot.fp_calibration
   - title: Example data
-    desc: Passive acoustic monitoring of the Common Pauraque in the Pantanal.
+    desc: >
+      Passive acoustic monitoring of the Common Pauraque in the Pantanal, and
+      surveys of the American pika.
     contents:
       - curiango
+      - pika
   - title: Package
     contents:
       - crywolf-package

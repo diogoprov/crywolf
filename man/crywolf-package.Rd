@@ -28,7 +28,7 @@ observation-confirmation design of Chambert et al. (2015), in which an
 expert checks the detections of some automated occasions, is supported
 through the \code{confirmed} argument of \code{\link[=fp_data]{fp_data()}}. \code{\link[=fp_read_birdnet]{fp_read_birdnet()}},
 \code{\link[=fp_read_validation]{fp_read_validation()}}, and \code{\link[=fp_aggregate]{fp_aggregate()}} build the data from
-classifier output, and \link{curiango} holds a real dataset.
+classifier output, and \link{curiango} and \link{pika} hold real datasets.
 \item \strong{Checking and plotting.} \code{\link[=fp_prior_predictive]{fp_prior_predictive()}} checks the priors
 against the data, \code{\link[=fp_ppc]{fp_ppc()}} runs a posterior predictive check, and
 \code{\link[=plot.fp_occu]{plot.fp_occu()}}, \code{\link[=fp_effects]{fp_effects()}}, and \code{\link[=fp_sites]{fp_sites()}} show the

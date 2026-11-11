@@ -28,7 +28,13 @@
 #' positives than a random sample and would make the false-positive rate
 #' look lower than it is. By default they are dropped with a warning
 #' (`keep_top = FALSE`); they remain useful to calibrate the classifier
-#' within sheepdog.
+#' within sheepdog. Clips of the `"directed_pps"` design (sheepdog's
+#' `select_directed()`) are kept with a warning: within each review unit
+#' (for example site x species x month) the occasion is drawn independently
+#' of the score, but the units are drawn with unequal probabilities, whose
+#' size may come from the scores, and crywolf reads `inclusion_prob` without
+#' weighting by it. Estimates from them are conditional on the units drawn;
+#' weighting comes with a model of the scores.
 #'
 #' **Clips and recordings.** A positive clip proves that the species called
 #' in its occasion; a negative clip says only that this prediction was
@@ -159,6 +165,13 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
       validation <- validation[!duplicated(validation[c("site", "occasion_id",
                                                         "species_code", "clip_start")]), ,
                                drop = FALSE]
+    }
+    pps <- validation$sampling_mode %in% "directed_pps"
+    if (any(pps)) {
+      warning(sum(pps), " reviewed clip(s) drawn with sampling_mode = \"directed_pps\": ",
+              "their units were drawn with unequal probabilities (inclusion_prob), ",
+              "possibly from the scores, and the models of crywolf do not weight ",
+              "them. See ?fp_read_sheepdog.", call. = FALSE)
     }
     if (nrow(validation) == 0) validation <- NULL
   }

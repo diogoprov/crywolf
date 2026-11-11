@@ -196,8 +196,8 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #' is the quantity to map or rank sites by: a site with automated detections
 #' but a high false-positive rate can still be unlikely to be occupied.
 #'
-#' @param object An `fp_occu` object, or an `fp_occu_dyn` object
-#'   (see Details).
+#' @param object An `fp_occu` object, an `fp_occu_dyn` object or an
+#'   `fp_occu_ms` object (see Details).
 #' @param prob Width of the credible intervals.
 #' @param ndraws Number of posterior draws to use (all by default).
 #' @param seed Optional seed for the choice of draws.
@@ -212,8 +212,13 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #' forward-backward algorithm for each posterior draw). `detections`,
 #' `verified` and `p10` refer to the site-season.
 #'
+#' For a multispecies model ([fp_occu_ms()]) the result has one row per site
+#' and species, with the species column of the data after the site columns,
+#' and every column refers to that species at that site.
+#'
 #' @return A data frame of class `fp_sites`, one row per site (per
-#'   site-season for a dynamic model), with the
+#'   site-season for a dynamic model, per site and species for a
+#'   multispecies model), with the
 #'   site columns of the data, `psi` (occupancy probability, with `psi_lower`
 #'   and `psi_upper`), `occupied` (posterior probability that the site is
 #'   occupied given its data), `occupied_lower` and `occupied_upper`
@@ -235,31 +240,39 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #' }
 fp_sites <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   if (inherits(object, "fp_occu_dyn")) return(.fp_sites_dyn(object, prob, ndraws, seed))
+  if (inherits(object, "fp_occu_ms")) return(.fp_sites_ms(object, prob, ndraws, seed))
   sd <- object$stan_data
   if (!is.null(seed)) .set_seed(seed)
   pars <- .ppc_pars(object$fit, sd, ndraws)
   r <- .ppc_core(sd, pars, "automated", "freeman-tukey")
+  structure(.sites_table(object$data$sites, sd, pars, r$pz, prob),
+            class = c("fp_sites", "data.frame"), prob = prob)
+}
+
+# the columns of fp_sites() for the sites of one fp_occu() model, given the
+# draws of its parameters and the conditional probabilities of occupancy pz
+.sites_table <- function(sites, sd, pars, pz, prob) {
   psi <- stats::plogis(pars$beta %*% t(sd$X))
   a <- (1 - prob) / 2
   q <- .col_quantile
   new <- c("psi", "psi_lower", "psi_upper", "occupied", "occupied_lower",
            "occupied_upper", "detections", "verified", "p10")
-  clash <- intersect(new, names(object$data$sites))
+  clash <- intersect(new, names(sites))
   if (length(clash)) {
     stop("The sites table already has column(s) ", paste(clash, collapse = ", "),
          "; rename them before calling fp_sites().", call. = FALSE)
   }
   out <- data.frame(
-    object$data$sites,
+    sites,
     psi = colMeans(psi), psi_lower = q(psi, a), psi_upper = q(psi, 1 - a),
-    occupied = colMeans(r$pz), occupied_lower = q(r$pz, a),
-    occupied_upper = q(r$pz, 1 - a),
+    occupied = colMeans(pz), occupied_lower = q(pz, a),
+    occupied_upper = q(pz, 1 - a),
     detections = tabulate(rep(sd$site2, sd$y2), nbins = sd$nsite),
     verified = sd$known_present == 1,
     row.names = NULL
   )
   if (sd$estimate_fp == 1) out$p10 <- colMeans(.p10_site_draws(sd, pars))
-  structure(out, class = c("fp_sites", "data.frame"), prob = prob)
+  out
 }
 
 #' @rdname fp_sites

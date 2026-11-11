@@ -10,8 +10,8 @@ fp_sites(object, prob = 0.95, ndraws = NULL, seed = NULL)
 \method{plot}{fp_sites}(x, coords = NULL, ...)
 }
 \arguments{
-\item{object}{An \code{fp_occu} object, or an \code{fp_occu_dyn} object
-(see Details).}
+\item{object}{An \code{fp_occu} object, an \code{fp_occu_dyn} object or an
+\code{fp_occu_ms} object (see Details).}
 
 \item{prob}{Width of the credible intervals.}
 
@@ -30,7 +30,8 @@ the sites are ranked by it.}
 }
 \value{
 A data frame of class \code{fp_sites}, one row per site (per
-site-season for a dynamic model), with the
+site-season for a dynamic model, per site and species for a
+multispecies model), with the
 site columns of the data, \code{psi} (occupancy probability, with \code{psi_lower}
 and \code{psi_upper}), \code{occupied} (posterior probability that the site is
 occupied given its data), \code{occupied_lower} and \code{occupied_upper}
@@ -58,6 +59,10 @@ extinction), and \code{occupied} the probability that the site-season is
 occupied given all the data of the site, in every season (computed by the
 forward-backward algorithm for each posterior draw). \code{detections},
 \code{verified} and \code{p10} refer to the site-season.
+
+For a multispecies model (\code{\link[=fp_occu_ms]{fp_occu_ms()}}) the result has one row per site
+and species, with the species column of the data after the site columns,
+and every column refers to that species at that site.
 }
 \examples{
 \dontrun{

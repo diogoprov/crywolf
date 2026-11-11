@@ -82,9 +82,10 @@ Fits the false-positive occupancy model of \code{\link[=fp_occu]{fp_occu()}} to 
 at once, with the coefficients of each species drawn from distributions
 of the community, so that rare species borrow strength from the others.
 \strong{This function is in development} (see \link{crywolf-api}): its arguments,
-results and output names may change in a minor version, and it lacks the
-methods of \code{\link[=fp_occu]{fp_occu()}} other than \code{print()}, \code{summary()} and
-\code{as_draws_df()}.
+results and output names may change in a minor version. Besides \code{print()},
+\code{summary()} and \code{as_draws_df()}, it works with \code{\link[=fp_sites]{fp_sites()}} (by site and
+species), \code{\link[=fp_ppc]{fp_ppc()}}, \link[=simulate.fp_occu_ms]{simulate()} and
+\code{\link[=fp_richness]{fp_richness()}}; the other methods of \code{\link[=fp_occu]{fp_occu()}} are not available.
 }
 \details{
 Each species \eqn{s} has its own occupancy coefficients
@@ -128,5 +129,5 @@ m
 }
 }
 \seealso{
-\code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_occu]{fp_occu()}}
+\code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_occu]{fp_occu()}}, \code{\link[=simulate_fp_ms]{simulate_fp_ms()}}, \code{\link[=fp_richness]{fp_richness()}}
 }

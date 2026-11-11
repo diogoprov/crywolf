@@ -65,7 +65,8 @@
 #' 'unmarked', and are still being evaluated. Their arguments, classes and
 #' results may change in a minor version; the NEWS will say so. Each says
 #' so in its help. [fp_occu_ms()], the multispecies model, with the
-#' `fp_occu_ms` class and its methods, is in development and experimental
+#' `fp_occu_ms` class and its methods, [fp_richness()] and
+#' [simulate_fp_ms()], is in development and experimental
 #' in the same way, as is the `species` argument of [fp_data()] that
 #' feeds it. [fp_read_sheepdog()], by contrast, reads a versioned
 #' export format (`sheepdog-occupancy`, schema 1) and is stable.

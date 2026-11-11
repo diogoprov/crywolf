@@ -26,6 +26,7 @@ simulate_fp_ms(
   ngroup = NULL,
   sd_fp_group = 0,
   sd_fp_site = 0,
+  psi_rare = NULL,
   seed = NULL
 )
 }
@@ -65,6 +66,10 @@ expects.}
 logit of the false-positive rate for each group and species (needs
 \code{ngroup}) and for each site and species, as in \code{\link[=fp_occu_ms]{fp_occu_ms()}}. 0 by
 default.}
+
+\item{psi_rare}{Optional occupancy probability of the first species at the
+mean of \code{x}, in place of its draw from the community, to make it rare
+(its slope is still drawn).}
 
 \item{seed}{Optional integer seed.}
 }

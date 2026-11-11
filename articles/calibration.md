@@ -1,5 +1,20 @@
 # Checking calibration and how much to verify
 
+*The precomputed results on this page (`calibration-results.rds`) were
+made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
+*The precomputed results on this page (`calibration-fit-results.rds`)
+were made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
+*The precomputed results on this page (`sbc-results.rds`) were made with
+another version of the Stan program than the one in this version of
+crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 A 95% credible interval should contain the true value in about 95% of
 datasets. When the model is misspecified, it may not, and nothing in a
 single fit will warn you. Simulation-based calibration answers the

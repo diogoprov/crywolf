@@ -1082,6 +1082,11 @@ this fit:
     #> 
     #>   Sampler: 0 divergent transitions, max R-hat 1.003, min bulk/tail ESS 875/1188
 
+*The precomputed results on this page (`crywolf-recorder-fit.rds`) were
+made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 The effects of the acoustic indices (`det_bio`, `det_aci`), the standard
 deviation among recorders (`sd_recorder`), and the effect of the
 confusing gradient (`fp_w`) are close to their true values. The

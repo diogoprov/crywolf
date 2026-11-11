@@ -1,5 +1,10 @@
 # Planning a study
 
+*The precomputed results on this page (`calibration-results.rds`) were
+made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 Before recording starts, three decisions shape what a false-positive
 occupancy analysis can deliver: how many sites and occasions, how much
 to check by hand, and what to assume about the classifier. This article

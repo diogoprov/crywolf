@@ -68,6 +68,8 @@
 <li>New dataset <code>pika</code>: surveys of the American pika by Goldman et al. (2023), used in <code><a href="../articles/dynamic.html">vignette("dynamic")</a></code>.</li>
 <li>
 <code><a href="../reference/fp_data.html">fp_data()</a></code> warns about occasions that are both in <code>verified</code> and confirmed rows of <code>auto</code>, which enter the likelihood twice. That is correct only for two independent reviews, not for one verdict copied to both tables. They are compared by site and <code>occasion_id</code> (and species with <code>species</code>, season with <code>season</code>) when both tables have an <code>occasion_id</code> column, as in a ‘sheepdog’ export.</li>
+<li>
+<code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> (in development) gains <code>by_species</code>: the slopes of <code>det</code>, the slopes of <code>fp</code> and the intercept of the verified method can vary by species, drawn around the community values as the intercepts are. With every species deviation at 0 the likelihood is that of the shared terms, and with standard deviations 1 and community values 0 it equals that of <code><a href="../reference/fp_occu.html">fp_occu()</a></code> species by species, in both designs. The draws of <code><a href="../reference/fp_occu.html">fp_occu()</a></code> and <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code> do not change.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.2.0" id="crywolf-220">crywolf 2.2.0<a class="anchor" aria-label="anchor" href="#crywolf-220"></a></h2>

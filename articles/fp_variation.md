@@ -1,5 +1,10 @@
 # False-positive rates that vary among sites and occasions
 
+*The precomputed results on this page (`fp-variation-results.rds`) were
+made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 The basic model has one false-positive rate for all sites and occasions,
 or a rate that depends on site covariates through `fp = ~ ...`. Two
 other patterns are common in acoustic data. The rate can differ among

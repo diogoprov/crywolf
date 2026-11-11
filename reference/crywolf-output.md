@@ -193,9 +193,14 @@ gives the community means under the names above (`occ_*`, `det_*`,
 as `sd_occ_<term>`, `sd_det_(Intercept)` and `sd_log_fp_gap` (of the
 logarithm of the gap), and the values of each species with its name in
 brackets: `occ_<term>[species]`, `det_(Intercept)[species]`,
-`fp_gap[species]`, `p11_ref[species]` and `p10_ref[species]`. It has no
-`p10_bar`. `log_lik[i]` is the log-likelihood of unit `i`, site
-`(i - 1) %/% nspecies + 1` and species `(i - 1) %% nspecies + 1`.
+`fp_gap[species]`, `p11_ref[species]` and `p10_ref[species]`. With
+`by_species`, the slopes of each species are `det_<term>[species]` and
+`fp_<term>[species]`, with standard deviations `sd_det_<term>` and
+`sd_fp_<term>`, and the verified method of each species is
+`verified_(Intercept)[species]` and `p_verified[species]`, with standard
+deviation `sd_verified_(Intercept)`. It has no `p10_bar`. `log_lik[i]`
+is the log-likelihood of unit `i`, site `(i - 1) %/% nspecies + 1` and
+species `(i - 1) %% nspecies + 1`.
 
 ## Dynamic model
 

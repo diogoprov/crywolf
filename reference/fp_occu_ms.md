@@ -24,6 +24,7 @@ fp_occu_ms(
   random_recorder = !is.null(data$recorder),
   ver = ~1,
   priors = fp_priors(),
+  by_species = character(),
   centered = FALSE,
   chains = 4,
   parallel_chains = chains,
@@ -62,14 +63,24 @@ as_draws_df(x, ...)
   intercepts, slopes and gap of
   [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md).
 
+- by_species:
+
+  Terms that vary by species besides the intercepts of `occ`, `det` and
+  the gap: any of `"det"` (the slopes of `det`), `"fp"` (the slopes of
+  `fp`) and `"ver"` (the intercept of the verified method, so that the
+  reviewer may miss some species more often than others). The default,
+  [`character()`](https://rdrr.io/r/base/character.html), shares them
+  among species. A term without slopes (for example `"det"` with
+  `det = ~ 1`) adds nothing.
+
 - centered:
 
-  Use the centred parametrization of the detection intercepts, gaps and
-  recorder effects? The model is the same. `TRUE` suits passive acoustic
-  monitoring, with thousands of occasions per species: their posteriors
-  are then so narrow that the default takes very small steps and reaches
-  the maximum tree depth. Keep `FALSE` with few occasions per species or
-  recorder.
+  Use the centred parametrization of the detection intercepts, gaps,
+  recorder effects and the terms of `by_species`? The model is the same.
+  `TRUE` suits passive acoustic monitoring, with thousands of occasions
+  per species: their posteriors are then so narrow that the default
+  takes very small steps and reaches the maximum tree depth. Keep
+  `FALSE` with few occasions per species or recorder.
 
 - chains, parallel_chains, threads_per_chain, iter_warmup,
   iter_sampling, adapt_delta, seed, refresh, ...:
@@ -95,7 +106,8 @@ as_draws_df(x, ...)
 
 An object of class `fp_occu_ms`, a list with `fit`, `draws` (readable
 names: see Details), `stan_data`, `formulas`, `design`, `data`,
-`random_recorder`, `priors`, `sampler`, `diagnostics` and `call`.
+`by_species`, `random_recorder`, `priors`, `sampler`, `diagnostics` and
+`call`.
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns an object of
 class `summary.fp_occu`, as for
@@ -109,11 +121,14 @@ standard normal), its own true-detection intercept \\\alpha_s = \alpha +
 \sigma\_\alpha z_s\\, and its own gap between the true-detection and
 false-positive intercepts, \\g_s = \mu_g \exp(\sigma_g z_s)\\, which
 keeps the false-positive rate of every species below its true-detection
-rate at the reference. The slopes of `det`, `fp` and `ver`, the
-intercept of the verified method and the recorder effect are shared by
-the species. The false positives of a species are independent of those
-of the others: the classifier errs in labelling a species, not in
-confusing two species.
+rate at the reference. By default the slopes of `det`, `fp` and `ver`,
+the intercept of the verified method and the recorder effect are shared
+by the species; `by_species` gives each species its own slopes of `det`
+or `fp`, or its own intercept of the verified method, drawn around the
+community value as the intercepts are (\\\alpha\_{sk} = \alpha_k +
+\sigma\_{\alpha k} z\_{sk}\\). The false positives of a species are
+independent of those of the others: the classifier errs in labelling a
+species, not in confusing two species.
 
 The species are those of the data (`fp_data(species = )`), and a species
 is never assumed to be absent from the list: there is no data
@@ -126,7 +141,10 @@ augmentation for species never detected.
 are `sd_occ_*`, `sd_det_(Intercept)` and `sd_log_fp_gap`; and the values
 of each species carry its name in brackets: `occ_*[species]`,
 `det_(Intercept)[species]`, `fp_gap[species]`, `p11_ref[species]` and
-`p10_ref[species]`.
+`p10_ref[species]`. With `by_species`, the slopes add `sd_det_*`,
+`det_*[species]`, `sd_fp_*` and `fp_*[species]`, and the verified method
+adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
+`p_verified[species]`.
 
 ## See also
 

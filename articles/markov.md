@@ -1,5 +1,10 @@
 # Detections that come in runs
 
+*The precomputed results on this page (`markov-results.rds`) were made
+with another version of the Stan program than the one in this version of
+crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 The occupancy model treats the occasions of a site as independent given
 whether the site is occupied. With short occasions this is often false.
 A Common Pauraque that starts calling at dusk is recorded in several

@@ -1,5 +1,21 @@
 # Site effects on detection and false positives
 
+*The precomputed results on this page (`site-effects-scenarios.rds`)
+were made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
+*The precomputed results on this page (`sbc-random-det-results.rds`)
+were made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
+*The precomputed results on this page
+(`curiango-random-det-results.rds`) were made with another version of
+the Stan program than the one in this version of crywolf and may be out
+of date. They are refreshed by `dev/precompute-all.R` in the source
+repository.*
+
 The automated method rarely detects a species equally well at every
 occupied site. Recorders placed farther from where animals call, sites
 with fewer calling individuals, or louder backgrounds lower the chance

@@ -1,5 +1,10 @@
 # Use from one night to the next
 
+*The precomputed results on this page (`dynamic-results.rds`) were made
+with another version of the Stan program than the one in this version of
+crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 The other articles on the `curiango` data (Piatti et al., 2026) treat
 each site-night as an independent site. A recorder that picked up the
 Common Pauraque last night is then no more likely to pick it up tonight

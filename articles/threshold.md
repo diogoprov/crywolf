@@ -1,5 +1,15 @@
 # Choosing a classifier threshold
 
+*The precomputed results on this page (`threshold-results.rds`) were
+made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
+*The precomputed results on this page (`threshold-fp-results.rds`) were
+made with another version of the Stan program than the one in this
+version of crywolf and may be out of date. They are refreshed by
+`dev/precompute-all.R` in the source repository.*
+
 A classifier gives each recording a confidence score, and the analyst
 picks the score above which a recording counts as a detection. A low
 threshold keeps more true detections and more false ones; a high

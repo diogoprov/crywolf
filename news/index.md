@@ -34,6 +34,22 @@
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) and
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
   do not change.
+- Outputs of
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  (in development):
+  [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  by site and species,
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) with
+  a p-value per species,
+  [`simulate()`](https://rdrr.io/r/stats/simulate.html), the new
+  [`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md)
+  (species richness of each site) and the new simulator
+  [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md).
+  They run the code of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  species by species, with the values of each species in the same
+  posterior draws; the R log-likelihood of each species equals the
+  `log_lik` of the Stan program.
 
 ## crywolf 2.2.0
 

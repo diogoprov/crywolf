@@ -46,6 +46,7 @@
 <url><loc>https://provetelab.org/crywolf/reference/fp_read_birdnet.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_read_sheepdog.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_read_validation.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/fp_richness.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_sbc.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_sites.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/fp_stan_file.html</loc></url>
@@ -60,7 +61,9 @@
 <url><loc>https://provetelab.org/crywolf/reference/reexports.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/simulate.fp_occu.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/simulate.fp_occu_dyn.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/simulate.fp_occu_ms.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/simulate_fp.html</loc></url>
 <url><loc>https://provetelab.org/crywolf/reference/simulate_fp_dyn.html</loc></url>
+<url><loc>https://provetelab.org/crywolf/reference/simulate_fp_ms.html</loc></url>
 </urlset>
 

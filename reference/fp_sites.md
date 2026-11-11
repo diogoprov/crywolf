@@ -20,7 +20,8 @@ plot(x, coords = NULL, ...)
 
 - object:
 
-  An `fp_occu` object, or an `fp_occu_dyn` object (see Details).
+  An `fp_occu` object, an `fp_occu_dyn` object or an `fp_occu_ms` object
+  (see Details).
 
 - prob:
 
@@ -52,17 +53,17 @@ plot(x, coords = NULL, ...)
 ## Value
 
 A data frame of class `fp_sites`, one row per site (per site-season for
-a dynamic model), with the site columns of the data, `psi` (occupancy
-probability, with `psi_lower` and `psi_upper`), `occupied` (posterior
-probability that the site is occupied given its data), `occupied_lower`
-and `occupied_upper` (quantiles over the posterior draws of that
-conditional probability; they show how much it depends on the uncertain
-parameters, not the uncertainty of the occupancy state itself, which
-`occupied` already gives), `p10` (posterior mean false-positive rate,
-when the model has false positives), `detections` (number of automated
-detections), and `verified` (whether a verified detection proves
-occupancy). [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
-draws it.
+a dynamic model, per site and species for a multispecies model), with
+the site columns of the data, `psi` (occupancy probability, with
+`psi_lower` and `psi_upper`), `occupied` (posterior probability that the
+site is occupied given its data), `occupied_lower` and `occupied_upper`
+(quantiles over the posterior draws of that conditional probability;
+they show how much it depends on the uncertain parameters, not the
+uncertainty of the occupancy state itself, which `occupied` already
+gives), `p10` (posterior mean false-positive rate, when the model has
+false positives), `detections` (number of automated detections), and
+`verified` (whether a verified detection proves occupancy).
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws it.
 
 ## Details
 
@@ -76,6 +77,12 @@ probability that the site-season is occupied given all the data of the
 site, in every season (computed by the forward-backward algorithm for
 each posterior draw). `detections`, `verified` and `p10` refer to the
 site-season.
+
+For a multispecies model
+([`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md))
+the result has one row per site and species, with the species column of
+the data after the site columns, and every column refers to that species
+at that site.
 
 ## Examples
 

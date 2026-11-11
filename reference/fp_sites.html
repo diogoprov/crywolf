@@ -89,8 +89,8 @@ but a high false-positive rate can still be unlikely to be occupied.</p>
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>An <code>fp_occu</code> object, or an <code>fp_occu_dyn</code> object
-(see Details).</p></dd>
+<dd><p>An <code>fp_occu</code> object, an <code>fp_occu_dyn</code> object or an
+<code>fp_occu_ms</code> object (see Details).</p></dd>
 
 
 <dt id="arg-prob">prob<a class="anchor" aria-label="anchor" href="#arg-prob"></a></dt>
@@ -123,7 +123,8 @@ the sites are ranked by it.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame of class <code>fp_sites</code>, one row per site (per
-site-season for a dynamic model), with the
+site-season for a dynamic model, per site and species for a
+multispecies model), with the
 site columns of the data, <code>psi</code> (occupancy probability, with <code>psi_lower</code>
 and <code>psi_upper</code>), <code>occupied</code> (posterior probability that the site is
 occupied given its data), <code>occupied_lower</code> and <code>occupied_upper</code>
@@ -145,6 +146,9 @@ extinction), and <code>occupied</code> the probability that the site-season is
 occupied given all the data of the site, in every season (computed by the
 forward-backward algorithm for each posterior draw). <code>detections</code>,
 <code>verified</code> and <code>p10</code> refer to the site-season.</p>
+<p>For a multispecies model (<code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>) the result has one row per site
+and species, with the species column of the data after the site columns,
+and every column refers to that species at that site.</p>
     </div>
 
     <div class="section level2">

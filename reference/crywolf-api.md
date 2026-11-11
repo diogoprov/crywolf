@@ -115,8 +115,11 @@ pass data to 'unmarked', and are still being evaluated. Their arguments,
 classes and results may change in a minor version; the NEWS will say so.
 Each says so in its help.
 [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
-the multispecies model, with the `fp_occu_ms` class and its methods, is
-in development and experimental in the same way, as is the `species`
+the multispecies model, with the `fp_occu_ms` class and its methods,
+[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md)
+and
+[`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md),
+is in development and experimental in the same way, as is the `species`
 argument of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) that
 feeds it.

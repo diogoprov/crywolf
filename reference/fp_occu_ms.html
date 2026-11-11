@@ -3,15 +3,17 @@
 at once, with the coefficients of each species drawn from distributions
 of the community, so that rare species borrow strength from the others.
 This function is in development (see crywolf-api): its arguments,
-results and output names may change in a minor version, and it lacks the
-methods of fp_occu() other than print(), summary() and
-as_draws_df()."><meta property="og:description" content="Fits the false-positive occupancy model of fp_occu() to several species
+results and output names may change in a minor version. Besides print(),
+summary() and as_draws_df(), it works with fp_sites() (by site and
+species), fp_ppc(), simulate() and
+fp_richness(); the other methods of fp_occu() are not available."><meta property="og:description" content="Fits the false-positive occupancy model of fp_occu() to several species
 at once, with the coefficients of each species drawn from distributions
 of the community, so that rare species borrow strength from the others.
 This function is in development (see crywolf-api): its arguments,
-results and output names may change in a minor version, and it lacks the
-methods of fp_occu() other than print(), summary() and
-as_draws_df()."><meta property="og:image" content="https://provetelab.org/crywolf/logo.svg"></head><body>
+results and output names may change in a minor version. Besides print(),
+summary() and as_draws_df(), it works with fp_sites() (by site and
+species), fp_ppc(), simulate() and
+fp_richness(); the other methods of fp_occu() are not available."><meta property="og:image" content="https://provetelab.org/crywolf/logo.svg"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -77,9 +79,10 @@ as_draws_df()."><meta property="og:image" content="https://provetelab.org/crywol
 at once, with the coefficients of each species drawn from distributions
 of the community, so that rare species borrow strength from the others.
 <strong>This function is in development</strong> (see <a href="crywolf-api.html">crywolf-api</a>): its arguments,
-results and output names may change in a minor version, and it lacks the
-methods of <code><a href="fp_occu.html">fp_occu()</a></code> other than <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and
-<code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code>.</p>
+results and output names may change in a minor version. Besides <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>,
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code>, it works with <code><a href="fp_sites.html">fp_sites()</a></code> (by site and
+species), <code><a href="fp_ppc.html">fp_ppc()</a></code>, <a href="simulate.fp_occu_ms.html">simulate()</a> and
+<code><a href="fp_richness.html">fp_richness()</a></code>; the other methods of <code><a href="fp_occu.html">fp_occu()</a></code> are not available.</p>
     </div>
 
     <div class="section level2">
@@ -209,7 +212,7 @@ adds <code>sd_verified_(Intercept)</code>, <code>verified_(Intercept)[species]</
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="fp_data.html">fp_data()</a></code>, <code><a href="fp_occu.html">fp_occu()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="fp_data.html">fp_data()</a></code>, <code><a href="fp_occu.html">fp_occu()</a></code>, <code><a href="simulate_fp_ms.html">simulate_fp_ms()</a></code>, <code><a href="fp_richness.html">fp_richness()</a></code></p></div>
     </div>
 
     <div class="section level2">

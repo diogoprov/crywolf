@@ -6,12 +6,20 @@ several species at once, with the coefficients of each species drawn
 from distributions of the community, so that rare species borrow
 strength from the others. **This function is in development** (see
 [crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md)):
-its arguments, results and output names may change in a minor version,
-and it lacks the methods of
-[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) other
-than [`print()`](https://rdrr.io/r/base/print.html),
+its arguments, results and output names may change in a minor version.
+Besides [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
-[`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html).
+[`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html),
+it works with
+[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md) (by
+site and species),
+[`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md),
+[simulate()](https://provetelab.org/crywolf/reference/simulate.fp_occu_ms.md)
+and
+[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md);
+the other methods of
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) are
+not available.
 
 ## Usage
 
@@ -149,7 +157,9 @@ adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
 ## See also
 
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
-[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+[`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md),
+[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md)
 
 ## Examples
 

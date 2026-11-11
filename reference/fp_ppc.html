@@ -89,10 +89,12 @@ the model reproduces how many detections each site gets.</p>
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>An <code>fp_occu</code> object, or an <code>fp_occu_dyn</code> object,
+<dd><p>An <code>fp_occu</code> object; an <code>fp_occu_dyn</code> object,
 for which detections are summed per site and season
 and the latent states are drawn jointly over seasons by forward
-filtering, backward sampling.</p></dd>
+filtering, backward sampling; or an <code>fp_occu_ms</code> object, for which
+detections are summed per site and species, the discrepancy is summed
+over species, and each species also gets its own p-value.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -124,7 +126,9 @@ per site), <code>yrep</code> (matrix of replicated detections, draws in rows and
 sites in columns), <code>fit_obs</code> and <code>fit_rep</code> (discrepancy of the observed and
 replicated data, one value per draw), <code>p_value</code>, <code>site</code> (the site
 identifiers of the columns), <code>method</code>, and <code>fit_stat</code>; for a dynamic
-model, also <code>season</code>, the season of each column.</p>
+model, also <code>season</code>, the season of each column; for a multispecies
+model, also <code>species</code>, the species of each column, and <code>p_species</code>, the
+Bayesian p-value of each species.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

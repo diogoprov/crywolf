@@ -24,6 +24,17 @@
 #' species are independent of those of the others: the classifier errs in
 #' labelling a species, not in confusing two species.
 #'
+#' Two random effects let the false-positive rate vary beyond its
+#' covariates, on its logit, both with the half-Normal prior of
+#' `fp_priors(fp_site_sd = )`: `fp_group` names a column of the sites that
+#' groups them (for example the physical site, when each "site" of the data
+#' is a site in one month), and adds an effect for each group and species,
+#' \eqn{v_{gs} \sim N(0, \sigma_v)}; `random_fp = TRUE` adds an effect for
+#' each site and species, \eqn{t_{is} \sim N(0, \sigma_t)}. With sites that
+#' are site-months, `fp_group` lets the false-positive rate of a species
+#' differ among physical sites, and `random_fp` among months of the same
+#' site as well.
+#'
 #' The species are those of the data (`fp_data(species = )`), and a species
 #' is never assumed to be absent from the list: there is no data
 #' augmentation for species never detected.
@@ -40,6 +51,11 @@
 #'   so that the reviewer may miss some species more often than others). The
 #'   default, `character()`, shares them among species. A term without slopes
 #'   (for example `"det"` with `det = ~ 1`) adds nothing.
+#' @param random_fp Add a random effect on the logit of the false-positive
+#'   rate for each site and species? See Details.
+#' @param fp_group Optional name of a column of the sites table that groups
+#'   the sites; adds a random effect on the logit of the false-positive rate
+#'   for each group and species. See Details.
 #' @param centered Use the centred parametrization of the detection
 #'   intercepts, gaps, recorder effects and the terms of `by_species`? The
 #'   model is the same. `TRUE`
@@ -49,12 +65,13 @@
 #'   occasions per species or recorder.
 #' @param chains,parallel_chains,threads_per_chain,iter_warmup,iter_sampling,adapt_delta,seed,refresh,...
 #'   Passed to the sampler, as in [fp_occu()]. Runs of detections
-#'   (`markov`) and site effects (`random_fp`, `random_det`) are not
+#'   (`markov`) and site effects on true detection (`random_det`) are not
 #'   available.
 #'
 #' @return An object of class `fp_occu_ms`, a list with `fit`, `draws`
 #'   (readable names: see Details), `stan_data`, `formulas`, `design`,
-#'   `data`, `by_species`, `random_recorder`, `priors`, `sampler`,
+#'   `data`, `by_species`, `random_fp`, `fp_group`, `random_recorder`,
+#'   `priors`, `sampler`,
 #'   `diagnostics` and `call`.
 #'
 #' @details
@@ -67,7 +84,9 @@
 #' `p10_ref[species]`. With `by_species`, the slopes add `sd_det_*`,
 #' `det_*[species]`, `sd_fp_*` and `fp_*[species]`, and the verified method
 #' adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
-#' `p_verified[species]`.
+#' `p_verified[species]`. The standard deviations of the random effects on
+#' the false-positive rate are `sd_fp_group` (`fp_group`) and `sd_fp_site`
+#' (`random_fp`).
 #' @seealso [fp_data()], [fp_occu()], [simulate_fp_ms()], [fp_richness()]
 #' @export
 #' @examples
@@ -82,7 +101,7 @@
 fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                        random_recorder = !is.null(data$recorder),
                        ver = ~ 1, priors = fp_priors(), by_species = character(),
-                       centered = FALSE,
+                       random_fp = FALSE, fp_group = NULL, centered = FALSE,
                        chains = 4, parallel_chains = chains, threads_per_chain = "auto",
                        iter_warmup = 1000, iter_sampling = 1000,
                        adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
@@ -94,7 +113,8 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     stop("`centered` must be TRUE or FALSE.", call. = FALSE)
   }
   by_species <- .check_by_species(by_species, data)
-  na <- intersect(names(list(...)), c("markov", "random_fp", "random_det"))
+  .check_fp_effects(random_fp, fp_group, fp, data)
+  na <- intersect(names(list(...)), c("markov", "random_det"))
   if (length(na)) {
     stop("`", paste(na, collapse = "`, `"), "` is not available in fp_occu_ms().",
          call. = FALSE)
@@ -109,7 +129,8 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   threads_per_chain <- cores$threads_per_chain
   parallel_chains <- cores$parallel_chains
   sd_list <- .build_ms_stan_data(data, occ, det, fp, random_recorder, priors, ver = ver,
-                                 centered = centered, by_species = by_species)
+                                 centered = centered, by_species = by_species,
+                                 random_fp = random_fp, fp_group = fp_group)
   if (is.null(refresh)) {
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
@@ -130,6 +151,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     list(fit = fit, draws = draws, stan_data = sd_list$stan_data,
          formulas = list(occ = occ, det = det, fp = fp, ver = ver),
          design = sd_list$design, data = data, by_species = by_species,
+         random_fp = isTRUE(random_fp), fp_group = fp_group,
          random_recorder = isTRUE(sd_list$stan_data$estimate_re == 1),
          priors = priors,
          sampler = list(chains = chains, parallel_chains = parallel_chains,
@@ -162,7 +184,9 @@ print.fp_occu_ms <- function(x, digits = 3, ...) {
   cat("  false positive:   ",
       if (is.null(f$fp)) "none (standard occupancy model)" else
         paste(.fmt_formula(f$fp),
-              if (by("fp") && sd$Kfp > 0) "(gap and slopes by species)" else "(gap by species)"),
+              if (by("fp") && sd$Kfp > 0) "(gap and slopes by species)" else "(gap by species)",
+              if (!is.null(x$fp_group)) sprintf("+ (1 | %s:species)", x$fp_group) else "",
+              if (isTRUE(x$random_fp)) "+ (1 | site:species)" else ""),
       "\n")
   if (by("ver") || (!is.null(f$ver) && length(all.vars(f$ver)))) {
     cat("  verified:         ", .fmt_formula(f$ver),
@@ -198,12 +222,13 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
 # each unit as fp_occu() builds that of each site, and the occupancy design
 # of each unit from the covariates of its site.
 .build_ms_stan_data <- function(data, occ, det, fp, random_recorder, priors, ver = ~ 1,
-                                centered = FALSE, by_species = character()) {
+                                centered = FALSE, by_species = character(),
+                                random_fp = FALSE, fp_group = NULL) {
   units <- .ms_units(data)
   sl <- .build_stan_data(units, occ, det, fp, random_recorder, priors, ver = ver)
   nsp <- length(data$species_names)
   sd <- sl$stan_data
-  sd[c("estimate_fp_re", "fp_site_sd", "estimate_det_re", "det_site_sd")] <- NULL
+  sd[c("estimate_det_re", "det_site_sd")] <- NULL
   sd$nunit <- sd$nsite
   sd$nsite <- nrow(data$sites)
   sd$nspecies <- nsp
@@ -214,6 +239,13 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   sd$by_det <- as.integer("det" %in% by_species)
   sd$by_fp <- as.integer("fp" %in% by_species)
   sd$by_ver <- as.integer("ver" %in% by_species)
+  # random effects on logit(p10): per group of sites x species, per unit
+  groups <- if (is.null(fp_group)) rep(1L, sd$nsite) else
+    as.integer(factor(data$sites[[fp_group]]))
+  sd$estimate_fp_group <- as.integer(!is.null(fp_group))
+  sd$ngroup <- max(groups)
+  sd$group_site <- groups
+  sd$estimate_fp_re <- as.integer(isTRUE(random_fp))
   sl$stan_data <- sd
   sl$design$species <- data$species_names
   sl
@@ -230,6 +262,36 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
     stop("`by_species = \"ver\"` needs verified occasions.", call. = FALSE)
   }
   unique(by_species)
+}
+
+# the random effects on logit(p10) of fp_occu_ms(), checked
+.check_fp_effects <- function(random_fp, fp_group, fp, data) {
+  if (!isTRUE(random_fp) && !isFALSE(random_fp)) {
+    stop("`random_fp` must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (!is.null(fp_group)) {
+    if (!is.character(fp_group) || length(fp_group) != 1 || !fp_group %in% names(data$sites)) {
+      stop("`fp_group` must name a column of the sites table.", call. = FALSE)
+    }
+    g <- data$sites[[fp_group]]
+    if (anyNA(g)) {
+      stop("The column `", fp_group, "` of the sites table has missing values.", call. = FALSE)
+    }
+    # one group: its effect is the false-positive intercept of each species;
+    # one site per group with random_fp: the two effects are the same
+    if (length(unique(g)) < 2) {
+      stop("`fp_group` needs at least two groups of sites.", call. = FALSE)
+    }
+    if (isTRUE(random_fp) && !anyDuplicated(g)) {
+      stop("With one site per group of `fp_group`, the effects of `fp_group` and ",
+           "`random_fp` are the same; use one of them.", call. = FALSE)
+    }
+  }
+  if ((isTRUE(random_fp) || !is.null(fp_group)) && is.null(fp)) {
+    stop("`random_fp` and `fp_group` need a false-positive process; do not use ",
+         "`fp = NULL`.", call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 # the site x species units of a multispecies data set, as an fp_data with
@@ -300,7 +362,9 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
            if (isTRUE(sd$by_ver == 1)) {
              c(c("sigma_ver[1]" = "sd_verified_(Intercept)"),
                by_sp("delta_sp", "verified_(Intercept)"), by_sp("r11_sp", "p_verified"))
-           })
+           },
+           if (isTRUE(sd$estimate_fp_group == 1)) c("sigma_v[1]" = "sd_fp_group"),
+           if (isTRUE(sd$estimate_fp_re == 1)) c("sigma_t[1]" = "sd_fp_site"))
   dr <- posterior::as_draws_df(fit$draws(variables = unique(sub("\\[.*", "", names(map)))))
   dr <- posterior::subset_draws(dr, variable = names(map))
   posterior::variables(dr) <- unname(map[posterior::variables(dr)])

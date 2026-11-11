@@ -18,6 +18,7 @@ test_that("fp_occu_ms() checks its data and arguments", {
   s <- ms_sim(1)
   expect_error(fp_occu_ms(s$a), "species column")
   expect_error(fp_occu_ms(s$ms, markov = "occasion"), "not available")
+  expect_error(fp_occu_ms(s$ms, random_det = TRUE), "not available")
   sl <- crywolf:::.build_ms_stan_data(s$ms, ~ x, ~ bio, ~ 1, TRUE, fp_priors())
   sd <- sl$stan_data
   expect_equal(c(sd$nsite, sd$nspecies, sd$nunit), c(40, 2, 80))
@@ -319,9 +320,10 @@ test_that("the outputs of fp_occu_ms() use the likelihood of each species", {
     }, 1))
   }
   s1 <- simulate_fp_ms(nspecies = 3, nsite = 40, nocc = 6, sd_recorder = 0.5,
-                       a_bio = 0.5, seed = 1)
+                       a_bio = 0.5, ngroup = 8, sd_fp_group = 0.5, seed = 1)
   s1$data$verified$listener <- stats::rnorm(nrow(s1$data$verified))
-  m1 <- fit(s1, fp = ~ aci, ver = ~ listener, by_species = c("det", "fp", "ver"))
+  m1 <- fit(s1, fp = ~ aci, ver = ~ listener, by_species = c("det", "fp", "ver"),
+            fp_group = "group", random_fp = TRUE)
   s2 <- simulate_fp_ms(nspecies = 3, nsite = 40, nocc = 6, frac_confirmed = 0.4, seed = 2)
   m2 <- fit(s2, fp = ~ x, random_recorder = FALSE, by_species = c("det", "fp"))
   expect_lt(gap(m1), 1e-10, label = "multiple methods, R vs Stan")
@@ -357,4 +359,108 @@ test_that("the outputs of fp_occu_ms() use the likelihood of each species", {
   expect_equal(dim(new[[1]]$truth$z), c(40, 3))
   expect_true(all(c("occ_x[sp1]", "det_bio[sp3]", "fp_x[sp2]") %in%
                     names(new[[1]]$truth$pars)))
+})
+
+test_that("the random effects on p10 enter the likelihood as in fp_occu()", {
+  skip_if_no_cmdstan()
+  gq <- function(model, pars, stan_data) {
+    out <- tempfile("gq")
+    dir.create(out)
+    g <- crywolf:::.compile_model(model)$generate_quantities(
+      fitted_params = posterior::as_draws_array(pars), data = stan_data, seed = 1,
+      sig_figs = 18, threads_per_chain = 1, output_dir = out)
+    unclass(posterior::as_draws_matrix(g$draws("log_lik")))
+  }
+  first <- c("^mu_beta", "^sigma_beta", "^zb", "^alpha", "^sigma_alpha$", "^za",
+             "^mu_gap$", "^sigma_gap$", "^zg", "^u_raw", "^sigma_u$", "^gamma_fp",
+             "^delta0$", "^delta_s", "^sigma_v", "^v_raw", "^sigma_t", "^t_raw")
+  ordered <- function(p) {
+    p[, c(unlist(lapply(first, grep, names(p), value = TRUE)), ".chain", ".iteration", ".draw")]
+  }
+  s <- ms_sim_moved(3)
+  m <- suppressWarnings(fp_occu(s$a, occ = ~ x, det = ~ bio, fp = ~ aci, random_fp = TRUE,
+                                chains = 1, iter_warmup = 100, iter_sampling = 20,
+                                threads_per_chain = 1, seed = 3, refresh = 0,
+                                show_messages = FALSE, sig_figs = 18))
+  pa <- posterior::as_draws_df(m$fit$draws())
+  pa <- pa[, !grepl("^(lp__|u|gamma0|log_lik|p11_ref|p10_ref|p10_bar|r11)(\\[|$)", names(pa))]
+  set.seed(4)
+  pb <- pa
+  for (v in c("beta[1]", "beta[2]", "alpha[1]")) pb[[v]] <- stats::rnorm(20)
+  for (v in grep("^e_raw", names(pb), value = TRUE)) pb[[v]] <- stats::rnorm(20)
+  pb$fp_gap <- stats::runif(20, 0.5, 3)
+  sl <- function(d) crywolf:::.build_stan_data(d, ~ x, ~ bio, ~ aci, TRUE, fp_priors(),
+                                               random_fp = TRUE)$stan_data
+  ll <- cbind(gq("fp_occu", pa, sl(s$a)), gq("fp_occu", pb, sl(s$b)))
+  # community values 0 (gap 1), standard deviations 1; the effect of unit
+  # (site, species) is that of the site in the fit of the species
+  pm <- pa[, !grepl("^(beta|fp_gap|e_raw|sigma_fp)", names(pa))]
+  pm[c("mu_beta[1]", "mu_beta[2]", "sigma_beta[1]", "sigma_beta[2]")] <- list(0, 0, 1, 1)
+  pm[c("zb[1,1]", "zb[2,1]", "zb[1,2]", "zb[2,2]")] <-
+    list(pa[["beta[1]"]], pa[["beta[2]"]], pb[["beta[1]"]], pb[["beta[2]"]])
+  pm[c("alpha[1]", "sigma_alpha")] <- list(0, 1)
+  pm[c("za[1]", "za[2]")] <- list(pa[["alpha[1]"]], pb[["alpha[1]"]])
+  pm[c("mu_gap", "sigma_gap")] <- list(1, 1)
+  pm[c("zg[1]", "zg[2]")] <- list(log(pa$fp_gap), log(pb$fp_gap))
+  pm[["sigma_t[1]"]] <- pa[["sigma_fp[1]"]]
+  for (i in 1:40) {
+    pm[[sprintf("t_raw[%d]", 2 * i - 1)]] <- pa[[sprintf("e_raw[%d]", i)]]
+    # species b has its own effects (pb keeps the sd of pa)
+    pm[[sprintf("t_raw[%d]", 2 * i)]] <- pb[[sprintf("e_raw[%d]", i)]]
+  }
+  sl_m <- crywolf:::.build_ms_stan_data(s$ms, ~ x, ~ bio, ~ aci, TRUE, fp_priors(),
+                                        random_fp = TRUE)$stan_data
+  ll_m <- gq("fp_occu_ms", ordered(pm), sl_m)
+  by_species <- c(seq(1, by = 2, length.out = 40), seq(2, by = 2, length.out = 40))
+  rel <- function(x, y) max(abs(x - y) / pmax(1, abs(x)))
+  expect_lt(rel(ll, ll_m[, by_species]), 1e-12, label = "random_fp vs fp_occu")
+
+  # an effect per group of sites equals the effect per unit of the same value
+  ms <- s$ms
+  ms$sites$grp <- rep(1:8, length.out = 40)
+  pg <- pm[, !grepl("^(sigma_t|t_raw)", names(pm))]
+  pg[["sigma_v[1]"]] <- 1
+  vg <- matrix(stats::rnorm(20 * 16), 20)        # draws x (group - 1) * 2 + species
+  for (c in 1:16) pg[[sprintf("v_raw[%d]", c)]] <- vg[, c]
+  pt <- pg[, !grepl("^(sigma_v|v_raw)", names(pg))]
+  pt[["sigma_t[1]"]] <- 1
+  for (i in 1:40) for (sp in 1:2) {
+    pt[[sprintf("t_raw[%d]", (i - 1) * 2 + sp)]] <- vg[, (ms$sites$grp[i] - 1) * 2 + sp]
+  }
+  build <- function(...) crywolf:::.build_ms_stan_data(ms, ~ x, ~ bio, ~ aci, TRUE,
+                                                       fp_priors(), ...)$stan_data
+  ll_g <- gq("fp_occu_ms", ordered(pg), build(fp_group = "grp"))
+  ll_t <- gq("fp_occu_ms", ordered(pt), build(random_fp = TRUE))
+  expect_lt(rel(ll_t, ll_g), 1e-12, label = "fp_group vs the same effects by unit")
+  # centred: v_raw holds v; with standard deviations 1 and community values 0
+  # (gap 1) only the recorder effects change
+  pc <- pg
+  for (u in grep("^u_raw", names(pc), value = TRUE)) pc[[u]] <- pc[[u]] * pc$sigma_u
+  pc[["sigma_v[1]"]] <- 2
+  for (c in 1:16) pc[[sprintf("v_raw[%d]", c)]] <- 2 * vg[, c]
+  pg2 <- pg
+  pg2[["sigma_v[1]"]] <- 2
+  ll_c <- gq("fp_occu_ms", ordered(pc), build(fp_group = "grp", centered = TRUE))
+  ll_n <- gq("fp_occu_ms", ordered(pg2), build(fp_group = "grp"))
+  expect_lt(rel(ll_n, ll_c), 1e-12, label = "centred fp_group")
+})
+
+test_that("random_fp and fp_group are checked, named and simulated", {
+  s <- ms_sim(1)
+  expect_error(fp_occu_ms(s$ms, random_fp = 1), "TRUE or FALSE")
+  expect_error(fp_occu_ms(s$ms, fp_group = "nope"), "column of the sites")
+  expect_error(fp_occu_ms(s$ms, fp = NULL, random_fp = TRUE), "need a false-positive")
+  one <- s$ms
+  one$sites$g1 <- 1
+  expect_error(fp_occu_ms(one, fp_group = "g1"), "at least two groups")
+  expect_error(fp_occu_ms(s$ms, fp_group = "site", random_fp = TRUE), "are the same")
+  sd <- crywolf:::.build_ms_stan_data(s$ms, ~ x, ~ 1, ~ 1, TRUE, fp_priors(),
+                                      fp_group = "x", random_fp = TRUE)$stan_data
+  expect_equal(c(sd$estimate_fp_group, sd$estimate_fp_re), c(1, 1))
+  expect_equal(sd$ngroup, length(unique(s$ms$sites$x)))
+  sim <- simulate_fp_ms(nspecies = 3, nsite = 40, nocc = 5, ngroup = 8, sd_fp_group = 1,
+                        sd_fp_site = 0.5, seed = 1)
+  expect_true(all(table(sim$data$sites$group) == 5))
+  expect_true(all(c("sd_fp_group", "sd_fp_site") %in% names(sim$truth$pars)))
+  expect_error(simulate_fp_ms(sd_fp_group = 1), "needs `ngroup`")
 })

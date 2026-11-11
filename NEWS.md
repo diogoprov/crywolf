@@ -29,6 +29,13 @@
   `simulate_fp_ms()`. They run the code of `fp_occu()` species by species,
   with the values of each species in the same posterior draws; the R
   log-likelihood of each species equals the `log_lik` of the Stan program.
+* `fp_occu_ms()` (in development) gains random effects on the logit of the
+  false-positive rate: `fp_group` names a column of the sites that groups
+  them (e.g. the physical site when the sites are site-months) and adds an
+  effect for each group and species (`sd_fp_group`); `random_fp = TRUE` adds
+  one for each site and species (`sd_fp_site`). Their likelihood equals that
+  of `fp_occu(random_fp = TRUE)` species by species. `simulate_fp_ms()`
+  gains `ngroup`, `sd_fp_group` and `sd_fp_site`.
 
 # crywolf 2.2.0
 

@@ -16,6 +16,8 @@ fp_occu_ms(
   ver = ~1,
   priors = fp_priors(),
   by_species = character(),
+  random_fp = FALSE,
+  fp_group = NULL,
   centered = FALSE,
   chains = 4,
   parallel_chains = chains,
@@ -50,6 +52,13 @@ so that the reviewer may miss some species more often than others). The
 default, \code{character()}, shares them among species. A term without slopes
 (for example \code{"det"} with \code{det = ~ 1}) adds nothing.}
 
+\item{random_fp}{Add a random effect on the logit of the false-positive
+rate for each site and species? See Details.}
+
+\item{fp_group}{Optional name of a column of the sites table that groups
+the sites; adds a random effect on the logit of the false-positive rate
+for each group and species. See Details.}
+
 \item{centered}{Use the centred parametrization of the detection
 intercepts, gaps, recorder effects and the terms of \code{by_species}? The
 model is the same. \code{TRUE}
@@ -59,7 +68,7 @@ small steps and reaches the maximum tree depth. Keep \code{FALSE} with few
 occasions per species or recorder.}
 
 \item{chains, parallel_chains, threads_per_chain, iter_warmup, iter_sampling, adapt_delta, seed, refresh, ...}{Passed to the sampler, as in \code{\link[=fp_occu]{fp_occu()}}. Runs of detections
-(\code{markov}) and site effects (\code{random_fp}, \code{random_det}) are not
+(\code{markov}) and site effects on true detection (\code{random_det}) are not
 available.}
 
 \item{x, object}{An \code{fp_occu_ms} object.}
@@ -71,7 +80,8 @@ available.}
 \value{
 An object of class \code{fp_occu_ms}, a list with \code{fit}, \code{draws}
 (readable names: see Details), \code{stan_data}, \code{formulas}, \code{design},
-\code{data}, \code{by_species}, \code{random_recorder}, \code{priors}, \code{sampler},
+\code{data}, \code{by_species}, \code{random_fp}, \code{fp_group}, \code{random_recorder},
+\code{priors}, \code{sampler},
 \code{diagnostics} and \code{call}.
 
 \code{summary()} returns an object of class \code{summary.fp_occu}, as for
@@ -103,6 +113,17 @@ are (\eqn{\alpha_{sk} = \alpha_k + \sigma_{\alpha k} z_{sk}}). The false positiv
 species are independent of those of the others: the classifier errs in
 labelling a species, not in confusing two species.
 
+Two random effects let the false-positive rate vary beyond its
+covariates, on its logit, both with the half-Normal prior of
+\code{fp_priors(fp_site_sd = )}: \code{fp_group} names a column of the sites that
+groups them (for example the physical site, when each "site" of the data
+is a site in one month), and adds an effect for each group and species,
+\eqn{v_{gs} \sim N(0, \sigma_v)}; \code{random_fp = TRUE} adds an effect for
+each site and species, \eqn{t_{is} \sim N(0, \sigma_t)}. With sites that
+are site-months, \code{fp_group} lets the false-positive rate of a species
+differ among physical sites, and \code{random_fp} among months of the same
+site as well.
+
 The species are those of the data (\code{fp_data(species = )}), and a species
 is never assumed to be absent from the list: there is no data
 augmentation for species never detected.
@@ -116,7 +137,9 @@ of each species carry its name in brackets: \verb{occ_*[species]},
 \code{p10_ref[species]}. With \code{by_species}, the slopes add \verb{sd_det_*},
 \verb{det_*[species]}, \verb{sd_fp_*} and \verb{fp_*[species]}, and the verified method
 adds \code{sd_verified_(Intercept)}, \code{verified_(Intercept)[species]} and
-\code{p_verified[species]}.
+\code{p_verified[species]}. The standard deviations of the random effects on
+the false-positive rate are \code{sd_fp_group} (\code{fp_group}) and \code{sd_fp_site}
+(\code{random_fp}).
 }
 \examples{
 \dontrun{

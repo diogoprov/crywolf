@@ -45,9 +45,14 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   sp <- .ms_species(object, ndraws)
   z <- psi <- 0
   for (x in sp) {
-    r <- .ppc_core(x$stan_data, x$pars, "automated", "freeman-tukey")
-    z <- z + r$z
-    psi <- psi + stats::plogis(x$pars$beta %*% t(x$stan_data$X))
+    # the states from their conditional posterior, as in .ppc_core(), from
+    # the emissions alone (no replicated detections)
+    em <- .ppc_core(x$stan_data, x$pars, "automated", "freeman-tukey", emissions_only = TRUE)
+    lpsi <- x$pars$beta %*% t(x$stan_data$X)
+    pz <- stats::plogis(lpsi + em$occ - em$unocc)
+    pz[, x$stan_data$known_present == 1] <- 1
+    z <- z + matrix(stats::rbinom(length(pz), 1, pz), nrow(pz))
+    psi <- psi + stats::plogis(lpsi)
   }
   sites <- object$data$sites
   new <- c("richness", "richness_lower", "richness_upper", "richness_psi",

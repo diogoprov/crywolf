@@ -18,9 +18,17 @@
 //   gap_s   = mu_gap * exp(sigma_gap * zg_s),      zg_s ~ Normal(0, 1)
 //
 // so that p11 > p10 at the reference for every species (gap_s > 0), and
-// mu_gap is the median gap of the community. The slopes of detection,
-// false positives and the verified method and the recorder effects are
-// shared by the species. The intercepts of the species reach the shared
+// mu_gap is the median gap of the community. With by_det = 1, by_fp = 1 or
+// by_ver = 1, the slopes of detection (alpha[-1]), the slopes of false
+// positives (gamma_fp) or the intercept of the verified method (delta0) are
+// also those of each species, drawn around the community values:
+//
+//   alpha_sk = alpha[k] + sigma_det_s[k] * zds_ks,  gamma_sk = gamma_fp[k] + sigma_fp_s[k] * zfs_ks,
+//   delta_s  = delta0 + sigma_ver * zv_s,           zds, zfs, zv ~ Normal(0, 1)
+//
+// and the emissions add the deviations of each species to the shared terms
+// (alpha_dev, gamma_dev, d_ver). Otherwise these terms and the recorder
+// effects are shared by the species. The intercepts of the species reach the shared
 // emissions (fp_emissions.stanfunctions) through the offsets of each unit
 // on the logit of p11 (d_det) and of p10 (e_fp), the same offsets as the
 // site effects of fp_occu.stan; gamma0 there is the community intercept
@@ -29,7 +37,8 @@
 // With centered = 1 the same model has another parametrization, for species
 // and recorders with many occasions, whose narrow posteriors make the
 // non-centred one take very small steps: za holds alpha_s, zg holds
-// log(gap_s) and u_raw holds u.
+// log(gap_s), u_raw holds u, and zds, zfs and zv hold the slopes and
+// verified intercepts of the species.
 // The sum over units runs with reduce_sum(), as over sites in fp_occu.stan.
 // ============================================================================
 functions {
@@ -39,7 +48,8 @@ functions {
   // the logit of the occupancy probability of every unit.
   vector unit_loglik(int a, int b, vector lpsi, vector alpha, real gamma0,
                      vector gamma_fp, vector e_fp, vector u, vector d_det, real delta0,
-                     vector delta_s,
+                     vector delta_s, matrix alpha_dev, matrix gamma_dev, vector d_ver,
+                     array[] int sp_unit,
                      tuple(matrix, matrix, matrix, matrix, matrix) design,
                      tuple(array[] int, array[] int, array[] int, array[] int,
                            vector, vector, array[] int, array[] int,
@@ -51,7 +61,8 @@ functions {
                      array[] int options) {
     int nu = b - a + 1;
     tuple(vector[nu], vector[nu]) em = unit_emissions(a, b, alpha, gamma0, gamma_fp, e_fp, u,
-                                                      d_det, delta0, delta_s, design,
+                                                      d_det, delta0, delta_s, alpha_dev,
+                                                      gamma_dev, d_ver, sp_unit, design,
                                                       automated, verified, confirmed, options);
     vector[nu] ll;
     for (i in 1:nu) {
@@ -67,7 +78,8 @@ functions {
   // partial sum over a slice of units, for reduce_sum()
   real partial_loglik(array[] int slice, int a, int b, vector lpsi, vector alpha,
                       real gamma0, vector gamma_fp, vector e_fp, vector u, vector d_det,
-                      real delta0, vector delta_s,
+                      real delta0, vector delta_s, matrix alpha_dev, matrix gamma_dev,
+                      vector d_ver, array[] int sp_unit,
                       tuple(matrix, matrix, matrix, matrix, matrix) design,
                       tuple(array[] int, array[] int, array[] int, array[] int,
                             vector, vector, array[] int, array[] int,
@@ -78,7 +90,8 @@ functions {
                             array[] int, array[] int, matrix) confirmed,
                       array[] int options) {
     return sum(unit_loglik(a, b, lpsi, alpha, gamma0, gamma_fp, e_fp, u, d_det, delta0,
-                           delta_s, design, automated, verified, confirmed, options));
+                           delta_s, alpha_dev, gamma_dev, d_ver, sp_unit, design,
+                           automated, verified, confirmed, options));
   }
 }
 
@@ -129,12 +142,18 @@ data {
   real<lower=0> gap_sd;
   real<lower=0> recorder_sd;                 // half-Normal(0, recorder_sd) on sigma_u
   real<lower=0> species_sd;                  // half-Normal(0, species_sd) on the sds among species
-  int<lower=0, upper=1> centered;            // parametrization of alpha_sp, gap_sp and u
+  int<lower=0, upper=1> centered;            // parametrization of alpha_sp, gap_sp, u and the species slopes
+  int<lower=0, upper=1> by_det;              // detection slopes by species
+  int<lower=0, upper=1> by_fp;               // false-positive slopes by species
+  int<lower=0, upper=1> by_ver;              // verified intercept by species
 
 }
 
 transformed data {
   if (nunit != nsite * nspecies) reject("nunit must be nsite * nspecies");
+  int Kds = by_det == 1 ? Kalpha - 1 : 0;    // detection slopes by species
+  int Kfs = by_fp == 1 ? Kfp : 0;            // false-positive slopes by species
+  int nsv = by_ver == 1 ? nspecies : 0;      // verified intercepts by species
   vector[N2] y2v = to_vector(y2);
   vector[N2] n2v = to_vector(n2);
   // sites with an automated detection cannot be unoccupied without false positives
@@ -233,6 +252,12 @@ parameters {
   vector[Kfp] gamma_fp;
   real delta0;
   vector[Kver_s] delta_s;
+  vector<lower=0>[Kds] sigma_det_s;          // sds of the detection slopes among species
+  matrix[Kds, nspecies] zds;
+  vector<lower=0>[Kfs] sigma_fp_s;           // sds of the false-positive slopes among species
+  matrix[Kfs, nspecies] zfs;
+  vector<lower=0>[by_ver] sigma_ver;         // sd of the verified intercept among species
+  vector[nsv] zv;
 }
 
 transformed parameters {
@@ -241,6 +266,20 @@ transformed parameters {
   matrix[Kbeta, nspecies] beta_sp = rep_matrix(mu_beta, nspecies) + diag_pre_multiply(sigma_beta, zb);
   vector[nspecies] alpha_sp = centered == 1 ? za : alpha[1] + sigma_alpha * za;
   vector[nspecies] gap_sp = centered == 1 ? exp(zg) : mu_gap * exp(sigma_gap * zg);
+  // deviations of the species from the community slopes and verified
+  // intercept, one row per species
+  matrix[nspecies, Kds] alpha_dev;
+  matrix[nspecies, Kfs] gamma_dev;
+  vector[nsv] delta_dev;
+  if (Kds > 0) {
+    alpha_dev = centered == 1 ? (zds - rep_matrix(alpha[2:Kalpha], nspecies))'
+                              : diag_pre_multiply(sigma_det_s, zds)';
+  }
+  if (Kfs > 0) {
+    gamma_dev = centered == 1 ? (zfs - rep_matrix(gamma_fp, nspecies))'
+                              : diag_pre_multiply(sigma_fp_s, zfs)';
+  }
+  if (nsv > 0) delta_dev = centered == 1 ? zv - delta0 : sigma_ver[1] * zv;
 }
 
 model {
@@ -263,13 +302,29 @@ model {
   gamma_fp       ~ normal(0, prior_sd_slope);
   delta0         ~ normal(0, prior_sd_int);
   delta_s        ~ normal(0, prior_sd_slope);
+  sigma_det_s    ~ normal(0, species_sd);
+  sigma_fp_s     ~ normal(0, species_sd);
+  sigma_ver      ~ normal(0, species_sd);
+  if (centered == 1) {
+    if (Kds > 0) to_vector(zds) ~ normal(to_vector(rep_matrix(alpha[2:Kalpha], nspecies)),
+                                         to_vector(rep_matrix(sigma_det_s, nspecies)));
+    if (Kfs > 0) to_vector(zfs) ~ normal(to_vector(rep_matrix(gamma_fp, nspecies)),
+                                         to_vector(rep_matrix(sigma_fp_s, nspecies)));
+    if (nsv > 0) zv ~ normal(delta0, sigma_ver[1]);
+  } else {
+    to_vector(zds) ~ std_normal();
+    to_vector(zfs) ~ std_normal();
+    zv ~ std_normal();
+  }
   {
     vector[nunit] lpsi = rows_dot_product(X, beta_sp[, sp_unit]');
     vector[nunit] d_det = (alpha_sp - alpha[1])[sp_unit];
     vector[nunit] e_fp = (alpha_sp - alpha[1] - gap_sp + mu_gap)[sp_unit];
+    vector[nsv > 0 ? nunit : 0] d_ver;
+    if (nsv > 0) d_ver = delta_dev[sp_unit];
     target += reduce_sum(partial_loglik, unit_index, 1, lpsi, alpha, gamma0, gamma_fp,
-                         e_fp, u, d_det, delta0, delta_s, design, automated, verified,
-                         confirmed, options);
+                         e_fp, u, d_det, delta0, delta_s, alpha_dev, gamma_dev, d_ver,
+                         sp_unit, design, automated, verified, confirmed, options);
   }
 }
 
@@ -282,6 +337,17 @@ generated quantities {
   real p11_ref = inv_logit(alpha[1]);
   real p10_ref = estimate_fp == 1 ? inv_logit(gamma0) : 0.0;
   real r11 = inv_logit(delta0);
+  // slopes and verified detection of each species
+  matrix[Kds, nspecies] alpha_sp_s;
+  matrix[Kfs, nspecies] gamma_sp;
+  vector[nsv] r11_sp;
+  vector[nsv] delta_sp;
+  if (Kds > 0) alpha_sp_s = rep_matrix(alpha[2:Kalpha], nspecies) + alpha_dev';
+  if (Kfs > 0) gamma_sp = rep_matrix(gamma_fp, nspecies) + gamma_dev';
+  if (nsv > 0) {
+    delta_sp = delta0 + delta_dev;
+    r11_sp = inv_logit(delta_sp);
+  }
   if (obs_confirm == 1) {
     p11_sp = 1 - (1 - p11_sp) .* (1 - p10_sp);
     p11_ref = 1 - (1 - p11_ref) * (1 - p10_ref);
@@ -290,7 +356,10 @@ generated quantities {
     vector[nunit] lpsi = rows_dot_product(X, beta_sp[, sp_unit]');
     vector[nunit] d_det = (alpha_sp - alpha[1])[sp_unit];
     vector[nunit] e_fp = (alpha_sp - alpha[1] - gap_sp + mu_gap)[sp_unit];
+    vector[nsv > 0 ? nunit : 0] d_ver;
+    if (nsv > 0) d_ver = delta_dev[sp_unit];
     log_lik = unit_loglik(1, nunit, lpsi, alpha, gamma0, gamma_fp, e_fp, u, d_det, delta0,
-                          delta_s, design, automated, verified, confirmed, options);
+                          delta_s, alpha_dev, gamma_dev, d_ver, sp_unit, design,
+                          automated, verified, confirmed, options);
   }
 }

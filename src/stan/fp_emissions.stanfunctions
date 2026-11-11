@@ -21,10 +21,20 @@
                       int rec_by_site, array[] int rec_site,
                       int Kver_s, matrix X1s, vector delta_s, vector y1v,
                       array[] int start1, array[] int len1,
-                      int fp_by_row, matrix Xfp2, matrix Xfp3) {
+                      int fp_by_row, matrix Xfp2, matrix Xfp3,
+                      matrix alpha_dev, matrix gamma_dev, vector d_ver,
+                      array[] int sp_unit) {
     int ns = b - a + 1;
+    // species deviations of the slopes of detection (alpha_dev) and false
+    // positives (gamma_dev), one row per species, and of the intercept of the
+    // verified method by unit (d_ver), for fp_occu_ms(); empty otherwise, and
+    // then the arithmetic is that of the shared slopes
+    int by_det = rows(alpha_dev) > 0 && cols(alpha_dev) > 0;
+    int by_fp = rows(gamma_dev) > 0 && cols(gamma_dev) > 0;
+    int by_ver = rows(d_ver) > 0;
     vector[ns] lp10 = rep_vector(gamma0, ns);
     if (Kfp > 0 && fp_by_row == 0) lp10 += Xfp[a:b] * gamma_fp;
+    if (by_fp == 1 && fp_by_row == 0) lp10 += rows_dot_product(Xfp[a:b], gamma_dev[sp_unit[a:b]]);
     lp10 += e_fp[a:b];
     vector[ns] occ = rep_vector(0, ns);
     vector[ns] unocc = rep_vector(0, ns);
@@ -45,6 +55,7 @@
       array[nr] int loc;
       for (k in 1:nr) loc[k] = site2[r0 + k - 1] - a + 1;
       vector[nr] lp10_row = lp10[loc] + Xfp2[r0:r1] * gamma_fp;
+      if (by_fp == 1) lp10_row += rows_dot_product(Xfp2[r0:r1], gamma_dev[sp_unit[site2[r0:r1]]]);
       log1p_exp_lp10_row = log1p_exp(lp10_row);
       vector[nr] l10 = y2v[r0:r1] .* lp10_row - n2v[r0:r1] .* log1p_exp_lp10_row;
       for (i in 1:ns) {
@@ -67,14 +78,16 @@
         if (len2[s] > 0) {
           int q0 = start2[s];
           int q1 = q0 + len2[s] - 1;
+          vector[rows(slopes)] slopes_s = slopes;
+          if (by_det == 1) slopes_s += alpha_dev[sp_unit[s]]';
           if (estimate_re == 1 && rec_by_site == 0) {
             occ[i] = binomial_logit_glm_lpmf(y2[q0:q1] | n2[q0:q1], Z_slopes[q0:q1],
-                                             alpha[1] + d_det[s] + u[rec2[q0:q1]], slopes)
+                                             alpha[1] + d_det[s] + u[rec2[q0:q1]], slopes_s)
                      - lchoose_site[s];
           } else {
             real intercept = d_det[s] + (estimate_re == 1 ? alpha[1] + u[rec_site[s]] : alpha[1]);
             occ[i] = binomial_logit_glm_lpmf(y2[q0:q1] | n2[q0:q1], Z_slopes[q0:q1],
-                                             intercept, slopes) - lchoose_site[s];
+                                             intercept, slopes_s) - lchoose_site[s];
           }
         }
       }
@@ -86,6 +99,7 @@
       vector[nr] lp11 = Z[r0:r1] * alpha;
       if (estimate_re == 1) lp11 += u[rec2[r0:r1]];
       lp11 += d_det[site2[r0:r1]];
+      if (by_det == 1) lp11 += rows_dot_product(Z_slopes[r0:r1], alpha_dev[sp_unit[site2[r0:r1]]]);
       vector[nr] l11;
       if (obs_confirm == 1) {
         // log(1 - p11) = log(1 - s1) + log(1 - s0)
@@ -112,7 +126,10 @@
 
     // verified occasions: counts per site, or rows when the verified method
     // has covariates (sorted by site, like the automated rows)
-    if (Kver_s == 0) {
+    if (Kver_s == 0 && by_ver == 1) {
+      vector[ns] eta = delta0 + d_ver[a:b];
+      occ += s1v[a:b] .* log_inv_logit(eta) + (n1v[a:b] - s1v[a:b]) .* log1m_inv_logit(eta);
+    } else if (Kver_s == 0) {
       occ += s1v[a:b] * log_inv_logit(delta0) + (n1v[a:b] - s1v[a:b]) * log1m_inv_logit(delta0);
     } else {
       int w0 = start1[a];
@@ -120,6 +137,15 @@
       if (nw > 0) {
         int w1 = w0 + nw - 1;
         vector[nw] eta1 = delta0 + X1s[w0:w1] * delta_s;
+        if (by_ver == 1) {
+          for (i in 1:ns) {
+            int s = a + i - 1;
+            if (len1[s] > 0) {
+              int o = start1[s] - w0 + 1;
+              eta1[o:(o + len1[s] - 1)] += d_ver[s];
+            }
+          }
+        }
         vector[nw] l1 = y1v[w0:w1] .* eta1 - log1p_exp(eta1);
         for (i in 1:ns) {
           int s = a + i - 1;
@@ -137,12 +163,19 @@
         vector[nq] lp11_3 = Z3[q0:q1] * alpha;
         if (estimate_re == 1) lp11_3 += u[rec3[q0:q1]];
         lp11_3 += d_det[site3[q0:q1]];
+        if (by_det == 1) {
+          lp11_3 += rows_dot_product(block(Z3, q0, 2, nq, cols(Z3) - 1),
+                                     alpha_dev[sp_unit[site3[q0:q1]]]);
+        }
         for (k in 1:nq) {
           int i = site3[q0 + k - 1] - a + 1;
           int v = v3[q0 + k - 1];
           real ls1 = log_inv_logit(lp11_3[k]);
           real lq1 = log1m_inv_logit(lp11_3[k]);
           real lp10_k = fp_by_row == 1 ? lp10[i] + Xfp3[q0 + k - 1] * gamma_fp : lp10[i];
+          if (by_fp == 1 && fp_by_row == 1) {
+            lp10_k += Xfp3[q0 + k - 1] * gamma_dev[sp_unit[site3[q0 + k - 1]]]';
+          }
           real ls0 = log_inv_logit(lp10_k);
           real lq0 = log1m_inv_logit(lp10_k);
           occ[i] += (v >= 2 ? ls1 : lq1) + (v % 2 == 1 ? ls0 : lq0);
@@ -160,7 +193,8 @@
   // (the occupancy design) and verified.3 (known_present) are not used here.
   tuple(vector, vector) unit_emissions(int a, int b, vector alpha, real gamma0,
                      vector gamma_fp, vector e_fp, vector u, vector d_det, real delta0,
-                     vector delta_s,
+                     vector delta_s, matrix alpha_dev, matrix gamma_dev, vector d_ver,
+                     array[] int sp_unit,
                      tuple(matrix, matrix, matrix, matrix, matrix) design,
                      tuple(array[] int, array[] int, array[] int, array[] int,
                            vector, vector, array[] int, array[] int,
@@ -187,5 +221,24 @@
                         design.3, automated.1, automated.2, automated.13,
                         options[6], automated.10, options[7], verified.4,
                         delta_s, verified.5, verified.6, verified.7, options[8],
-                        design.5, confirmed.7);
+                        design.5, confirmed.7, alpha_dev, gamma_dev, d_ver, sp_unit);
+  }
+
+  // the same without species terms (fp_occu.stan and fp_occu_dyn.stan)
+  tuple(vector, vector) unit_emissions(int a, int b, vector alpha, real gamma0,
+                     vector gamma_fp, vector e_fp, vector u, vector d_det, real delta0,
+                     vector delta_s,
+                     tuple(matrix, matrix, matrix, matrix, matrix) design,
+                     tuple(array[] int, array[] int, array[] int, array[] int,
+                           vector, vector, array[] int, array[] int,
+                           array[] int, array[] int, vector, vector, vector) automated,
+                     tuple(vector, vector, array[] int, matrix, vector,
+                           array[] int, array[] int) verified,
+                     tuple(array[] int, array[] int, array[] int, matrix,
+                           array[] int, array[] int, matrix) confirmed,
+                     array[] int options) {
+    array[0] int no_species;
+    return unit_emissions(a, b, alpha, gamma0, gamma_fp, e_fp, u, d_det, delta0, delta_s,
+                          rep_matrix(0, 0, 0), rep_matrix(0, 0, 0), rep_vector(0, 0),
+                          no_species, design, automated, verified, confirmed, options);
   }

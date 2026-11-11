@@ -183,7 +183,12 @@ standard deviations among species as \verb{sd_occ_<term>},
 \code{sd_det_(Intercept)} and \code{sd_log_fp_gap} (of the logarithm of the gap),
 and the values of each species with its name in brackets:
 \verb{occ_<term>[species]}, \code{det_(Intercept)[species]}, \code{fp_gap[species]},
-\code{p11_ref[species]} and \code{p10_ref[species]}. It has no \code{p10_bar}.
+\code{p11_ref[species]} and \code{p10_ref[species]}. With \code{by_species}, the
+slopes of each species are \verb{det_<term>[species]} and \verb{fp_<term>[species]},
+with standard deviations \verb{sd_det_<term>} and \verb{sd_fp_<term>}, and the
+verified method of each species is \code{verified_(Intercept)[species]} and
+\code{p_verified[species]}, with standard deviation \code{sd_verified_(Intercept)}.
+It has no \code{p10_bar}.
 \code{log_lik[i]} is the log-likelihood of unit \code{i}, site
 \code{(i - 1) \%/\% nspecies + 1} and species \code{(i - 1) \%\% nspecies + 1}.
 }

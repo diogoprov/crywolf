@@ -15,6 +15,7 @@ fp_occu_ms(
   random_recorder = !is.null(data$recorder),
   ver = ~1,
   priors = fp_priors(),
+  by_species = character(),
   centered = FALSE,
   chains = 4,
   parallel_chains = chains,
@@ -42,8 +43,16 @@ standard deviations among species have the half-Normal priors of
 \code{fp_priors(species_sd = )}; the community means have the priors of the
 intercepts, slopes and gap of \code{\link[=fp_priors]{fp_priors()}}.}
 
+\item{by_species}{Terms that vary by species besides the intercepts of
+\code{occ}, \code{det} and the gap: any of \code{"det"} (the slopes of \code{det}), \code{"fp"}
+(the slopes of \code{fp}) and \code{"ver"} (the intercept of the verified method,
+so that the reviewer may miss some species more often than others). The
+default, \code{character()}, shares them among species. A term without slopes
+(for example \code{"det"} with \code{det = ~ 1}) adds nothing.}
+
 \item{centered}{Use the centred parametrization of the detection
-intercepts, gaps and recorder effects? The model is the same. \code{TRUE}
+intercepts, gaps, recorder effects and the terms of \code{by_species}? The
+model is the same. \code{TRUE}
 suits passive acoustic monitoring, with thousands of occasions per
 species: their posteriors are then so narrow that the default takes very
 small steps and reaches the maximum tree depth. Keep \code{FALSE} with few
@@ -62,8 +71,8 @@ available.}
 \value{
 An object of class \code{fp_occu_ms}, a list with \code{fit}, \code{draws}
 (readable names: see Details), \code{stan_data}, \code{formulas}, \code{design},
-\code{data}, \code{random_recorder}, \code{priors}, \code{sampler}, \code{diagnostics} and
-\code{call}.
+\code{data}, \code{by_species}, \code{random_recorder}, \code{priors}, \code{sampler},
+\code{diagnostics} and \code{call}.
 
 \code{summary()} returns an object of class \code{summary.fp_occu}, as for
 \code{\link[=fp_occu]{fp_occu()}}.
@@ -84,9 +93,12 @@ Each species \eqn{s} has its own occupancy coefficients
 \eqn{\alpha_s = \alpha + \sigma_\alpha z_s}, and its own gap between the
 true-detection and false-positive intercepts,
 \eqn{g_s = \mu_g \exp(\sigma_g z_s)}, which keeps the false-positive rate
-of every species below its true-detection rate at the reference. The
-slopes of \code{det}, \code{fp} and \code{ver}, the intercept of the verified method and
-the recorder effect are shared by the species. The false positives of a
+of every species below its true-detection rate at the reference. By
+default the slopes of \code{det}, \code{fp} and \code{ver}, the intercept of the verified
+method and the recorder effect are shared by the species; \code{by_species}
+gives each species its own slopes of \code{det} or \code{fp}, or its own intercept of
+the verified method, drawn around the community value as the intercepts
+are (\eqn{\alpha_{sk} = \alpha_k + \sigma_{\alpha k} z_{sk}}). The false positives of a
 species are independent of those of the others: the classifier errs in
 labelling a species, not in confusing two species.
 
@@ -100,7 +112,10 @@ augmentation for species never detected.
 are \verb{sd_occ_*}, \code{sd_det_(Intercept)} and \code{sd_log_fp_gap}; and the values
 of each species carry its name in brackets: \verb{occ_*[species]},
 \code{det_(Intercept)[species]}, \code{fp_gap[species]}, \code{p11_ref[species]} and
-\code{p10_ref[species]}.
+\code{p10_ref[species]}. With \code{by_species}, the slopes add \verb{sd_det_*},
+\verb{det_*[species]}, \verb{sd_fp_*} and \verb{fp_*[species]}, and the verified method
+adds \code{sd_verified_(Intercept)}, \code{verified_(Intercept)[species]} and
+\code{p_verified[species]}.
 }
 \examples{
 \dontrun{

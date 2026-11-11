@@ -97,10 +97,136 @@ test_that("the multispecies likelihood equals that of fp_occu() species by speci
   })
 })
 
+# two species with the sites, occasions and recorders of one simulation: the
+# rows of species b are those of species a moved to other sites, so that
+# each species is also a valid data set of fp_occu(), in either design
+ms_sim_moved <- function(seed, ...) {
+  sim <- simulate_fp(nsite = 40, nocc = 6, a_bio = 0.5, sd_recorder = 0.5, seed = seed, ...)
+  d <- sim$data
+  set.seed(seed)
+  d$verified$listener <- stats::rnorm(nrow(d$verified))
+  move <- sample(d$sites$site)
+  moved <- function(x) transform(x, site = move[match(x$site, d$sites$site)])
+  conf <- d$confirmed
+  b <- suppressWarnings(fp_data(moved(d$auto), d$sites, moved(d$verified),
+                                recorder = d$recorder, confirmed = conf))
+  tag <- function(x, sp) transform(x, sp = sp)
+  ms <- suppressWarnings(fp_data(rbind(tag(d$auto, "a"), tag(moved(d$auto), "b")), d$sites,
+                                 rbind(tag(d$verified, "a"), tag(moved(d$verified), "b")),
+                                 recorder = d$recorder, confirmed = conf, species = "sp"))
+  list(a = d, b = b, ms = ms)
+}
+
+test_that("with by_species the likelihood equals that of fp_occu() species by species", {
+  skip_if_no_cmdstan()
+  gq <- function(model, pars, stan_data) {
+    out <- tempfile("gq")
+    dir.create(out)
+    g <- crywolf:::.compile_model(model)$generate_quantities(
+      fitted_params = pars, data = stan_data, seed = 1, sig_figs = 18,
+      threads_per_chain = 1, output_dir = out)
+    unclass(posterior::as_draws_matrix(g$draws("log_lik")))
+  }
+  first <- c("^mu_beta", "^sigma_beta", "^zb", "^alpha", "^sigma_alpha$", "^za",
+             "^mu_gap$", "^sigma_gap$", "^zg", "^u_raw", "^sigma_u$", "^gamma_fp",
+             "^delta0$", "^delta_s", "^sigma_det_s", "^zds", "^sigma_fp_s", "^zfs",
+             "^sigma_ver", "^zv")
+  ordered <- function(p) {
+    p[, c(unlist(lapply(first, grep, names(p), value = TRUE)), ".chain", ".iteration", ".draw")]
+  }
+  gap <- function(s, det, fp, ver = ~ 1) {
+    by <- c("det", "fp", "ver")
+    m <- suppressWarnings(fp_occu(s$a, occ = ~ x, det = det, fp = fp, ver = ver, chains = 1,
+                                  iter_warmup = 100, iter_sampling = 20,
+                                  threads_per_chain = 1, seed = 3, refresh = 0,
+                                  show_messages = FALSE, sig_figs = 18))
+    pa <- posterior::as_draws_df(m$fit$draws())
+    pa <- pa[, !grepl("^(lp__|u|gamma0|log_lik|p11_ref|p10_ref|p10_bar|r11)(\\[|$)",
+                      names(pa))]
+    # species b: its own values of every term of by_species too
+    set.seed(4)
+    pb <- pa
+    for (v in c("beta[1]", "beta[2]", "alpha[1]", "alpha[2]", "gamma_fp[1]", "delta0")) {
+      pb[[v]] <- stats::rnorm(20)
+    }
+    pb$fp_gap <- stats::runif(20, 0.5, 3)
+    sl_a <- crywolf:::.build_stan_data(s$a, ~ x, det, fp, TRUE, fp_priors(), ver = ver)
+    sl_b <- crywolf:::.build_stan_data(s$b, ~ x, det, fp, TRUE, fp_priors(), ver = ver)
+    ll_a <- gq("fp_occu", posterior::as_draws_array(pa), sl_a$stan_data)
+    ll_b <- gq("fp_occu", posterior::as_draws_array(pb), sl_b$stan_data)
+    # community values 0 (gap 1) and standard deviations 1, so that the
+    # standard normal draws of each species are its values
+    pm <- pa[, !grepl("^(beta|fp_gap)", names(pa))]
+    pm[c("mu_beta[1]", "mu_beta[2]", "sigma_beta[1]", "sigma_beta[2]")] <- list(0, 0, 1, 1)
+    pm[c("zb[1,1]", "zb[2,1]", "zb[1,2]", "zb[2,2]")] <-
+      list(pa[["beta[1]"]], pa[["beta[2]"]], pb[["beta[1]"]], pb[["beta[2]"]])
+    pm[c("alpha[1]", "alpha[2]", "sigma_alpha")] <- list(0, 0, 1)
+    pm[c("za[1]", "za[2]")] <- list(pa[["alpha[1]"]], pb[["alpha[1]"]])
+    pm[c("mu_gap", "sigma_gap")] <- list(1, 1)
+    pm[c("zg[1]", "zg[2]")] <- list(log(pa$fp_gap), log(pb$fp_gap))
+    pm[c("sigma_det_s[1]", "zds[1,1]", "zds[1,2]")] <- list(1, pa[["alpha[2]"]], pb[["alpha[2]"]])
+    pm[c("gamma_fp[1]", "sigma_fp_s[1]", "zfs[1,1]", "zfs[1,2]")] <-
+      list(0, 1, pa[["gamma_fp[1]"]], pb[["gamma_fp[1]"]])
+    pm[c("delta0", "sigma_ver[1]", "zv[1]", "zv[2]")] <- list(0, 1, pa$delta0, pb$delta0)
+    pm <- ordered(pm)
+    sl_m <- crywolf:::.build_ms_stan_data(s$ms, ~ x, det, fp, TRUE, fp_priors(), ver = ver,
+                                          by_species = by)
+    ll_m <- gq("fp_occu_ms", posterior::as_draws_array(pm), sl_m$stan_data)
+    # centred: with these community values only the recorder effects change
+    pc <- pm
+    for (u in grep("^u_raw", names(pc), value = TRUE)) pc[[u]] <- pc[[u]] * pc$sigma_u
+    sl_c <- crywolf:::.build_ms_stan_data(s$ms, ~ x, det, fp, TRUE, fp_priors(), ver = ver,
+                                          centered = TRUE, by_species = by)
+    ll_c <- gq("fp_occu_ms", posterior::as_draws_array(pc), sl_c$stan_data)
+    # deviations 0 give the model with shared terms
+    p0 <- pm
+    p0[grep("^(zds|zfs|zv)", names(p0))] <- 0
+    p0[c("alpha[2]", "gamma_fp[1]")] <- list(pa[["alpha[2]"]], pa[["gamma_fp[1]"]])
+    ll_0 <- gq("fp_occu_ms", posterior::as_draws_array(p0), sl_m$stan_data)
+    p_shared <- p0[, !grepl("^(sigma_det_s|zds|sigma_fp_s|zfs|sigma_ver|zv)", names(p0))]
+    sl_s <- crywolf:::.build_ms_stan_data(s$ms, ~ x, det, fp, TRUE, fp_priors(), ver = ver)
+    ll_s <- gq("fp_occu_ms", posterior::as_draws_array(p_shared), sl_s$stan_data)
+    a <- cbind(ll_a, ll_b)
+    by_species <- c(seq(1, by = 2, length.out = 40), seq(2, by = 2, length.out = 40))
+    rel <- function(x, y) max(abs(x - y) / pmax(1, abs(x)))
+    c(species = max(rel(a, ll_m[, by_species]), rel(a, ll_c[, by_species])),
+      shared = rel(ll_s, ll_0))
+  }
+  designs <- list(
+    multiple_methods = list(s = ms_sim_moved(3), det = ~ bio, fp = ~ aci),
+    unit_fp = list(s = ms_sim_moved(3), det = ~ bio, fp = ~ x),
+    verified_covariate = list(s = ms_sim_moved(3), det = ~ bio, fp = ~ aci, ver = ~ listener),
+    confirmation = list(s = ms_sim_moved(6, frac_confirmed = 0.4, frac_verified = 0.2),
+                        det = ~ bio, fp = ~ aci),
+    confirmation_unit_fp = list(s = ms_sim_moved(6, frac_confirmed = 0.4, frac_verified = 0.2),
+                                det = ~ bio, fp = ~ x)
+  )
+  purrr::iwalk(designs, function(d, name) {
+    g <- gap(d$s, d$det, d$fp, if (is.null(d$ver)) ~ 1 else d$ver)
+    expect_lt(g[["species"]], 1e-12, label = paste(name, ": by species vs fp_occu"))
+    expect_lt(g[["shared"]], 1e-12, label = paste(name, ": zero deviations vs shared terms"))
+  })
+})
+
+test_that("by_species is checked and named", {
+  s <- ms_sim(1)
+  expect_error(fp_occu_ms(s$ms, by_species = "occ"), "must name terms")
+  expect_error(fp_occu_ms(s$ms, by_species = NA_character_), "must name terms")
+  expect_identical(crywolf:::.check_by_species(NULL, s$ms), character())
+  sl <- crywolf:::.build_ms_stan_data(s$ms, ~ x, ~ bio, ~ aci, TRUE, fp_priors(),
+                                      by_species = c("det", "ver"))
+  expect_equal(unlist(sl$stan_data[c("by_det", "by_fp", "by_ver")]),
+               c(by_det = 1, by_fp = 0, by_ver = 1))
+  no_ver <- s$ms
+  no_ver$verified <- no_ver$verified[0, ]
+  expect_error(crywolf:::.check_by_species("ver", no_ver), "needs verified")
+})
+
 test_that("a short multispecies fit has readable names and methods", {
   skip_if_no_cmdstan()
   s <- ms_sim(5)
-  m <- suppressWarnings(fp_occu_ms(s$ms, occ = ~ x, det = ~ bio, chains = 1,
+  m <- suppressWarnings(fp_occu_ms(s$ms, occ = ~ x, det = ~ bio, fp = ~ aci,
+                                   by_species = c("det", "fp", "ver"), chains = 1,
                                    iter_warmup = 150, iter_sampling = 100,
                                    threads_per_chain = 1, seed = 1, refresh = 0,
                                    show_messages = FALSE))
@@ -111,11 +237,16 @@ test_that("a short multispecies fit has readable names and methods", {
                     "fp_(Intercept)", "fp_gap", "sd_log_fp_gap", "p11_ref", "p10_ref",
                     "sd_recorder", "verified_(Intercept)", "p_verified",
                     "occ_x[a]", "occ_(Intercept)[b]", "det_(Intercept)[a]",
-                    "fp_gap[b]", "p10_ref[a]", "p11_ref[b]") %in% v))
+                    "fp_gap[b]", "p10_ref[a]", "p11_ref[b]",
+                    "sd_det_bio", "det_bio[a]", "sd_fp_aci", "fp_aci[b]",
+                    "sd_verified_(Intercept)", "verified_(Intercept)[a]",
+                    "p_verified[b]") %in% v))
   expect_false(any(grepl("^(mu_|z|beta|alpha|gap_sp)", v)))
   # every species keeps p11 above p10
   expect_true(all(m$draws[["p11_ref[a]"]] > m$draws[["p10_ref[a]"]]))
   expect_output(print(m), "2 species at 40 sites")
+  expect_output(print(m), "intercept and slopes by species")
+  expect_identical(m$by_species, c("det", "fp", "ver"))
   expect_s3_class(summary(m), "summary.fp_occu")
   expect_identical(as_draws_df(m), m$draws)
 })

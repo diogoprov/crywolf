@@ -16,6 +16,13 @@
   are compared by site and `occasion_id` (and species with `species`, season
   with `season`) when both tables have an `occasion_id` column, as in a
   'sheepdog' export.
+* `fp_occu_ms()` (in development) gains `by_species`: the slopes of `det`,
+  the slopes of `fp` and the intercept of the verified method can vary by
+  species, drawn around the community values as the intercepts are. With
+  every species deviation at 0 the likelihood is that of the shared terms,
+  and with standard deviations 1 and community values 0 it equals that of
+  `fp_occu()` species by species, in both designs. The draws of `fp_occu()`
+  and `fp_occu_dyn()` do not change.
 
 # crywolf 2.2.0
 

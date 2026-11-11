@@ -14,9 +14,12 @@
 #' \eqn{\alpha_s = \alpha + \sigma_\alpha z_s}, and its own gap between the
 #' true-detection and false-positive intercepts,
 #' \eqn{g_s = \mu_g \exp(\sigma_g z_s)}, which keeps the false-positive rate
-#' of every species below its true-detection rate at the reference. The
-#' slopes of `det`, `fp` and `ver`, the intercept of the verified method and
-#' the recorder effect are shared by the species. The false positives of a
+#' of every species below its true-detection rate at the reference. By
+#' default the slopes of `det`, `fp` and `ver`, the intercept of the verified
+#' method and the recorder effect are shared by the species; `by_species`
+#' gives each species its own slopes of `det` or `fp`, or its own intercept of
+#' the verified method, drawn around the community value as the intercepts
+#' are (\eqn{\alpha_{sk} = \alpha_k + \sigma_{\alpha k} z_{sk}}). The false positives of a
 #' species are independent of those of the others: the classifier errs in
 #' labelling a species, not in confusing two species.
 #'
@@ -30,8 +33,15 @@
 #'   standard deviations among species have the half-Normal priors of
 #'   `fp_priors(species_sd = )`; the community means have the priors of the
 #'   intercepts, slopes and gap of [fp_priors()].
+#' @param by_species Terms that vary by species besides the intercepts of
+#'   `occ`, `det` and the gap: any of `"det"` (the slopes of `det`), `"fp"`
+#'   (the slopes of `fp`) and `"ver"` (the intercept of the verified method,
+#'   so that the reviewer may miss some species more often than others). The
+#'   default, `character()`, shares them among species. A term without slopes
+#'   (for example `"det"` with `det = ~ 1`) adds nothing.
 #' @param centered Use the centred parametrization of the detection
-#'   intercepts, gaps and recorder effects? The model is the same. `TRUE`
+#'   intercepts, gaps, recorder effects and the terms of `by_species`? The
+#'   model is the same. `TRUE`
 #'   suits passive acoustic monitoring, with thousands of occasions per
 #'   species: their posteriors are then so narrow that the default takes very
 #'   small steps and reaches the maximum tree depth. Keep `FALSE` with few
@@ -43,8 +53,8 @@
 #'
 #' @return An object of class `fp_occu_ms`, a list with `fit`, `draws`
 #'   (readable names: see Details), `stan_data`, `formulas`, `design`,
-#'   `data`, `random_recorder`, `priors`, `sampler`, `diagnostics` and
-#'   `call`.
+#'   `data`, `by_species`, `random_recorder`, `priors`, `sampler`,
+#'   `diagnostics` and `call`.
 #'
 #' @details
 #' **Output names.** The community means have the names of [fp_occu()]
@@ -53,7 +63,10 @@
 #' are `sd_occ_*`, `sd_det_(Intercept)` and `sd_log_fp_gap`; and the values
 #' of each species carry its name in brackets: `occ_*[species]`,
 #' `det_(Intercept)[species]`, `fp_gap[species]`, `p11_ref[species]` and
-#' `p10_ref[species]`.
+#' `p10_ref[species]`. With `by_species`, the slopes add `sd_det_*`,
+#' `det_*[species]`, `sd_fp_*` and `fp_*[species]`, and the verified method
+#' adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
+#' `p_verified[species]`.
 #' @seealso [fp_data()], [fp_occu()]
 #' @export
 #' @examples
@@ -67,7 +80,8 @@
 #' }
 fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                        random_recorder = !is.null(data$recorder),
-                       ver = ~ 1, priors = fp_priors(), centered = FALSE,
+                       ver = ~ 1, priors = fp_priors(), by_species = character(),
+                       centered = FALSE,
                        chains = 4, parallel_chains = chains, threads_per_chain = "auto",
                        iter_warmup = 1000, iter_sampling = 1000,
                        adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
@@ -78,6 +92,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   if (!isTRUE(centered) && !isFALSE(centered)) {
     stop("`centered` must be TRUE or FALSE.", call. = FALSE)
   }
+  by_species <- .check_by_species(by_species, data)
   na <- intersect(names(list(...)), c("markov", "random_fp", "random_det"))
   if (length(na)) {
     stop("`", paste(na, collapse = "`, `"), "` is not available in fp_occu_ms().",
@@ -93,7 +108,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   threads_per_chain <- cores$threads_per_chain
   parallel_chains <- cores$parallel_chains
   sd_list <- .build_ms_stan_data(data, occ, det, fp, random_recorder, priors, ver = ver,
-                                 centered = centered)
+                                 centered = centered, by_species = by_species)
   if (is.null(refresh)) {
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
@@ -113,7 +128,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   out <- structure(
     list(fit = fit, draws = draws, stan_data = sd_list$stan_data,
          formulas = list(occ = occ, det = det, fp = fp, ver = ver),
-         design = sd_list$design, data = data,
+         design = sd_list$design, data = data, by_species = by_species,
          random_recorder = isTRUE(sd_list$stan_data$estimate_re == 1),
          priors = priors,
          sampler = list(chains = chains, parallel_chains = parallel_chains,
@@ -138,13 +153,19 @@ print.fp_occu_ms <- function(x, digits = 3, ...) {
       if (isTRUE(sd$obs_confirm == 1)) "observation-confirmation" else "multiple-methods",
       " design)\n\n", sep = "")
   cat("  occupancy:        ", .fmt_formula(f$occ), "by species\n")
-  cat("  true detection:   ", .fmt_formula(f$det), "(intercept by species)",
+  by <- function(term) term %in% x$by_species
+  cat("  true detection:   ", .fmt_formula(f$det),
+      if (by("det") && sd$Kalpha > 1) "(intercept and slopes by species)" else
+        "(intercept by species)",
       if (x$random_recorder) "+ (1 | recorder)" else "", "\n")
   cat("  false positive:   ",
       if (is.null(f$fp)) "none (standard occupancy model)" else
-        paste(.fmt_formula(f$fp), "(gap by species)"), "\n")
-  if (!is.null(f$ver) && length(all.vars(f$ver))) {
-    cat("  verified:         ", .fmt_formula(f$ver), "\n")
+        paste(.fmt_formula(f$fp),
+              if (by("fp") && sd$Kfp > 0) "(gap and slopes by species)" else "(gap by species)"),
+      "\n")
+  if (by("ver") || (!is.null(f$ver) && length(all.vars(f$ver)))) {
+    cat("  verified:         ", .fmt_formula(f$ver),
+        if (by("ver")) "(intercept by species)" else "", "\n")
   }
   cat(sprintf("  data:              %d species at %d sites, %d automated and %d verified occasions\n\n",
               sd$nspecies, sd$nsite, sum(sd$n2) + sd$N3, sd$N1))
@@ -176,7 +197,7 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
 # each unit as fp_occu() builds that of each site, and the occupancy design
 # of each unit from the covariates of its site.
 .build_ms_stan_data <- function(data, occ, det, fp, random_recorder, priors, ver = ~ 1,
-                                centered = FALSE) {
+                                centered = FALSE, by_species = character()) {
   units <- .ms_units(data)
   sl <- .build_stan_data(units, occ, det, fp, random_recorder, priors, ver = ver)
   nsp <- length(data$species_names)
@@ -189,9 +210,25 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   # priors saved before this one existed
   sd$species_sd <- if (is.null(priors$species_sd)) 1 else priors$species_sd
   sd$centered <- as.integer(centered)
+  sd$by_det <- as.integer("det" %in% by_species)
+  sd$by_fp <- as.integer("fp" %in% by_species)
+  sd$by_ver <- as.integer("ver" %in% by_species)
   sl$stan_data <- sd
   sl$design$species <- data$species_names
   sl
+}
+
+# the terms of fp_occu_ms(by_species = ), checked
+.check_by_species <- function(by_species, data) {
+  terms <- c("det", "fp", "ver")
+  if (is.null(by_species)) return(character())
+  if (!is.character(by_species) || anyNA(by_species) || !all(by_species %in% terms)) {
+    stop("`by_species` must name terms among \"det\", \"fp\" and \"ver\".", call. = FALSE)
+  }
+  if ("ver" %in% by_species && (is.null(data$verified) || nrow(data$verified) == 0)) {
+    stop("`by_species = \"ver\"` needs verified occasions.", call. = FALSE)
+  }
+  unique(by_species)
 }
 
 # the site x species units of a multispecies data set, as an fp_data with
@@ -235,6 +272,14 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   by_sp <- function(stan, name) {
     stats::setNames(sprintf("%s[%s]", name, sp), sprintf("%s[%d]", stan, seq_len(nsp)))
   }
+  # slopes k of each species s (stan[k,s]) and their sds among species
+  slopes_by_sp <- function(slopes, prefix, stan, sd_stan) {
+    k <- seq_along(slopes)
+    if (!length(k)) return(NULL)
+    c(stats::setNames(paste0("sd_", prefix, "_", slopes), sprintf("%s[%d]", sd_stan, k)),
+      stats::setNames(sprintf("%s_%s[%s]", prefix, rep(slopes, nsp), rep(sp, each = length(k))),
+                      sprintf("%s[%d,%d]", stan, rep(k, nsp), rep(seq_len(nsp), each = length(k)))))
+  }
   map <- c(map,
            stats::setNames(paste0("sd_occ_", occ), sprintf("sigma_beta[%d]", seq_along(occ))),
            stats::setNames(sprintf("occ_%s[%s]", rep(occ, nsp), rep(sp, each = length(occ))),
@@ -246,6 +291,14 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
            if (sd$estimate_fp == 1) {
              c(c(sigma_gap = "sd_log_fp_gap"), by_sp("gap_sp", "fp_gap"),
                by_sp("p10_sp", "p10_ref"))
+           },
+           if (isTRUE(sd$by_det == 1)) slopes_by_sp(des$det_names[-1], "det", "alpha_sp_s", "sigma_det_s"),
+           if (isTRUE(sd$by_fp == 1) && sd$estimate_fp == 1) {
+             slopes_by_sp(des$fp_names[-1], "fp", "gamma_sp", "sigma_fp_s")
+           },
+           if (isTRUE(sd$by_ver == 1)) {
+             c(c("sigma_ver[1]" = "sd_verified_(Intercept)"),
+               by_sp("delta_sp", "verified_(Intercept)"), by_sp("r11_sp", "p_verified"))
            })
   dr <- posterior::as_draws_df(fit$draws(variables = unique(sub("\\[.*", "", names(map)))))
   dr <- posterior::subset_draws(dr, variable = names(map))

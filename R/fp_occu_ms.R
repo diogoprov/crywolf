@@ -4,9 +4,10 @@
 #' at once, with the coefficients of each species drawn from distributions
 #' of the community, so that rare species borrow strength from the others.
 #' **This function is in development** (see [crywolf-api]): its arguments,
-#' results and output names may change in a minor version, and it lacks the
-#' methods of [fp_occu()] other than `print()`, `summary()` and
-#' `as_draws_df()`.
+#' results and output names may change in a minor version. Besides `print()`,
+#' `summary()` and `as_draws_df()`, it works with [fp_sites()] (by site and
+#' species), [fp_ppc()], [simulate()][simulate.fp_occu_ms()] and
+#' [fp_richness()]; the other methods of [fp_occu()] are not available.
 #'
 #' Each species \eqn{s} has its own occupancy coefficients
 #' \eqn{\beta_s = \mu_\beta + \sigma_\beta z_s} (all the terms of `occ`, with
@@ -67,7 +68,7 @@
 #' `det_*[species]`, `sd_fp_*` and `fp_*[species]`, and the verified method
 #' adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
 #' `p_verified[species]`.
-#' @seealso [fp_data()], [fp_occu()]
+#' @seealso [fp_data()], [fp_occu()], [simulate_fp_ms()], [fp_richness()]
 #' @export
 #' @examples
 #' \dontrun{

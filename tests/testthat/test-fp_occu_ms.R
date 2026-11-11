@@ -270,3 +270,91 @@ test_that("the centred parametrization gives the same posterior", {
   expect_lt(max(abs(gap)), 0.3)
   expect_error(fp_occu_ms(s$ms, centered = 1), "must be TRUE or FALSE")
 })
+
+test_that("simulate_fp_ms() shares the design among species", {
+  s <- simulate_fp_ms(nspecies = 3, nsite = 30, nocc = 5, frac_confirmed = 0.3,
+                      sd_recorder = 0.5, seed = 1)
+  expect_s3_class(s, "fp_sim_ms")
+  expect_identical(s$data$species_names, c("sp1", "sp2", "sp3"))
+  expect_equal(dim(s$truth$z), c(30, 3))
+  # every occasion for every species, with the same covariates and checks
+  by_sp <- split(s$data$auto, s$data$auto$species)
+  expect_true(all(vapply(by_sp, nrow, 1L) == 150))
+  cols <- c("site", "occasion", "bio", "recorder")
+  expect_equal(by_sp$sp1[cols], by_sp$sp2[cols], ignore_attr = TRUE)
+  expect_identical(is.na(by_sp$sp1$n_true), is.na(by_sp$sp3$n_true))
+  expect_true(all(c("occ_x", "sd_occ_x", "fp_gap", "sd_log_fp_gap", "sd_recorder",
+                    "occ_x[sp2]", "fp_gap[sp3]", "p10_ref[sp1]") %in% names(s$truth$pars)))
+  # a verified detection only where the species is present
+  v <- s$data$verified
+  zv <- s$truth$z[cbind(v$site, match(v$species, colnames(s$truth$z)))]
+  expect_true(all(zv[v$y == 1] == 1))
+  expect_identical(simulate_fp_ms(nspecies = 3, nsite = 30, nocc = 5, seed = 1)$data,
+                   simulate_fp_ms(nspecies = 3, nsite = 30, nocc = 5, seed = 1)$data)
+  expect_output(print(s), "3 species at 30 sites")
+  # p11_ref as fp_occu_ms() defines it under observation confirmation
+  p11 <- stats::plogis(s$truth$pars[["det_(Intercept)[sp1]"]])
+  expect_equal(s$truth$pars[["p11_ref[sp1]"]],
+               1 - (1 - p11) * (1 - s$truth$pars[["p10_ref[sp1]"]]))
+})
+
+test_that("the outputs of fp_occu_ms() use the likelihood of each species", {
+  skip_if_no_cmdstan()
+  fit <- function(s, ...) {
+    suppressWarnings(fp_occu_ms(s$data, occ = ~ x, det = ~ bio, ..., chains = 1,
+                                iter_warmup = 150, iter_sampling = 30,
+                                threads_per_chain = 1, seed = 1, refresh = 0,
+                                show_messages = FALSE, sig_figs = 15))
+  }
+  # the log-likelihood of each species in R, from the code of fp_occu(),
+  # against the log_lik of each unit of the Stan program
+  gap <- function(m) {
+    sp <- crywolf:::.ms_species(m, NULL)
+    ll <- unclass(posterior::as_draws_matrix(m$fit$draws("log_lik")))
+    max(vapply(seq_along(sp), function(s) {
+      r <- crywolf:::.ppc_core(sp[[s]]$stan_data, sp[[s]]$pars, "automated",
+                               "freeman-tukey", ll_only = TRUE)$ll
+      cols <- (seq_len(ncol(r)) - 1) * length(sp) + s
+      max(abs(r - ll[, cols]) / pmax(1, abs(ll[, cols])))
+    }, 1))
+  }
+  s1 <- simulate_fp_ms(nspecies = 3, nsite = 40, nocc = 6, sd_recorder = 0.5,
+                       a_bio = 0.5, seed = 1)
+  s1$data$verified$listener <- stats::rnorm(nrow(s1$data$verified))
+  m1 <- fit(s1, fp = ~ aci, ver = ~ listener, by_species = c("det", "fp", "ver"))
+  s2 <- simulate_fp_ms(nspecies = 3, nsite = 40, nocc = 6, frac_confirmed = 0.4, seed = 2)
+  m2 <- fit(s2, fp = ~ x, random_recorder = FALSE, by_species = c("det", "fp"))
+  expect_lt(gap(m1), 1e-10, label = "multiple methods, R vs Stan")
+  expect_lt(gap(m2), 1e-10, label = "observation confirmation, R vs Stan")
+
+  st <- fp_sites(m1, ndraws = 20, seed = 1)
+  expect_s3_class(st, "fp_sites")
+  expect_equal(nrow(st), 40 * 3)
+  expect_identical(st$species, rep(c("sp1", "sp2", "sp3"), 40))
+  expect_true(all(st$occupied[st$verified] > 1 - 1e-12))
+  r <- fp_richness(m1, ndraws = 20, seed = 1)
+  expect_equal(nrow(r), 40)
+  # the same draws: expected richness is the sum of the occupancy of the species
+  expect_equal(r$richness_psi, as.vector(tapply(st$psi, st$site, sum)))
+  expect_true(all(r$richness_lower >= r$verified))
+  expect_true(all(r$richness <= 3 & r$detected <= 3))
+  expect_true(all(r$richness_upper == round(r$richness_upper)))
+  expect_error(fp_richness(list()), "fp_occu_ms")
+
+  pp <- fp_ppc(m1, ndraws = 20, seed = 1)
+  expect_s3_class(pp, "fp_ppc")
+  expect_equal(ncol(pp$yrep), length(pp$site))
+  expect_length(pp$species, length(pp$site))
+  expect_named(pp$p_species, c("sp1", "sp2", "sp3"))
+  expect_output(print(pp), "By species")
+  expect_s3_class(fp_ppc(m1, "verified", ndraws = 20, seed = 1), "fp_ppc")
+
+  new <- simulate(m2, nsim = 2, truth = "posterior", seed = 1)
+  expect_length(new, 2)
+  expect_s3_class(new[[1]]$data, "fp_data")
+  expect_identical(new[[1]]$data$species_names, s2$data$species_names)
+  expect_equal(nrow(new[[1]]$data$auto), nrow(s2$data$auto))
+  expect_equal(dim(new[[1]]$truth$z), c(40, 3))
+  expect_true(all(c("occ_x[sp1]", "det_bio[sp3]", "fp_x[sp2]") %in%
+                    names(new[[1]]$truth$pars)))
+})

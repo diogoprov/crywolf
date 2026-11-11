@@ -5,10 +5,12 @@
 #' Bayesian p-value. Detections are summed per site, so the check asks whether
 #' the model reproduces how many detections each site gets.
 #'
-#' @param object An `fp_occu` object, or an `fp_occu_dyn` object,
+#' @param object An `fp_occu` object; an `fp_occu_dyn` object,
 #'   for which detections are summed per site and season
 #'   and the latent states are drawn jointly over seasons by forward
-#'   filtering, backward sampling.
+#'   filtering, backward sampling; or an `fp_occu_ms` object, for which
+#'   detections are summed per site and species, the discrepancy is summed
+#'   over species, and each species also gets its own p-value.
 #' @param method Which data to check: `"automated"` (default; every site) or
 #'   `"verified"` (verified sites only).
 #' @param fit_stat Discrepancy statistic: `"freeman-tukey"` (default),
@@ -55,7 +57,9 @@
 #'   sites in columns), `fit_obs` and `fit_rep` (discrepancy of the observed and
 #'   replicated data, one value per draw), `p_value`, `site` (the site
 #'   identifiers of the columns), `method`, and `fit_stat`; for a dynamic
-#'   model, also `season`, the season of each column.
+#'   model, also `season`, the season of each column; for a multispecies
+#'   model, also `species`, the species of each column, and `p_species`, the
+#'   Bayesian p-value of each species.
 #' @seealso [fp_occu()], [fp_calibrate()]
 #' @export
 #' @examples
@@ -70,11 +74,13 @@ fp_ppc <- function(object, method = c("automated", "verified"),
                    fit_stat = c("freeman-tukey", "chi-squared"),
                    ndraws = 1000, seed = NULL) {
   dyn <- inherits(object, "fp_occu_dyn")
-  if (!inherits(object, "fp_occu") && !dyn) {
-    stop("`object` must be an `fp_occu` or `fp_occu_dyn` fit.", call. = FALSE)
+  ms <- inherits(object, "fp_occu_ms")
+  if (!inherits(object, "fp_occu") && !dyn && !ms) {
+    stop("`object` must be an `fp_occu`, `fp_occu_dyn` or `fp_occu_ms` fit.", call. = FALSE)
   }
   method <- match.arg(method)
   fit_stat <- match.arg(fit_stat)
+  if (ms) return(.fp_ppc_ms(object, method, fit_stat, ndraws, seed))
   sd <- object$stan_data
   if (method == "verified" && sd$N1 == 0) {
     stop("The data have no verified occasions.", call. = FALSE)
@@ -106,11 +112,17 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   cat("Posterior predictive check (", x$method, " detections per site)\n\n",
       sep = "")
   cat(sprintf("  statistic:          %s\n", x$fit_stat))
-  cat(sprintf("  draws, sites:       %d, %d\n", nrow(x$yrep), ncol(x$yrep)))
+  cat(sprintf(if (is.null(x$species)) "  draws, sites:       %d, %d\n" else
+                "  draws, site x species: %d, %d\n", nrow(x$yrep), ncol(x$yrep)))
   cat(sprintf("  mean discrepancy:   observed %s, replicated %s\n",
               format(mean(x$fit_obs), digits = digits),
               format(mean(x$fit_rep), digits = digits)))
   cat(sprintf("  Bayesian p-value:   %s\n", format(x$p_value, digits = digits)))
+  if (!is.null(x$p_species)) {
+    cat("\n  By species:\n")
+    print(data.frame(species = names(x$p_species), p_value = unname(x$p_species)),
+          digits = digits, row.names = FALSE)
+  }
   if (x$p_value < 0.1 || x$p_value > 0.9) {
     cat("\n  The p-value is far from 0.5: the model may not fit these data.\n")
   }

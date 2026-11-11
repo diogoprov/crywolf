@@ -23,6 +23,12 @@
   and with standard deviations 1 and community values 0 it equals that of
   `fp_occu()` species by species, in both designs. The draws of `fp_occu()`
   and `fp_occu_dyn()` do not change.
+* Outputs of `fp_occu_ms()` (in development): `fp_sites()` by site and
+  species, `fp_ppc()` with a p-value per species, `simulate()`, the new
+  `fp_richness()` (species richness of each site) and the new simulator
+  `simulate_fp_ms()`. They run the code of `fp_occu()` species by species,
+  with the values of each species in the same posterior draws; the R
+  log-likelihood of each species equals the `log_lik` of the Stan program.
 
 # crywolf 2.2.0
 

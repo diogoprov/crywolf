@@ -13,10 +13,12 @@ fp_ppc(
 )
 }
 \arguments{
-\item{object}{An \code{fp_occu} object, or an \code{fp_occu_dyn} object,
+\item{object}{An \code{fp_occu} object; an \code{fp_occu_dyn} object,
 for which detections are summed per site and season
 and the latent states are drawn jointly over seasons by forward
-filtering, backward sampling.}
+filtering, backward sampling; or an \code{fp_occu_ms} object, for which
+detections are summed per site and species, the discrepancy is summed
+over species, and each species also gets its own p-value.}
 
 \item{method}{Which data to check: \code{"automated"} (default; every site) or
 \code{"verified"} (verified sites only).}
@@ -38,7 +40,9 @@ per site), \code{yrep} (matrix of replicated detections, draws in rows and
 sites in columns), \code{fit_obs} and \code{fit_rep} (discrepancy of the observed and
 replicated data, one value per draw), \code{p_value}, \code{site} (the site
 identifiers of the columns), \code{method}, and \code{fit_stat}; for a dynamic
-model, also \code{season}, the season of each column.
+model, also \code{season}, the season of each column; for a multispecies
+model, also \code{species}, the species of each column, and \code{p_species}, the
+Bayesian p-value of each species.
 }
 \description{
 Replicates the detection data from the posterior of an \code{\link[=fp_occu]{fp_occu()}} fit and

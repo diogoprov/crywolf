@@ -40,6 +40,8 @@ reference:
       - fp_occu
       - fp_occu_dyn
       - fp_occu_ms
+      - fp_richness
+      - simulate_fp_ms
       - fp_occu_mc
       - fp_draws_data
       - fp_priors
@@ -70,6 +72,7 @@ reference:
       - fp_sbc
       - simulate.fp_occu
       - simulate.fp_occu_dyn
+      - simulate.fp_occu_ms
       - plot.fp_calibration
   - title: Example data
     desc: >

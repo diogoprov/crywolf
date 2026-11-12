@@ -33,6 +33,8 @@ fp_occu_ms(
   ver = ~1,
   priors = fp_priors(),
   by_species = character(),
+  random_fp = FALSE,
+  fp_group = NULL,
   centered = FALSE,
   chains = 4,
   parallel_chains = chains,
@@ -81,6 +83,17 @@ as_draws_df(x, ...)
   among species. A term without slopes (for example `"det"` with
   `det = ~ 1`) adds nothing.
 
+- random_fp:
+
+  Add a random effect on the logit of the false-positive rate for each
+  site and species? See Details.
+
+- fp_group:
+
+  Optional name of a column of the sites table that groups the sites;
+  adds a random effect on the logit of the false-positive rate for each
+  group and species. See Details.
+
 - centered:
 
   Use the centred parametrization of the detection intercepts, gaps,
@@ -95,8 +108,8 @@ as_draws_df(x, ...)
 
   Passed to the sampler, as in
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
-  Runs of detections (`markov`) and site effects (`random_fp`,
-  `random_det`) are not available.
+  Runs of detections (`markov`) and site effects on true detection
+  (`random_det`) are not available.
 
 - x, object:
 
@@ -114,8 +127,8 @@ as_draws_df(x, ...)
 
 An object of class `fp_occu_ms`, a list with `fit`, `draws` (readable
 names: see Details), `stan_data`, `formulas`, `design`, `data`,
-`by_species`, `random_recorder`, `priors`, `sampler`, `diagnostics` and
-`call`.
+`by_species`, `random_fp`, `fp_group`, `random_recorder`, `priors`,
+`sampler`, `diagnostics` and `call`.
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns an object of
 class `summary.fp_occu`, as for
@@ -138,6 +151,17 @@ community value as the intercepts are (\\\alpha\_{sk} = \alpha_k +
 independent of those of the others: the classifier errs in labelling a
 species, not in confusing two species.
 
+Two random effects let the false-positive rate vary beyond its
+covariates, on its logit, both with the half-Normal prior of
+`fp_priors(fp_site_sd = )`: `fp_group` names a column of the sites that
+groups them (for example the physical site, when each "site" of the data
+is a site in one month), and adds an effect for each group and species,
+\\v\_{gs} \sim N(0, \sigma_v)\\; `random_fp = TRUE` adds an effect for
+each site and species, \\t\_{is} \sim N(0, \sigma_t)\\. With sites that
+are site-months, `fp_group` lets the false-positive rate of a species
+differ among physical sites, and `random_fp` among months of the same
+site as well.
+
 The species are those of the data (`fp_data(species = )`), and a species
 is never assumed to be absent from the list: there is no data
 augmentation for species never detected.
@@ -152,7 +176,9 @@ of each species carry its name in brackets: `occ_*[species]`,
 `p10_ref[species]`. With `by_species`, the slopes add `sd_det_*`,
 `det_*[species]`, `sd_fp_*` and `fp_*[species]`, and the verified method
 adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
-`p_verified[species]`.
+`p_verified[species]`. The standard deviations of the random effects on
+the false-positive rate are `sd_fp_group` (`fp_group`) and `sd_fp_site`
+(`random_fp`).
 
 ## See also
 

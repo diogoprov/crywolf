@@ -96,6 +96,8 @@ species), <code><a href="fp_ppc.html">fp_ppc()</a></code>, <a href="simulate.fp_
 <span>  ver <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>,</span>
 <span>  priors <span class="op">=</span> <span class="fu"><a href="fp_priors.html">fp_priors</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  by_species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  random_fp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fp_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  centered <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  chains <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  parallel_chains <span class="op">=</span> <span class="va">chains</span>,</span>
@@ -143,6 +145,17 @@ default, <code><a href="https://rdrr.io/r/base/character.html" class="external-l
 (for example <code>"det"</code> with <code>det = ~ 1</code>) adds nothing.</p></dd>
 
 
+<dt id="arg-random-fp">random_fp<a class="anchor" aria-label="anchor" href="#arg-random-fp"></a></dt>
+<dd><p>Add a random effect on the logit of the false-positive
+rate for each site and species? See Details.</p></dd>
+
+
+<dt id="arg-fp-group">fp_group<a class="anchor" aria-label="anchor" href="#arg-fp-group"></a></dt>
+<dd><p>Optional name of a column of the sites table that groups
+the sites; adds a random effect on the logit of the false-positive rate
+for each group and species. See Details.</p></dd>
+
+
 <dt id="arg-centered">centered<a class="anchor" aria-label="anchor" href="#arg-centered"></a></dt>
 <dd><p>Use the centred parametrization of the detection
 intercepts, gaps, recorder effects and the terms of <code>by_species</code>? The
@@ -155,7 +168,7 @@ occasions per species or recorder.</p></dd>
 
 <dt id="arg-chains-parallel-chains-threads-per-chain-iter-warmup-iter-sampling-adapt-delta-seed-refresh-">chains, parallel_chains, threads_per_chain, iter_warmup, iter_sampling, adapt_delta, seed, refresh, ...<a class="anchor" aria-label="anchor" href="#arg-chains-parallel-chains-threads-per-chain-iter-warmup-iter-sampling-adapt-delta-seed-refresh-"></a></dt>
 <dd><p>Passed to the sampler, as in <code><a href="fp_occu.html">fp_occu()</a></code>. Runs of detections
-(<code>markov</code>) and site effects (<code>random_fp</code>, <code>random_det</code>) are not
+(<code>markov</code>) and site effects on true detection (<code>random_det</code>) are not
 available.</p></dd>
 
 
@@ -175,7 +188,8 @@ available.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>fp_occu_ms</code>, a list with <code>fit</code>, <code>draws</code>
 (readable names: see Details), <code>stan_data</code>, <code>formulas</code>, <code>design</code>,
-<code>data</code>, <code>by_species</code>, <code>random_recorder</code>, <code>priors</code>, <code>sampler</code>,
+<code>data</code>, <code>by_species</code>, <code>random_fp</code>, <code>fp_group</code>, <code>random_recorder</code>,
+<code>priors</code>, <code>sampler</code>,
 <code>diagnostics</code> and <code>call</code>.</p>
 <p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns an object of class <code>summary.fp_occu</code>, as for
 <code><a href="fp_occu.html">fp_occu()</a></code>.</p>
@@ -196,6 +210,16 @@ the verified method, drawn around the community value as the intercepts
 are (\(\alpha_{sk} = \alpha_k + \sigma_{\alpha k} z_{sk}\)). The false positives of a
 species are independent of those of the others: the classifier errs in
 labelling a species, not in confusing two species.</p>
+<p>Two random effects let the false-positive rate vary beyond its
+covariates, on its logit, both with the half-Normal prior of
+<code>fp_priors(fp_site_sd = )</code>: <code>fp_group</code> names a column of the sites that
+groups them (for example the physical site, when each "site" of the data
+is a site in one month), and adds an effect for each group and species,
+\(v_{gs} \sim N(0, \sigma_v)\); <code>random_fp = TRUE</code> adds an effect for
+each site and species, \(t_{is} \sim N(0, \sigma_t)\). With sites that
+are site-months, <code>fp_group</code> lets the false-positive rate of a species
+differ among physical sites, and <code>random_fp</code> among months of the same
+site as well.</p>
 <p>The species are those of the data (<code>fp_data(species = )</code>), and a species
 is never assumed to be absent from the list: there is no data
 augmentation for species never detected.</p>
@@ -208,7 +232,9 @@ of each species carry its name in brackets: <code>occ_*[species]</code>,
 <code>p10_ref[species]</code>. With <code>by_species</code>, the slopes add <code>sd_det_*</code>,
 <code>det_*[species]</code>, <code>sd_fp_*</code> and <code>fp_*[species]</code>, and the verified method
 adds <code>sd_verified_(Intercept)</code>, <code>verified_(Intercept)[species]</code> and
-<code>p_verified[species]</code>.</p>
+<code>p_verified[species]</code>. The standard deviations of the random effects on
+the false-positive rate are <code>sd_fp_group</code> (<code>fp_group</code>) and <code>sd_fp_site</code>
+(<code>random_fp</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

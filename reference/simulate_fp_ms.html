@@ -97,6 +97,9 @@ development</strong>, as <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>
 <span>  sd_recorder <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  nrec <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  frac_confirmed <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  ngroup <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sd_fp_group <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  sd_fp_site <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -150,6 +153,19 @@ intercept (logit scale).</p></dd>
 <dt id="arg-sd-recorder">sd_recorder<a class="anchor" aria-label="anchor" href="#arg-sd-recorder"></a></dt>
 <dd><p>Standard deviation of the recorder effects on true
 detection, shared by the species. 0 by default.</p></dd>
+
+
+<dt id="arg-ngroup">ngroup<a class="anchor" aria-label="anchor" href="#arg-ngroup"></a></dt>
+<dd><p>Optional number of groups of sites (column <code>group</code> of the
+sites, assigned at random in equal numbers), as <code>fp_occu_ms(fp_group = )</code>
+expects.</p></dd>
+
+
+<dt id="arg-sd-fp-group-sd-fp-site">sd_fp_group, sd_fp_site<a class="anchor" aria-label="anchor" href="#arg-sd-fp-group-sd-fp-site"></a></dt>
+<dd><p>Standard deviations of random effects on the
+logit of the false-positive rate for each group and species (needs
+<code>ngroup</code>) and for each site and species, as in <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>. 0 by
+default.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>

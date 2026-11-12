@@ -23,6 +23,9 @@ simulate_fp_ms(
   sd_recorder = 0,
   nrec = 5,
   frac_confirmed = 0,
+  ngroup = NULL,
+  sd_fp_group = 0,
+  sd_fp_site = 0,
   seed = NULL
 )
 }
@@ -53,6 +56,15 @@ intercept (logit scale).}
 
 \item{sd_recorder}{Standard deviation of the recorder effects on true
 detection, shared by the species. 0 by default.}
+
+\item{ngroup}{Optional number of groups of sites (column \code{group} of the
+sites, assigned at random in equal numbers), as \code{fp_occu_ms(fp_group = )}
+expects.}
+
+\item{sd_fp_group, sd_fp_site}{Standard deviations of random effects on the
+logit of the false-positive rate for each group and species (needs
+\code{ngroup}) and for each site and species, as in \code{\link[=fp_occu_ms]{fp_occu_ms()}}. 0 by
+default.}
 
 \item{seed}{Optional integer seed.}
 }

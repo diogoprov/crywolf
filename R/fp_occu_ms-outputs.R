@@ -171,7 +171,7 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   if (!is.null(seed)) .set_seed(seed)
   purrr::map(seq_len(nsim), function(i) {
     # one posterior draw (or the means) for all the species
-    row <- if (truth == "mean") matrix(colMeans(dm), 1, dimnames = list(NULL, colnames(dm)))
+    row <- if (truth == "mean") .ms_mean_row(dm, object$stan_data)
            else dm[sample.int(nrow(dm), 1), , drop = FALSE]
     res <- purrr::imap(gens, function(g, s) {
       .simulate_from(g, .pick_pars(.ms_pars(row, object, g, s), "mean"))
@@ -179,6 +179,20 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
     names(res) <- data$species_names
     .ms_combine_sims(res, data)
   })
+}
+
+# the posterior means as one draw; the random effects on logit(p10), whose
+# means are shrunk towards zero, drawn anew from their distributions with the
+# posterior mean of their standard deviation, as simulate.fp_occu() does
+.ms_mean_row <- function(dm, sd) {
+  row <- matrix(colMeans(dm), 1, dimnames = list(NULL, colnames(dm)))
+  redraw <- function(raw, sigma) {
+    j <- grep(paste0("^", raw, "\\["), colnames(row))
+    if (length(j)) row[, j] <<- stats::rnorm(length(j), 0, if (sd$centered == 1) row[, sigma] else 1)
+  }
+  redraw("v_raw", "sigma_v[1]")
+  redraw("t_raw", "sigma_t[1]")
+  row
 }
 
 # the simulated data of each species (from .simulate_from()) as one
@@ -255,7 +269,8 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
             if (fl$fp) "gap_sp", if (sd$estimate_re == 1) "u",
             if (fl$fp && sd$Kfp > 0) "gamma_fp", if (fl$det) "alpha_sp_s",
             if (fl$fp_s) "gamma_sp", if (fl$ver) "delta_sp",
-            if (isTRUE(sd$Kver_s > 0)) "delta_s")
+            if (isTRUE(sd$Kver_s > 0)) "delta_s",
+            if (fl$group) c("sigma_v", "v_raw"), if (fl$unit) c("sigma_t", "t_raw"))
   dm <- unclass(posterior::as_draws_matrix(object$fit$draws(variables = vars)))
   if (!is.null(ndraws) && ndraws < nrow(dm)) {
     dm <- dm[sort(sample.int(nrow(dm), ndraws)), , drop = FALSE]
@@ -269,7 +284,9 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   list(fp = fp,
        det = isTRUE(sd$by_det == 1) && sd$Kalpha > 1,
        fp_s = isTRUE(sd$by_fp == 1) && fp && sd$Kfp > 0,
-       ver = isTRUE(sd$by_ver == 1))
+       ver = isTRUE(sd$by_ver == 1),
+       group = isTRUE(sd$estimate_fp_group == 1),
+       unit = isTRUE(sd$estimate_fp_re == 1))
 }
 
 # the parameters of species s in the format of .ppc_pars(), from the draws
@@ -308,8 +325,25 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
     u = if (sd$estimate_re == 1) matched("u", gen$design$recorders, des$recorders),
     gamma0 = if (fl$fp) dm[, sprintf("alpha_sp[%d]", s)] - dm[, sprintf("gap_sp[%d]", s)],
     gamma_fp = if (fl$fp_s) by_sp("gamma_sp", seq_len(sd$Kfp)) else
-      if (fl$fp && sd$Kfp > 0) cols("gamma_fp") else matrix(0, S, 0)
+      if (fl$fp && sd$Kfp > 0) cols("gamma_fp") else matrix(0, S, 0),
+    e_fp = .ms_fp_effects(dm, sd, s, fl)
   )
+}
+
+# the random effects on logit(p10) of the sites of species s (S draws x
+# nsite): that of its cell (group of sites x species) plus that of its unit
+.ms_fp_effects <- function(dm, sd, s, fl) {
+  if (!fl$group && !fl$unit) return(NULL)
+  nsp <- sd$nspecies
+  site <- seq_len(sd$nsite)
+  scaled <- function(raw, sigma, idx) {
+    m <- dm[, sprintf("%s[%d]", raw, idx), drop = FALSE]
+    if (sd$centered == 1) m else m * dm[, sprintf("%s[1]", sigma)]
+  }
+  e <- 0
+  if (fl$group) e <- e + scaled("v_raw", "sigma_v", (sd$group_site[site] - 1L) * nsp + s)
+  if (fl$unit) e <- e + scaled("t_raw", "sigma_t", (site - 1L) * nsp + s)
+  unname(e)
 }
 
 # each species with its generator and its parameters in the same draws

@@ -34,11 +34,19 @@
 // site effects of fp_occu.stan; gamma0 there is the community intercept
 // alpha[1] - mu_gap, so e_fp = (alpha_s - alpha[1]) - gap_s + mu_gap.
 //
+// Random effects on logit(p10), added to e_fp: with estimate_fp_group = 1,
+// v_c ~ Normal(0, sigma_v) for each group of sites x species (cell c; the
+// groups are those of fp_occu_ms(fp_group = ), e.g. the physical site when
+// the sites are site-months), and with estimate_fp_re = 1,
+// t_i ~ Normal(0, sigma_t) for each unit:
+//
+//   logit(p10_ik) = alpha_s - gap_s + v_cell(i) + t_i + Xfp_ik gamma_fp
+//
 // With centered = 1 the same model has another parametrization, for species
 // and recorders with many occasions, whose narrow posteriors make the
 // non-centred one take very small steps: za holds alpha_s, zg holds
-// log(gap_s), u_raw holds u, and zds, zfs and zv hold the slopes and
-// verified intercepts of the species.
+// log(gap_s), u_raw holds u, zds, zfs and zv hold the slopes and verified
+// intercepts of the species, and v_raw and t_raw hold v and t.
 // The sum over units runs with reduce_sum(), as over sites in fp_occu.stan.
 // ============================================================================
 functions {
@@ -146,7 +154,11 @@ data {
   int<lower=0, upper=1> by_det;              // detection slopes by species
   int<lower=0, upper=1> by_fp;               // false-positive slopes by species
   int<lower=0, upper=1> by_ver;              // verified intercept by species
-
+  int<lower=0, upper=1> estimate_fp_group;   // effect on logit(p10) per group of sites x species
+  int<lower=1> ngroup;                       // groups of sites (1 without them)
+  array[nsite] int<lower=1, upper=ngroup> group_site;  // group of each site
+  int<lower=0, upper=1> estimate_fp_re;      // effect on logit(p10) per unit
+  real<lower=0> fp_site_sd;                  // half-Normal(0, fp_site_sd) on sigma_v and sigma_t
 }
 
 transformed data {
@@ -154,6 +166,15 @@ transformed data {
   int Kds = by_det == 1 ? Kalpha - 1 : 0;    // detection slopes by species
   int Kfs = by_fp == 1 ? Kfp : 0;            // false-positive slopes by species
   int nsv = by_ver == 1 ? nspecies : 0;      // verified intercepts by species
+  if ((estimate_fp_group == 1 || estimate_fp_re == 1) && estimate_fp == 0) {
+    reject("random effects on p10 need a false-positive process (estimate_fp = 1)");
+  }
+  // cell (group of sites x species) of each unit
+  int ncell = ngroup * nspecies;
+  array[nunit] int cell_unit;
+  for (i in 1:nunit) {
+    cell_unit[i] = (group_site[(i - 1) %/% nspecies + 1] - 1) * nspecies + sp_unit[i];
+  }
   vector[N2] y2v = to_vector(y2);
   vector[N2] n2v = to_vector(n2);
   // sites with an automated detection cannot be unoccupied without false positives
@@ -258,6 +279,10 @@ parameters {
   matrix[Kfs, nspecies] zfs;
   vector<lower=0>[by_ver] sigma_ver;         // sd of the verified intercept among species
   vector[nsv] zv;
+  vector<lower=0>[estimate_fp_group] sigma_v;   // sd of the effects of the cells on logit(p10)
+  vector[estimate_fp_group == 1 ? ncell : 0] v_raw;
+  vector<lower=0>[estimate_fp_re] sigma_t;      // sd of the effects of the units on logit(p10)
+  vector[estimate_fp_re == 1 ? nunit : 0] t_raw;
 }
 
 transformed parameters {
@@ -305,6 +330,16 @@ model {
   sigma_det_s    ~ normal(0, species_sd);
   sigma_fp_s     ~ normal(0, species_sd);
   sigma_ver      ~ normal(0, species_sd);
+  sigma_v        ~ normal(0, fp_site_sd);
+  sigma_t        ~ normal(0, fp_site_sd);
+  if (estimate_fp_group == 1) {
+    if (centered == 1) v_raw ~ normal(0, sigma_v[1]);
+    else v_raw ~ std_normal();
+  }
+  if (estimate_fp_re == 1) {
+    if (centered == 1) t_raw ~ normal(0, sigma_t[1]);
+    else t_raw ~ std_normal();
+  }
   if (centered == 1) {
     if (Kds > 0) to_vector(zds) ~ normal(to_vector(rep_matrix(alpha[2:Kalpha], nspecies)),
                                          to_vector(rep_matrix(sigma_det_s, nspecies)));
@@ -320,6 +355,8 @@ model {
     vector[nunit] lpsi = rows_dot_product(X, beta_sp[, sp_unit]');
     vector[nunit] d_det = (alpha_sp - alpha[1])[sp_unit];
     vector[nunit] e_fp = (alpha_sp - alpha[1] - gap_sp + mu_gap)[sp_unit];
+    if (estimate_fp_group == 1) e_fp += (centered == 1 ? v_raw : sigma_v[1] * v_raw)[cell_unit];
+    if (estimate_fp_re == 1) e_fp += centered == 1 ? t_raw : sigma_t[1] * t_raw;
     vector[nsv > 0 ? nunit : 0] d_ver;
     if (nsv > 0) d_ver = delta_dev[sp_unit];
     target += reduce_sum(partial_loglik, unit_index, 1, lpsi, alpha, gamma0, gamma_fp,
@@ -356,6 +393,8 @@ generated quantities {
     vector[nunit] lpsi = rows_dot_product(X, beta_sp[, sp_unit]');
     vector[nunit] d_det = (alpha_sp - alpha[1])[sp_unit];
     vector[nunit] e_fp = (alpha_sp - alpha[1] - gap_sp + mu_gap)[sp_unit];
+    if (estimate_fp_group == 1) e_fp += (centered == 1 ? v_raw : sigma_v[1] * v_raw)[cell_unit];
+    if (estimate_fp_re == 1) e_fp += centered == 1 ? t_raw : sigma_t[1] * t_raw;
     vector[nsv > 0 ? nunit : 0] d_ver;
     if (nsv > 0) d_ver = delta_dev[sp_unit];
     log_lik = unit_loglik(1, nunit, lpsi, alpha, gamma0, gamma_fp, e_fp, u, d_det, delta0,

@@ -37,6 +37,13 @@
 #' @param r11 Detection probability of the verified method, below 1.
 #' @param sd_recorder Standard deviation of the recorder effects on true
 #'   detection, shared by the species. 0 by default.
+#' @param ngroup Optional number of groups of sites (column `group` of the
+#'   sites, assigned at random in equal numbers), as `fp_occu_ms(fp_group = )`
+#'   expects.
+#' @param sd_fp_group,sd_fp_site Standard deviations of random effects on the
+#'   logit of the false-positive rate for each group and species (needs
+#'   `ngroup`) and for each site and species, as in [fp_occu_ms()]. 0 by
+#'   default.
 #' @param seed Optional integer seed.
 #'
 #' @return A list of class `fp_sim_ms` with `data` (an `fp_data` object with
@@ -55,10 +62,13 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
                            psi = 0.4, sd_psi = 1, b1 = -0.5, sd_b1 = 0.5,
                            p11 = 0.5, sd_p11 = 0.5, p10 = 0.05, sd_gap = 0.3,
                            a_bio = 0, r11 = 0.6, frac_verified = 0.3, nver = 3,
-                           sd_recorder = 0, nrec = 5, frac_confirmed = 0, seed = NULL) {
+                           sd_recorder = 0, nrec = 5, frac_confirmed = 0,
+                           ngroup = NULL, sd_fp_group = 0, sd_fp_site = 0, seed = NULL) {
   stopifnot(nspecies >= 1, psi > 0, psi < 1, p11 > 0, p11 < 1, p10 > 0, p10 < p11,
             r11 > 0, r11 < 1, sd_psi >= 0, sd_b1 >= 0, sd_p11 >= 0, sd_gap >= 0,
-            sd_recorder >= 0)
+            sd_recorder >= 0, sd_fp_group >= 0, sd_fp_site >= 0,
+            is.null(ngroup) || (ngroup >= 1 && ngroup <= nsite))
+  if (sd_fp_group > 0 && is.null(ngroup)) stop("`sd_fp_group` needs `ngroup`.", call. = FALSE)
   if (!is.null(seed)) .set_seed(seed)
   # the shared design; its detections are replaced below
   template <- simulate_fp(nsite = nsite, nocc = nocc, frac_verified = frac_verified,
@@ -78,10 +88,21 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
   beta <- matrix(mu_beta, 2, nspecies) + sigma_beta * matrix(stats::rnorm(2 * nspecies), 2)
   alpha <- alpha0 + sd_p11 * stats::rnorm(nspecies)
   gap <- mu_gap * exp(sd_gap * stats::rnorm(nspecies))
+  # random effects on logit(p10), drawn after everything else so that the
+  # other draws do not depend on them
+  e_fp <- matrix(0, nsite, nspecies)
+  if (!is.null(ngroup)) {
+    template$sites$group <- sample(rep_len(seq_len(ngroup), nsite))
+    v <- matrix(stats::rnorm(ngroup * nspecies, 0, sd_fp_group), ngroup)
+    e_fp <- e_fp + v[template$sites$group, , drop = FALSE]
+  }
+  if (sd_fp_site > 0) e_fp <- e_fp + stats::rnorm(nsite * nspecies, 0, sd_fp_site)
+  gen$data <- template
 
   res <- purrr::map(seq_len(nspecies), function(s) {
     p <- list(beta = beta[, s], alpha = c(alpha[s], a_bio), gamma0 = alpha[s] - gap[s],
-              gamma_fp = numeric(0), delta0 = delta0, delta_s = numeric(0), u = u)
+              gamma_fp = numeric(0), delta0 = delta0, delta_s = numeric(0), u = u,
+              e_fp = if (any(e_fp != 0)) e_fp[, s])
     r <- .simulate_from(gen, p)
     tag <- function(df) if (is.null(df)) NULL else transform(df, species = sp[s])
     r$data$auto <- tag(r$data$auto)
@@ -97,6 +118,8 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
             `fp_(Intercept)` = alpha0 - mu_gap, fp_gap = mu_gap, sd_log_fp_gap = sd_gap,
             `verified_(Intercept)` = delta0,
             if (use_re) c(sd_recorder = sd_recorder),
+            if (sd_fp_group > 0) c(sd_fp_group = sd_fp_group),
+            if (sd_fp_site > 0) c(sd_fp_site = sd_fp_site),
             stats::setNames(as.vector(beta), sprintf("%s[%s]", occ, rep(sp, each = 2))),
             stats::setNames(alpha, sprintf("det_(Intercept)[%s]", sp)),
             stats::setNames(gap, sprintf("fp_gap[%s]", sp)),

@@ -2,6 +2,11 @@
 
 ## crywolf (development version)
 
+- [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+  keeps reviewed clips of the new `"directed_pps"` design of sheepdog
+  (`select_directed()`) with a warning: their units were drawn with
+  unequal probabilities, possibly from the scores, and crywolf does not
+  weight by `inclusion_prob`.
 - [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
   [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
   and the `fp_occu_dyn` and `fp_sim_dyn` classes and their methods are

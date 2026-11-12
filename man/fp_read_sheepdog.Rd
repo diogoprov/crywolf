@@ -51,7 +51,13 @@ design, the highest-scoring detections, are not: they hold fewer false
 positives than a random sample and would make the false-positive rate
 look lower than it is. By default they are dropped with a warning
 (\code{keep_top = FALSE}); they remain useful to calibrate the classifier
-within sheepdog.
+within sheepdog. Clips of the \code{"directed_pps"} design (sheepdog's
+\code{select_directed()}) are kept with a warning: within each review unit
+(for example site x species x month) the occasion is drawn independently
+of the score, but the units are drawn with unequal probabilities, whose
+size may come from the scores, and crywolf reads \code{inclusion_prob} without
+weighting by it. Estimates from them are conditional on the units drawn;
+weighting comes with a model of the scores.
 
 \strong{Clips and recordings.} A positive clip proves that the species called
 in its occasion; a negative clip says only that this prediction was

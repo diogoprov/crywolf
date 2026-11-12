@@ -162,3 +162,18 @@ test_that("an export of schema 1.2 brings occasion covariates and text keys", {
                    c("202110", "202111", "202112", "202201", "202202", "202203"))
   expect_identical(unique(x$detections$species), "phy_cuv")
 })
+
+test_that("clips of the directed_pps design are kept with a warning", {
+  skip_if_not_installed("jsonlite")
+  pps <- data.frame(site = c("01", "02"), occasion_id = c("a1", "b1"),
+                    species_code = pauraque, species = "compau", clip_start = c(0, 6),
+                    clip_end = c(3, 9), confidence = c(0.9, 0.7),
+                    sampling_mode = c("directed_pps", "random_detections"),
+                    inclusion_prob = c(0.2, 0.5), n_detections_occasion = c(2, 1),
+                    verdict = c("positive", "negative"), tp = c(1, 0))
+  dir <- write_export(file.path(tempdir(), "sheepdog-export-pps"), validation = pps)
+  expect_warning(x <- suppressMessages(fp_read_sheepdog(dir, species = "compau")),
+                 "1 reviewed clip\\(s\\) drawn with sampling_mode = \"directed_pps\"")
+  expect_equal(nrow(x$validation), 2)
+  expect_equal(x$validation$inclusion_prob, c(0.2, 0.5))
+})

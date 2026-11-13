@@ -21,6 +21,7 @@ Written by `dev/ms-sim/summarise.R`.
 | 20 | unverified | ms | 50 | 0.50 | 0.00 | 1.02 |  336 | 4.3000 |
 | 20 | unverified | single | 50 | 1.00 | 0.00 | 1.01 |  812 | 0.0169 |
 | 50 | base | ms | 20 | 0.10 | 0.00 | 1.03 |  178 | 7.8400 |
+| 50 | base | ms_centered | 20 | 0.75 | 0.00 | 1.02 |  296 | 5.8800 |
 
 ## Recovery: community parameters
 
@@ -281,6 +282,33 @@ Written by `dev/ms-sim/summarise.R`.
 | mixed | mixed | sd_occ_(Intercept) |  50 |  0.024600 | 0.2780 | 0.920 | 1.0200 |
 | mixed | mixed | sd_occ_x |  50 |  0.082700 | 0.1900 | 0.960 | 0.7820 |
 | mixed | mixed | verified_(Intercept) |  50 |  0.006790 | 0.1240 | 0.860 | 0.4390 |
+
+## 50 species: default and centered = TRUE
+
+| model | param | rhat_over | ess_bulk |
+| --- | --- | --- | --- |
+| ms | det_(Intercept) | 0.75 |  298 |
+| ms_centered | det_(Intercept) | 0.00 | 6850 |
+| ms | det_bio | 0.00 | 5190 |
+| ms_centered | det_bio | 0.00 | 8770 |
+| ms | fp_(Intercept) | 0.40 |  380 |
+| ms_centered | fp_(Intercept) | 0.00 | 6940 |
+| ms | fp_gap | 0.25 |  426 |
+| ms_centered | fp_gap | 0.00 | 6330 |
+| ms | occ_(Intercept) | 0.60 |  340 |
+| ms_centered | occ_(Intercept) | 0.25 |  536 |
+| ms | occ_x | 0.05 |  964 |
+| ms_centered | occ_x | 0.00 | 1480 |
+| ms | sd_det_(Intercept) | 0.10 |  590 |
+| ms_centered | sd_det_(Intercept) | 0.00 | 6380 |
+| ms | sd_log_fp_gap | 0.05 |  774 |
+| ms_centered | sd_log_fp_gap | 0.00 | 4530 |
+| ms | sd_occ_(Intercept) | 0.00 |  702 |
+| ms_centered | sd_occ_(Intercept) | 0.00 | 1000 |
+| ms | sd_occ_x | 0.00 | 1220 |
+| ms_centered | sd_occ_x | 0.00 | 1630 |
+| ms | verified_(Intercept) | 0.00 | 5130 |
+| ms_centered | verified_(Intercept) | 0.00 | 9030 |
 
 ## Simulation-based calibration
 

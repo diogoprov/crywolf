@@ -63,6 +63,12 @@
 #'   species: their posteriors are then so narrow that the default takes very
 #'   small steps and reaches the maximum tree depth. Keep `FALSE` with few
 #'   occasions per species or recorder.
+#' @param centered_occ Use the centred parametrization of the occupancy
+#'   coefficients of the species? The model is the same. Their posteriors
+#'   narrow with the number of sites, not of occasions: `TRUE` suits many
+#'   sites (in simulations of 50 species at 100 sites, the default left the
+#'   community occupancy intercept poorly mixed), and `FALSE` few sites, where
+#'   the centred form samples worse.
 #' @param chains,parallel_chains,threads_per_chain,iter_warmup,iter_sampling,adapt_delta,seed,refresh,...
 #'   Passed to the sampler, as in [fp_occu()]. Runs of detections
 #'   (`markov`) and site effects on true detection (`random_det`) are not
@@ -102,6 +108,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                        random_recorder = !is.null(data$recorder),
                        ver = ~ 1, priors = fp_priors(), by_species = character(),
                        random_fp = FALSE, fp_group = NULL, centered = FALSE,
+                       centered_occ = FALSE,
                        chains = 4, parallel_chains = chains, threads_per_chain = "auto",
                        iter_warmup = 1000, iter_sampling = 1000,
                        adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
@@ -109,8 +116,9 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     stop("`data` must be an `fp_data` object with a species column; see ",
          "`fp_data(species = )`.", call. = FALSE)
   }
-  if (!isTRUE(centered) && !isFALSE(centered)) {
-    stop("`centered` must be TRUE or FALSE.", call. = FALSE)
+  for (arg in c("centered", "centered_occ")) {
+    x <- get(arg)
+    if (!isTRUE(x) && !isFALSE(x)) stop("`", arg, "` must be TRUE or FALSE.", call. = FALSE)
   }
   by_species <- .check_by_species(by_species, data)
   .check_fp_effects(random_fp, fp_group, fp, data)
@@ -129,7 +137,8 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   threads_per_chain <- cores$threads_per_chain
   parallel_chains <- cores$parallel_chains
   sd_list <- .build_ms_stan_data(data, occ, det, fp, random_recorder, priors, ver = ver,
-                                 centered = centered, by_species = by_species,
+                                 centered = centered, centered_occ = centered_occ,
+                                 by_species = by_species,
                                  random_fp = random_fp, fp_group = fp_group)
   if (is.null(refresh)) {
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
@@ -222,8 +231,9 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
 # each unit as fp_occu() builds that of each site, and the occupancy design
 # of each unit from the covariates of its site.
 .build_ms_stan_data <- function(data, occ, det, fp, random_recorder, priors, ver = ~ 1,
-                                centered = FALSE, by_species = character(),
-                                random_fp = FALSE, fp_group = NULL) {
+                                centered = FALSE, centered_occ = FALSE,
+                                by_species = character(), random_fp = FALSE,
+                                fp_group = NULL) {
   units <- .ms_units(data)
   sl <- .build_stan_data(units, occ, det, fp, random_recorder, priors, ver = ver)
   nsp <- length(data$species_names)
@@ -236,6 +246,7 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   # priors saved before this one existed
   sd$species_sd <- if (is.null(priors$species_sd)) 1 else priors$species_sd
   sd$centered <- as.integer(centered)
+  sd$centered_occ <- as.integer(centered_occ)
   sd$by_det <- as.integer("det" %in% by_species)
   sd$by_fp <- as.integer("fp" %in% by_species)
   sd$by_ver <- as.integer("ver" %in% by_species)

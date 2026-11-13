@@ -19,7 +19,7 @@ table then keeps its species columns, and \code{\link[=fp_draws_data]{fp_draws_d
 data of all of them.}
 
 \item{keep_top}{Keep reviewed clips drawn with \code{sampling_mode = "top"}?
-See Details.}
+See Details. Clips of \code{"score_bands"} are dropped either way.}
 }
 \value{
 A list of class \code{fp_sheepdog} with the data frames \code{occasions}
@@ -58,6 +58,18 @@ of the score, but the units are drawn with unequal probabilities, whose
 size may come from the scores, and crywolf reads \code{inclusion_prob} without
 weighting by it. Estimates from them are conditional on the units drawn;
 weighting comes with a model of the scores.
+
+Clips of the \code{"score_bands"} design are always dropped, whatever
+\code{keep_top}, with a warning. sheepdog draws them at random within bands of
+score, so that thresholds and calibration curves see the whole score
+range; being chosen by their score, they over-represent some bands and
+would bias the false-positive rate in either direction. They serve
+\code{sheepdog::threshold_bootstrap()}, \code{sheepdog::calibrate()} and
+\code{sheepdog::fit_calibration()}, not these models. When every reviewed clip
+is of this design and the export has no annotated recordings, there is
+nothing left to estimate false positives from, and \code{fp_read_sheepdog()}
+stops: review clips drawn with \code{"random_detections"} or annotate
+recordings drawn with \code{"random_recordings"}.
 
 \strong{Clips and recordings.} A positive clip proves that the species called
 in its occasion; a negative clip says only that this prediction was

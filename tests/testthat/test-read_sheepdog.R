@@ -177,3 +177,34 @@ test_that("clips of the directed_pps design are kept with a warning", {
   expect_equal(nrow(x$validation), 2)
   expect_equal(x$validation$inclusion_prob, c(0.2, 0.5))
 })
+
+test_that("clips of the score_bands design are dropped, or refused alone", {
+  skip_if_not_installed("jsonlite")
+  bands <- data.frame(site = c("01", "02", "02"), occasion_id = c("a1", "b1", "b2"),
+                      species_code = pauraque, species = "compau",
+                      clip_start = c(0, 6, 0), clip_end = c(3, 9, 3),
+                      confidence = c(0.9, 0.7, 0.3),
+                      sampling_mode = c("score_bands", "random_detections", "score_bands"),
+                      inclusion_prob = c(0.5, 0.5, 1), n_detections_occasion = c(2, 1, 1),
+                      verdict = c("positive", "negative", "negative"), tp = c(1, 0, 0))
+  dir <- write_export(file.path(tempdir(), "sheepdog-export-bands"), validation = bands)
+  # dropped whatever keep_top says
+  for (kt in c(FALSE, TRUE)) {
+    expect_warning(x <- suppressMessages(fp_read_sheepdog(dir, species = "compau",
+                                                          keep_top = kt)),
+                   "2 reviewed clip\\(s\\) drawn with sampling_mode = \"score_bands\" were dropped")
+    expect_equal(x$validation$sampling_mode, "random_detections")
+  }
+  # only score_bands clips, but annotated recordings: dropped, the rest is read
+  only <- bands[bands$sampling_mode == "score_bands", ]
+  dir2 <- write_export(file.path(tempdir(), "sheepdog-export-bandsonly"), validation = only)
+  expect_warning(y <- suppressMessages(fp_read_sheepdog(dir2, species = "compau")),
+                 "score_bands")
+  expect_null(y$validation)
+  expect_equal(nrow(y$verified), 1)
+  # only score_bands clips and no annotated recordings: nothing to estimate from
+  dir3 <- write_export(file.path(tempdir(), "sheepdog-export-bandsalone"), validation = only)
+  file.remove(file.path(dir3, "recordings_verified.csv"))
+  expect_error(suppressMessages(fp_read_sheepdog(dir3, species = "compau")),
+               "Every reviewed clip.*\"random_detections\"")
+})

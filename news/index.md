@@ -3,6 +3,12 @@
 ## crywolf (development version)
 
 - [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+  drops reviewed clips of the new `"score_bands"` design of sheepdog
+  with a warning, whatever `keep_top`: they were drawn within bands of
+  score, for thresholds and calibration, and would bias the
+  false-positive rate. It stops with an error when every reviewed clip
+  is of this design and the export has no annotated recordings.
+- [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
   keeps reviewed clips of the new `"directed_pps"` design of sheepdog
   (`select_directed()`) with a warning: their units were drawn with
   unequal probabilities, possibly from the scores, and crywolf does not

@@ -105,7 +105,7 @@ data of all of them.</p></dd>
 
 <dt id="arg-keep-top">keep_top<a class="anchor" aria-label="anchor" href="#arg-keep-top"></a></dt>
 <dd><p>Keep reviewed clips drawn with <code>sampling_mode = "top"</code>?
-See Details.</p></dd>
+See Details. Clips of <code>"score_bands"</code> are dropped either way.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -139,6 +139,17 @@ of the score, but the units are drawn with unequal probabilities, whose
 size may come from the scores, and crywolf reads <code>inclusion_prob</code> without
 weighting by it. Estimates from them are conditional on the units drawn;
 weighting comes with a model of the scores.</p>
+<p>Clips of the <code>"score_bands"</code> design are always dropped, whatever
+<code>keep_top</code>, with a warning. sheepdog draws them at random within bands of
+score, so that thresholds and calibration curves see the whole score
+range; being chosen by their score, they over-represent some bands and
+would bias the false-positive rate in either direction. They serve
+<code>sheepdog::threshold_bootstrap()</code>, <code><a href="https://provetelab.org/sheepdog/reference/calibrate.html" class="external-link">sheepdog::calibrate()</a></code> and
+<code><a href="https://provetelab.org/sheepdog/reference/fit_calibration.html" class="external-link">sheepdog::fit_calibration()</a></code>, not these models. When every reviewed clip
+is of this design and the export has no annotated recordings, there is
+nothing left to estimate false positives from, and <code>fp_read_sheepdog()</code>
+stops: review clips drawn with <code>"random_detections"</code> or annotate
+recordings drawn with <code>"random_recordings"</code>.</p>
 <p><strong>Clips and recordings.</strong> A positive clip proves that the species called
 in its occasion; a negative clip says only that this prediction was
 false. These go to <code>validation</code>, for the observation-confirmation design

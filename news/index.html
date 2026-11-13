@@ -62,6 +62,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
 <ul><li>
+<code><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog()</a></code> drops reviewed clips of the new <code>"score_bands"</code> design of sheepdog with a warning, whatever <code>keep_top</code>: they were drawn within bands of score, for thresholds and calibration, and would bias the false-positive rate. It stops with an error when every reviewed clip is of this design and the export has no annotated recordings.</li>
+<li>
 <code><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog()</a></code> keeps reviewed clips of the new <code>"directed_pps"</code> design of sheepdog (<code>select_directed()</code>) with a warning: their units were drawn with unequal probabilities, possibly from the scores, and crywolf does not weight by <code>inclusion_prob</code>.</li>
 <li>
 <code><a href="../reference/fp_occu_dyn.html">fp_occu_dyn()</a></code>, <code><a href="../reference/simulate_fp_dyn.html">simulate_fp_dyn()</a></code> and the <code>fp_occu_dyn</code> and <code>fp_sim_dyn</code> classes and their methods are no longer experimental. Their arguments, classes and output names joined the stable interface after 2.2.0 was released without changes to them (see <code><a href="../reference/crywolf-api.html">help("crywolf-api")</a></code>).</li>

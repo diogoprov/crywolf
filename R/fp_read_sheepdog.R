@@ -18,7 +18,7 @@
 #'   table then keeps its species columns, and [fp_draws_data()] builds the
 #'   data of all of them.
 #' @param keep_top Keep reviewed clips drawn with `sampling_mode = "top"`?
-#'   See Details.
+#'   See Details. Clips of `"score_bands"` are dropped either way.
 #'
 #' @details
 #' **Which reviewed clips.** The false-positive models of crywolf treat the
@@ -35,6 +35,18 @@
 #' size may come from the scores, and crywolf reads `inclusion_prob` without
 #' weighting by it. Estimates from them are conditional on the units drawn;
 #' weighting comes with a model of the scores.
+#'
+#' Clips of the `"score_bands"` design are always dropped, whatever
+#' `keep_top`, with a warning. sheepdog draws them at random within bands of
+#' score, so that thresholds and calibration curves see the whole score
+#' range; being chosen by their score, they over-represent some bands and
+#' would bias the false-positive rate in either direction. They serve
+#' `sheepdog::threshold_bootstrap()`, `sheepdog::calibrate()` and
+#' `sheepdog::fit_calibration()`, not these models. When every reviewed clip
+#' is of this design and the export has no annotated recordings, there is
+#' nothing left to estimate false positives from, and `fp_read_sheepdog()`
+#' stops: review clips drawn with `"random_detections"` or annotate
+#' recordings drawn with `"random_recordings"`.
 #'
 #' **Clips and recordings.** A positive clip proves that the species called
 #' in its occasion; a negative clip says only that this prediction was
@@ -150,6 +162,22 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
     names(detections)[names(detections) == "file_offset"] <- "start"
   }
   if (!is.null(validation)) {
+    bands <- validation$sampling_mode %in% "score_bands"
+    if (any(bands)) {
+      if (all(bands) && (is.null(verified) || nrow(verified) == 0)) {
+        stop("Every reviewed clip of the export was drawn with sampling_mode = ",
+             "\"score_bands\", and there are no annotated recordings. These clips ",
+             "were chosen by their score: they serve thresholds and calibration ",
+             "in sheepdog, not the false-positive rate of crywolf's models. Review ",
+             "clips drawn with \"random_detections\", or annotate recordings ",
+             "drawn with \"random_recordings\". See ?fp_read_sheepdog.", call. = FALSE)
+      }
+      warning(sum(bands), " reviewed clip(s) drawn with sampling_mode = ",
+              "\"score_bands\" were dropped: they were chosen by their score, for ",
+              "thresholds and calibration in sheepdog, and would bias the ",
+              "false-positive rate. See ?fp_read_sheepdog.", call. = FALSE)
+      validation <- validation[!bands, , drop = FALSE]
+    }
     top <- validation$sampling_mode %in% "top"
     if (any(top) && !keep_top) {
       warning(sum(top), " reviewed clip(s) drawn with sampling_mode = \"top\" ",

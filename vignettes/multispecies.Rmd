@@ -248,16 +248,20 @@ mtab(fits, c("nspecies", "scenario", "model", "n", "converged",
 
 With 5 species, `r conv(nspecies = 5, scenario = "base", model = "ms")` of
 the fits in the base scenario passed this criterion. With 20 species, only
-`r conv(nspecies = 20, scenario = "base", model = "ms")` did. The fits that
-failed had no divergences. Their largest R-hat was
-`r round(max(val(fits, nspecies = 20, model = "ms", what = "max_rhat")), 3)`, and the
-smallest bulk ESS was `r round(min(val(fits, nspecies = 20, model = "ms", what = "min_ess")))`
+`r conv(nspecies = 20, scenario = "base", model = "ms")` did. With 50
+species, `r conv(nspecies = 50, scenario = "base", model = "ms")` did. The
+fits of 20 and 50 species that failed had no divergences. Their largest
+R-hat was
+`r round(max(fits$max_rhat[fits$model == "ms" & fits$nspecies >= 20]), 3)`, and the
+smallest bulk ESS was `r round(min(fits$min_ess[fits$model == "ms" & fits$nspecies >= 20]))`
 of 4000 draws. The parameters that crossed 1.01 most often were the
 community intercepts of occupancy, detection and the false-positive rate.
-Since these R-hat values stayed close to the threshold and the ESS was
-large, longer chains seem a reasonable remedy for large communities; this
-is our reading, not something the simulations tested. A fit of 20 species
-took a median of `r round(val(fits, nspecies = 20, scenario = "base", model = "ms", what = "median_hours"), 1)`
+These R-hat values stayed close to the threshold. Our reading, not
+something the simulations tested, is that longer chains would remedy this
+for large communities. A fit of 20 species took a median
+of `r round(val(fits, nspecies = 20, scenario = "base", model = "ms", what = "median_hours"), 1)`
+hours, and a fit of 50 species
+`r round(val(fits, nspecies = 50, scenario = "base", model = "ms", what = "median_hours"), 1)`
 hours, with the four chains in sequence on one core.
 
 #### Recovery
@@ -271,13 +275,15 @@ The community means and the standard deviations among species were
 recovered with small bias. Coverage ranged from
 `r min(rec$coverage[rec$scenario == "base" & !grepl("\\[sp\\]$", rec$param)])` to
 `r max(rec$coverage[rec$scenario == "base" & !grepl("\\[sp\\]$", rec$param)])`,
-with 50 replicates per cell. The intervals were
+with 50 replicates per cell (20 with 50 species). The intervals were
 narrower with more species. For the standard deviation of occupancy among
 species, the mean width fell from
 `r signif(val(rec, nspecies = 5, scenario = "base", param = "sd_occ_(Intercept)", what = "width"), 2)`
 with 5 species to
 `r signif(val(rec, nspecies = 20, scenario = "base", param = "sd_occ_(Intercept)", what = "width"), 2)`
-with 20.
+with 20 and
+`r signif(val(rec, nspecies = 50, scenario = "base", param = "sd_occ_(Intercept)", what = "width"), 2)`
+with 50.
 
 ```{r recovery-species, echo = FALSE}
 r <- rec[rec$scenario == "base" & grepl("\\[sp\\]$", rec$param), ]

@@ -44,6 +44,9 @@
 #'   logit of the false-positive rate for each group and species (needs
 #'   `ngroup`) and for each site and species, as in [fp_occu_ms()]. 0 by
 #'   default.
+#' @param psi_rare Optional occupancy probability of the first species at the
+#'   mean of `x`, in place of its draw from the community, to make it rare
+#'   (its slope is still drawn).
 #' @param seed Optional integer seed.
 #'
 #' @return A list of class `fp_sim_ms` with `data` (an `fp_data` object with
@@ -63,11 +66,13 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
                            p11 = 0.5, sd_p11 = 0.5, p10 = 0.05, sd_gap = 0.3,
                            a_bio = 0, r11 = 0.6, frac_verified = 0.3, nver = 3,
                            sd_recorder = 0, nrec = 5, frac_confirmed = 0,
-                           ngroup = NULL, sd_fp_group = 0, sd_fp_site = 0, seed = NULL) {
+                           ngroup = NULL, sd_fp_group = 0, sd_fp_site = 0, psi_rare = NULL,
+                           seed = NULL) {
   stopifnot(nspecies >= 1, psi > 0, psi < 1, p11 > 0, p11 < 1, p10 > 0, p10 < p11,
             r11 > 0, r11 < 1, sd_psi >= 0, sd_b1 >= 0, sd_p11 >= 0, sd_gap >= 0,
             sd_recorder >= 0, sd_fp_group >= 0, sd_fp_site >= 0,
-            is.null(ngroup) || (ngroup >= 1 && ngroup <= nsite))
+            is.null(ngroup) || (ngroup >= 1 && ngroup <= nsite),
+            is.null(psi_rare) || (psi_rare > 0 && psi_rare < 1))
   if (sd_fp_group > 0 && is.null(ngroup)) stop("`sd_fp_group` needs `ngroup`.", call. = FALSE)
   if (!is.null(seed)) .set_seed(seed)
   # the shared design; its detections are replaced below
@@ -86,6 +91,7 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
   u <- if (use_re) stats::rnorm(length(sl$design$recorders), 0, sd_recorder)
   sp <- sprintf("sp%d", seq_len(nspecies))
   beta <- matrix(mu_beta, 2, nspecies) + sigma_beta * matrix(stats::rnorm(2 * nspecies), 2)
+  if (!is.null(psi_rare)) beta[1, 1] <- stats::qlogis(psi_rare)
   alpha <- alpha0 + sd_p11 * stats::rnorm(nspecies)
   gap <- mu_gap * exp(sd_gap * stats::rnorm(nspecies))
   # random effects on logit(p10), drawn after everything else so that the

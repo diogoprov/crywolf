@@ -464,3 +464,11 @@ test_that("random_fp and fp_group are checked, named and simulated", {
   expect_true(all(c("sd_fp_group", "sd_fp_site") %in% names(sim$truth$pars)))
   expect_error(simulate_fp_ms(sd_fp_group = 1), "needs `ngroup`")
 })
+
+test_that("simulate_fp_ms(psi_rare) sets the occupancy of the first species", {
+  a <- simulate_fp_ms(nspecies = 3, nsite = 30, nocc = 5, seed = 4)
+  b <- simulate_fp_ms(nspecies = 3, nsite = 30, nocc = 5, psi_rare = 0.05, seed = 4)
+  expect_equal(unname(b$truth$pars["occ_(Intercept)[sp1]"]), qlogis(0.05))
+  expect_equal(b$truth$pars["occ_x[sp1]"], a$truth$pars["occ_x[sp1]"])
+  expect_equal(b$truth$pars["occ_(Intercept)[sp2]"], a$truth$pars["occ_(Intercept)[sp2]"])
+})

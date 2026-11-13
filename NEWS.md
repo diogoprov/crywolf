@@ -44,7 +44,8 @@
   effect for each group and species (`sd_fp_group`); `random_fp = TRUE` adds
   one for each site and species (`sd_fp_site`). Their likelihood equals that
   of `fp_occu(random_fp = TRUE)` species by species. `simulate_fp_ms()`
-  gains `ngroup`, `sd_fp_group` and `sd_fp_site`.
+  gains `ngroup`, `sd_fp_group` and `sd_fp_site`, and `psi_rare`, the
+  occupancy of the first species, to make it rare.
 
 # crywolf 2.2.0
 

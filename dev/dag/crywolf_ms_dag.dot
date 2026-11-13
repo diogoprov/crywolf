@@ -1,0 +1,99 @@
+// DAG of fp_occu_ms() for vignettes/multispecies.Rmd. Lines ending in
+// "// mixed" belong to the mixed model only and lines ending in "// fs" to
+// the fs model only; __T__ is the t term. The recorder effect and the
+// slopes of fp and ver are left out.
+digraph fp_ms_dag {
+
+  graph [rankdir=TB, fontname="Arial", bgcolor=white,
+         nodesep=0.35, ranksep=0.6, pad=0.35, newrank=true]
+  node  [fontname="Arial", fontsize=12]
+  edge  [color="#5F6B7A", arrowsize=0.8, fontname="Arial"]
+
+  # ---------------- Priors ----------------
+  node [shape=hexagon, style=filled, fillcolor="#EDE7F6",
+        color="#7B1FA2", fontcolor="#4A148C"]
+  P_mu  [label=<<TABLE BORDER="0" CELLSPACING="2"><TR><TD>intercepts of <B>μ</B><SUB>β</SUB>, α<SUB>0</SUB> ~ Normal(0, 1.5)</TD></TR><TR><TD>slopes ~ Normal(0, 2.5)</TD></TR><TR><TD>μ<SUB>g</SUB> ~ Normal(2, 1.5) truncated at 0</TD></TR></TABLE>>]
+  P_sd  [label=<σ<SUB>β</SUB>, σ<SUB>α</SUB>, σ<SUB>g</SUB> ~ half-Normal(0, 1)>]
+  P_re  [label=<σ<SUB>v</SUB> ~ half-Normal(0, 1)>]
+  P_t   [label=<σ<SUB>t</SUB> ~ half-Normal(0, 1)>]                                   // mixed
+  P_delta [label=<δ<SUB>0</SUB> ~ Normal(0, 1.5)>]
+
+  # ---------------- Community parameters ----------------
+  node [shape=ellipse, style=filled, fillcolor="#FFF9C4",
+        color="#F9A825", fontcolor="#212121"]
+  mu    [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD><B>μ</B><SUB>β</SUB>, <B>α</B>, μ<SUB>g</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">community means</FONT></TD></TR></TABLE>>]
+  sd    [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD><B>σ</B><SUB>β</SUB>, σ<SUB>α</SUB>, σ<SUB>g</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">SDs among species</FONT></TD></TR></TABLE>>]
+  sv    [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>σ<SUB>v</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">SD among groups</FONT></TD></TR></TABLE>>]
+  st    [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>σ<SUB>t</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">SD among sites</FONT></TD></TR></TABLE>>]   // mixed
+  delta [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>δ<SUB>0</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">verified detection</FONT></TD></TR></TABLE>>]
+
+  # ---------------- Species values ----------------
+  node [shape=ellipse, style=filled, fillcolor="#FFE0B2",
+        color="#EF6C00", fontcolor="#212121"]
+  sp    [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD><B>β</B><SUB>s</SUB> = <B>μ</B><SUB>β</SUB> + <B>σ</B><SUB>β</SUB> ∘ <B>z</B><SUB>s</SUB></TD></TR><TR><TD>α<SUB>s</SUB> = α<SUB>0</SUB> + σ<SUB>α</SUB> z<SUB>s</SUB>,  g<SUB>s</SUB> = μ<SUB>g</SUB> exp(σ<SUB>g</SUB> z<SUB>s</SUB>)</TD></TR><TR><TD><FONT POINT-SIZE="10">species s (each z standard normal)</FONT></TD></TR></TABLE>>]
+
+  # ---------------- Observed covariates ----------------
+  node [shape=rect, style=filled, fillcolor="#E3F2FD",
+        color="#1565C0", fontcolor="#0D47A1"]
+  X [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD><B>x</B><SUB>i</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">site covariates (occ)</FONT></TD></TR></TABLE>>]
+  A [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD><B>d</B><SUB>ik</SUB></TD></TR><TR><TD><FONT POINT-SIZE="10">observation covariates (det)</FONT></TD></TR></TABLE>>]
+  G [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>g[i]</TD></TR><TR><TD><FONT POINT-SIZE="10">group of site i (fp_group)</FONT></TD></TR></TABLE>>]
+
+  # ---------------- Random effects and linear predictors ----------------
+  node [shape=ellipse, style=filled, fillcolor="#E8F5E9",
+        color="#2E7D32", fontcolor="#1B5E20"]
+  v     [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>v<SUB>gs</SUB> ~ Normal(0, σ<SUB>v</SUB>)</TD></TR><TR><TD><FONT POINT-SIZE="10">group × species</FONT></TD></TR></TABLE>>]
+  t     [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>t<SUB>is</SUB> ~ Normal(0, σ<SUB>t</SUB>)</TD></TR><TR><TD><FONT POINT-SIZE="10">site × species</FONT></TD></TR></TABLE>>]   // mixed
+  e_psi [label=<logit ψ<SUB>is</SUB> = <B>x</B><SUB>i</SUB><SUP>T</SUP><B>β</B><SUB>s</SUB>>]
+  e_p11 [label=<logit p<SUB>11,isk</SUB> = α<SUB>s</SUB> + <B>d</B><SUB>ik</SUB><SUP>T</SUP><B>α</B><SUB>slopes</SUB>>]
+  e_p10 [label=<logit p<SUB>10,is</SUB> = α<SUB>s</SUB> − g<SUB>s</SUB> + v<SUB>g[i]s</SUB>__T__>]
+  e_r11 [label=<logit r<SUB>11</SUB> = δ<SUB>0</SUB>>]
+  z     [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>z<SUB>is</SUB> ~ Bernoulli(ψ<SUB>is</SUB>)</TD></TR><TR><TD><FONT POINT-SIZE="10">occupancy of site i by species s (marginalized)</FONT></TD></TR></TABLE>>,
+         penwidth=2.6]
+
+  # ---------------- Responses ----------------
+  node [shape=doubleoctagon, style=filled, fillcolor="#FFECB3",
+        color="#E65100", fontcolor="#BF360C"]
+  Ya [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>y<SUP>aut</SUP><SUB>isk</SUB> ~ Bernoulli(z<SUB>is</SUB>p<SUB>11,isk</SUB> + (1 − z<SUB>is</SUB>)p<SUB>10,is</SUB>)</TD></TR><TR><TD><FONT POINT-SIZE="10">automated detections, may be false</FONT></TD></TR></TABLE>>]
+  Yv [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="1" CELLPADDING="1"><TR><TD>y<SUP>ver</SUP><SUB>ism</SUB> ~ Bernoulli(z<SUB>is</SUB>r<SUB>11</SUB>)</TD></TR><TR><TD><FONT POINT-SIZE="10">verified detections, certain</FONT></TD></TR></TABLE>>]
+
+  # ---------------- Edges ----------------
+  P_mu    -> mu    [style=dashed, color="#9C27B0"]
+  P_sd    -> sd    [style=dashed, color="#9C27B0"]
+  P_re    -> sv    [style=dashed, color="#9C27B0"]
+  P_t     -> st    [style=dashed, color="#9C27B0"]   // mixed
+  P_delta -> delta [style=dashed, color="#9C27B0"]
+  mu -> sp [color="#EF6C00"]
+  sd -> sp [color="#EF6C00"]
+  sv -> v  [color="#2E7D32"]
+  st -> t  [color="#2E7D32"]   // mixed
+  sp -> e_psi
+  X  -> e_psi [color="#1565C0"]
+  sp -> e_p11
+  mu -> e_p11 [label=<  slopes>, fontsize=10, fontcolor="#5F6B7A"]
+  A  -> e_p11 [color="#1565C0"]
+  sp -> e_p10 [label=<  g<SUB>s</SUB> &gt; 0 keeps p<SUB>11</SUB> &gt; p<SUB>10</SUB>>, fontsize=10, fontcolor="#5F6B7A"]
+  v  -> e_p10 [color="#2E7D32"]
+  G  -> e_p10 [color="#1565C0"]
+  t  -> e_p10 [color="#2E7D32"]   // mixed
+  delta -> e_r11
+  e_psi -> z  [color="#2E7D32"]
+  z     -> Ya [color="#E65100", penwidth=1.6]
+  e_p11 -> Ya [color="#E65100"]
+  e_p10 -> Ya [color="#E65100", label=<  if z<SUB>is</SUB> = 0>, fontsize=10, fontcolor="#E65100"]
+  z     -> Yv [color="#E65100", penwidth=1.6]
+  e_r11 -> Yv [color="#E65100"]
+
+  # ---------------- Ranks ----------------
+  {rank=source; P_delta; P_mu; P_sd; P_re; P_t}   // mixed
+  {rank=source; P_delta; P_mu; P_sd; P_re}        // fs
+  {rank=same;   delta; mu; sd; sv; st}            // mixed
+  {rank=same;   delta; mu; sd; sv}                // fs
+  {rank=same;   X; sp; A; G; v; t}                // mixed
+  {rank=same;   X; sp; A; G; v}                   // fs
+  {rank=same;   e_r11; e_psi; e_p11; e_p10}
+  {rank=same;   z}
+  {rank=sink;   Yv; Ya}
+  e_r11 -> e_psi -> e_p11 -> e_p10 [style=invis]
+  Yv -> Ya [style=invis]
+}

@@ -9,14 +9,26 @@ vignette: >
 
 ```{r setup, include = FALSE}
 # The simulation results come from dev/ms-sim/run_sims.R (run on AWS) and
-# dev/ms-sim/summarise.R, so that the article builds without Stan. Until
-# they exist, the sections that use them are not evaluated.
+# dev/ms-sim/summarise.R, so that the article builds without Stan.
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
                       fig.width = 7, fig.height = 3.6, out.width = "100%")
 library(crywolf)
-res_file <- "multispecies-results.rds"
-have_res <- file.exists(res_file)
-if (have_res) res <- readRDS(res_file)
+res <- readRDS("multispecies-results.rds")
+# a table of metrics() rows, rounded
+mtab <- function(x, cols) {
+  x <- x[cols]
+  num <- vapply(x, is.numeric, logical(1))
+  x[num] <- lapply(x[num], function(v) signif(v, 2))
+  if ("max_rhat" %in% cols) x$max_rhat <- round(x$max_rhat, 3)
+  knitr::kable(x, row.names = FALSE)
+}
+# one value of a metrics() table
+val <- function(x, ..., what) {
+  keys <- list(...)
+  keep <- Reduce(`&`, Map(function(k, v) x[[k]] == v, names(keys), keys))
+  x[[what]][keep]
+}
+pct <- function(x) paste0(round(100 * x), "%")
 ```
 
 **`fp_occu_ms()` is in development** (see `?crywolf-api`): its arguments,
@@ -29,8 +41,8 @@ reviewer serve the whole list of species that the classifier knows.
 of them at once. Each species keeps its own occupancy, true detection and
 false-positive rate, but these are drawn from distributions of the
 community, so that a species with few detections or few verified
-occasions borrows strength from the others [CITAR: modelos de ocupação
-multiespécies hierárquicos, e.g. Dorazio & Royle 2005; não verifiquei].
+occasions borrows strength from the others, as in the community occupancy
+models of Dorazio and Royle (2005).
 
 This article describes the model, and then a choice that the multispecies
 setting makes pressing: how much the false-positive rate of a species may
@@ -159,12 +171,14 @@ zero and one with the species absent and $t_{is}$ high. Chains that settle
 in different modes give large R-hat values for $\sigma_t$ and for those
 sites.
 
-A practical reading, which is our interpretation and not a result of the
-simulations: fit the fs model first, and use the mixed model as a check of
-how sensitive occupancy is to month-to-month variation in false positives.
-Its convergence should be checked before its estimates are compared with
-those of fs, and it needs verified occasions spread over many sites of the
-data, not only over many groups.
+A practical reading follows: fit the fs model first, and use the mixed
+model as a check of how sensitive occupancy is to month-to-month variation
+in false positives. The simulations below support this order for moderate
+variation among sites, but they did not test large values of $\sigma_t$.
+The convergence of the mixed model should be checked before its estimates
+are compared with those of fs. Our interpretation, not tested, is that the
+mixed model needs verified occasions spread over many sites of the data,
+not only over many groups.
 
 ## Simulations
 
@@ -210,21 +224,148 @@ m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, fp = ~ 1, fp_group = "group",
 
 ### Results
 
-```{r pending, echo = FALSE, results = "asis", eval = !have_res}
-cat("*The simulation results are not yet in this version of the article.*\n")
+```{r results-setup, include = FALSE}
+fits <- res$fits
+rec <- res$recovery
+fm <- res$fs_mixed
+conv <- function(...) pct(val(fits, ..., what = "converged"))
 ```
 
-<!-- TODO (PR 5): figures and text from multispecies-results.rds:
-     1. recovery: bias and coverage of the community means and SDs by number
-        of species; time and R-hat by number of species;
-     2. rare and unverified: occupancy and p10 of sp1, multispecies vs single;
-     3. fs vs mixed: coverage of the occupancy and p10 of each species under
-        each model and scenario; recovery of sd_fp_group and sd_fp_site;
-        R-hat and divergences of the mixed model;
-     4. SBC: rank histograms of the community parameters; whether
-        species_sd = 1 needs recalibration. -->
+All the tables below come from `dev/ms-sim/summarise.R`. Coverage is the
+share of 95% intervals that contained the true value, and width is the mean
+width of these intervals. Values of each species are pooled over the
+species of a community and marked `[sp]`.
+
+#### Convergence and time
+
+A fit counted as converged when every parameter with a true value had
+R-hat below 1.01 and the sampler had no divergent transitions.
+
+```{r fits-table, echo = FALSE}
+mtab(fits, c("nspecies", "scenario", "model", "n", "converged",
+             "with_divergences", "max_rhat", "min_ess", "median_hours"))
+```
+
+With 5 species, `r conv(nspecies = 5, scenario = "base", model = "ms")` of
+the fits in the base scenario passed this criterion. With 20 species, only
+`r conv(nspecies = 20, scenario = "base", model = "ms")` did. The fits that
+failed had no divergences. Their largest R-hat was
+`r round(max(val(fits, nspecies = 20, model = "ms", what = "max_rhat")), 3)`, and the
+smallest bulk ESS was `r round(min(val(fits, nspecies = 20, model = "ms", what = "min_ess")))`
+of 4000 draws. The parameters that crossed 1.01 most often were the
+community intercepts of occupancy, detection and the false-positive rate.
+Since these R-hat values stayed close to the threshold and the ESS was
+large, longer chains seem a reasonable remedy for large communities; this
+is our reading, not something the simulations tested. A fit of 20 species
+took a median of `r round(val(fits, nspecies = 20, scenario = "base", model = "ms", what = "median_hours"), 1)`
+hours, with the four chains in sequence on one core.
+
+#### Recovery
+
+```{r recovery-table, echo = FALSE}
+r <- rec[rec$scenario == "base" & !grepl("\\[sp\\]$", rec$param), ]
+mtab(r, c("nspecies", "param", "bias", "coverage", "width"))
+```
+
+The community means and the standard deviations among species were
+recovered with small bias. Coverage ranged from
+`r min(rec$coverage[rec$scenario == "base" & !grepl("\\[sp\\]$", rec$param)])` to
+`r max(rec$coverage[rec$scenario == "base" & !grepl("\\[sp\\]$", rec$param)])`,
+with 50 replicates per cell. The intervals were
+narrower with more species. For the standard deviation of occupancy among
+species, the mean width fell from
+`r signif(val(rec, nspecies = 5, scenario = "base", param = "sd_occ_(Intercept)", what = "width"), 2)`
+with 5 species to
+`r signif(val(rec, nspecies = 20, scenario = "base", param = "sd_occ_(Intercept)", what = "width"), 2)`
+with 20.
+
+```{r recovery-species, echo = FALSE}
+r <- rec[rec$scenario == "base" & grepl("\\[sp\\]$", rec$param), ]
+mtab(r, c("nspecies", "param", "n", "bias", "coverage", "width"))
+```
+
+The values of each species, including the false-positive rate at the
+reference, `p10_ref`, also had coverage close to 0.95.
+
+#### A rare species and a species without verification
+
+```{r sp1-table, echo = FALSE}
+r <- res$sp1[res$sp1$param %in% c("occ_(Intercept)[sp1]", "p11_ref[sp1]",
+                                  "p10_ref[sp1]"), ]
+mtab(r, c("nspecies", "scenario", "model", "param", "rmse", "coverage", "width"))
+```
+
+For a rare species, the community helped most with detection. With 20
+species, the root mean squared error of its true-detection probability
+`p11_ref` was
+`r signif(val(res$sp1, nspecies = 20, scenario = "rare", model = "ms", param = "p11_ref[sp1]", what = "rmse"), 2)`
+in the multispecies fit and
+`r signif(val(res$sp1, nspecies = 20, scenario = "rare", model = "single", param = "p11_ref[sp1]", what = "rmse"), 2)`
+when the species was fitted alone. Its occupancy intercept gained less,
+with a root mean squared error of
+`r signif(val(res$sp1, nspecies = 20, scenario = "rare", model = "ms", param = "occ_(Intercept)[sp1]", what = "rmse"), 2)`
+against
+`r signif(val(res$sp1, nspecies = 20, scenario = "rare", model = "single", param = "occ_(Intercept)[sp1]", what = "rmse"), 2)`. Our reading, not tested here, is that the
+detections of a rare species come from few sites, so the community
+distribution of detection adds much to them, while its occupancy still
+rests on which sites it was found at.
+
+A species without verified occasions was recovered by both fits. In these
+simulations the multispecies fit did not reduce the error of its
+false-positive rate: the root mean squared error of `p10_ref` was
+`r signif(val(res$sp1, nspecies = 20, scenario = "unverified", model = "ms", param = "p10_ref[sp1]", what = "rmse"), 2)`
+in the multispecies fit and
+`r signif(val(res$sp1, nspecies = 20, scenario = "unverified", model = "single", param = "p10_ref[sp1]", what = "rmse"), 2)`
+alone, with 20 species.
+
+#### fs and mixed
+
+```{r fs-mixed-table, echo = FALSE}
+r <- fm[fm$param %in% c("occ_(Intercept)[sp]", "p10_ref[sp]", "sd_fp_group",
+                        "sd_fp_site"), ]
+mtab(r, c("scenario", "model", "param", "bias", "coverage", "width"))
+```
+
+Both models recovered the occupancy and the false-positive rate of each
+species in both scenarios. The fs model kept coverage close to 0.95 when
+the false-positive rate also varied among sites, with $\sigma_t = 0.5$.
+Larger values of $\sigma_t$ were not simulated. The mixed model recovered
+both standard deviations, `sd_fp_group` and `sd_fp_site`.
+
+The mixed model converged less often on the data that it describes:
+`r conv(scenario = "mixed", model = "mixed")` of the fits passed the
+criterion, against `r conv(scenario = "mixed", model = "fs")` for fs on the
+same data. The parameter that failed most often was `sd_fp_site`, with
+R-hat up to
+`r round(val(fits, scenario = "mixed", model = "mixed", what = "max_rhat"), 3)` and a
+bulk ESS as low as
+`r round(val(fits, scenario = "mixed", model = "mixed", what = "min_ess"))`. This
+is the mechanism described above, in a mild form.
+
+#### Simulation-based calibration
+
+```{r sbc, echo = FALSE}
+s <- res$sbc
+s$chisq_p <- signif(s$chisq_p, 2)
+s$mean_rank <- round(s$mean_rank, 1)
+knitr::kable(s, row.names = FALSE)
+```
+
+Of the `r res$sbc_fits[["n"]]` fits, `r res$sbc_fits[["failed"]]` failed
+and `r res$sbc_fits[["with_divergences"]]` had divergent transitions. The
+ranks of the true values among 99 posterior draws were tested for
+uniformity in 10 bins, one chi-squared test per parameter. The smallest
+p-value was `r signif(min(res$sbc$chisq_p), 2)`, which is not small after
+`r nrow(res$sbc)` tests. The prior on the standard deviations among
+species, half-Normal with scale `species_sd = 1`, therefore showed no sign
+of miscalibration.
 
 ## References
+
+Dorazio, R. M., & Royle, J. A. (2005). Estimating size and composition of
+biological communities by modeling the occurrence of species. *Journal of
+the American Statistical Association*, 100, 389–398.
+https://doi.org/10.1198/016214505000000015
 
 Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when

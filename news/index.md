@@ -70,7 +70,8 @@
   Their likelihood equals that of `fp_occu(random_fp = TRUE)` species by
   species.
   [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
-  gains `ngroup`, `sd_fp_group` and `sd_fp_site`.
+  gains `ngroup`, `sd_fp_group` and `sd_fp_site`, and `psi_rare`, the
+  occupancy of the first species, to make it rare.
 
 ## crywolf 2.2.0
 

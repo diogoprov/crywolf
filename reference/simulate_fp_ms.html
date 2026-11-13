@@ -39,6 +39,7 @@ development, as fp_occu_ms()."><meta property="og:image" content="https://provet
     <li><a class="dropdown-item" href="../articles/markov.html">Detections that come in runs</a></li>
     <li><a class="dropdown-item" href="../articles/fp_variation.html">False-positive rates that vary among sites and occasions</a></li>
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
+    <li><a class="dropdown-item" href="../articles/multispecies.html">Several species at once: the multispecies model</a></li>
     <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
@@ -100,6 +101,7 @@ development</strong>, as <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>
 <span>  ngroup <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sd_fp_group <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  sd_fp_site <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  psi_rare <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -166,6 +168,12 @@ expects.</p></dd>
 logit of the false-positive rate for each group and species (needs
 <code>ngroup</code>) and for each site and species, as in <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>. 0 by
 default.</p></dd>
+
+
+<dt id="arg-psi-rare">psi_rare<a class="anchor" aria-label="anchor" href="#arg-psi-rare"></a></dt>
+<dd><p>Optional occupancy probability of the first species at the
+mean of <code>x</code>, in place of its draw from the community, to make it rare
+(its slope is still drawn).</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>

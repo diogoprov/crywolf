@@ -33,6 +33,7 @@ simulate_fp_ms(
   ngroup = NULL,
   sd_fp_group = 0,
   sd_fp_site = 0,
+  psi_rare = NULL,
   seed = NULL
 )
 ```
@@ -99,6 +100,12 @@ simulate_fp_ms(
   for each site and species, as in
   [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md).
   0 by default.
+
+- psi_rare:
+
+  Optional occupancy probability of the first species at the mean of
+  `x`, in place of its draw from the community, to make it rare (its
+  slope is still drawn).
 
 - seed:
 

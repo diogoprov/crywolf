@@ -477,7 +477,7 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
 |---|---|
 | Dados por espécie (PR 1) e Stan com hierarquia (PR 2, #17) | feito; igualdade com `fp_occu()` espécie a espécie |
 | Declives por espécie (PR 3, #30) | feito |
-| Saídas: `fp_sites()`, `fp_ppc()`, `simulate()`, `fp_richness()`, `simulate_fp_ms()` (PR 4, #31) | feito; falta `predict()` |
+| Saídas: `fp_sites()`, `fp_ppc()`, `simulate()`, `fp_richness()`, `simulate_fp_ms()` (PR 4, #31); `predict()` | feito (`predict()` em 14/11/2026) |
 | Falso positivo por grupo × espécie (`fp_group`) e por unidade (`random_fp`) (#32) | feito |
 | Simulações e SBC na AWS, vinheta `multispecies` (PR 5, #34) | feito com o desenho reduzido de 11/11 (SBC com 200 réplicas, não 1.000); SBC sem sinal de má calibração |
 | Parametrização centrada (`centered`, `centered_occ`) (#34, #36) | feito; 50 espécies: convergência 10% (padrão), 75% (`centered`), 100% (os dois) |
@@ -486,7 +486,7 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
 
 ### Próximos passos do multiespécies (proposta de 14/11/2026, a decidir)
 
-1. **`predict()` para `fp_occu_ms`**: ocupação e detecção por espécie em
+1. **Feito em 14/11/2026.** **`predict()` para `fp_occu_ms`**: ocupação e detecção por espécie em
    novos dados, como o `predict.fp_occu()`. Pronto quando: com uma espécie,
    igual ao `predict()` do `fp_occu()`.
 2. **Padrão da parametrização**: decidir se `centered` e `centered_occ`

@@ -5,8 +5,10 @@
 # the tables of dev/ms-sim/results.md. Species-level values ("[sp3]") are
 # pooled over species as "[sp]"; in the rare and unverified scenarios the
 # first species is also kept apart ("[sp1]"), to compare the multispecies fit
-# with fp_occu() alone. Fits count as converged with R-hat < 1.01 for every
-# parameter with a true value and no divergent transitions. Cells that have
+# with fp_occu() alone. The pilot of cell 10 (model "ms_centered") is
+# compared with the 50 species cell in its own table. Fits count as
+# converged with R-hat < 1.01 for every parameter with a true value and no
+# divergent transitions. Cells that have
 # not ended yet are left out. Run from the package root:
 #   Rscript dev/ms-sim/summarise.R
 # =============================================================================
@@ -63,6 +65,15 @@ if (!is.null(recovery)) {
   sp1 <- ok[ok$scenario %in% c("rare", "unverified") & grepl("\\[sp1\\]$", ok$variable), ]
   sp1$param <- sp1$variable
   res$sp1 <- metrics(sp1, c("nspecies", "scenario", "model"))
+  # pilot: the 50 species datasets fitted with the default and with
+  # centered = TRUE; share of fits with R-hat >= 1.01 and mean bulk ESS of
+  # each community parameter
+  pc <- recovery[recovery$ok & recovery$nspecies == 50 & !grepl("\\[sp\\]$", recovery$param), ]
+  if (any(pc$model == "ms_centered")) {
+    res$centered <- stats::aggregate(cbind(rhat_over = pc$rhat >= 1.01, ess_bulk = pc$ess_bulk),
+                                     pc[c("model", "param")], mean)
+    res$centered <- res$centered[order(res$centered$param, res$centered$model), ]
+  }
   # fs and mixed models on the fs and mixed datasets
   re <- ok[ok$scenario %in% c("fs", "mixed"), ]
   res$fs_mixed <- metrics(re, c("scenario", "model"))
@@ -97,7 +108,9 @@ if (!is.null(res$fits)) {
            "## Recovery: species values, pooled over species", "",
            md(res$recovery[!community, ]), "",
            "## First species: multispecies (ms) vs alone (single)", "", md(res$sp1), "",
-           "## fs and mixed", "", md(res$fs_mixed), "")
+           "## fs and mixed", "", md(res$fs_mixed), "",
+           if (!is.null(res$centered)) c("## 50 species: default and centered = TRUE", "",
+                                         md(res$centered), ""))
 }
 if (!is.null(res$sbc)) {
   out <- c(out, "## Simulation-based calibration", "",

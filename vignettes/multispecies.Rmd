@@ -203,7 +203,9 @@ chains of 1000 warm-up and 1000 sampling iterations, and
   unverified scenarios the first species was also fitted alone with
   `fp_occu()`, to measure what the community lends it. Communities of 50
   species, base scenario only, with 20 replicates, show how the model
-  scales.
+  scales. The same 50-species datasets were also fitted with
+  `centered = TRUE` (model `ms_centered`), and with `centered = TRUE` and
+  `centered_occ = TRUE` (model `ms_centered_occ`).
 * **fs and mixed.** Communities of 10 species, the 100 sites in 25 groups
   of 4 (a physical site with four months), 50 replicates per scenario. In
   the "fs" scenario the false-positive rate varied among groups
@@ -256,13 +258,64 @@ R-hat was
 smallest bulk ESS was `r round(min(fits$min_ess[fits$model == "ms" & fits$nspecies >= 20]))`
 of 4000 draws. The parameters that crossed 1.01 most often were the
 community intercepts of occupancy, detection and the false-positive rate.
-These R-hat values stayed close to the threshold. Our reading, not
-something the simulations tested, is that longer chains would remedy this
-for large communities. A fit of 20 species took a median
+These R-hat values stayed close to the threshold. The centred
+parametrization removed these failures (see below). A fit of 20
+species took a median
 of `r round(val(fits, nspecies = 20, scenario = "base", model = "ms", what = "median_hours"), 1)`
 hours, and a fit of 50 species
 `r round(val(fits, nspecies = 50, scenario = "base", model = "ms", what = "median_hours"), 1)`
 hours, with the four chains in sequence on one core.
+
+#### Centred parametrization with 50 species
+
+With `centered = TRUE`, the detection intercepts, the gaps and the species
+slopes of detection are drawn on the centred scale, for example
+$\alpha_s \sim \text{Normal}(\alpha_0, \sigma_\alpha)$; the occupancy
+coefficients stay on the non-centred scale. On the same 20 datasets of 50
+species,
+`r conv(nspecies = 50, scenario = "base", model = "ms_centered")` of the
+fits passed the convergence criterion, against
+`r conv(nspecies = 50, scenario = "base", model = "ms")` with the default.
+A fit took a median of
+`r round(val(fits, nspecies = 50, scenario = "base", model = "ms_centered", what = "median_hours"), 1)`
+hours.
+
+```{r centered-table, echo = FALSE}
+cen <- res$centered
+cen <- cen[cen$param %in% c("det_(Intercept)", "fp_(Intercept)", "fp_gap",
+                            "occ_(Intercept)"), ]
+mtab(cen, c("param", "model", "rhat_over", "ess_bulk"))
+```
+
+The table gives, for each community intercept, the share of fits with
+R-hat of 1.01 or more (`rhat_over`) and the mean bulk ESS. For the
+intercepts of detection and the false-positive rate and the median gap,
+the mean bulk ESS rose from
+`r round(min(cen$ess_bulk[cen$model == "ms" & cen$param != "occ_(Intercept)"]))`--`r round(max(cen$ess_bulk[cen$model == "ms" & cen$param != "occ_(Intercept)"]))`
+to
+`r round(min(cen$ess_bulk[cen$model == "ms_centered" & cen$param != "occ_(Intercept)"]))`--`r round(max(cen$ess_bulk[cen$model == "ms_centered" & cen$param != "occ_(Intercept)"]))`,
+and no fit crossed 1.01. The occupancy intercept, still on
+the non-centred scale, crossed 1.01 in
+`r pct(val(cen, model = "ms_centered", param = "occ_(Intercept)", what = "rhat_over"))`
+of the fits; it caused the remaining failures.
+
+The occupancy coefficients have their own switch, `centered_occ`, because
+the number of sites, not of occasions, sets how narrow their posteriors
+are. With `centered = TRUE` and `centered_occ = TRUE` (model
+`ms_centered_occ`),
+`r conv(nspecies = 50, scenario = "base", model = "ms_centered_occ")` of the
+fits passed the convergence criterion. The mean bulk ESS of the occupancy
+intercept rose from
+`r round(val(cen, model = "ms_centered", param = "occ_(Intercept)", what = "ess_bulk"))`
+to
+`r round(val(cen, model = "ms_centered_occ", param = "occ_(Intercept)", what = "ess_bulk"))`.
+A fit took a median of
+`r round(val(fits, nspecies = 50, scenario = "base", model = "ms_centered_occ", what = "median_hours"), 1)`
+hours. Bias, RMSE and coverage were practically the same in the three
+versions, since the model is the same. For communities of 50 species at 100
+sites, we therefore suggest `centered = TRUE` and `centered_occ = TRUE`.
+With few sites, the centred occupancy coefficients can mix worse; with two
+species at 40 sites, they increased the number of divergent transitions.
 
 #### Recovery
 

@@ -64,10 +64,15 @@ test_that("the multispecies likelihood equals that of fp_occu() species by speci
     # community means 0 (gap 1), standard deviations 1
     pm <- pa[, !grepl("^(beta|fp_gap)", names(pa))]
     pm[["alpha[1]"]] <- 0
+    # occupancy: community means and sds other than 0 and 1, so that the
+    # standard normal draws differ from the coefficients of the species
+    mu_b <- c(0.3, -0.2)
+    sd_b <- c(2, 0.5)
     pm[c("mu_beta[1]", "mu_beta[2]", "sigma_beta[1]", "sigma_beta[2]")] <-
-      list(0, 0, 1, 1)
+      as.list(c(mu_b, sd_b))
+    beta <- list(pa[["beta[1]"]], pa[["beta[2]"]], pb[["beta[1]"]], pb[["beta[2]"]])
     pm[c("zb[1,1]", "zb[2,1]", "zb[1,2]", "zb[2,2]")] <-
-      list(pa[["beta[1]"]], pa[["beta[2]"]], pb[["beta[1]"]], pb[["beta[2]"]])
+      Map(function(b, k) (b - mu_b[k]) / sd_b[k], beta, c(1, 2, 1, 2))
     pm$sigma_alpha <- 1
     pm[c("za[1]", "za[2]")] <- list(pa[["alpha[1]"]], pb[["alpha[1]"]])
     pm[c("mu_gap", "sigma_gap")] <- list(1, 1)
@@ -80,11 +85,14 @@ test_that("the multispecies likelihood equals that of fp_occu() species by speci
                  ".chain", ".iteration", ".draw")]
     sl_m <- crywolf:::.build_ms_stan_data(s$ms, ~ x, det, fp, TRUE, fp_priors())
     ll_m <- gq("fp_occu_ms", posterior::as_draws_array(pm), sl_m$stan_data)
-    # the same values in the centred parametrization: with community means 0
-    # (gap 1) and standard deviations 1, only the recorder effects change
+    # the same values in the centred parametrizations: with centered_occ, zb
+    # holds the occupancy coefficients; with detection means 0 (gap 1) and
+    # standard deviations 1, only these and the recorder effects change
     pc <- pm
+    pc[c("zb[1,1]", "zb[2,1]", "zb[1,2]", "zb[2,2]")] <- beta
     for (u in grep("^u_raw", names(pc), value = TRUE)) pc[[u]] <- pc[[u]] * pc$sigma_u
-    sl_c <- crywolf:::.build_ms_stan_data(s$ms, ~ x, det, fp, TRUE, fp_priors(), centered = TRUE)
+    sl_c <- crywolf:::.build_ms_stan_data(s$ms, ~ x, det, fp, TRUE, fp_priors(), centered = TRUE,
+                                          centered_occ = TRUE)
     ll_c <- gq("fp_occu_ms", posterior::as_draws_array(pc), sl_c$stan_data)
     a <- cbind(ll_a, ll_b)
     by_species <- c(seq(1, by = 2, length.out = 40), seq(2, by = 2, length.out = 40))
@@ -269,7 +277,9 @@ test_that("the centred parametrization gives the same posterior", {
   db <- as.data.frame(b$draws)[, v]
   gap <- (colMeans(da) - colMeans(db)) / vapply(da, stats::sd, numeric(1))
   expect_lt(max(abs(gap)), 0.3)
-  expect_error(fp_occu_ms(s$ms, centered = 1), "must be TRUE or FALSE")
+  expect_identical(b$stan_data$centered_occ, 0L)
+  expect_error(fp_occu_ms(s$ms, centered = 1), "`centered` must be TRUE or FALSE")
+  expect_error(fp_occu_ms(s$ms, centered_occ = NA), "`centered_occ` must be TRUE or FALSE")
 })
 
 test_that("simulate_fp_ms() shares the design among species", {

@@ -46,6 +46,15 @@
   of `fp_occu(random_fp = TRUE)` species by species. `simulate_fp_ms()`
   gains `ngroup`, `sd_fp_group` and `sd_fp_site`, and `psi_rare`, the
   occupancy of the first species, to make it rare.
+* `fp_occu_ms()` (in development) gains `centered_occ`: `TRUE` uses a
+  centred parametrization of the occupancy coefficients of the species, for
+  data with many sites. It is apart from `centered` because these
+  coefficients are informed by the sites, not the occasions: with 2 species
+  at 40 sites, centring them raised the divergent transitions. In
+  simulations of 50 species at 100 sites, `centered = TRUE` raised the share
+  of converged fits from 10% to 75%, and the remaining failures came from
+  the occupancy intercept; with `centered_occ = TRUE` as well, all 20 fits
+  converged (article `multispecies`).
 
 # crywolf 2.2.0
 

@@ -46,7 +46,9 @@
 // and recorders with many occasions, whose narrow posteriors make the
 // non-centred one take very small steps: za holds alpha_s, zg holds
 // log(gap_s), u_raw holds u, zds, zfs and zv hold the slopes and verified
-// intercepts of the species, and v_raw and t_raw hold v and t.
+// intercepts of the species, and v_raw and t_raw hold v and t. With
+// centered_occ = 1, zb holds beta_s: the occupancy coefficients are informed
+// by the number of sites, not of occasions, so they have their own switch.
 // The sum over units runs with reduce_sum(), as over sites in fp_occu.stan.
 // ============================================================================
 functions {
@@ -151,6 +153,7 @@ data {
   real<lower=0> recorder_sd;                 // half-Normal(0, recorder_sd) on sigma_u
   real<lower=0> species_sd;                  // half-Normal(0, species_sd) on the sds among species
   int<lower=0, upper=1> centered;            // parametrization of alpha_sp, gap_sp, u and the species slopes
+  int<lower=0, upper=1> centered_occ;        // parametrization of beta_sp
   int<lower=0, upper=1> by_det;              // detection slopes by species
   int<lower=0, upper=1> by_fp;               // false-positive slopes by species
   int<lower=0, upper=1> by_ver;              // verified intercept by species
@@ -288,7 +291,8 @@ parameters {
 transformed parameters {
   vector[nrec] u = centered == 1 && estimate_re == 1 ? u_raw : sigma_u * u_raw;
   real gamma0 = alpha[1] - mu_gap;
-  matrix[Kbeta, nspecies] beta_sp = rep_matrix(mu_beta, nspecies) + diag_pre_multiply(sigma_beta, zb);
+  matrix[Kbeta, nspecies] beta_sp = centered_occ == 1 ? zb
+    : rep_matrix(mu_beta, nspecies) + diag_pre_multiply(sigma_beta, zb);
   vector[nspecies] alpha_sp = centered == 1 ? za : alpha[1] + sigma_alpha * za;
   vector[nspecies] gap_sp = centered == 1 ? exp(zg) : mu_gap * exp(sigma_gap * zg);
   // deviations of the species from the community slopes and verified
@@ -311,7 +315,11 @@ model {
   mu_beta[1]     ~ normal(0, prior_sd_int);
   if (Kbeta > 1)  mu_beta[2:Kbeta] ~ normal(0, prior_sd_slope);
   sigma_beta     ~ normal(0, species_sd);
-  to_vector(zb)  ~ std_normal();
+  if (centered_occ == 1) {
+    for (k in 1:Kbeta) zb[k] ~ normal(mu_beta[k], sigma_beta[k]);
+  } else {
+    to_vector(zb) ~ std_normal();
+  }
   alpha[1]       ~ normal(0, prior_sd_int);
   if (Kalpha > 1) alpha[2:Kalpha] ~ normal(0, prior_sd_slope);
   sigma_alpha    ~ normal(0, species_sd);

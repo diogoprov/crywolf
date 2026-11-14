@@ -82,6 +82,10 @@
   the share of converged fits from 10% to 75%, and the remaining
   failures came from the occupancy intercept; with `centered_occ = TRUE`
   as well, all 20 fits converged (article `multispecies`).
+- [`predict()`](https://rdrr.io/r/stats/predict.html) for `fp_occu_ms`
+  fits (in development): the occupancy probability or the false-positive
+  rate of each species, from its own coefficients, for new covariates or
+  the sites of the fit.
 
 ## crywolf 2.2.0
 

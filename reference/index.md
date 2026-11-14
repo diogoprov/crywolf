@@ -45,6 +45,8 @@ Fit the model and inspect, summarize, predict, and compare fits.
   : Multispecies false-positive occupancy model
 - [`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md)
   : Species richness of each site from a multispecies model
+- [`predict(`*`<fp_occu_ms>`*`)`](https://provetelab.org/crywolf/reference/predict.fp_occu_ms.md)
+  : Predicted probabilities of a fitted multispecies model
 - [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
   : Simulate data for a multispecies false-positive occupancy model
 - [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)

@@ -41,6 +41,7 @@ reference:
       - fp_occu_dyn
       - fp_occu_ms
       - fp_richness
+      - predict.fp_occu_ms
       - simulate_fp_ms
       - fp_occu_mc
       - fp_draws_data

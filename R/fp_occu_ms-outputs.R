@@ -133,6 +133,102 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   )
 }
 
+#' Predicted probabilities of a fitted multispecies model
+#'
+#' The occupancy probability or the false-positive rate of each species of
+#' an [fp_occu_ms()] fit, from the coefficients of that species, as
+#' [predict.fp_occu()] gives them for one species. Random effects on the
+#' false-positive rate (`fp_group`, `random_fp`) are left out, as in
+#' [predict.fp_occu()]. **In development**, as [fp_occu_ms()].
+#'
+#' @param object An `fp_occu_ms` object.
+#' @param newdata Data frame with the covariates of the requested process.
+#'   Without a column of species (the species column of the data), every row
+#'   is predicted for every species in `species`; with it, each row for its
+#'   own species. If missing, the sites used in the fit, for every species;
+#'   for a false-positive rate with covariates measured on each occasion, the
+#'   automated occasions of each species, with the covariates of their sites.
+#' @param species Names of the species to predict when `newdata` has no
+#'   column of species. The default, `NULL`, is every species.
+#' @inheritParams predict.fp_occu
+#' @return A data frame with the rows of `newdata` (repeated for each
+#'   species when it has no column of species), the species column, and the
+#'   posterior mean and credible interval of the probability; or, with
+#'   `summary = FALSE`, the matrix of draws, with rows as draws and columns
+#'   as the rows of that data frame.
+#' @seealso [fp_occu_ms()], [predict.fp_occu()]
+#' @export
+#' @examples
+#' \dontrun{
+#' s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
+#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+#' predict(m, newdata = data.frame(x = c(-1, 0, 1)))
+#' }
+predict.fp_occu_ms <- function(object, newdata, process = c("occ", "fp"), species = NULL,
+                               prob = 0.95, summary = TRUE, ...) {
+  process <- match.arg(process)
+  d <- object$data
+  sp_col <- d$species
+  sp_names <- d$species_names
+  if (process == "fp" && is.null(object$formulas$fp)) {
+    stop("This model has no false-positive process.", call. = FALSE)
+  }
+  if (missing(newdata)) {
+    newdata <- d$sites
+    if (process == "fp" && isTRUE(object$stan_data$fp_by_row == 1)) {
+      site_only <- setdiff(names(d$sites), names(d$auto))
+      newdata <- cbind(d$auto, d$sites[match(d$auto[[d$site]], d$sites[[d$site]]),
+                                       site_only, drop = FALSE])
+    }
+  }
+  if (sp_col %in% names(newdata)) {
+    if (!is.null(species)) {
+      stop("Give `species` or a species column in `newdata`, not both.", call. = FALSE)
+    }
+    newdata[[sp_col]] <- as.character(newdata[[sp_col]])
+  } else {
+    species <- if (is.null(species)) sp_names else as.character(species)
+    newdata <- newdata[rep(seq_len(nrow(newdata)), length(species)), , drop = FALSE]
+    newdata[[sp_col]] <- rep(species, each = nrow(newdata) / length(species))
+  }
+  rownames(newdata) <- NULL
+  s_row <- match(newdata[[sp_col]], sp_names)
+  if (anyNA(s_row)) {
+    stop("Unknown species: ", paste(unique(newdata[[sp_col]][is.na(s_row)]), collapse = ", "),
+         ".", call. = FALSE)
+  }
+
+  des <- object$design[[process]]
+  tt <- stats::delete.response(des$terms)
+  mf <- stats::model.frame(tt, newdata, xlev = des$xlevels)
+  X <- stats::model.matrix(tt, mf, contrasts.arg = des$contrasts)
+  dm <- .ms_draws(object, NULL)
+  sd <- object$stan_data
+  fl <- .ms_flags(sd)
+  p <- matrix(NA_real_, nrow(dm), nrow(newdata))
+  for (s in unique(s_row)) {
+    rows <- which(s_row == s)
+    B <- if (process == "occ") {
+      dm[, sprintf("beta_sp[%d,%d]", seq_len(sd$Kbeta), s), drop = FALSE]
+    } else {
+      k <- seq_len(sd$Kfp)
+      cbind(dm[, sprintf("alpha_sp[%d]", s)] - dm[, sprintf("gap_sp[%d]", s)],
+            if (fl$fp_s) dm[, sprintf("gamma_sp[%d,%d]", k, s), drop = FALSE] else
+              if (sd$Kfp > 0) dm[, sprintf("gamma_fp[%d]", k), drop = FALSE])
+    }
+    p[, rows] <- stats::plogis(B %*% t(X[rows, , drop = FALSE]))
+  }
+  if (!summary) return(p)
+  a <- (1 - prob) / 2
+  data.frame(
+    newdata,
+    estimate = colMeans(p),
+    lower = apply(p, 2, stats::quantile, probs = a),
+    upper = apply(p, 2, stats::quantile, probs = 1 - a),
+    row.names = NULL
+  )
+}
+
 #' Simulate data from a fitted multispecies model
 #'
 #' Generates new detections from an [fp_occu_ms()] fit, keeping the

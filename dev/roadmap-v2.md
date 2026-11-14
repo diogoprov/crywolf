@@ -468,6 +468,49 @@ os desvios da comunidade podem misturar mal com poucas espécies (como o
 espécies raras, e o empréstimo de informação da comunidade é justamente o
 que se quer medir.
 
+### Estado da Fase A em 14/11/2026
+
+Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
+`fp_occu_ms()` ainda marcado como em desenvolvimento.
+
+| Passo | Estado |
+|---|---|
+| Dados por espécie (PR 1) e Stan com hierarquia (PR 2, #17) | feito; igualdade com `fp_occu()` espécie a espécie |
+| Declives por espécie (PR 3, #30) | feito |
+| Saídas: `fp_sites()`, `fp_ppc()`, `simulate()`, `fp_richness()`, `simulate_fp_ms()` (PR 4, #31) | feito; falta `predict()` |
+| Falso positivo por grupo × espécie (`fp_group`) e por unidade (`random_fp`) (#32) | feito |
+| Simulações e SBC na AWS, vinheta `multispecies` (PR 5, #34) | feito com o desenho reduzido de 11/11 (SBC com 200 réplicas, não 1.000); SBC sem sinal de má calibração |
+| Parametrização centrada (`centered`, `centered_occ`) (#34, #36) | feito; 50 espécies: convergência 10% (padrão), 75% (`centered`), 100% (os dois) |
+| Custo num conjunto do tamanho da curiango; `threads_per_chain` | não feito: as simulações usaram 100 sítios × 10 ocasiões, uma thread por cadeia |
+| Dados reais (FrogNet) | à espera do depósito no Zenodo |
+
+### Próximos passos do multiespécies (proposta de 14/11/2026, a decidir)
+
+1. **`predict()` para `fp_occu_ms`**: ocupação e detecção por espécie em
+   novos dados, como o `predict.fp_occu()`. Pronto quando: com uma espécie,
+   igual ao `predict()` do `fp_occu()`.
+2. **Padrão da parametrização**: decidir se `centered` e `centered_occ`
+   continuam `FALSE` por padrão, viram `TRUE`, ou passam a depender do
+   número de ocasiões e de sítios. Hoje só há dois pontos de evidência:
+   50 espécies em 100 sítios (os dois ajudam) e 2 espécies em 40 sítios
+   (o β centrado piora). Uma grade pequena de simulações (sítios ×
+   espécies) daria a regra; custo na AWS a estimar com piloto.
+3. **Custo e mixing com dados do tamanho real**: 20 espécies num conjunto
+   do tamanho da curiango (ou do FrogNet), com `threads_per_chain`
+   medido; documentar na vinheta e em `?fp_occu_ms`.
+4. **FrogNet na vinheta**, depois do depósito: fs como modelo principal e
+   o misto como sensibilidade (decidido na sessão FrogNet em 11/11/2026),
+   com `centered = TRUE`.
+5. **Sair de "em desenvolvimento"**: com 1 a 4 feitos, propor a API como
+   estável numa release (2.3.0?). Release só a pedido.
+6. **Integração com o sheepdog (Fase 2, `fp_occu_score()`)**: vem depois
+   da Fase A (decidido em 02/11/2026). O lado do sheepdog relatou em
+   13/11/2026 resultados implausíveis na curiango (ρ pode absorver a
+   dependência dos scores); esperar o diagnóstico de lá.
+7. **Opções adiadas das perguntas de 02/11/2026**: correlação entre os
+   interceptos dos submodelos (LKJ) e efeito do gravador por espécie. Só
+   com um caso real que peça.
+
 ### Fase B (3.0.0): modelo conjunto (JSDM) com fatores latentes
 
 Acrescentar fatores latentes na ocupação, para capturar a coocorrência

@@ -369,6 +369,29 @@ test_that("the outputs of fp_occu_ms() use the likelihood of each species", {
   expect_equal(dim(new[[1]]$truth$z), c(40, 3))
   expect_true(all(c("occ_x[sp1]", "det_bio[sp3]", "fp_x[sp2]") %in%
                     names(new[[1]]$truth$pars)))
+
+  # predict(): the coefficients of each species, as in its readable draws
+  dr <- m2$draws
+  po <- predict(m2, newdata = data.frame(x = 0.5, species = "sp3"), summary = FALSE)
+  expect_equal(po[, 1], stats::plogis(dr[["occ_(Intercept)[sp3]"]] + 0.5 * dr[["occ_x[sp3]"]]),
+               ignore_attr = TRUE)
+  pf <- predict(m2, process = "fp", newdata = data.frame(x = c(0, 1)), species = "sp2",
+                summary = FALSE)
+  expect_equal(pf[, 1], dr[["p10_ref[sp2]"]], ignore_attr = TRUE)
+  expect_equal(stats::qlogis(pf[, 2]) - stats::qlogis(pf[, 1]), dr[["fp_x[sp2]"]],
+               ignore_attr = TRUE)
+  ps <- predict(m2)
+  expect_equal(nrow(ps), 40 * 3)
+  expect_identical(ps$species, rep(c("sp1", "sp2", "sp3"), each = 40))
+  expect_true(all(ps$lower <= ps$estimate & ps$estimate <= ps$upper))
+  # a false-positive rate with covariates of the occasions: the automated
+  # occasions of each species
+  pa <- predict(m1, process = "fp")
+  expect_equal(nrow(pa), nrow(s1$data$auto))
+  expect_identical(pa$species, as.character(s1$data$auto$species))
+  expect_error(predict(m2, newdata = data.frame(x = 0, species = "sp1"), species = "sp1"),
+               "not both")
+  expect_error(predict(m2, newdata = data.frame(x = 0), species = "nope"), "Unknown species")
 })
 
 test_that("the random effects on p10 enter the likelihood as in fp_occu()", {

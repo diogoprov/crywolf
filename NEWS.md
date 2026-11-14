@@ -48,7 +48,8 @@
   at 40 sites, centring them raised the divergent transitions. In
   simulations of 50 species at 100 sites, `centered = TRUE` raised the share
   of converged fits from 10% to 75%, and the remaining failures came from
-  the occupancy intercept (article `multispecies`).
+  the occupancy intercept; with `centered_occ = TRUE` as well, all 20 fits
+  converged (article `multispecies`).
 
 # crywolf 2.2.0
 

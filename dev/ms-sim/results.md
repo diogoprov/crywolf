@@ -22,6 +22,7 @@ Written by `dev/ms-sim/summarise.R`.
 | 20 | unverified | single | 50 | 1.00 | 0.00 | 1.01 |  812 | 0.0169 |
 | 50 | base | ms | 20 | 0.10 | 0.00 | 1.03 |  178 | 7.8400 |
 | 50 | base | ms_centered | 20 | 0.75 | 0.00 | 1.02 |  296 | 5.8800 |
+| 50 | base | ms_centered_occ | 20 | 1.00 | 0.00 | 1.01 | 2370 | 5.6800 |
 
 ## Recovery: community parameters
 
@@ -289,26 +290,37 @@ Written by `dev/ms-sim/summarise.R`.
 | --- | --- | --- | --- |
 | ms | det_(Intercept) | 0.75 |  298 |
 | ms_centered | det_(Intercept) | 0.00 | 6850 |
+| ms_centered_occ | det_(Intercept) | 0.00 | 7680 |
 | ms | det_bio | 0.00 | 5190 |
 | ms_centered | det_bio | 0.00 | 8770 |
+| ms_centered_occ | det_bio | 0.00 | 9160 |
 | ms | fp_(Intercept) | 0.40 |  380 |
 | ms_centered | fp_(Intercept) | 0.00 | 6940 |
+| ms_centered_occ | fp_(Intercept) | 0.00 | 7840 |
 | ms | fp_gap | 0.25 |  426 |
 | ms_centered | fp_gap | 0.00 | 6330 |
+| ms_centered_occ | fp_gap | 0.00 | 7170 |
 | ms | occ_(Intercept) | 0.60 |  340 |
 | ms_centered | occ_(Intercept) | 0.25 |  536 |
+| ms_centered_occ | occ_(Intercept) | 0.00 | 7520 |
 | ms | occ_x | 0.05 |  964 |
 | ms_centered | occ_x | 0.00 | 1480 |
+| ms_centered_occ | occ_x | 0.00 | 5940 |
 | ms | sd_det_(Intercept) | 0.10 |  590 |
 | ms_centered | sd_det_(Intercept) | 0.00 | 6380 |
+| ms_centered_occ | sd_det_(Intercept) | 0.00 | 6840 |
 | ms | sd_log_fp_gap | 0.05 |  774 |
 | ms_centered | sd_log_fp_gap | 0.00 | 4530 |
+| ms_centered_occ | sd_log_fp_gap | 0.00 | 5210 |
 | ms | sd_occ_(Intercept) | 0.00 |  702 |
 | ms_centered | sd_occ_(Intercept) | 0.00 | 1000 |
+| ms_centered_occ | sd_occ_(Intercept) | 0.00 | 6230 |
 | ms | sd_occ_x | 0.00 | 1220 |
 | ms_centered | sd_occ_x | 0.00 | 1630 |
+| ms_centered_occ | sd_occ_x | 0.00 | 3600 |
 | ms | verified_(Intercept) | 0.00 | 5130 |
 | ms_centered | verified_(Intercept) | 0.00 | 9030 |
+| ms_centered_occ | verified_(Intercept) | 0.00 | 9190 |
 
 ## Simulation-based calibration
 

@@ -100,6 +100,7 @@ species), <code><a href="fp_ppc.html">fp_ppc()</a></code>, <a href="simulate.fp_
 <span>  random_fp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fp_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  centered <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  centered_occ <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  chains <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  parallel_chains <span class="op">=</span> <span class="va">chains</span>,</span>
 <span>  threads_per_chain <span class="op">=</span> <span class="st">"auto"</span>,</span>
@@ -165,6 +166,15 @@ suits passive acoustic monitoring, with thousands of occasions per
 species: their posteriors are then so narrow that the default takes very
 small steps and reaches the maximum tree depth. Keep <code>FALSE</code> with few
 occasions per species or recorder.</p></dd>
+
+
+<dt id="arg-centered-occ">centered_occ<a class="anchor" aria-label="anchor" href="#arg-centered-occ"></a></dt>
+<dd><p>Use the centred parametrization of the occupancy
+coefficients of the species? The model is the same. Their posteriors
+narrow with the number of sites, not of occasions: <code>TRUE</code> suits many
+sites (in simulations of 50 species at 100 sites, the default left the
+community occupancy intercept poorly mixed), and <code>FALSE</code> few sites, where
+the centred form samples worse.</p></dd>
 
 
 <dt id="arg-chains-parallel-chains-threads-per-chain-iter-warmup-iter-sampling-adapt-delta-seed-refresh-">chains, parallel_chains, threads_per_chain, iter_warmup, iter_sampling, adapt_delta, seed, refresh, ...<a class="anchor" aria-label="anchor" href="#arg-chains-parallel-chains-threads-per-chain-iter-warmup-iter-sampling-adapt-delta-seed-refresh-"></a></dt>

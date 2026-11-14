@@ -36,6 +36,7 @@ fp_occu_ms(
   random_fp = FALSE,
   fp_group = NULL,
   centered = FALSE,
+  centered_occ = FALSE,
   chains = 4,
   parallel_chains = chains,
   threads_per_chain = "auto",
@@ -102,6 +103,15 @@ as_draws_df(x, ...)
   per species: their posteriors are then so narrow that the default
   takes very small steps and reaches the maximum tree depth. Keep
   `FALSE` with few occasions per species or recorder.
+
+- centered_occ:
+
+  Use the centred parametrization of the occupancy coefficients of the
+  species? The model is the same. Their posteriors narrow with the
+  number of sites, not of occasions: `TRUE` suits many sites (in
+  simulations of 50 species at 100 sites, the default left the community
+  occupancy intercept poorly mixed), and `FALSE` few sites, where the
+  centred form samples worse.
 
 - chains, parallel_chains, threads_per_chain, iter_warmup,
   iter_sampling, adapt_delta, seed, refresh, ...:

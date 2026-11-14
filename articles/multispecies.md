@@ -183,7 +183,10 @@ used the default priors of
   with
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md), to
   measure what the community lends it. Communities of 50 species, base
-  scenario only, with 20 replicates, show how the model scales.
+  scenario only, with 20 replicates, show how the model scales. The same
+  50-species datasets were also fitted with `centered = TRUE` (model
+  `ms_centered`), and with `centered = TRUE` and `centered_occ = TRUE`
+  (model `ms_centered_occ`).
 - **fs and mixed.** Communities of 10 species, the 100 sites in 25
   groups of 4 (a physical site with four months), 50 replicates per
   scenario. In the “fs” scenario the false-positive rate varied among
@@ -232,6 +235,8 @@ R-hat below 1.01 and the sampler had no divergent transitions.
 | 20 | unverified | ms | 50 | 0.50 | 0.00 | 1 | 340 | 4.300 |
 | 20 | unverified | single | 50 | 1.00 | 0.00 | 1 | 810 | 0.017 |
 | 50 | base | ms | 20 | 0.10 | 0.00 | 1 | 180 | 7.800 |
+| 50 | base | ms_centered | 20 | 0.75 | 0.00 | 1 | 300 | 5.900 |
+| 50 | base | ms_centered_occ | 20 | 1.00 | 0.00 | 1 | 2400 | 5.700 |
 
 With 5 species, 98% of the fits in the base scenario passed this
 criterion. With 20 species, only 64% did. With 50 species, 10% did. The
@@ -239,10 +244,53 @@ fits of 20 and 50 species that failed had no divergences. Their largest
 R-hat was 1.028, and the smallest bulk ESS was 178 of 4000 draws. The
 parameters that crossed 1.01 most often were the community intercepts of
 occupancy, detection and the false-positive rate. These R-hat values
-stayed close to the threshold. Our reading, not something the
-simulations tested, is that longer chains would remedy this for large
-communities. A fit of 20 species took a median of 4.3 hours, and a fit
-of 50 species 7.8 hours, with the four chains in sequence on one core.
+stayed close to the threshold. The centred parametrization removed these
+failures (see below). A fit of 20 species took a median of 4.3 hours,
+and a fit of 50 species 7.8 hours, with the four chains in sequence on
+one core.
+
+#### Centred parametrization with 50 species
+
+With `centered = TRUE`, the detection intercepts, the gaps and the
+species slopes of detection are drawn on the centred scale, for example
+\alpha_s \sim \text{Normal}(\alpha_0, \sigma\_\alpha); the occupancy
+coefficients stay on the non-centred scale. On the same 20 datasets of
+50 species, 75% of the fits passed the convergence criterion, against
+10% with the default. A fit took a median of 5.9 hours.
+
+| param            | model           | rhat_over | ess_bulk |
+|:-----------------|:----------------|----------:|---------:|
+| det\_(Intercept) | ms              |      0.75 |      300 |
+| det\_(Intercept) | ms_centered     |      0.00 |     6900 |
+| det\_(Intercept) | ms_centered_occ |      0.00 |     7700 |
+| fp\_(Intercept)  | ms              |      0.40 |      380 |
+| fp\_(Intercept)  | ms_centered     |      0.00 |     6900 |
+| fp\_(Intercept)  | ms_centered_occ |      0.00 |     7800 |
+| fp_gap           | ms              |      0.25 |      430 |
+| fp_gap           | ms_centered     |      0.00 |     6300 |
+| fp_gap           | ms_centered_occ |      0.00 |     7200 |
+| occ\_(Intercept) | ms              |      0.60 |      340 |
+| occ\_(Intercept) | ms_centered     |      0.25 |      540 |
+| occ\_(Intercept) | ms_centered_occ |      0.00 |     7500 |
+
+The table gives, for each community intercept, the share of fits with
+R-hat of 1.01 or more (`rhat_over`) and the mean bulk ESS. For the
+intercepts of detection and the false-positive rate and the median gap,
+the mean bulk ESS rose from 298–426 to 6326–6939, and no fit crossed
+1.01. The occupancy intercept, still on the non-centred scale, crossed
+1.01 in 25% of the fits; it caused the remaining failures.
+
+The occupancy coefficients have their own switch, `centered_occ`,
+because the number of sites, not of occasions, sets how narrow their
+posteriors are. With `centered = TRUE` and `centered_occ = TRUE` (model
+`ms_centered_occ`), 100% of the fits passed the convergence criterion.
+The mean bulk ESS of the occupancy intercept rose from 536 to 7524. A
+fit took a median of 5.7 hours. Bias, RMSE and coverage were practically
+the same in the three versions, since the model is the same. For
+communities of 50 species at 100 sites, we therefore suggest
+`centered = TRUE` and `centered_occ = TRUE`. With few sites, the centred
+occupancy coefficients can mix worse; with two species at 40 sites, they
+increased the number of divergent transitions.
 
 #### Recovery
 

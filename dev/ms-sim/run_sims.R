@@ -16,7 +16,10 @@
 #             Pilot (cell 10): the datasets of the 50 species cell refitted
 #             with centered = TRUE (model "ms_centered"), to see whether
 #             the centred parametrization of the detection intercepts and
-#             gaps mixes better than the default.
+#             gaps mixes better than the default. Pilot (cell 11): the same
+#             datasets with centered = TRUE and centered_occ = TRUE (model
+#             "ms_centered_occ"), to see whether the centred occupancy
+#             coefficients remove the failures left by cell 10.
 #             Community: psi = 0.4 (sd 1 on the logit), b1 = -0.5 (sd 0.5),
 #             p11 = 0.5 (sd 0.5), p10 = 0.05 (sd of log gap 0.3),
 #             a_bio = 0.5, r11 = 0.6.
@@ -62,10 +65,12 @@ recovery_cells <- rbind(
               reps = 50, stringsAsFactors = FALSE),
   data.frame(nspecies = 50, scenario = "base", reps = 20),
   data.frame(nspecies = 10, scenario = c("fs", "mixed"), reps = 50),
+  data.frame(nspecies = 50, scenario = "base", reps = 20),
   data.frame(nspecies = 50, scenario = "base", reps = 20)
 )
-recovery_cells$centered <- seq_len(nrow(recovery_cells)) == 10
-# the pilot reuses the seeds, so the datasets, of cell 7
+recovery_cells$centered <- seq_len(nrow(recovery_cells)) %in% c(10, 11)
+recovery_cells$centered_occ <- seq_len(nrow(recovery_cells)) == 11
+# the pilots reuse the seeds, so the datasets, of cell 7
 recovery_cells$seed_cell <- ifelse(recovery_cells$centered, 7, seq_len(nrow(recovery_cells)))
 keep_cells <- if (nzchar(cells_env)) as.integer(strsplit(cells_env, ",")[[1]]) else
   seq_len(nrow(recovery_cells))
@@ -123,6 +128,7 @@ fit_rows <- function(model, expr) {
 run_recovery <- function(cell, seed) {
   # the job rows keep the columns of the first run, so that they bind
   centered <- recovery_cells$centered[cell]
+  centered_occ <- recovery_cells$centered_occ[cell]
   cfg <- recovery_cells[cell, c("nspecies", "scenario", "reps")]
   re <- cfg$scenario %in% c("fs", "mixed")
   s <- simulate_fp_ms(nspecies = cfg$nspecies, nsite = 100, nocc = 10, a_bio = 0.5,
@@ -146,8 +152,9 @@ run_recovery <- function(cell, seed) {
     return(cbind(cfg, n_verified_sites = length(unique(d$verified$site)), rows))
   }
   if (centered) {
-    return(cbind(cfg, n_verified_sites = length(unique(d$verified$site)),
-                 fit_ms("ms_centered", centered = TRUE)))
+    rows <- if (centered_occ) fit_ms("ms_centered_occ", centered = TRUE, centered_occ = TRUE) else
+      fit_ms("ms_centered", centered = TRUE)
+    return(cbind(cfg, n_verified_sites = length(unique(d$verified$site)), rows))
   }
   rows <- fit_ms("ms")
   if (cfg$scenario != "base") {

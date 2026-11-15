@@ -34,6 +34,8 @@ test_that("threads_per_chain is checked and does not change the fit", {
                        threads_per_chain = 0), "positive integer")
   skip_if_no_cmdstan()
   expect_true(crywolf:::.has_threads(fp_compile()))
+  # the name cmdstanr checks before it passes threads_per_chain to the model
+  expect_true(isTRUE(fp_compile()$cpp_options()[["stan_threads"]]))
   fit <- function(threads) {
     suppressWarnings(fp_occu(s$data, occ = ~ x, random_recorder = FALSE,
                              chains = 1, iter_warmup = 200,

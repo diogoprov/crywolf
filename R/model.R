@@ -69,8 +69,20 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
                                      cpp_options = threads)
     }
   }
-  .fp_env[[name]] <- mod
-  invisible(mod)
+  .fp_env[[name]] <- .threads_option(mod)
+  invisible(.fp_env[[name]])
+}
+
+# cmdstanr 0.9.0 takes the options of an executable it loads from the
+# executable (as STAN_THREADS) but checks threads_per_chain against
+# cpp_options()[["stan_threads"]], so it drops the threads with a warning;
+# add the lower-case name to a model compiled with threads
+.threads_option <- function(mod) {
+  if (.has_threads(mod) && !isTRUE(mod$cpp_options()[["stan_threads"]])) {
+    tryCatch(mod$.__enclos_env__$private$cpp_options_$stan_threads <- TRUE,
+             error = function(e) NULL)
+  }
+  mod
 }
 
 #' Path to the Stan program

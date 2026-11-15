@@ -1,5 +1,12 @@
 # crywolf (development version)
 
+* With cmdstanr 0.9.0, the current release on r-universe, `fp_occu()`,
+  `fp_occu_dyn()`, `fp_occu_ms()` and the other fitting functions ran each
+  chain on one thread whatever `threads_per_chain`: cmdstanr dropped the
+  threads with a warning, because it did not recognise the compiled model
+  as built with threads. crywolf now marks the model so that the threads
+  are used.
+
 * `fp_read_sheepdog()` drops reviewed clips of the new `"score_bands"`
   design of sheepdog with a warning, whatever `keep_top`: they were drawn
   within bands of score, for thresholds and calibration, and would bias the

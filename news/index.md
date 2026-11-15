@@ -2,17 +2,28 @@
 
 ## crywolf (development version)
 
+- With cmdstanr 0.9.0, the current release on r-universe,
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  and the other fitting functions ran each chain on one thread whatever
+  `threads_per_chain`: cmdstanr dropped the threads with a warning,
+  because it did not recognise the compiled model as built with threads.
+  crywolf now marks the model so that the threads are used.
+
 - [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
   drops reviewed clips of the new `"score_bands"` design of sheepdog
   with a warning, whatever `keep_top`: they were drawn within bands of
   score, for thresholds and calibration, and would bias the
   false-positive rate. It stops with an error when every reviewed clip
   is of this design and the export has no annotated recordings.
+
 - [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
   keeps reviewed clips of the new `"directed_pps"` design of sheepdog
   (`select_directed()`) with a warning: their units were drawn with
   unequal probabilities, possibly from the scores, and crywolf does not
   weight by `inclusion_prob`.
+
 - [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
   [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
   and the `fp_occu_dyn` and `fp_sim_dyn` classes and their methods are
@@ -20,13 +31,17 @@
   joined the stable interface after 2.2.0 was released without changes
   to them (see
   [`help("crywolf-api")`](https://provetelab.org/crywolf/reference/crywolf-api.md)).
+
 - New article `how-crywolf-works`: what the model does and why it needs
   verified or confirmed data, in figures and without equations.
+
 - The site has a three-page cheat sheet, in the tab “Cheat sheet”, with
   the figures of that article.
+
 - New dataset `pika`: surveys of the American pika by Goldman et
   al. (2023), used in
   [`vignette("dynamic")`](https://provetelab.org/crywolf/articles/dynamic.md).
+
 - [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   warns about occasions that are both in `verified` and confirmed rows
   of `auto`, which enter the likelihood twice. That is correct only for
@@ -34,6 +49,7 @@
   They are compared by site and `occasion_id` (and species with
   `species`, season with `season`) when both tables have an
   `occasion_id` column, as in a ‘sheepdog’ export.
+
 - [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
   (in development) gains `by_species`: the slopes of `det`, the slopes
   of `fp` and the intercept of the verified method can vary by species,
@@ -45,6 +61,7 @@
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) and
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
   do not change.
+
 - Outputs of
   [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
   (in development):
@@ -61,6 +78,7 @@
   species by species, with the values of each species in the same
   posterior draws; the R log-likelihood of each species equals the
   `log_lik` of the Stan program.
+
 - [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
   (in development) gains random effects on the logit of the
   false-positive rate: `fp_group` names a column of the sites that
@@ -72,6 +90,7 @@
   [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
   gains `ngroup`, `sd_fp_group` and `sd_fp_site`, and `psi_rare`, the
   occupancy of the first species, to make it rare.
+
 - [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
   (in development) gains `centered_occ`: `TRUE` uses a centred
   parametrization of the occupancy coefficients of the species, for data
@@ -82,6 +101,7 @@
   the share of converged fits from 10% to 75%, and the remaining
   failures came from the occupancy intercept; with `centered_occ = TRUE`
   as well, all 20 fits converged (article `multispecies`).
+
 - [`predict()`](https://rdrr.io/r/stats/predict.html) for `fp_occu_ms`
   fits (in development): the occupancy probability or the false-positive
   rate of each species, from its own coefficients, for new covariates or

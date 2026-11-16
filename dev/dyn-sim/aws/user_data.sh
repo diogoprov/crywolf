@@ -1,6 +1,6 @@
 #!/bin/bash
 # EC2 user data (Amazon Linux 2023, x86_64). Placeholders __BUCKET__, __RUN__,
-# __SCRIPT__, __JOBS__, __WORKERS__, __REPS__ and __MAX_HOURS__ are filled in
+# __SCRIPT__, __JOBS__, __WORKERS__, __REPS__, __MAX_HOURS__ and __GRID_CELLS__ are filled in
 # by aws/launch_spot.sh.
 # Runs dev/dyn-sim/run_sims.R inside the Docker image (adapted from fpcalib), resuming from the job files
 # saved in S3; checkpoints the job folder every 10 min and on a spot
@@ -14,6 +14,7 @@ JOBS=__JOBS__
 WORKERS=__WORKERS__
 REPS=__REPS__
 MAX_HOURS=__MAX_HOURS__
+GRID_CELLS=__GRID_CELLS__
 # watchdog: terminate after MAX_HOURS whatever happens (shutdown = terminate)
 shutdown -h +$((MAX_HOURS * 60))
 WORK=/opt/crywolf
@@ -54,9 +55,10 @@ checkpoint() {
 ) &
 
 cd ${WORK}
-echo "instance ${ID} $(date); ${SCRIPT} WORKERS=${WORKERS} REPS=${REPS:-default}; $(ls ${JOBS} | wc -l) job files resumed" > ${LOG}
+echo "instance ${ID} $(date); ${SCRIPT} WORKERS=${WORKERS} REPS=${REPS:-default} GRID_CELLS=${GRID_CELLS:-all}; $(ls ${JOBS} | wc -l) job files resumed" > ${LOG}
 REPS_ENV=""
 [ -n "${REPS}" ] && REPS_ENV="-e REPS=${REPS}"
+[ -n "${GRID_CELLS}" ] && REPS_ENV="${REPS_ENV} -e GRID_CELLS=${GRID_CELLS}"
 # a job file cut short by an interruption cannot be read: drop it so the task
 # runs again. R allows 128 connections by default and each future worker
 # takes one, so raise the limit for the large instances.

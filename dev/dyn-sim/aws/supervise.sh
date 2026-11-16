@@ -11,15 +11,23 @@ MAXR=${MAXR:-5}
 cd "$(git rev-parse --show-toplevel)"
 S3=s3://${BUCKET}/fpcalib/runs/${RUN}
 marker() { aws s3 ls "${S3}/$1" >/dev/null 2>&1; }
-state() { aws ec2 describe-instances --instance-ids "$1" \
-  --query 'Reservations[].Instances[].State.Name' --output text 2>/dev/null || echo gone; }
+# "unknown" when the query fails (expired credentials, no network): wait
+# instead of relaunching; "gone" when the instance no longer exists
+describe() { aws ec2 describe-instances --instance-ids "$1" \
+  --query 'Reservations[].Instances[].State.Name' --output text; }
+state() {
+  local out
+  if out=$(describe "$1" 2>/dev/null); then echo "${out:-gone}"
+  elif describe "$1" 2>&1 | grep -q InvalidInstanceID; then echo gone
+  else echo unknown; fi
+}
 n=0
 while true; do
   if marker DONE; then echo "${RUN}: finished ($(date))"; exit 0; fi
   if marker FAILED; then echo "${RUN}: script failed, see ${S3}/logs/ ($(date))"; exit 1; fi
   s=$(state "$ID")
   case "$s" in
-    running|pending) sleep 300; continue;;
+    running|pending|unknown) sleep 300; continue;;
   esac
   [ "$n" -ge "$MAXR" ] && { echo "${RUN}: gave up after ${n} relaunches ($(date))"; exit 1; }
   n=$((n + 1))

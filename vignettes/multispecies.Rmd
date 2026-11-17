@@ -419,6 +419,55 @@ p-value was `r signif(min(res$sbc$chisq_p), 2)`, which is not small after
 species, half-Normal with scale `species_sd = 1`, therefore showed no sign
 of miscalibration.
 
+## A dataset of real size
+
+The simulations above used 100 sites and 10 occasions. To measure the cost
+of a real study, 20 species were simulated with `simulate_fp_ms()` on the
+design of the `curiango` data: 1753 site-nights with 56 one-minute
+recordings each, and about a quarter of the site-nights verified on 3
+recordings. The script is `dev/ms-sim/cost_real.R`. The model was fitted
+with `centered = TRUE`, `centered_occ = TRUE` and `adapt_delta = 0.95`.
+
+```{r cost-setup, include = FALSE}
+ct <- res$cost_threads
+cf <- res$cost_full
+cf0 <- cf[cf$sd_recorder == 0, ]
+```
+
+### Threads
+
+`fp_occu_ms()` splits the likelihood of each chain among
+`threads_per_chain` threads. On one chain, the time per gradient fell as
+follows.
+
+```{r cost-threads, echo = FALSE}
+knitr::kable(data.frame(threads_per_chain = ct$threads,
+                        seconds_per_gradient = signif(ct$sec_per_gradient, 2),
+                        speed_up = round(ct$sec_per_gradient[1] / ct$sec_per_gradient, 1)))
+```
+
+Eight threads made each gradient
+`r round(ct$sec_per_gradient[1] / ct$sec_per_gradient[ct$threads == 8], 1)`
+times faster than one thread. Sixteen threads added little. With four
+chains, a machine with 32 cores therefore runs the chains side by side
+with 8 threads each. The default, `threads_per_chain = "auto"`, divides the
+cores of the machine among the chains in this way.
+
+### Time and convergence
+
+With 4 chains of 1000 warm-up and 1000 sampling iterations and 8 threads
+per chain, the fit took
+`r round(cf0$hours, 1)` hours. A sampling iteration needed on average
+`r round(cf0$leapfrog)` leapfrog steps. The 95% intervals contained the
+true value for `r pct(cf0$coverage)` of the `r cf0$n_params` parameters
+with a true value. The largest R-hat was `r round(cf0$max_rhat, 3)`.
+
+<!-- TODO(full-sdrec): the fit had `r cf0$divergences` divergent
+transitions, `r cf0$chain_max_divergences` of them in one chain, and the
+smallest bulk ESS (`r round(cf0$min_ess_bulk)`) was that of `sd_recorder`,
+whose true value was 0. Fill in once the fit with sd_recorder = 0.5 ends
+(PR #43): whether the divergences come from that boundary. -->
+
 ## References
 
 Dorazio, R. M., & Royle, J. A. (2005). Estimating size and composition of

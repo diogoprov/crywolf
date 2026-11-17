@@ -5,7 +5,7 @@
 # 7001, a_bio = 0.5, otherwise its defaults), fitted with centered = TRUE and
 # centered_occ = TRUE.
 #
-# Two tasks, each saved in JOB_DIR as soon as it ends and skipped on a rerun:
+# Three tasks, each saved in JOB_DIR as soon as it ends and skipped on a rerun:
 #   threads   one chain of 20 + 20 iterations with THREADS threads per chain
 #             (default 1, 2, 4, 8 and 16): seconds per gradient (leapfrog
 #             step) in the sampling iterations, by threads.
@@ -13,6 +13,11 @@
 #             adapt_delta = 0.95, WORKERS / 4 threads per chain: time,
 #             leapfrog steps, divergences, treedepth, R-hat and ESS, and the
 #             estimates of the parameters with a true value.
+#   full-sdrec  the same fit on data simulated with recorder effects
+#             (sd_recorder = 0.5, same seed). In "full" the true sd_recorder
+#             is 0, at the boundary of the random effect the model
+#             estimates; this task tells whether the divergences of "full"
+#             come from that boundary.
 #
 # Run from the package root, with crywolf installed from this checkout:
 #   WORKERS=32 Rscript dev/ms-sim/cost_real.R
@@ -26,11 +31,15 @@ threads <- as.integer(strsplit(Sys.getenv("THREADS", "1,2,4,8,16"), ",")[[1]])
 job_dir <- Sys.getenv("JOB_DIR", file.path("dev", "ms-sim", "cost-jobs"))
 dir.create(job_dir, showWarnings = FALSE, recursive = TRUE)
 
-s <- simulate_fp_ms(nspecies = 20, nsite = 1753, nocc = 56, a_bio = 0.5,
-                    frac_verified = 0.23, nver = 3, seed = 7001)
+sim <- function(sd_recorder) {
+  simulate_fp_ms(nspecies = 20, nsite = 1753, nocc = 56, a_bio = 0.5,
+                 frac_verified = 0.23, nver = 3, sd_recorder = sd_recorder,
+                 seed = 7001)
+}
+s <- sim(0)
 message("automated rows ", nrow(s$data$auto), ", verified rows ", nrow(s$data$verified))
 
-fit <- function(chains, threads, warm, samp) {
+fit <- function(chains, threads, warm, samp, s) {
   t0 <- Sys.time()
   m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, fp = ~ 1, centered = TRUE,
                   centered_occ = TRUE, chains = chains, parallel_chains = chains,
@@ -42,7 +51,7 @@ fit <- function(chains, threads, warm, samp) {
 f <- file.path(job_dir, "threads.rds")
 if (!file.exists(f)) {
   res <- do.call(rbind, lapply(threads, function(th) {
-    r <- fit(1, th, 20, 20)
+    r <- fit(1, th, 20, 20, s)
     d <- r$m$fit$sampler_diagnostics(format = "df")
     data.frame(threads = th, seconds = r$secs,
                sampling_seconds = r$m$fit$time()$chains$sampling,
@@ -53,9 +62,8 @@ if (!file.exists(f)) {
   saveRDS(res, f)
 }
 
-f <- file.path(job_dir, "full.rds")
-if (!file.exists(f)) {
-  r <- fit(4, max(1, workers %/% 4), iter, iter)
+full <- function(s) {
+  r <- fit(4, max(1, workers %/% 4), iter, iter, s)
   d <- r$m$fit$sampler_diagnostics(format = "df")   # sampling iterations
   tab <- summary(r$m)$table
   out <- list(seconds = r$secs, threads_per_chain = max(1, workers %/% 4),
@@ -63,5 +71,11 @@ if (!file.exists(f)) {
               sampler = as.data.frame(d), diagnostics = r$m$diagnostics,
               table = as.data.frame(tab), truth = s$truth$pars)
   print(out[c("seconds", "threads_per_chain", "chain_seconds", "diagnostics")])
-  saveRDS(out, f)
+  out
 }
+
+f <- file.path(job_dir, "full.rds")
+if (!file.exists(f)) saveRDS(full(s), f)
+
+f <- file.path(job_dir, "full-sdrec.rds")
+if (!file.exists(f)) saveRDS(full(sim(0.5)), f)

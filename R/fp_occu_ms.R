@@ -100,9 +100,9 @@
 #' over the pairs of site and species in parallel, on `threads_per_chain`
 #' threads. On simulated data of 20 species with the design of the
 #' `curiango` data (1753 site-nights of 56 recordings), 8 threads per chain
-#' made each gradient 5 times faster than one thread, and 16 threads added
-#' little; 4 chains of 1000 warm-up and 1000 sampling iterations, side by
-#' side with 8 threads each, took about 9.5 hours on 32 cores. The default,
+#' made each gradient 5 times faster than one thread, and 16 threads 7
+#' times faster. Four chains of 1000 warm-up and 1000 sampling iterations,
+#' side by side with 8 threads each, took about 9.5 hours on 32 cores. The default,
 #' `threads_per_chain = "auto"`, divides the cores among the chains in this
 #' way. See `vignette("multispecies", package = "crywolf")`.
 #' @seealso [fp_data()], [fp_occu()], [simulate_fp_ms()], [fp_richness()]

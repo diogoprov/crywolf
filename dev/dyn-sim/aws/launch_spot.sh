@@ -16,6 +16,8 @@
 #   cheapest spot price; otherwise EC2 chooses.
 # MARKET (environment, optional): "ondemand" launches an on-demand instance
 #   instead of spot (no interruptions, higher price; on-demand quota).
+# GRID_CELLS (environment, optional): passed to the script (cells of the
+#   grid of dev/ms-sim/run_sims.R to run).
 set -euo pipefail
 BUCKET=$1; RUN=$2; SCRIPT=$3; TYPE=$4; WORKERS=$5; ROLE=$6; MAX_HOURS=${7:-12}; REPS=${8:-}
 cd "$(git rev-parse --show-toplevel)"
@@ -25,7 +27,8 @@ aws s3 ls "s3://${BUCKET}/fpcalib/runs/${RUN}/code.tar.gz" >/dev/null || \
 UD=$(mktemp)
 sed -e "s|__BUCKET__|${BUCKET}|" -e "s|__RUN__|${RUN}|" -e "s|__SCRIPT__|${SCRIPT}|" \
   -e "s|__JOBS__|${JOBS}|" -e "s|__WORKERS__|${WORKERS}|" -e "s|__REPS__|${REPS}|" \
-  -e "s|__MAX_HOURS__|${MAX_HOURS}|" dev/dyn-sim/aws/user_data.sh > "${UD}"
+  -e "s|__MAX_HOURS__|${MAX_HOURS}|" -e "s|__GRID_CELLS__|${GRID_CELLS:-}|" \
+  dev/dyn-sim/aws/user_data.sh > "${UD}"
 
 # latest Amazon Linux 2023 AMI (x86_64), looked up without SSM permissions
 AMI=$(aws ec2 describe-images --owners amazon \

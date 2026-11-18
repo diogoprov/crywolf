@@ -481,8 +481,24 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
 | Falso positivo por grupo × espécie (`fp_group`) e por unidade (`random_fp`) (#32) | feito |
 | Simulações e SBC na AWS, vinheta `multispecies` (PR 5, #34) | feito com o desenho reduzido de 11/11 (SBC com 200 réplicas, não 1.000); SBC sem sinal de má calibração |
 | Parametrização centrada (`centered`, `centered_occ`) (#34, #36) | feito; 50 espécies: convergência 10% (padrão), 75% (`centered`), 100% (os dois) |
-| Custo num conjunto do tamanho da curiango; `threads_per_chain` | não feito: as simulações usaram 100 sítios × 10 ocasiões, uma thread por cadeia |
+| Custo num conjunto do tamanho da curiango; `threads_per_chain` | feito em 17/11/2026 (#44): 8 threads por cadeia, 9,5 h em 32 núcleos; 42 divergências, a explicar com o ajuste `full-sdrec` (#43) |
 | Dados reais (FrogNet) | à espera do depósito no Zenodo |
+
+### Atualização de 17/11/2026
+
+- **O FrogNet deixou de ser critério para sair de "em desenvolvimento"**
+  (decidido pelo Diogo em 17/11/2026). O passo 4 vira uma versão posterior
+  da vinheta, depois do depósito no Zenodo. O passo 5 passa a depender só
+  dos passos 2 e 3.
+- **Passo 3**: feito no #44 (vinheta e `?fp_occu_ms`). Falta um parágrafo:
+  se as 42 divergências vêm da fronteira de `sd_recorder` em 0 (verdadeiro
+  0 na simulação). O ajuste `full-sdrec`, com `sd_recorder = 0.5`, roda na
+  AWS (run `crywolf-ms-cost`).
+- **Passo 2**: a grade (`dev/ms-sim/run_sims.R`, 23 células, 20 réplicas)
+  roda na AWS em on-demand: células 1–18 (run `crywolf-ms`), 21–22
+  (`crywolf-ms-long`) e 23 (`crywolf-ms-c23`). A célula 19 (`ms`, 20
+  espécies × 300 sítios) ficou de fora por custo (16/11/2026). Com a grade,
+  a regra do padrão sai do `summarise.R` e entra na vinheta.
 
 ### Próximos passos do multiespécies (proposta de 14/11/2026, a decidir)
 

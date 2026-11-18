@@ -190,6 +190,19 @@ adds `sd_verified_(Intercept)`, `verified_(Intercept)[species]` and
 the false-positive rate are `sd_fp_group` (`fp_group`) and `sd_fp_site`
 (`random_fp`).
 
+**Time and threads.** Each gradient evaluates the likelihood of every
+pair of site and species, so its cost grows with the number of species.
+The likelihood of each chain is summed over the pairs of site and
+species in parallel, on `threads_per_chain` threads. On simulated data
+of 20 species with the design of the `curiango` data (1753 site-nights
+of 56 recordings), 8 threads per chain made each gradient 5 times faster
+than one thread, and 16 threads 7 times faster. Four chains of 1000
+warm-up and 1000 sampling iterations, side by side with 8 threads each,
+took about 9.5 hours on 32 cores. The default,
+`threads_per_chain = "auto"`, divides the cores among the chains in this
+way. See
+[`vignette("multispecies", package = "crywolf")`](https://provetelab.org/crywolf/articles/multispecies.md).
+
 ## See also
 
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),

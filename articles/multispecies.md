@@ -459,6 +459,49 @@ the true values among 99 posterior draws were tested for uniformity in
 deviations among species, half-Normal with scale `species_sd = 1`,
 therefore showed no sign of miscalibration.
 
+## A dataset of real size
+
+The simulations above used 100 sites and 10 occasions. To measure the
+cost of a real study, 20 species were simulated with
+[`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
+on the design of the `curiango` data: 1753 site-nights with 56
+one-minute recordings each, and about a quarter of the site-nights
+verified on 3 recordings. The script is `dev/ms-sim/cost_real.R`. The
+model was fitted with `centered = TRUE`, `centered_occ = TRUE` and
+`adapt_delta = 0.95`.
+
+### Threads
+
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+splits the likelihood of each chain among `threads_per_chain` threads.
+On one chain, the time per gradient fell as follows.
+
+| threads_per_chain | seconds_per_gradient | speed_up |
+|------------------:|---------------------:|---------:|
+|                 1 |                0.590 |      1.0 |
+|                 2 |                0.340 |      1.7 |
+|                 4 |                0.190 |      3.1 |
+|                 8 |                0.120 |      5.0 |
+|                16 |                0.084 |      7.1 |
+
+Eight threads made each gradient 5 times faster than one thread, and
+sixteen threads 7.1 times faster. With four chains, a machine with 32
+cores therefore runs the chains side by side with 8 threads each. The
+default, `threads_per_chain = "auto"`, divides the cores of the machine
+among the chains in this way.
+
+### Time and convergence
+
+With 4 chains of 1000 warm-up and 1000 sampling iterations and 8 threads
+per chain, the fit took 9.5 hours. A sampling iteration needed on
+average 50 leapfrog steps. The 95% intervals contained the true value
+for 95% of the 131 parameters with a true value. The largest R-hat was
+1.011.
+
+The fit had 42 divergent transitions, 34 of them in one chain. By the
+criterion used above, it therefore did not converge. The smallest bulk
+ESS (339) was that of `sd_recorder`, whose true value was 0.
+
 ## References
 
 Dorazio, R. M., & Royle, J. A. (2005). Estimating size and composition

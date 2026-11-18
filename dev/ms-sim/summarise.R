@@ -91,6 +91,26 @@ if (!is.null(sbc)) {
   res$sbc_fits <- c(n = length(unique(sbc$rep)), failed = length(unique(sbc$rep[!sbc$ok])),
                     with_divergences = length(unique(ok$rep[ok$divergences > 0])))
 }
+# cost on a dataset of real size (dev/ms-sim/cost_real.R): seconds per
+# gradient by threads, and one row per full fit
+cost_dir <- file.path("dev", "ms-sim", "cost-jobs")
+if (file.exists(file.path(cost_dir, "threads.rds"))) {
+  res$cost_threads <- readRDS(file.path(cost_dir, "threads.rds"))
+}
+cost_full <- function(task, sd_recorder) {
+  f <- file.path(cost_dir, paste0(task, ".rds"))
+  if (!file.exists(f)) return(NULL)
+  o <- readRDS(f)
+  tab <- merge(o$table, data.frame(variable = names(o$truth), truth = unname(o$truth)))
+  data.frame(sd_recorder = sd_recorder, threads_per_chain = o$threads_per_chain,
+             hours = o$seconds / 3600, leapfrog = mean(o$sampler$n_leapfrog__),
+             divergences = o$diagnostics$divergences,
+             chain_max_divergences = max(tapply(o$sampler$divergent__, o$sampler$.chain, sum)),
+             max_rhat = o$diagnostics$max_rhat, min_ess_bulk = o$diagnostics$min_ess_bulk,
+             n_params = nrow(tab),
+             coverage = mean(tab$lower <= tab$truth & tab$truth <= tab$upper))
+}
+res$cost_full <- rbind(cost_full("full", 0), cost_full("full-sdrec", 0.5))
 saveRDS(res, file.path("vignettes", "multispecies-results.rds"))
 
 md <- function(x, digits = 3) {

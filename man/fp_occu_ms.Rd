@@ -148,6 +148,18 @@ adds \code{sd_verified_(Intercept)}, \code{verified_(Intercept)[species]} and
 \code{p_verified[species]}. The standard deviations of the random effects on
 the false-positive rate are \code{sd_fp_group} (\code{fp_group}) and \code{sd_fp_site}
 (\code{random_fp}).
+
+\strong{Time and threads.} Each gradient evaluates the likelihood of every
+pair of site and species, so its cost grows with the number of species.
+The likelihood of each chain is summed
+over the pairs of site and species in parallel, on \code{threads_per_chain}
+threads. On simulated data of 20 species with the design of the
+\code{curiango} data (1753 site-nights of 56 recordings), 8 threads per chain
+made each gradient 5 times faster than one thread, and 16 threads 7
+times faster. Four chains of 1000 warm-up and 1000 sampling iterations,
+side by side with 8 threads each, took about 9.5 hours on 32 cores. The default,
+\code{threads_per_chain = "auto"}, divides the cores among the chains in this
+way. See \code{vignette("multispecies", package = "crywolf")}.
 }
 \examples{
 \dontrun{

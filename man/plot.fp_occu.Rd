@@ -38,13 +38,16 @@ A 'ggplot2' object (for \code{"pairs"}, a 'bayesplot' grid).
 Posterior intervals of the coefficients, or sampler diagnostics.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
 plot(m)
 plot(m, type = "trace")
 plot(m, type = "pairs", pars = c("fp_(Intercept)", "fp_gap"))
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_effects]{fp_effects()}}, \code{\link[=fp_sites]{fp_sites()}}, \code{\link[=plot.fp_ppc]{plot.fp_ppc()}}

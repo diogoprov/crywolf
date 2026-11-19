@@ -15,10 +15,15 @@ fp_compile(force = FALSE, quiet = TRUE)
 A \code{CmdStanModel} object (invisibly).
 }
 \description{
-Compiles the false-positive occupancy model the first time it is needed and
-keeps the executable in the user cache directory
+Loads the false-positive occupancy model compiled when the package was
+installed from source. A binary package, or an installation without
+CmdStan, comes without it: the model is then compiled the first time it
+is needed and kept in the user cache directory
 (\code{tools::R_user_dir("crywolf", "cache")}), so later sessions load it
-without recompiling. \code{\link[=fp_occu]{fp_occu()}} calls this function itself; call it
+without recompiling. The cache holds only the Stan program and its
+executable, and a new version of the program replaces them. Under
+\verb{R CMD check} the cache is in \code{\link[=tempdir]{tempdir()}}, so nothing is written to the
+user's filespace. \code{\link[=fp_occu]{fp_occu()}} calls this function itself; call it
 directly to compile ahead of time, for example before launching parallel
 workers in \code{\link[=fp_calibrate]{fp_calibrate()}}.
 }
@@ -28,7 +33,9 @@ The model is compiled with threading enabled (\code{stan_threads}), so that
 (argument \code{threads_per_chain}).
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 fp_compile()
 }
+\dontshow{\}) # examplesIf}
 }

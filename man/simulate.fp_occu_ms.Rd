@@ -40,12 +40,15 @@ recorders, which occasions were verified or checked), as
 \code{\link[=fp_occu_ms]{fp_occu_ms()}}.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
-m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+                chains = 2, threads_per_chain = 1)
 new <- simulate(m, nsim = 2, seed = 1)
 new[[1]]$truth$pars
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_occu_ms]{fp_occu_ms()}}, \code{\link[=simulate_fp_ms]{simulate_fp_ms()}}

@@ -83,13 +83,16 @@ the verified method (\code{p_verified}), and, for models that include the
 confusing gradient \code{w}, its effect on the false-positive rate (\code{fp_w}).
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 design <- data.frame(p10 = 0.05, conf_effect = c(0, 1.5), conf_cor = 0.7)
 cal <- fp_calibrate(design,
                     models = list(constant = ~ 1, fp_on_x = ~ x),
-                    occ = ~ x, reps = 50)
-summary(cal)
+                    occ = ~ x, reps = 5,
+                    fit_args = list(chains = 2, threads_per_chain = 1))
+summary(cal)   # use 50 or more replicates in practice
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_verification_curve]{fp_verification_curve()}}, \code{\link[=simulate_fp]{simulate_fp()}}; for dynamic designs,

@@ -95,14 +95,18 @@ path is in \code{files}. When the calibration has continuous covariates
 histories sheepdog drew, and no calibration draws.
 }
 \examples{
-\dontrun{
+\dontshow{if (requireNamespace("jsonlite", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+# a small export of sheepdog with three species, shipped with crywolf
+dir <- system.file("extdata", "sheepdog-export", package = "crywolf")
 # the tables hold only the target species, so fp_aggregate() needs no
-# `species`
-x <- fp_read_sheepdog("occupancy_export", species = "compau")
+# `species`; the reviewed clips of this export are top-scoring clips,
+# dropped with a warning, so no detection is confirmed
+x <- fp_read_sheepdog(dir, species = "phy_cuv")
 auto <- fp_aggregate(x$occasions, x$detections, threshold = 0.5,
                      by = c("site", "occasion_id"), validation = x$validation)
-d <- fp_data(auto, x$sites, x$verified, confirmed = c("n_true", "n_false"))
-}
+d <- fp_data(auto, x$sites)
+d
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_aggregate]{fp_aggregate()}}, \code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_read_validation]{fp_read_validation()}}

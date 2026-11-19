@@ -37,12 +37,15 @@ species drawn as present. The species are those of the model: a species
 never detected anywhere is not in the list and is not counted.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 s <- simulate_fp_ms(nspecies = 5, nsite = 60, seed = 1)
-m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+                chains = 2, threads_per_chain = 1)
 r <- fp_richness(m)
 plot(rowSums(s$truth$z), r$richness)
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_occu_ms]{fp_occu_ms()}}, \code{\link[=fp_sites]{fp_sites()}}

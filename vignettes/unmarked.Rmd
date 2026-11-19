@@ -104,7 +104,8 @@ method covariate is needed:
 
 ```{r crywolf, eval = has_stan}
 d <- fp_data_wide(y_auto, y_ver, site_covs = data.frame(x = x))
-m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, threads_per_chain = 1, seed = 1)
+m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, threads_per_chain = 1, parallel_chains = 2,
+seed = 1)
 coef(m_cw)
 ```
 

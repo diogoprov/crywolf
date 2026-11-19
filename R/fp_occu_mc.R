@@ -100,8 +100,8 @@
 #' See [crywolf-api].
 #'
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' # three versions of a simulated dataset, with detections switched off at
 #' # random as if they had been judged false
 #' sim <- simulate_fp(nsite = 100, nocc = 8, seed = 1)
@@ -113,7 +113,7 @@
 #'   d
 #' })
 #' mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-#'                  threads_per_chain = 1, seed = 1)
+#'                  chains = 2, threads_per_chain = 1, seed = 1)
 #' summary(mc)
 #'
 #' # several species, from a 'sheepdog' export

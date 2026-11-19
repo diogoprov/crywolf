@@ -58,12 +58,13 @@
 #' sensitivity. *Bayesian Analysis*, 20, 461–488. \doi{10.1214/23-BA1404}
 #' @seealso [fp_calibrate()], [fp_prior_predictive()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 100, nocc = 10, seed = 1)
 #' sbc <- fp_sbc(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-#'               reps = 100, parallel = TRUE)
-#' summary(sbc)
+#'               reps = 10,
+#'               fit_args = list(chains = 2, threads_per_chain = 1))
+#' summary(sbc)   # use 100 or more replicates in practice
 #' plot(sbc)
 #' }
 fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NULL,

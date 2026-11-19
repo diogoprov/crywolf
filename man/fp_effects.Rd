@@ -51,12 +51,15 @@ one covariate, with the other covariates of that process held at their
 means (numeric) or first level (factors) over the sites.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
 plot(fp_effects(m, "x"))
 plot(fp_effects(m, "x", process = "fp"))
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=predict.fp_occu]{predict.fp_occu()}}

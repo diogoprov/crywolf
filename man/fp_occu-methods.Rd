@@ -117,9 +117,11 @@ Summaries, point estimates, predictions, and model comparison for objects
 returned by \code{\link[=fp_occu]{fp_occu()}}.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
 m                                   # posterior summary and diagnostics
 summary(m, prob = 0.9)$table
 coef(m, "occ")
@@ -127,4 +129,5 @@ predict(m, newdata = data.frame(x = c(-1, 0, 1)), process = "occ")
 loo(m)
 draws <- as_draws_df(m)
 }
+\dontshow{\}) # examplesIf}
 }

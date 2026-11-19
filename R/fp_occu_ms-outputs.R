@@ -30,10 +30,11 @@
 #'   species whose presence a verified detection proves).
 #' @seealso [fp_occu_ms()], [fp_sites()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' s <- simulate_fp_ms(nspecies = 5, nsite = 60, seed = 1)
-#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+#'                 chains = 2, threads_per_chain = 1)
 #' r <- fp_richness(m)
 #' plot(rowSums(s$truth$z), r$richness)
 #' }
@@ -158,10 +159,11 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
 #'   as the rows of that data frame.
 #' @seealso [fp_occu_ms()], [predict.fp_occu()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
-#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+#'                 chains = 2, threads_per_chain = 1)
 #' predict(m, newdata = data.frame(x = c(-1, 0, 1)))
 #' }
 predict.fp_occu_ms <- function(object, newdata, process = c("occ", "fp"), species = NULL,
@@ -251,10 +253,11 @@ predict.fp_occu_ms <- function(object, newdata, process = c("occ", "fp"), specie
 #'   (or from the posterior means).
 #' @seealso [fp_occu_ms()], [simulate_fp_ms()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
-#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+#'                 chains = 2, threads_per_chain = 1)
 #' new <- simulate(m, nsim = 2, seed = 1)
 #' new[[1]]$truth$pars
 #' }

@@ -166,14 +166,14 @@ side by side with 8 threads each, took about 9.5 hours on 32 cores. The default,
 way. See \code{vignette("multispecies", package = "crywolf")}.
 }
 \examples{
-\dontrun{
-# name every species to keep (`schema.json` lists them)
-x <- fp_read_sheepdog("occupancy_export",
-                      species = c("ela_bic", "lep_fus", "phy_cuv"))
-d <- fp_draws_data(x, n_draws = 1)[[1]]
-m <- fp_occu_ms(d, fp = ~ 1)
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
+s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
+m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+                chains = 2, threads_per_chain = 1)
 m
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_occu]{fp_occu()}}, \code{\link[=simulate_fp_ms]{simulate_fp_ms()}}, \code{\link[=fp_richness]{fp_richness()}}

@@ -111,13 +111,11 @@
 #' way. See `vignette("multispecies", package = "crywolf")`.
 #' @seealso [fp_data()], [fp_occu()], [simulate_fp_ms()], [fp_richness()]
 #' @export
-#' @examples
-#' \dontrun{
-#' # name every species to keep (`schema.json` lists them)
-#' x <- fp_read_sheepdog("occupancy_export",
-#'                       species = c("ela_bic", "lep_fus", "phy_cuv"))
-#' d <- fp_draws_data(x, n_draws = 1)[[1]]
-#' m <- fp_occu_ms(d, fp = ~ 1)
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
+#' s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
+#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+#'                 chains = 2, threads_per_chain = 1)
 #' m
 #' }
 fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,

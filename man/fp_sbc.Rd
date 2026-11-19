@@ -88,13 +88,16 @@ kept by the simulation.
 coarse; look at the histograms from \code{\link[=plot]{plot()}} as well.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 100, nocc = 10, seed = 1)
 sbc <- fp_sbc(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-              reps = 100, parallel = TRUE)
-summary(sbc)
+              reps = 10,
+              fit_args = list(chains = 2, threads_per_chain = 1))
+summary(sbc)   # use 100 or more replicates in practice
 plot(sbc)
 }
+\dontshow{\}) # examplesIf}
 }
 \references{
 Talts, S., Betancourt, M., Simpson, D., Vehtari, A., & Gelman, A. (2018).

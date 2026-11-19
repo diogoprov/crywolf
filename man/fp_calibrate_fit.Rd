@@ -71,15 +71,19 @@ for large datasets; each fit runs on one thread per chain unless
 \code{fit_args} sets \code{threads_per_chain}.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 1)
-m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+               chains = 2, threads_per_chain = 1)
 cal <- fp_calibrate_fit(m_x, models = list(constant = ~ 1, fp_on_x = ~ x),
-                        reps = 20)
+                        reps = 5,
+                        fit_args = list(chains = 2, threads_per_chain = 1))
 summary(cal)
 plot(cal, parameter = "occ_x")
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_calibrate]{fp_calibrate()}}, \code{\link[=simulate.fp_occu]{simulate.fp_occu()}}

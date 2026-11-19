@@ -94,12 +94,20 @@
 #' See [crywolf-api].
 #'
 #' @export
-#' @examples
-#' \dontrun{
-#' x <- fp_read_sheepdog("occupancy_export", species = "nyc_alb")
-#' versions <- fp_draws_data(x, n_draws = 20, seed = 1)
-#' mc <- fp_occu_mc(versions, occ = ~ 1, fp = NULL, threads_per_chain = 1)
-#' summary(mc)
+#' @examplesIf requireNamespace("jsonlite", quietly = TRUE) && requireNamespace("arrow", quietly = TRUE)
+#' dir <- system.file("extdata", "sheepdog-export", package = "crywolf")
+#' x <- fp_read_sheepdog(dir, species = "phy_cuv")
+#' # the calibration of this export has a continuous covariate, so the
+#' # histories are those sheepdog drew
+#' versions <- fp_draws_data(x, n_draws = 5)
+#' versions[[1]]
+#' \donttest{
+#' # the export has no verified data, so the model without false positives
+#' if (instantiate::stan_cmdstan_exists()) {
+#'   mc <- fp_occu_mc(versions, occ = ~ 1, fp = NULL, chains = 2,
+#'                    threads_per_chain = 1)
+#'   summary(mc)
+#' }
 #' }
 fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
                           n_draws = NULL, seed = NULL, occasions = x$occasions,

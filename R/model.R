@@ -4,10 +4,15 @@
 
 #' Compile (or load) the Stan model
 #'
-#' Compiles the false-positive occupancy model the first time it is needed and
-#' keeps the executable in the user cache directory
+#' Loads the false-positive occupancy model compiled when the package was
+#' installed from source. A binary package, or an installation without
+#' CmdStan, comes without it: the model is then compiled the first time it
+#' is needed and kept in the user cache directory
 #' (`tools::R_user_dir("crywolf", "cache")`), so later sessions load it
-#' without recompiling. [fp_occu()] calls this function itself; call it
+#' without recompiling. The cache holds only the Stan program and its
+#' executable, and a new version of the program replaces them. Under
+#' `R CMD check` the cache is in [tempdir()], so nothing is written to the
+#' user's filespace. [fp_occu()] calls this function itself; call it
 #' directly to compile ahead of time, for example before launching parallel
 #' workers in [fp_calibrate()].
 #'
@@ -20,12 +25,22 @@
 #'
 #' @return A `CmdStanModel` object (invisibly).
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' fp_compile()
 #' }
 fp_compile <- function(force = FALSE, quiet = TRUE) {
   .compile_model("fp_occu", force = force, quiet = quiet)
+}
+
+# where a model without its installed executable is compiled: the user cache,
+# or the session's temporary directory under R CMD check, which must not
+# write to the user's filespace
+.cache_dir <- function() {
+  if (nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))) {
+    return(file.path(tempdir(), "crywolf-cache"))
+  }
+  tools::R_user_dir("crywolf", which = "cache")
 }
 
 # Compiles (or loads) one of the Stan programs of the package, `fp_occu` or
@@ -45,7 +60,7 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
   if (is.null(mod) || !.has_threads(mod)) {
     # binary packages (such as those on CRAN), or an installation without a
     # recent enough CmdStan, come without it: compile once into the user cache
-    dir <- tools::R_user_dir("crywolf", which = "cache")
+    dir <- .cache_dir()
     dir.create(dir, recursive = TRUE, showWarnings = FALSE)
     # the program and the functions it includes; a change to either
     # recompiles

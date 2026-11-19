@@ -7,10 +7,11 @@
 # it detected the species (the custom score usually repeats across all windows
 # of a minute, the BirdNET score usually does not). We keep one row per minute,
 # the occasion of the occupancy model, with the maximum score over its windows. The verified data are
-# the independent ground-truth test set (CM-Custom.txt): about 1% of the
-# recordings, chosen in proportion to the effort at each site and annotated by
-# ear in 3-s segments; a minute is a verified detection if any of its segments
-# holds the species.
+# the test set (CM-Custom.txt): about 1% of the recordings, annotated by ear in
+# 3-s segments; a minute is a verified detection if any of its segments holds
+# the species. The test set of each recording (1 and 2 random draws, 3 chosen
+# by BirdNET; see ?curiango) comes from data-raw/curiango-test-sets.csv, which
+# data-raw/curiango-test-sets.R writes from folders outside the deposit.
 #
 # Run from the package root: Rscript data-raw/curiango.R
 
@@ -67,6 +68,12 @@ verified <- cm |>
   inner_join(distinct(minutes, site, key, site_night, time), by = c("site", "key")) |>
   transmute(site_night, site, time, y) |>
   arrange(site_night, time)
+
+sets <- utils::read.csv("data-raw/curiango-test-sets.csv")
+sets$time <- as.POSIXct(sets$time, tz = "America/Campo_Grande")
+verified <- left_join(verified, sets, by = c("site", "time"))
+stopifnot(!anyNA(verified$test_set))
+verified$test_set <- as.integer(verified$test_set)
 
 minutes$key <- NULL
 curiango <- list(minutes = as.data.frame(minutes),

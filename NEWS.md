@@ -7,7 +7,12 @@
   time. Under `R CMD check`, a model compiled after installation goes to
   `tempdir()` instead of the user cache.
 * Tessa Rhinehart is no longer listed as an author.
-
+* `curiango$verified` gains `test_set`, the test set each annotated
+  recording was drawn in. Sets 1 and 2 (960 recordings) are random draws; set
+  3 (239) was chosen to add detections, with information beyond the classifier
+  scores. `?curiango` described the test set as drawn in proportion to the
+  effort at each site, which holds only for sets 1 and 2; it now describes both
+  stages and advises leaving set 3 out of the verified method.
 * `fp_occu_ms()`, `simulate_fp_ms()`, `fp_richness()`, the `fp_occu_ms` and
   `fp_sim_ms` classes and their methods, and the `species` argument of
   `fp_data()` are no longer in development. Their arguments, classes and

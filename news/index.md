@@ -20,6 +20,16 @@
   ([`vignette("multispecies")`](https://provetelab.org/crywolf/articles/multispecies.md)).
   Pass `centered = FALSE, centered_occ = FALSE` for the earlier default.
 
+- [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+  fits
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  when the versions hold several species, as
+  [`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+  returns them from a multispecies export of sheepdog, and pools its
+  draws. The parametrization is chosen once for all the fits.
+  [`vignette("multispecies")`](https://provetelab.org/crywolf/articles/multispecies.md)
+  shows the path from the export to the pooled posterior.
+
 - [`vignette("multispecies")`](https://provetelab.org/crywolf/articles/multispecies.md)
   reports the cost of
   [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)

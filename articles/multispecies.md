@@ -29,6 +29,33 @@ detected: without these rows there are no non-detections. The species
 are those of the list, and none is assumed to be absent from it, since
 the model has no data augmentation for species never detected.
 
+An export of sheepdog with several species gives these tables.
+[`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
+reads the species listed in its `schema.json`, and
+[`fp_draws_data()`](https://provetelab.org/crywolf/reference/fp_draws_data.md)
+draws versions of the detection histories from the posterior of the
+calibration.
+[`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
+fits
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+to each version and pools the draws, so that the uncertainty about which
+detections are true reaches the species and community estimates:
+
+``` r
+
+x <- fp_read_sheepdog("occupancy_export",
+                      species = c("ela_bic", "lep_fus", "phy_cuv"))
+versions <- fp_draws_data(x, n_draws = 20, seed = 1)
+mc <- fp_occu_mc(versions, occ = ~ 1, fp = ~ 1, seed = 1)
+summary(mc)
+```
+
+The share of the posterior variance between versions (`share_between` in
+the summary) shows how much each estimate depends on which detections
+are taken as true. Each version is a full fit, so the cost is that of
+one fit times the number of versions (see “A dataset of real size”
+below).
+
 ### Species and community
 
 At site i, for species s and automated occasion k, the model of

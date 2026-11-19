@@ -122,6 +122,24 @@ Every recorded occasion appears for every species of the list, with
 rows there are no non-detections. The species are those of the list, and
 none is assumed to be absent from it, since the model has no data
 augmentation for species never detected.</p>
+<p>An export of sheepdog with several species gives these tables.
+<code><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog()</a></code> reads the species listed in its
+<code>schema.json</code>, and <code><a href="../reference/fp_draws_data.html">fp_draws_data()</a></code> draws
+versions of the detection histories from the posterior of the
+calibration. <code><a href="../reference/fp_occu_mc.html">fp_occu_mc()</a></code> fits <code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> to
+each version and pools the draws, so that the uncertainty about which
+detections are true reaches the species and community estimates:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog</a></span><span class="op">(</span><span class="st">"occupancy_export"</span>,</span>
+<span>                      species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ela_bic"</span>, <span class="st">"lep_fus"</span>, <span class="st">"phy_cuv"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">versions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_draws_data.html">fp_draws_data</a></span><span class="op">(</span><span class="va">x</span>, n_draws <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu_mc.html">fp_occu_mc</a></span><span class="op">(</span><span class="va">versions</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span></span></code></pre></div>
+<p>The share of the posterior variance between versions
+(<code>share_between</code> in the summary) shows how much each estimate
+depends on which detections are taken as true. Each version is a full
+fit, so the cost is that of one fit times the number of versions (see “A
+dataset of real size” below).</p>
 </div>
 <div class="section level3">
 <h3 id="species-and-community">Species and community<a class="anchor" aria-label="anchor" href="#species-and-community"></a>
@@ -197,7 +215,7 @@ reported as <code>sd_fp_site</code> (<span class="math inline">\sigma_t</span>).
 \mathrm{logit}(p_{10,is}) = \alpha_s - g_s + v_{g[i]s} + t_{is},
 \qquad t_{is} \sim \mathrm{Normal}(0, \sigma_t).
 </span></p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># sites are pond-months; the column "pond" names the physical site</span></span>
 <span><span class="va">m_fs</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu_ms.html">fp_occu_ms</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp_group <span class="op">=</span> <span class="st">"pond"</span><span class="op">)</span></span>
 <span><span class="va">m_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_occu_ms.html">fp_occu_ms</a></span><span class="op">(</span><span class="va">d</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp_group <span class="op">=</span> <span class="st">"pond"</span>,</span>
@@ -302,7 +320,7 @@ for its cost (more than 31 hours per fit).</li>
 species at 80 sites with 8 occasions, the community parameters drawn
 from the priors, 200 replicates.</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_fp_ms.html">simulate_fp_ms</a></span><span class="op">(</span>nspecies <span class="op">=</span> <span class="fl">10</span>, nsite <span class="op">=</span> <span class="fl">100</span>, nocc <span class="op">=</span> <span class="fl">10</span>, a_bio <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>                    ngroup <span class="op">=</span> <span class="fl">25</span>, sd_fp_group <span class="op">=</span> <span class="fl">0.7</span>, sd_fp_site <span class="op">=</span> <span class="fl">0.5</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">$</span><span class="va">truth</span><span class="op">$</span><span class="va">pars</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sd_fp_group"</span>, <span class="st">"sd_fp_site"</span><span class="op">)</span><span class="op">]</span></span>

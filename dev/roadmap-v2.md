@@ -516,25 +516,43 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
   as classes `fp_occu_ms` e `fp_sim_ms` e o argumento `species` do
   `fp_data()` entram na interface estável a partir da 2.3.0. Release só a
   pedido.
+- **Merge do #46 em 19/11/2026** (bcac82c no main). A versão de
+  desenvolvimento segue 2.2.0.9000. A 2.3.0 sai só a pedido do Diogo.
+
+### O que falta no multiespécies depois de 19/11/2026
+
+- **Release 2.3.0**: só a pedido. A NEWS já traz as três entradas do
+  multiespécies.
+- **FrogNet na vinheta** (passo 4): depois do depósito no Zenodo, sem
+  data.
+- **Integração com o sheepdog**: a sessão do sheepdog respondeu em
+  19/11/2026. O ρ implausível na curiango vinha da mistura de f1, e a PPC
+  ainda reprova a autocorrelação. O export-1.3-ms continua válido; o
+  esquema atual é o 1.4. Plano proposto, à espera do Diogo: (1) exemplo
+  ponta a ponta com `fp_occu_ms()` no export-1.3-ms; (2) `fp_occu_mc()`
+  aceitando `fp_occu_ms`; (3) `fp_occu_score()` com uma espécie, depois
+  do diagnóstico do ρ; (4) `fp_review_priority()`.
+- **Pontos fracos da grade**: o efeito do gravador só foi testado com 10
+  ocasiões. Designs com 10 espécies ou mais ocasiões ficaram de fora.
 
 ### Próximos passos do multiespécies (proposta de 14/11/2026, a decidir)
 
 1. **Feito em 14/11/2026.** **`predict()` para `fp_occu_ms`**: ocupação e detecção por espécie em
    novos dados, como o `predict.fp_occu()`. Pronto quando: com uma espécie,
    igual ao `predict()` do `fp_occu()`.
-2. **Padrão da parametrização**: decidir se `centered` e `centered_occ`
+2. **Feito em 19/11/2026 (#46): `"auto"` pela grade.** **Padrão da parametrização**: decidir se `centered` e `centered_occ`
    continuam `FALSE` por padrão, viram `TRUE`, ou passam a depender do
    número de ocasiões e de sítios. Hoje só há dois pontos de evidência:
    50 espécies em 100 sítios (os dois ajudam) e 2 espécies em 40 sítios
    (o β centrado piora). Uma grade pequena de simulações (sítios ×
    espécies) daria a regra; custo na AWS a estimar com piloto.
-3. **Custo e mixing com dados do tamanho real**: 20 espécies num conjunto
+3. **Feito em 17/11/2026 (#44); `full-sdrec` documentado sem rerodar.** **Custo e mixing com dados do tamanho real**: 20 espécies num conjunto
    do tamanho da curiango (ou do FrogNet), com `threads_per_chain`
    medido; documentar na vinheta e em `?fp_occu_ms`.
 4. **FrogNet na vinheta**, depois do depósito: fs como modelo principal e
    o misto como sensibilidade (decidido na sessão FrogNet em 11/11/2026),
    com `centered = TRUE`.
-5. **Sair de "em desenvolvimento"**: com 1 a 4 feitos, propor a API como
+5. **Feito em 19/11/2026 (#46), sem o passo 4.** **Sair de "em desenvolvimento"**: com 1 a 4 feitos, propor a API como
    estável numa release (2.3.0?). Release só a pedido.
 6. **Integração com o sheepdog (Fase 2, `fp_occu_score()`)**: vem depois
    da Fase A (decidido em 02/11/2026). O lado do sheepdog relatou em

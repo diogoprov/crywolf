@@ -92,3 +92,57 @@ test_that("fits that did not converge are left out, with a warning", {
   expect_error(suppressWarnings(run(min(r) - 1e-6)), "No fit converged")
   expect_error(run(NA), "single number")
 })
+
+test_that("fp_occu_mc() checks that the versions hold the same species", {
+  ms <- simulate_fp_ms(nspecies = 3, nsite = 20, nocc = 4, seed = 1)$data
+  one <- simulate_fp(nsite = 20, nocc = 4, seed = 1)$data
+  expect_error(fp_occu_mc(list(one, ms)), "same species")
+  other <- ms
+  other$species_names <- rev(other$species_names)
+  expect_error(fp_occu_mc(list(ms, other)), "same species")
+})
+
+test_that("one multispecies version reproduces fp_occu_ms()", {
+  skip_if_no_cmdstan()
+  d <- simulate_fp_ms(nspecies = 3, nsite = 40, nocc = 5, seed = 1)$data
+  args <- list(occ = ~ 1, fp = ~ 1, random_recorder = FALSE, chains = 2,
+               parallel_chains = 1, iter_warmup = 150, iter_sampling = 150,
+               threads_per_chain = 1, refresh = 0, show_messages = FALSE)
+  m1 <- suppressWarnings(suppressMessages(
+    do.call(fp_occu_ms, c(list(d, seed = 5), args))))
+  expect_message(
+    mc1 <- suppressWarnings(do.call(fp_occu_mc, c(list(list(d), seed = 5), args))),
+    "centered = FALSE, centered_occ = FALSE")
+  expect_identical(unclass(posterior::as_draws_matrix(mc1$draws)),
+                   unclass(posterior::as_draws_matrix(m1$draws)))
+  # set by the user: no message
+  expect_no_message(suppressWarnings(do.call(
+    fp_occu_mc, c(list(list(d), seed = 5, centered = FALSE, centered_occ = FALSE),
+                  args))))
+})
+
+test_that("a multispecies sheepdog export runs from end to end", {
+  skip_if_no_cmdstan()
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("arrow")
+  # schema 1.3: three species at four sites, 20 histories drawn
+  dir <- test_path("fixtures", "sheepdog-export-1.3-ms")
+  schema <- jsonlite::read_json(file.path(dir, "schema.json"), simplifyVector = TRUE)
+  x <- suppressWarnings(fp_read_sheepdog(dir, species = schema$species))
+  versions <- suppressWarnings(fp_draws_data(x, n_draws = 2))
+  mc <- suppressWarnings(suppressMessages(
+    fp_occu_mc(versions, occ = ~ 1, fp = ~ 1, random_recorder = FALSE, chains = 2,
+               parallel_chains = 1, iter_warmup = 100, iter_sampling = 100,
+               threads_per_chain = 1, seed = 1, refresh = 0, show_messages = FALSE,
+               max_rhat = Inf, keep_fits = TRUE)))
+  expect_equal(mc$n_fits, 2)
+  expect_equal(posterior::nchains(mc$draws), 4)
+  expect_s3_class(mc$fits[[1]], "fp_occu_ms")
+  # the draws are those of fp_occu_ms(), by species
+  expect_setequal(posterior::variables(mc$draws),
+                  posterior::variables(mc$fits[[1]]$draws))
+  expect_true(any(grepl("lep_fus", posterior::variables(mc$draws))))
+  t <- summary(mc)$table
+  expect_equal(t$sd^2, t$sd_within^2 + t$sd_between^2, tolerance = 0.02)
+  expect_s3_class(fp_richness(mc$fits[[1]]), "data.frame")
+})

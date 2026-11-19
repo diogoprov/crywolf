@@ -169,5 +169,4 @@ test_that("fp_data with species checks the layout and refuses other uses", {
   expect_error(fp_occu_dyn(d), "season column")
   expect_error(fp_occu(d), "several species")
   expect_error(fp_prior_predictive(d), "several species")
-  expect_error(fp_occu_mc(list(d, d)), "several species")
 })

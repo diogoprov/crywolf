@@ -162,12 +162,17 @@ mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                  chains = 2, threads_per_chain = 1, seed = 1)
 summary(mc)
 
-# several species, from a 'sheepdog' export
-x <- fp_read_sheepdog("occupancy_export",
-                      species = c("ela_bic", "lep_fus", "phy_cuv"))
-versions <- fp_draws_data(x, n_draws = 20, seed = 1)
-mc_ms <- fp_occu_mc(versions, occ = ~ 1, fp = ~ 1, seed = 1)
-summary(mc_ms)
+# several species, from the small sheepdog export shipped with crywolf;
+# it has no verified data, so the model without false positives
+if (requireNamespace("jsonlite", quietly = TRUE) &&
+    requireNamespace("arrow", quietly = TRUE)) {
+  dir <- system.file("extdata", "sheepdog-export", package = "crywolf")
+  x <- fp_read_sheepdog(dir, species = c("ela_bic", "lep_fus", "phy_cuv"))
+  versions <- fp_draws_data(x, n_draws = 3)
+  mc_ms <- fp_occu_mc(versions, occ = ~ 1, fp = NULL, random_recorder = FALSE,
+                      chains = 2, threads_per_chain = 1, seed = 1)
+  summary(mc_ms)
+}
 }
 \dontshow{\}) # examplesIf}
 }

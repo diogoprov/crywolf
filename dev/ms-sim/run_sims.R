@@ -182,16 +182,17 @@ run_recovery <- function(cell, seed) {
     list(m = m, rows = summary_rows(m, truth))
   })
   if (re) {
-    rows <- rbind(fit_ms("fs", fp_group = "group"),
-                  fit_ms("mixed", fp_group = "group", random_fp = TRUE))
+    rows <- rbind(fit_ms("fs", fp_group = "group", centered = FALSE, centered_occ = FALSE),
+                  fit_ms("mixed", fp_group = "group", random_fp = TRUE, centered = FALSE,
+                         centered_occ = FALSE))
     return(cbind(cfg, n_verified_sites = length(unique(d$verified$site)), rows))
   }
   if (centered) {
     rows <- if (centered_occ) fit_ms("ms_centered_occ", centered = TRUE, centered_occ = TRUE) else
-      fit_ms("ms_centered", centered = TRUE)
+      fit_ms("ms_centered", centered = TRUE, centered_occ = FALSE)
     return(cbind(cfg, n_verified_sites = length(unique(d$verified$site)), rows))
   }
-  rows <- fit_ms("ms")
+  rows <- fit_ms("ms", centered = FALSE, centered_occ = FALSE)
   if (cfg$scenario != "base") {
     # the first species alone, its values named as in the multispecies output
     one <- suppressWarnings(fp_data(d$auto[d$auto$species == "sp1", ], d$sites,
@@ -215,8 +216,9 @@ run_grid <- function(cell, seed) {
   g <- grid_cells[cell, ]
   s <- simulate_fp_ms(nspecies = g$nspecies, nsite = g$nsite, nocc = 10, a_bio = 0.5,
                       seed = seed)
-  args <- switch(g$model, ms = list(), ms_centered = list(centered = TRUE),
-                 ms_occ = list(centered_occ = TRUE),
+  args <- switch(g$model, ms = list(centered = FALSE, centered_occ = FALSE),
+                 ms_centered = list(centered = TRUE, centered_occ = FALSE),
+                 ms_occ = list(centered = FALSE, centered_occ = TRUE),
                  ms_centered_occ = list(centered = TRUE, centered_occ = TRUE))
   rows <- fit_rows(g$model, {
     m <- suppressWarnings(do.call(fp_occu_ms, c(list(s$data, occ = ~ x, det = ~ bio,
@@ -257,7 +259,8 @@ run_sbc <- function(seed) {
   t0 <- Sys.time()
   res <- tryCatch({
     m <- suppressWarnings(do.call(fp_occu_ms, c(list(s$data, occ = ~ x, det = ~ bio,
-                                                     fp = ~ 1, seed = seed), fit_args)))
+                                                     fp = ~ 1, seed = seed, centered = FALSE,
+                                                     centered_occ = FALSE), fit_args)))
     dr <- posterior::as_draws_matrix(as_draws_df(m))
     thin <- dr[round(seq(1, posterior::ndraws(dr), length.out = 99)), names(truth)]
     list(ranks = colSums(sweep(unclass(thin), 2, truth, "<")), diag = m$diagnostics)

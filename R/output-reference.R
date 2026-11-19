@@ -155,7 +155,7 @@
 #' its truth fields are `pars` (named generating coefficients), `z`,
 #' `p10_site`, and `p10_bar`.
 #'
-#' @section Multispecies model (in development):
+#' @section Multispecies model:
 #' [fp_occu_ms()] gives the community means under the names above
 #' (`occ_*`, `det_*`, `fp_*`, `fp_gap`, which is the median gap among
 #' species, and `p11_ref`, `p10_ref` at the community means), the

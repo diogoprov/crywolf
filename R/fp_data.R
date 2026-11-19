@@ -54,7 +54,7 @@
 #'   Seasons added between dates need rows only if a formula uses them.
 #' @param species Optional name of a column of `auto` (and of `verified`, if
 #'   given) holding the species, for the multispecies model
-#'   [fp_occu_ms()], which is in development. The tables are then in long format by species too: one
+#'   [fp_occu_ms()]. The tables are then in long format by species too: one
 #'   row per occasion and species, with every surveyed occasion present for
 #'   every species (`y = 0` where the species was not detected), since the
 #'   non-detections are data. The species are the levels of a factor, and

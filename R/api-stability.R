@@ -14,6 +14,7 @@
 #'   (`fp_data`, `fp_occu`, `fp_priors`, `fp_sim`, `fp_calibration`,
 #'   `fp_sbc`, `fp_ppc`, `fp_prior_predictive`, `fp_effects`, `fp_sites`,
 #'   `fp_threshold_sweep`, `fp_sheepdog`, `fp_occu_dyn`, `fp_sim_dyn`,
+#'   `fp_occu_ms`, `fp_sim_ms`,
 #'   `summary.fp_occu`, `summary.fp_calibration`, `summary.fp_sbc`), and the class of the
 #'   design warnings of [fp_data()] (`crywolf_design_warning`), which code
 #'   may catch. Classes of other packages (the `CmdStanModel` of
@@ -49,11 +50,15 @@
 #' [fp_loo_weights()], the methods in [fp_occu-methods] (`print()`,
 #' `summary()`, `coef()`, `predict()`, `loo()`, `as_draws_df()`) and
 #' [simulate.fp_occu()]. From 2.3.0, [fp_occu_dyn()], the dynamic
-#' (multi-season) model, with its methods and [simulate.fp_occu_dyn()].
+#' (multi-season) model, with its methods and [simulate.fp_occu_dyn()], and
+#' [fp_occu_ms()], the multispecies model, with the `species` argument of
+#' [fp_data()], the methods of the `fp_occu_ms` class and
+#' [simulate.fp_occu_ms()].
 #'
 #' Results and simulation: [fp_effects()], [fp_sites()], [simulate_fp()],
 #' [fp_calibrate()], [fp_verification_curve()], [fp_calibrate_fit()],
-#' [fp_sbc()], and, from 2.3.0, [simulate_fp_dyn()].
+#' [fp_sbc()], and, from 2.3.0, [simulate_fp_dyn()], [simulate_fp_ms()] and
+#' [fp_richness()].
 #'
 #' The `print()`, `summary()` and `plot()` methods of the classes above
 #' are stable too.
@@ -64,11 +69,7 @@
 #' classifier calibration from 'sheepdog' into the model or pass data to
 #' 'unmarked', and are still being evaluated. Their arguments, classes and
 #' results may change in a minor version; the NEWS will say so. Each says
-#' so in its help. [fp_occu_ms()], the multispecies model, with the
-#' `fp_occu_ms` class and its methods, [fp_richness()] and
-#' [simulate_fp_ms()], is in development and experimental
-#' in the same way, as is the `species` argument of [fp_data()] that
-#' feeds it. [fp_read_sheepdog()], by contrast, reads a versioned
+#' so in its help. [fp_read_sheepdog()], by contrast, reads a versioned
 #' export format (`sheepdog-occupancy`, schema 1) and is stable.
 #'
 #' @name crywolf-api

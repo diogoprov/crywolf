@@ -44,7 +44,8 @@ sim_ms <- function(nsite = 80, nspecies = 12, nocc = 8, frac_verified = 0.3, nve
 s <- sim_ms()
 print(s$data)
 t0 <- Sys.time()
-m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, fp = ~ 1, chains = 4,
+m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, fp = ~ 1, centered = FALSE,
+                centered_occ = FALSE, chains = 4,
                 threads_per_chain = 2, seed = 1)
 minutes <- as.numeric(difftime(Sys.time(), t0, units = "mins"))
 tab <- summary(m)$table

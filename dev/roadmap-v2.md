@@ -500,6 +500,23 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
   espécies × 300 sítios) ficou de fora por custo (16/11/2026). Com a grade,
   a regra do padrão sai do `summarise.R` e entra na vinheta.
 
+### Atualização de 19/11/2026: multiespécies fora de "em desenvolvimento"
+
+- **Passo 2 feito.** A grade terminou (440 ajustes, 20 por célula). O Diogo
+  escolheu o padrão `"auto"` para `centered` e `centered_occ`: os dois
+  `TRUE` com ≥ 20 espécies e ≥ 100 sítios, `FALSE` caso contrário. Com 30
+  sítios ou 5 espécies, não centrar converge mais; com 20+ espécies e 100+
+  sítios, centrar os dois converge 100% e é o mais rápido. Designs fora da
+  grade (10 espécies, mais de 10 ocasiões) não foram testados.
+- **Passo 3 fechado sem o `full-sdrec`.** O ajuste com `sd_recorder = 0.5`
+  bateu no limite de 30 h (cadeias de 16, 22 e 26 h; a quarta em 80% da
+  amostragem). O Diogo decidiu documentar sem rerodar: a origem das 42
+  divergências fica em aberto na vinheta.
+- **Passo 5 feito.** `fp_occu_ms()`, `simulate_fp_ms()`, `fp_richness()`,
+  as classes `fp_occu_ms` e `fp_sim_ms` e o argumento `species` do
+  `fp_data()` entram na interface estável a partir da 2.3.0. Release só a
+  pedido.
+
 ### Próximos passos do multiespécies (proposta de 14/11/2026, a decidir)
 
 1. **Feito em 14/11/2026.** **`predict()` para `fp_occu_ms`**: ocupação e detecção por espécie em

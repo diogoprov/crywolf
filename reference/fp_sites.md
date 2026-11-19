@@ -87,11 +87,36 @@ at that site.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 14.5 seconds.
+#> Chain 1 finished in 14.8 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 14.6 seconds.
+#> Total execution time: 14.9 seconds.
+#> 
 st <- fp_sites(m)
 head(st)
+#>   site          x w       psi psi_lower psi_upper     occupied occupied_lower
+#> 1    1 -0.7125125 0 0.6068485 0.5183068 0.6960445 0.0003687517   1.353295e-04
+#> 2    2  0.1594060 0 0.4958390 0.4200741 0.5672305 0.0003008647   6.733963e-05
+#> 3    3 -0.9376502 0 0.6339738 0.5321936 0.7281057 0.0004153213   1.498936e-04
+#> 4    4  1.6787706 0 0.3119244 0.1911776 0.4483337 0.9999993569   9.999953e-01
+#> 5    5  0.3164019 0 0.4755301 0.3960121 0.5506958 0.9999999442   9.999997e-01
+#> 6    6 -0.9213331 0 0.6320399 0.5314427 0.7259646 0.0004117265   1.484120e-04
+#>   occupied_upper detections verified        p10
+#> 1   0.0007946070          0    FALSE 0.05184956
+#> 2   0.0008708825          1    FALSE 0.05422322
+#> 3   0.0009027371          0    FALSE 0.05138950
+#> 4   0.9999999978          8    FALSE 0.06091389
+#> 5   0.9999999973          8    FALSE 0.05475647
+#> 6   0.0008908884          0    FALSE 0.05142083
 plot(st)
-} # }
+
+# }
 ```

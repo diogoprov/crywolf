@@ -166,13 +166,32 @@ package, so its <code>ppc_*()</code> functions can be used directly, for example
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">200</span>, nocc <span class="op">=</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>             chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 13.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 14.1 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 14.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 14.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">ppc</span> <span class="op">&lt;-</span> <span class="fu">fp_ppc</span><span class="op">(</span><span class="va">m</span>, ndraws <span class="op">=</span> <span class="fl">500</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ppc</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Posterior predictive check (automated detections per site)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   statistic:          freeman-tukey</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   draws, sites:       500, 200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean discrepancy:   observed 55.8, replicated 49.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Bayesian p-value:   0.026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   The p-value is far from 0.5: the model may not fit these data.</span>
 <span class="r-in"><span><span class="fu">bayesplot</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/PPC-discrete.html" class="external-link">ppc_bars</a></span><span class="op">(</span><span class="va">ppc</span><span class="op">$</span><span class="va">y</span>, <span class="va">ppc</span><span class="op">$</span><span class="va">yrep</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-plt img"><img src="fp_ppc-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -180,7 +199,7 @@ package, so its <code>ppc_*()</code> functions can be used directly, for example
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

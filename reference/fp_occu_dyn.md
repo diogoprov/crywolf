@@ -171,11 +171,63 @@ fits it to the `curiango` data, with the nights of each site as seasons.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 s <- simulate_fp_dyn(nsite = 150, nseason = 4, b_col = 1, b_ext = -1, seed = 1)
 m <- fp_occu_dyn(s$data, psi1 = ~ x, col = ~ rain, ext = ~ x,
-                 random_recorder = FALSE)
+                 random_recorder = FALSE,
+  chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 19.3 seconds.
+#> Chain 2 finished in 20.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 19.8 seconds.
+#> Total execution time: 20.3 seconds.
+#> 
 m
+#> Dynamic Bayesian false-positive occupancy model (multiple-methods design)
+#> 
+#>   initial occupancy: ~x 
+#>   colonization:      ~rain 
+#>   extinction:        ~x 
+#>   true detection:    ~1   
+#>   false positive:    ~1  
+#>   data:              150 sites over 4 seasons, 2400 automated and 216 verified occasions
+#> 
+#>              variable     mean      sd   lower   upper  rhat ess_bulk ess_tail
+#>      psi1_(Intercept)  0.05292 0.18184 -0.3000  0.3954 1.005     2790     1388
+#>                psi1_x  0.00795 0.17215 -0.3282  0.3321 1.000     3190     1441
+#>       det_(Intercept)  0.53337 0.06903  0.3975  0.6686 1.002     2766     1408
+#>  verified_(Intercept)  1.27509 0.24949  0.8080  1.7743 1.000     2525     1264
+#>            p_verified  0.77867 0.04232  0.6917  0.8550 1.000     2525     1264
+#>               p11_ref  0.63012 0.01607  0.5981  0.6612 1.002     2766     1408
+#>        fp_(Intercept) -2.79939 0.15384 -3.1292 -2.4955 0.999     2803     1384
+#>                fp_gap  3.33276 0.15460  3.0234  3.6531 1.001     2512     1258
+#>               p10_ref  0.05792 0.00833  0.0419  0.0762 0.999     2803     1384
+#>               p10_bar  0.05792 0.00833  0.0419  0.0762 0.999     2803     1384
+#>       col_(Intercept) -1.55576 0.25887 -2.1048 -1.1059 0.999     1689     1121
+#>              col_rain  1.40508 0.30023  0.8588  2.0664 1.003     1608     1179
+#>       ext_(Intercept) -1.35923 0.20684 -1.7684 -0.9779 0.999     2542     1554
+#>                 ext_x -0.94826 0.23847 -1.4219 -0.4963 1.001     2665     1317
+#> 
+#>   Occupancy per season (psi_mean, psi_fs), turnover in summary().
+#> 
+#>   Sampler: 0 divergent transitions, max R-hat 1.005, min bulk/tail ESS 1608/1121
 head(fp_sites(m))   # one row per site-season
-} # }
+#>   site          x season        rain       psi psi_lower psi_upper     occupied
+#> 1    1 -0.7169114      1  0.45018710 0.5116521 0.4030334 0.6202032 0.0152747771
+#> 2    1 -0.7169114      2  0.89367370 0.5464184 0.4706894 0.6259788 0.0006151916
+#> 3    1 -0.7169114      3  0.96169663 0.5651681 0.4759732 0.6565700 0.0080835775
+#> 4    1 -0.7169114      4 -0.34106698 0.4275434 0.3304659 0.5291732 0.0036400833
+#> 5    2  0.1790354      1 -0.01855983 0.5134748 0.4256221 0.5977721 0.7445787710
+#> 6    2  0.1790354      2 -1.04729815 0.4458094 0.3681717 0.5202678 0.7817167652
+#>   occupied_lower occupied_upper detections verified        p10
+#> 1   0.0074172531    0.028612973          0    FALSE 0.05792068
+#> 2   0.0001668958    0.001527347          0    FALSE 0.05792068
+#> 3   0.0038096811    0.014956343          0    FALSE 0.05792068
+#> 4   0.0016852553    0.006600718          0    FALSE 0.05792068
+#> 5   0.5377077629    0.906142370          1    FALSE 0.05792068
+#> 6   0.6065914030    0.915079458          1    FALSE 0.05792068
+# }
 ```

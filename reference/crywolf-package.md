@@ -179,8 +179,6 @@ Authors:
 - Diogo B. Provete <dbprovete@gmail.com>
   ([ORCID](https://orcid.org/0000-0002-0097-0651))
 
-- Tessa Rhinehart ([ORCID](https://orcid.org/0000-0002-4352-3464))
-
 - Liliana Piatti ([ORCID](https://orcid.org/0000-0001-6324-1723))
 
 - Larissa Sayuri Moreira Sugai

@@ -120,12 +120,21 @@ holds only the histories sheepdog drew, and no calibration draws.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# a small export of sheepdog with three species, shipped with crywolf
+dir <- system.file("extdata", "sheepdog-export", package = "crywolf")
 # the tables hold only the target species, so fp_aggregate() needs no
-# `species`
-x <- fp_read_sheepdog("occupancy_export", species = "compau")
+# `species`; the reviewed clips of this export are top-scoring clips,
+# dropped with a warning, so no detection is confirmed
+x <- fp_read_sheepdog(dir, species = "phy_cuv")
+#> Warning: 320 reviewed clip(s) drawn with sampling_mode = "top" were dropped: they were chosen for their high scores and would make the false-positive rate look lower than it is. Use keep_top = TRUE to keep them.
 auto <- fp_aggregate(x$occasions, x$detections, threshold = 0.5,
                      by = c("site", "occasion_id"), validation = x$validation)
-d <- fp_data(auto, x$sites, x$verified, confirmed = c("n_true", "n_false"))
-} # }
+d <- fp_data(auto, x$sites)
+d
+#> <fp_data>
+#>   sites:                  4
+#>   automated occasions:    354 (naive occupancy 1.00)
+#>   verified sites:         0 (0 occasions; verified detections at 0 sites)
+#>   sites known occupied:   0
+#>   observation covariates: occasion_id, source_audio, recording_date, recording_hour, night, start, duration, temp_z, n_detections, score 
 ```

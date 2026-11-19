@@ -58,11 +58,25 @@ A 'ggplot2' object (for `"pairs"`, a 'bayesplot' grid).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 14.8 seconds.
+#> Chain 1 finished in 15.0 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 14.9 seconds.
+#> Total execution time: 15.1 seconds.
+#> 
 plot(m)
+
 plot(m, type = "trace")
+#> No divergences to plot.
+
 plot(m, type = "pairs", pars = c("fp_(Intercept)", "fp_gap"))
-} # }
+#> Error in suggested_package("gridExtra"): Please install the gridExtra package to use this function.
+# }
 ```

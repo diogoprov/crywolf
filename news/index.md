@@ -2,6 +2,16 @@
 
 ## crywolf (development version)
 
+- Changes for CRAN: examples that fit models run in `\donttest{}` when
+  CmdStan is installed, with two chains and one thread each, instead of
+  never; examples that read a sheepdog export use one shipped in
+  `inst/extdata/sheepdog-export`. Vignette fits run at most two chains
+  at a time. Under `R CMD check`, a model compiled after installation
+  goes to [`tempdir()`](https://rdrr.io/r/base/tempfile.html) instead of
+  the user cache.
+
+- Tessa Rhinehart is no longer listed as an author.
+
 - [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
   [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md),
   [`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md),

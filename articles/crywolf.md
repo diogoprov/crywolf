@@ -463,7 +463,8 @@ sessions.
 ``` r
 
 m_const <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ 1,
-                   random_recorder = FALSE, threads_per_chain = 1, seed = 1)
+                   random_recorder = FALSE, threads_per_chain = 1, parallel_chains = 2,
+                   seed = 1)
 m_const
 #> Bayesian false-positive occupancy model (multiple-methods design)
 #> 
@@ -663,7 +664,8 @@ occupancy covariate, which is always available:
 ``` r
 
 m_x <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ x,
-               random_recorder = FALSE, threads_per_chain = 1, seed = 1)
+               random_recorder = FALSE, threads_per_chain = 1, parallel_chains = 2,
+               seed = 1)
 coef(m_x, "fp")
 #> fp_(Intercept)           fp_x 
 #>      -2.651323       1.007505
@@ -688,7 +690,8 @@ it in the `fp` formula. In a simulation we know the confusing gradient
 ``` r
 
 m_w <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ w,
-               random_recorder = FALSE, threads_per_chain = 1, seed = 1)
+               random_recorder = FALSE, threads_per_chain = 1, parallel_chains = 2,
+               seed = 1)
 summary(m_w)
 #> Posterior summary (95% equal-tailed intervals)
 #> 
@@ -778,7 +781,8 @@ gap, and compare the main parameters:
 ``` r
 
 m_w_narrow <- fp_occu(sim$data, occ = ~ x, det = ~ 1, fp = ~ w,
-                      random_recorder = FALSE, threads_per_chain = 1, seed = 1,
+                      random_recorder = FALSE, threads_per_chain = 1, parallel_chains = 2,
+                      seed = 1,
                       priors = fp_priors(slope_sd = 1, gap_sd = 1))
 pars <- c("occ_x", "fp_w", "fp_gap")
 data.frame(parameter = pars,
@@ -807,7 +811,8 @@ and reports \sigma\_{fp} as `sd_fp_site`:
 ``` r
 
 m_re <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
-                random_fp = TRUE, threads_per_chain = 1, seed = 1)
+                random_fp = TRUE, threads_per_chain = 1, parallel_chains = 2,
+                seed = 1)
 ```
 
 The random effect is off by default because it is costly: it adds one
@@ -1047,7 +1052,8 @@ sim_rec <- simulate_fp(nsite = 300, nocc = 20, a_bio = 0.5, a_aci = -0.3,
                        sd_recorder = 0.6, nrec = 10,
                        conf_effect = 1.5, conf_cor = 0.7, seed = 2027)
 m_rec <- fp_occu(sim_rec$data, occ = ~ x, det = ~ bio + aci, fp = ~ w,
-                 random_recorder = TRUE, threads_per_chain = 1, seed = 1)
+                 random_recorder = TRUE, threads_per_chain = 1, parallel_chains = 2,
+                 seed = 1)
 m_rec
 ```
 
@@ -1162,7 +1168,8 @@ not warn about missing verified data.
 ``` r
 
 m_conf <- fp_occu(sim_conf$data, occ = ~ x, det = ~ 1, fp = ~ 1,
-                  random_recorder = FALSE, threads_per_chain = 1, seed = 1)
+                  random_recorder = FALSE, threads_per_chain = 1, parallel_chains = 2,
+                  seed = 1)
 m_conf
 #> Bayesian false-positive occupancy model (observation-confirmation design)
 #> 

@@ -138,13 +138,26 @@ syntax.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_verification_curve.html">fp_verification_curve</a></span><span class="op">(</span>p10 <span class="op">=</span> <span class="fl">0.05</span>, conf_effect <span class="op">=</span> <span class="fl">1.5</span>, conf_cor <span class="op">=</span> <span class="fl">0.7</span>,</span></span>
 <span class="r-in"><span>                             models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>constant <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp_on_x <span class="op">=</span> <span class="op">~</span> <span class="va">x</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                             reps <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                             frac_verified <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span><span class="op">)</span>, reps <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>                             fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coverage of the occupancy slope against verification effort</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     model frac_verified coverage mc_se bias</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  constant           0.1      0.0  0.00 0.46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  constant           0.5      0.0  0.00 0.42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fp_on_x           0.1      0.6  0.22 0.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fp_on_x           0.5      0.4  0.22 0.29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   The first model stays below nominal coverage at every verification </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   level. Verifying more will not fix it; model the false-positive rate.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot.fp_calibration-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"bias"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-plt img"><img src="plot.fp_calibration-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -152,7 +165,7 @@ syntax.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

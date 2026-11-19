@@ -257,7 +257,8 @@ d
 ``` r
 
 m <- fp_occu(d, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-             threads_per_chain = 1, seed = 1,
+             threads_per_chain = 1, parallel_chains = 2,
+             seed = 1,
              refresh = 0, show_messages = FALSE)
 summary(m)
 #> Posterior summary (95% equal-tailed intervals)

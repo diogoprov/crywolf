@@ -37,11 +37,23 @@ A 'ggplot2' object.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 13.9 seconds.
+#> Chain 2 finished in 14.1 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 14.0 seconds.
+#> Total execution time: 14.2 seconds.
+#> 
 p <- fp_ppc(m, ndraws = 500, seed = 1)
 plot(p)
+
 plot(p, type = "counts")
-} # }
+
+# }
 ```

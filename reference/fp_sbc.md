@@ -135,11 +135,25 @@ sensitivity. *Bayesian Analysis*, 20, 461–488.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 100, nocc = 10, seed = 1)
 sbc <- fp_sbc(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-              reps = 100, parallel = TRUE)
-summary(sbc)
+              reps = 10,
+              fit_args = list(chains = 2, threads_per_chain = 1))
+summary(sbc)   # use 100 or more replicates in practice
+#> Simulation-based calibration
+#>   mean_rank: near 0.5 when the posterior is unbiased; p_uniform: chi-squared
+#>   test of uniform ranks (small values flag a problem).
+#> 
+#>             parameter  n mean_rank p_uniform divergent
+#>       det_(Intercept) 10     0.472   0.53415         0
+#>        fp_(Intercept) 10     0.500   0.12233         0
+#>                fp_gap 10     0.447   0.35049         0
+#>               log_lik 10     0.465   0.91141         0
+#>       occ_(Intercept) 10     0.226   0.35049         0
+#>                 occ_x 10     0.763   0.00888         0
+#>  verified_(Intercept) 10     0.515   0.53415         0
 plot(sbc)
-} # }
+
+# }
 ```

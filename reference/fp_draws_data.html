@@ -212,12 +212,89 @@ See <a href="crywolf-api.html">crywolf-api</a>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_read_sheepdog.html">fp_read_sheepdog</a></span><span class="op">(</span><span class="st">"occupancy_export"</span>, species <span class="op">=</span> <span class="st">"nyc_alb"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">versions</span> <span class="op">&lt;-</span> <span class="fu">fp_draws_data</span><span class="op">(</span><span class="va">x</span>, n_draws <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu_mc.html">fp_occu_mc</a></span><span class="op">(</span><span class="va">versions</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="cn">NULL</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sheepdog-export"</span>, package <span class="op">=</span> <span class="st">"crywolf"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_read_sheepdog.html">fp_read_sheepdog</a></span><span class="op">(</span><span class="va">dir</span>, species <span class="op">=</span> <span class="st">"phy_cuv"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>320 reviewed clip(s) drawn with sampling_mode = "top" were dropped: they were chosen for their high scores and would make the false-positive rate look lower than it is. Use keep_top = TRUE to keep them.</span>
+<span class="r-in"><span><span class="co"># the calibration of this export has a continuous covariate, so the</span></span></span>
+<span class="r-in"><span><span class="co"># histories are those sheepdog drew</span></span></span>
+<span class="r-in"><span><span class="va">versions</span> <span class="op">&lt;-</span> <span class="fu">fp_draws_data</span><span class="op">(</span><span class="va">x</span>, n_draws <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">versions</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fp_data&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sites:                  4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   automated occasions:    354 (naive occupancy 1.00)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   verified sites:         0 (0 occasions; verified detections at 0 sites)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sites known occupied:   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   observation covariates: occasion_id, source_audio, recording_date, recording_hour, night, start, duration, temp_z </span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># the export has no verified data, so the model without false positives</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu">instantiate</span><span class="fu">::</span><span class="fu"><a href="https://wlandau.github.io/instantiate/reference/stan_cmdstan_exists.html" class="external-link">stan_cmdstan_exists</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">mc</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu_mc.html">fp_occu_mc</a></span><span class="op">(</span><span class="va">versions</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="cn">NULL</span>, chains <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                   threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mc</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 0.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 0.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 0.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 0.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 0.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 0.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Posterior pooled over 5 fits (95% equal-tailed intervals)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         variable  mean     sd  lower upper sd_within sd_between share_between</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  occ_(Intercept) 1.725 1.0284 -0.181 3.890    1.0283    0.02599      0.000639</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  det_(Intercept) 0.680 0.1148  0.457 0.904    0.1132    0.01945      0.028712</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          p11_ref 0.663 0.0255  0.612 0.712    0.0252    0.00431      0.028536</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  max_rhat min_ess_bulk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1.00         1732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1.01         1661</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1.01         1661</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Per fit: 0 divergent transitions in all, largest R-hat 1.007, smallest bulk ESS 1661</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -225,7 +302,7 @@ See <a href="crywolf-api.html">crywolf-api</a>.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

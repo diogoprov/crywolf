@@ -218,12 +218,47 @@ way. See
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# name every species to keep (`schema.json` lists them)
-x <- fp_read_sheepdog("occupancy_export",
-                      species = c("ela_bic", "lep_fus", "phy_cuv"))
-d <- fp_draws_data(x, n_draws = 1)[[1]]
-m <- fp_occu_ms(d, fp = ~ 1)
+# \donttest{
+s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
+m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+                chains = 2, threads_per_chain = 1)
+#> Parametrization (4 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 101.2 seconds.
+#> Chain 2 finished in 109.1 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 105.1 seconds.
+#> Total execution time: 109.2 seconds.
+#> 
+#> Warning: Largest R-hat is 1.013 (> 1.01); run longer chains.
 m
-} # }
+#> Multispecies Bayesian false-positive occupancy model (multiple-methods design)
+#> 
+#>   occupancy:         ~x by species
+#>   true detection:    ~bio (intercept by species)  
+#>   false positive:    ~1 (gap by species)   
+#>   data:              4 species at 60 sites, 2400 automated and 276 verified occasions
+#> 
+#>              variable     mean     sd    lower  upper rhat ess_bulk ess_tail
+#>       occ_(Intercept) -0.02792 0.3459 -0.69571  0.715 1.00      990      967
+#>                 occ_x  0.00629 0.2721 -0.56296  0.574 1.00     1044      790
+#>       det_(Intercept) -0.10870 0.3840 -0.91817  0.656 1.00      739      955
+#>               det_bio  0.00975 0.0623 -0.10939  0.134 1.00     2966     1414
+#>  verified_(Intercept)  0.36560 0.1786  0.01120  0.720 1.01     3422     1350
+#>            p_verified  0.58971 0.0429  0.50280  0.673 1.01     3422     1350
+#>               p11_ref  0.47379 0.0908  0.28533  0.658 1.00      739      955
+#>        fp_(Intercept) -2.94096 0.7629 -4.50989 -1.466 1.00      832     1055
+#>                fp_gap  2.83226 0.6600  1.58060  4.279 1.00      885      959
+#>               p10_ref  0.06242 0.0443  0.01088  0.187 1.00      832     1055
+#>    sd_occ_(Intercept)  0.54855 0.3535  0.03238  1.414 1.01      461      341
+#>              sd_occ_x  0.32705 0.3045  0.00911  1.193 1.00      716      868
+#>    sd_det_(Intercept)  0.76610 0.3368  0.32544  1.628 1.00     1065     1239
+#>         sd_log_fp_gap  0.56797 0.3111  0.19801  1.340 1.00      922      956
+#> 
+#>   Values of each species in summary().
+#> 
+#>   Sampler: 0 divergent transitions, max R-hat 1.013, min bulk/tail ESS 461/341
+# }
 ```

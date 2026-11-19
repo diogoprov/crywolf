@@ -179,14 +179,23 @@ histories sheepdog drew, and no calibration draws.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># a small export of sheepdog with three species, shipped with crywolf</span></span></span>
+<span class="r-in"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sheepdog-export"</span>, package <span class="op">=</span> <span class="st">"crywolf"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># the tables hold only the target species, so fp_aggregate() needs no</span></span></span>
-<span class="r-in"><span><span class="co"># `species`</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">fp_read_sheepdog</span><span class="op">(</span><span class="st">"occupancy_export"</span>, species <span class="op">=</span> <span class="st">"compau"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># `species`; the reviewed clips of this export are top-scoring clips,</span></span></span>
+<span class="r-in"><span><span class="co"># dropped with a warning, so no detection is confirmed</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">fp_read_sheepdog</span><span class="op">(</span><span class="va">dir</span>, species <span class="op">=</span> <span class="st">"phy_cuv"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>320 reviewed clip(s) drawn with sampling_mode = "top" were dropped: they were chosen for their high scores and would make the false-positive rate look lower than it is. Use keep_top = TRUE to keep them.</span>
 <span class="r-in"><span><span class="va">auto</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_aggregate.html">fp_aggregate</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">occasions</span>, <span class="va">x</span><span class="op">$</span><span class="va">detections</span>, threshold <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
 <span class="r-in"><span>                     by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"site"</span>, <span class="st">"occasion_id"</span><span class="op">)</span>, validation <span class="op">=</span> <span class="va">x</span><span class="op">$</span><span class="va">validation</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_data.html">fp_data</a></span><span class="op">(</span><span class="va">auto</span>, <span class="va">x</span><span class="op">$</span><span class="va">sites</span>, <span class="va">x</span><span class="op">$</span><span class="va">verified</span>, confirmed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_true"</span>, <span class="st">"n_false"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_data.html">fp_data</a></span><span class="op">(</span><span class="va">auto</span>, <span class="va">x</span><span class="op">$</span><span class="va">sites</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;fp_data&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sites:                  4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   automated occasions:    354 (naive occupancy 1.00)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   verified sites:         0 (0 occasions; verified detections at 0 sites)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sites known occupied:   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   observation covariates: occasion_id, source_audio, recording_date, recording_hour, night, start, duration, temp_z, n_detections, score </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -194,7 +203,7 @@ histories sheepdog drew, and no calibration draws.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

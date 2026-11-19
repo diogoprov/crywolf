@@ -154,13 +154,38 @@ and every column refers to that species at that site.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">200</span>, nocc <span class="op">=</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>             chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 14.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 14.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 14.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 14.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu">fp_sites</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   site          x w       psi psi_lower psi_upper     occupied occupied_lower</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1 -0.7125125 0 0.6068485 0.5183068 0.6960445 0.0003687517   1.353295e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2  0.1594060 0 0.4958390 0.4200741 0.5672305 0.0003008647   6.733963e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3 -0.9376502 0 0.6339738 0.5321936 0.7281057 0.0004153213   1.498936e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    4  1.6787706 0 0.3119244 0.1911776 0.4483337 0.9999993569   9.999953e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    5  0.3164019 0 0.4755301 0.3960121 0.5506958 0.9999999442   9.999997e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    6 -0.9213331 0 0.6320399 0.5314427 0.7259646 0.0004117265   1.484120e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   occupied_upper detections verified        p10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.0007946070          0    FALSE 0.05184956</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   0.0008708825          1    FALSE 0.05422322</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   0.0009027371          0    FALSE 0.05138950</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   0.9999999978          8    FALSE 0.06091389</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.9999999973          8    FALSE 0.05475647</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   0.0008908884          0    FALSE 0.05142083</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-plt img"><img src="fp_sites-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -168,7 +193,7 @@ and every column refers to that species at that site.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

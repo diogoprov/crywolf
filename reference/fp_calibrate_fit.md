@@ -99,13 +99,33 @@ for large datasets; each fit runs on one thread per chain unless
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 1)
-m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+               chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 20.2 seconds.
+#> Chain 2 finished in 20.6 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 20.4 seconds.
+#> Total execution time: 20.7 seconds.
+#> 
 cal <- fp_calibrate_fit(m_x, models = list(constant = ~ 1, fp_on_x = ~ x),
-                        reps = 20)
+                        reps = 5,
+                        fit_args = list(chains = 2, threads_per_chain = 1))
 summary(cal)
+#> Calibration summary (95% intervals)
+#> 
+#> Occupancy slope:
+#>  cell    model n failed coverage mc_se   bias rmse prop_divergent verdict
+#>     1 constant 5      0      0.8  0.18  0.126 0.19              0     low
+#>     1  fp_on_x 5      0      1.0  0.00 -0.026 0.13              0      ok
+#> 
+#> All quantities: inspect the returned tibble.
 plot(cal, parameter = "occ_x")
-} # }
+
+# }
 ```

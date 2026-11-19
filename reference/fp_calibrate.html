@@ -184,13 +184,29 @@ which this function does not simulate, <code><a href="simulate_fp_dyn.html">simu
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>p10 <span class="op">=</span> <span class="fl">0.05</span>, conf_effect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span>, conf_cor <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu">fp_calibrate</span><span class="op">(</span><span class="va">design</span>,</span></span>
 <span class="r-in"><span>                    models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>constant <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp_on_x <span class="op">=</span> <span class="op">~</span> <span class="va">x</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                    occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, reps <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span>                    occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, reps <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>                    fit_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span>   <span class="co"># use 50 or more replicates in practice</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calibration summary (95% intervals)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Occupancy slope:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  cell    model  p10 conf_effect conf_cor n failed coverage mc_se   bias  rmse</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1 constant 0.05         0.0      0.7 5      0      1.0  0.00 -0.014 0.076</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1  fp_on_x 0.05         0.0      0.7 5      0      1.0  0.00 -0.014 0.075</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2 constant 0.05         1.5      0.7 5      0      0.0  0.00  0.442 0.444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2  fp_on_x 0.05         1.5      0.7 5      0      0.2  0.18  0.315 0.316</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  prop_divergent   verdict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               0        ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               0        ok</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               0 collapsed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               0 collapsed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> All quantities: inspect the returned tibble.</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -198,7 +214,7 @@ which this function does not simulate, <code><a href="simulate_fp_dyn.html">simu
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -1,9 +1,15 @@
 # Compile (or load) the Stan model
 
-Compiles the false-positive occupancy model the first time it is needed
-and keeps the executable in the user cache directory
+Loads the false-positive occupancy model compiled when the package was
+installed from source. A binary package, or an installation without
+CmdStan, comes without it: the model is then compiled the first time it
+is needed and kept in the user cache directory
 (`tools::R_user_dir("crywolf", "cache")`), so later sessions load it
-without recompiling.
+without recompiling. The cache holds only the Stan program and its
+executable, and a new version of the program replaces them. Under
+`R CMD check` the cache is in
+[`tempdir()`](https://rdrr.io/r/base/tempfile.html), so nothing is
+written to the user's filespace.
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) calls
 this function itself; call it directly to compile ahead of time, for
 example before launching parallel workers in
@@ -39,7 +45,7 @@ split the likelihood of each chain among several threads (argument
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 fp_compile()
-} # }
+# }
 ```

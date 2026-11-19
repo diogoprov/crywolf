@@ -17,7 +17,8 @@ data every step is the same.
 library(crywolf)
 sim <- simulate_fp(nsite = 200, nocc = 10, frac_verified = 0.3, seed = 1)
 m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-             threads_per_chain = 1, seed = 1, refresh = 0, show_messages = FALSE)
+             threads_per_chain = 1, parallel_chains = 2,
+             seed = 1, refresh = 0, show_messages = FALSE)
 ```
 
 ## 1. The model and why
@@ -105,7 +106,7 @@ c(crywolf = as.character(utils::packageVersion("crywolf")),
 #> "2.2.0.9000"      "0.9.0"     "2.40.0"
 unlist(m$sampler)
 #>            chains   parallel_chains threads_per_chain       iter_warmup 
-#>              4.00              4.00              1.00           1000.00 
+#>              4.00              2.00              1.00           1000.00 
 #>     iter_sampling       adapt_delta 
 #>           1000.00              0.95
 ```
@@ -182,7 +183,8 @@ natural candidates:
 
 refit <- function(priors) {
   f <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
-               priors = priors, threads_per_chain = 1, seed = 1, refresh = 0,
+               priors = priors, threads_per_chain = 1, parallel_chains = 2,
+               seed = 1, refresh = 0,
                show_messages = FALSE)
   t <- summary(f)$table
   t[t$variable %in% c("occ_x", "p10_bar"), cols]

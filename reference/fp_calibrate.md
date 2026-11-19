@@ -118,11 +118,27 @@ for dynamic designs, which this function does not simulate,
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 design <- data.frame(p10 = 0.05, conf_effect = c(0, 1.5), conf_cor = 0.7)
 cal <- fp_calibrate(design,
                     models = list(constant = ~ 1, fp_on_x = ~ x),
-                    occ = ~ x, reps = 50)
-summary(cal)
-} # }
+                    occ = ~ x, reps = 5,
+                    fit_args = list(chains = 2, threads_per_chain = 1))
+summary(cal)   # use 50 or more replicates in practice
+#> Calibration summary (95% intervals)
+#> 
+#> Occupancy slope:
+#>  cell    model  p10 conf_effect conf_cor n failed coverage mc_se   bias  rmse
+#>     1 constant 0.05         0.0      0.7 5      0      1.0  0.00 -0.014 0.076
+#>     1  fp_on_x 0.05         0.0      0.7 5      0      1.0  0.00 -0.014 0.075
+#>     2 constant 0.05         1.5      0.7 5      0      0.0  0.00  0.442 0.444
+#>     2  fp_on_x 0.05         1.5      0.7 5      0      0.2  0.18  0.315 0.316
+#>  prop_divergent   verdict
+#>               0        ok
+#>               0        ok
+#>               0 collapsed
+#>               0 collapsed
+#> 
+#> All quantities: inspect the returned tibble.
+# }
 ```

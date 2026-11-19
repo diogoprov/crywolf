@@ -51,9 +51,20 @@ The `fp_calibration` object (invisibly), after printing the curve.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 fp_verification_curve(p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7,
                       models = list(constant = ~ 1, fp_on_x = ~ x),
-                      reps = 50)
-} # }
+                      frac_verified = c(0.1, 0.5), reps = 5,
+                      fit_args = list(chains = 2, threads_per_chain = 1))
+#> 
+#> Coverage of the occupancy slope against verification effort
+#>     model frac_verified coverage mc_se bias
+#>  constant           0.1      0.0  0.00 0.46
+#>  constant           0.5      0.0  0.00 0.42
+#>   fp_on_x           0.1      0.6  0.22 0.25
+#>   fp_on_x           0.5      0.4  0.22 0.29
+#> 
+#>   The first model stays below nominal coverage at every verification 
+#>   level. Verifying more will not fix it; model the false-positive rate.
+# }
 ```

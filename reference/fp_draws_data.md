@@ -156,10 +156,87 @@ version. See
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-x <- fp_read_sheepdog("occupancy_export", species = "nyc_alb")
-versions <- fp_draws_data(x, n_draws = 20, seed = 1)
-mc <- fp_occu_mc(versions, occ = ~ 1, fp = NULL, threads_per_chain = 1)
-summary(mc)
-} # }
+dir <- system.file("extdata", "sheepdog-export", package = "crywolf")
+x <- fp_read_sheepdog(dir, species = "phy_cuv")
+#> Warning: 320 reviewed clip(s) drawn with sampling_mode = "top" were dropped: they were chosen for their high scores and would make the false-positive rate look lower than it is. Use keep_top = TRUE to keep them.
+# the calibration of this export has a continuous covariate, so the
+# histories are those sheepdog drew
+versions <- fp_draws_data(x, n_draws = 5)
+versions[[1]]
+#> <fp_data>
+#>   sites:                  4
+#>   automated occasions:    354 (naive occupancy 1.00)
+#>   verified sites:         0 (0 occasions; verified detections at 0 sites)
+#>   sites known occupied:   0
+#>   observation covariates: occasion_id, source_audio, recording_date, recording_hour, night, start, duration, temp_z 
+# \donttest{
+# the export has no verified data, so the model without false positives
+if (instantiate::stan_cmdstan_exists()) {
+  mc <- fp_occu_mc(versions, occ = ~ 1, fp = NULL, chains = 2,
+                   threads_per_chain = 1)
+  summary(mc)
+}
+#> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 0.3 seconds.
+#> Chain 1 finished in 0.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 0.3 seconds.
+#> Total execution time: 0.4 seconds.
+#> 
+#> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 0.3 seconds.
+#> Chain 2 finished in 0.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 0.3 seconds.
+#> Total execution time: 0.4 seconds.
+#> 
+#> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 0.3 seconds.
+#> Chain 1 finished in 0.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 0.3 seconds.
+#> Total execution time: 0.4 seconds.
+#> 
+#> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 0.3 seconds.
+#> Chain 2 finished in 0.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 0.3 seconds.
+#> Total execution time: 0.4 seconds.
+#> 
+#> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 0.3 seconds.
+#> Chain 2 finished in 0.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 0.3 seconds.
+#> Total execution time: 0.4 seconds.
+#> 
+#> Posterior pooled over 5 fits (95% equal-tailed intervals)
+#> 
+#>         variable  mean     sd  lower upper sd_within sd_between share_between
+#>  occ_(Intercept) 1.725 1.0284 -0.181 3.890    1.0283    0.02599      0.000639
+#>  det_(Intercept) 0.680 0.1148  0.457 0.904    0.1132    0.01945      0.028712
+#>          p11_ref 0.663 0.0255  0.612 0.712    0.0252    0.00431      0.028536
+#>  max_rhat min_ess_bulk
+#>      1.00         1732
+#>      1.01         1661
+#>      1.01         1661
+#> 
+#>   Per fit: 0 divergent transitions in all, largest R-hat 1.007, smallest bulk ESS 1661
+# }
 ```

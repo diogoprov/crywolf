@@ -128,18 +128,42 @@ nightjar. *Journal of Avian Biology*, in press.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# occasions: one row per one-minute recording, with site_night and covariates
-sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.1, 0.4, 0.7),
+# \donttest{
+# one site-night in ten of the curiango data; occasions are one-minute
+# recordings, scored by the custom classifier
+nights <- curiango$nights[seq(1, nrow(curiango$nights), by = 10), ]
+m <- curiango$minutes[curiango$minutes$site_night %in% nights$site_night, ]
+occasions <- data.frame(file = paste(m$site_night, format(m$time, "%Y%m%d_%H%M")),
+                        site_night = m$site_night)
+detections <- data.frame(file = occasions$file, confidence = m$conf_custom)
+verified <- curiango$verified[curiango$verified$site_night %in% nights$site_night,
+                              c("site_night", "y")]
+sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.2, 0.6),
                             sites = nights, verified = verified,
-                            site = "site_night", occ = ~ temp + rh, fp = ~ 1,
-                            random_recorder = FALSE)
+                            site = "site_night", occ = ~ 1, fp = ~ 1,
+                            random_recorder = FALSE, chains = 2,
+                            threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 11.5 seconds.
+#> Chain 1 finished in 13.0 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 12.2 seconds.
+#> Total execution time: 13.1 seconds.
+#> 
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 10.2 seconds.
+#> Chain 2 finished in 10.2 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 10.2 seconds.
+#> Total execution time: 10.3 seconds.
+#> 
 plot(sweep)
-# Derive both thresholds from reviewed classifier clips:
-reviews <- fp_read_validation("validation_by_clip.csv")
-selected <- fp_threshold_sweep(occasions, detections, sites = nights,
-                               site = "site_night", validation = reviews,
-                               random_recorder = FALSE)
-attr(selected, "threshold_selection")
-} # }
+
+# `validation` derives both thresholds from reviewed classifier clips;
+# see vignette("threshold")
+# }
 ```

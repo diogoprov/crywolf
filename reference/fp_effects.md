@@ -78,10 +78,22 @@ and interval of the probability;
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 14.6 seconds.
+#> Chain 1 finished in 14.7 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 14.6 seconds.
+#> Total execution time: 14.7 seconds.
+#> 
 plot(fp_effects(m, "x"))
+
 plot(fp_effects(m, "x", process = "fp"))
-} # }
+
+# }
 ```

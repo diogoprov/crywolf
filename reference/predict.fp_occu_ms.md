@@ -81,9 +81,34 @@ data frame.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 s <- simulate_fp_ms(nspecies = 4, nsite = 60, seed = 1)
-m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE)
+m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+                chains = 2, threads_per_chain = 1)
+#> Parametrization (4 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 101.5 seconds.
+#> Chain 2 finished in 109.4 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 105.4 seconds.
+#> Total execution time: 109.5 seconds.
+#> 
+#> Warning: Largest R-hat is 1.013 (> 1.01); run longer chains.
 predict(m, newdata = data.frame(x = c(-1, 0, 1)))
-} # }
+#>     x species  estimate     lower     upper
+#> 1  -1     sp1 0.6258650 0.4211492 0.8241446
+#> 2   0     sp1 0.6047237 0.4508931 0.7697389
+#> 3   1     sp1 0.5797430 0.3880339 0.7635818
+#> 4  -1     sp2 0.3987673 0.2216843 0.5537199
+#> 5   0     sp2 0.4374394 0.3033104 0.5580321
+#> 6   1     sp2 0.4789149 0.3065087 0.6602128
+#> 7  -1     sp3 0.4504723 0.2919431 0.5988758
+#> 8   0     sp3 0.4330593 0.3086327 0.5486169
+#> 9   1     sp3 0.4174396 0.2597201 0.5787053
+#> 10 -1     sp4 0.4878284 0.3390190 0.6395466
+#> 11  0     sp4 0.4898734 0.3762007 0.6003460
+#> 12  1     sp4 0.4920795 0.3512278 0.6434019
+# }
 ```

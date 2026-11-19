@@ -319,17 +319,44 @@ misidentification. *Ecology*, 92, 1422–1428.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 42)
 
 # constant false-positive rate (the simulated recorders have no effect,
 # so the recorder term is left out)
-m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 17.7 seconds.
+#> Chain 2 finished in 19.9 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 18.8 seconds.
+#> Total execution time: 20.0 seconds.
+#> 
 # false-positive rate that tracks the occupancy covariate
-m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 23.3 seconds.
+#> Chain 2 finished in 23.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 23.3 seconds.
+#> Total execution time: 23.4 seconds.
+#> 
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8
+#>      occ_x 
+#> -0.5030135 
+#>      occ_x 
+#> -0.6773906 
 loo::loo_compare(loo(m0), loo(m1))
-} # }
+#>   model elpd_diff se_diff p_worse diag_diff diag_elpd
+#>  model2       0.0     0.0      NA                    
+#>  model1     -24.3    11.5    0.98                    
+# }
 ```

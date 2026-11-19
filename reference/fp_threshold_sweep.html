@@ -195,20 +195,44 @@ Neotropical nightjar. <em>Journal of Avian Biology</em>, in press.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># occasions: one row per one-minute recording, with site_night and covariates</span></span></span>
-<span class="r-in"><span><span class="va">sweep</span> <span class="op">&lt;-</span> <span class="fu">fp_threshold_sweep</span><span class="op">(</span><span class="va">occasions</span>, <span class="va">detections</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.7</span><span class="op">)</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># one site-night in ten of the curiango data; occasions are one-minute</span></span></span>
+<span class="r-in"><span><span class="co"># recordings, scored by the custom classifier</span></span></span>
+<span class="r-in"><span><span class="va">nights</span> <span class="op">&lt;-</span> <span class="va">curiango</span><span class="op">$</span><span class="va">nights</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">curiango</span><span class="op">$</span><span class="va">nights</span><span class="op">)</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="va">curiango</span><span class="op">$</span><span class="va">minutes</span><span class="op">[</span><span class="va">curiango</span><span class="op">$</span><span class="va">minutes</span><span class="op">$</span><span class="va">site_night</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">nights</span><span class="op">$</span><span class="va">site_night</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">occasions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">site_night</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">time</span>, <span class="st">"%Y%m%d_%H%M"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        site_night <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">site_night</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">detections</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">occasions</span><span class="op">$</span><span class="va">file</span>, confidence <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">conf_custom</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">verified</span> <span class="op">&lt;-</span> <span class="va">curiango</span><span class="op">$</span><span class="va">verified</span><span class="op">[</span><span class="va">curiango</span><span class="op">$</span><span class="va">verified</span><span class="op">$</span><span class="va">site_night</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">nights</span><span class="op">$</span><span class="va">site_night</span>,</span></span>
+<span class="r-in"><span>                              <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"site_night"</span>, <span class="st">"y"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">sweep</span> <span class="op">&lt;-</span> <span class="fu">fp_threshold_sweep</span><span class="op">(</span><span class="va">occasions</span>, <span class="va">detections</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.6</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                            sites <span class="op">=</span> <span class="va">nights</span>, verified <span class="op">=</span> <span class="va">verified</span>,</span></span>
-<span class="r-in"><span>                            site <span class="op">=</span> <span class="st">"site_night"</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">temp</span> <span class="op">+</span> <span class="va">rh</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                            random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                            site <span class="op">=</span> <span class="st">"site_night"</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                            random_recorder <span class="op">=</span> <span class="cn">FALSE</span>, chains <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>                            threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 11.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 13.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 12.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 13.1 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 10.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 10.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 10.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 10.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sweep</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Derive both thresholds from reviewed classifier clips:</span></span></span>
-<span class="r-in"><span><span class="va">reviews</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_read_validation.html">fp_read_validation</a></span><span class="op">(</span><span class="st">"validation_by_clip.csv"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">selected</span> <span class="op">&lt;-</span> <span class="fu">fp_threshold_sweep</span><span class="op">(</span><span class="va">occasions</span>, <span class="va">detections</span>, sites <span class="op">=</span> <span class="va">nights</span>,</span></span>
-<span class="r-in"><span>                               site <span class="op">=</span> <span class="st">"site_night"</span>, validation <span class="op">=</span> <span class="va">reviews</span>,</span></span>
-<span class="r-in"><span>                               random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">selected</span>, <span class="st">"threshold_selection"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-plt img"><img src="fp_threshold_sweep-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co"># `validation` derives both thresholds from reviewed classifier clips;</span></span></span>
+<span class="r-in"><span><span class="co"># see vignette("threshold")</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -216,7 +240,7 @@ Neotropical nightjar. <em>Journal of Avian Biology</em>, in press.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

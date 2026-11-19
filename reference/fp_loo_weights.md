@@ -37,11 +37,33 @@ to average Bayesian predictive distributions. *Bayesian Analysis*, 13,
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 1)
-m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
-m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 13.3 seconds.
+#> Chain 2 finished in 17.2 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 15.2 seconds.
+#> Total execution time: 17.3 seconds.
+#> 
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 15.1 seconds.
+#> Chain 2 finished in 16.3 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 15.7 seconds.
+#> Total execution time: 16.5 seconds.
+#> 
 fp_loo_weights(constant = m0, fp_on_x = m1)
-} # }
+#>  constant   fp_on_x 
+#> 0.1786987 0.8213013 
+# }
 ```

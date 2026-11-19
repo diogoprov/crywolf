@@ -146,11 +146,36 @@ as the rows of that data frame.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_fp_ms.html">simulate_fp_ms</a></span><span class="op">(</span>nspecies <span class="op">=</span> <span class="fl">4</span>, nsite <span class="op">=</span> <span class="fl">60</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu_ms.html">fp_occu_ms</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu_ms.html">fp_occu_ms</a></span><span class="op">(</span><span class="va">s</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, det <span class="op">=</span> <span class="op">~</span> <span class="va">bio</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>                chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Parametrization (4 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 101.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 109.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 105.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 109.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.013 (&gt; 1.01); run longer chains.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x species  estimate     lower     upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  -1     sp1 0.6258650 0.4211492 0.8241446</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   0     sp1 0.6047237 0.4508931 0.7697389</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   1     sp1 0.5797430 0.3880339 0.7635818</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  -1     sp2 0.3987673 0.2216843 0.5537199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0     sp2 0.4374394 0.3033104 0.5580321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   1     sp2 0.4789149 0.3065087 0.6602128</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -1     sp3 0.4504723 0.2919431 0.5988758</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   0     sp3 0.4330593 0.3086327 0.5486169</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   1     sp3 0.4174396 0.2597201 0.5787053</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 -1     sp4 0.4878284 0.3390190 0.6395466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  0     sp4 0.4898734 0.3762007 0.6003460</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  1     sp4 0.4920795 0.3512278 0.6434019</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -158,7 +183,7 @@ as the rows of that data frame.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Diogo B. Provete, Tessa Rhinehart, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
+  <p>Developed by Diogo B. Provete, Liliana Piatti, Larissa Sayuri Moreira Sugai.</p>
 </div>
 
 <div class="pkgdown-footer-right">

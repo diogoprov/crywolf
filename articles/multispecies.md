@@ -1,9 +1,5 @@
 # Several species at once: the multispecies model
 
-**[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
-is in development** (see `?crywolf-api`): its arguments, results and
-output names may change in a minor version.
-
 A classifier run on passive acoustic recordings rarely targets one
 species. The same recordings, the same recorders and often the same
 reviewer serve the whole list of species that the classifier knows.
@@ -193,6 +189,15 @@ used the default priors of
   groups (\sigma_v = 0.7); in the “mixed” scenario it varied among
   groups and among sites (\sigma_v = 0.7, \sigma_t = 0.5). Both models
   were fitted to every dataset.
+- **Grid of parametrizations.** Communities of 5 and 20 species at 30,
+  100 and 300 sites, and of 50 species at 100 sites, with 10 occasions
+  and 20 replicates, base scenario. Each dataset was fitted with the
+  four combinations of `centered` and `centered_occ`: neither (`ms`),
+  `centered` only (`ms_centered`), `centered_occ` only (`ms_occ`) and
+  both (`ms_centered_occ`). At 100 sites the datasets were those of the
+  first 20 replicates of the recovery cells, whose fits are reused. The
+  default (`ms`) with 20 species at 300 sites was left out, for its cost
+  (more than 31 hours per fit).
 - **Simulation-based calibration.** Communities of 10 species at 80
   sites with 8 occasions, the community parameters drawn from the
   priors, 200 replicates.
@@ -286,11 +291,64 @@ posteriors are. With `centered = TRUE` and `centered_occ = TRUE` (model
 `ms_centered_occ`), 100% of the fits passed the convergence criterion.
 The mean bulk ESS of the occupancy intercept rose from 536 to 7524. A
 fit took a median of 5.7 hours. Bias, RMSE and coverage were practically
-the same in the three versions, since the model is the same. For
-communities of 50 species at 100 sites, we therefore suggest
-`centered = TRUE` and `centered_occ = TRUE`. With few sites, the centred
-occupancy coefficients can mix worse; with two species at 40 sites, they
-increased the number of divergent transitions.
+the same in the three versions, since the model is the same. The grid
+below shows when each parametrization helps.
+
+#### Grid of parametrizations
+
+| nspecies | nsite | model | converged | with_divergences | median_min_ess | median_hours | coverage |
+|---:|---:|:---|---:|---:|---:|---:|---:|
+| 5 | 30 | ms | 0.95 | 0.05 | 1200 | 0.085 | 0.95 |
+| 5 | 30 | ms_centered | 0.20 | 0.80 | 870 | 0.071 | 0.96 |
+| 5 | 30 | ms_centered_occ | 0.00 | 1.00 | 350 | 0.110 | 0.96 |
+| 5 | 30 | ms_occ | 0.00 | 1.00 | 450 | 0.120 | 0.95 |
+| 5 | 100 | ms | 1.00 | 0.00 | 1300 | 0.720 | 0.97 |
+| 5 | 100 | ms_centered | 0.75 | 0.25 | 1300 | 0.350 | 0.97 |
+| 5 | 100 | ms_centered_occ | 0.05 | 0.95 | 760 | 0.270 | 0.98 |
+| 5 | 100 | ms_occ | 0.25 | 0.75 | 1000 | 0.670 | 0.97 |
+| 5 | 300 | ms | 0.95 | 0.05 | 1500 | 7.300 | 0.95 |
+| 5 | 300 | ms_centered | 1.00 | 0.00 | 1300 | 3.400 | 0.96 |
+| 5 | 300 | ms_centered_occ | 0.70 | 0.30 | 2500 | 1.200 | 0.95 |
+| 5 | 300 | ms_occ | 0.70 | 0.30 | 1200 | 5.500 | 0.96 |
+| 20 | 30 | ms | 1.00 | 0.00 | 900 | 0.470 | 0.92 |
+| 20 | 30 | ms_centered | 0.90 | 0.10 | 1200 | 0.400 | 0.92 |
+| 20 | 30 | ms_centered_occ | 0.05 | 0.95 | 370 | 0.440 | 0.92 |
+| 20 | 30 | ms_occ | 0.15 | 0.85 | 360 | 0.500 | 0.93 |
+| 20 | 100 | ms | 0.70 | 0.00 | 480 | 4.500 | 0.96 |
+| 20 | 100 | ms_centered | 0.85 | 0.00 | 760 | 3.200 | 0.96 |
+| 20 | 100 | ms_centered_occ | 1.00 | 0.00 | 2400 | 2.200 | 0.96 |
+| 20 | 100 | ms_occ | 0.80 | 0.00 | 540 | 4.300 | 0.96 |
+| 20 | 300 | ms_centered | 0.60 | 0.00 | 460 | 23.000 | 0.95 |
+| 20 | 300 | ms_centered_occ | 1.00 | 0.00 | 3900 | 5.100 | 0.95 |
+| 20 | 300 | ms_occ | 0.30 | 0.00 | 390 | 16.000 | 0.95 |
+| 50 | 100 | ms | 0.10 | 0.00 | 260 | 7.800 | 0.95 |
+| 50 | 100 | ms_centered | 0.75 | 0.00 | 550 | 5.900 | 0.95 |
+| 50 | 100 | ms_centered_occ | 1.00 | 0.00 | 3500 | 5.700 | 0.95 |
+| 50 | 100 | ms_occ | 0.20 | 0.00 | 330 | 7.300 | 0.95 |
+
+`median_min_ess` is the median, over fits, of the smallest bulk ESS of
+the community parameters, and `coverage` that of the 95% intervals of
+the community parameters. The coverage stayed between 92% and 98% in
+every cell, so the parametrizations differed in sampling, not in what
+they estimate.
+
+With 30 sites the default sampled best: 95% of the fits of 5 species and
+100% of those of 20 species converged. The centred occupancy
+coefficients failed there, with divergent transitions in almost every
+fit (0% and 5% converged). With 20 or more species and 100 or more
+sites, centring both converged every fit: 100% of 20 species at 100
+sites, 100% at 300 sites and 100% of 50 species at 100 sites, against
+70% and 10% for the default at 100 sites. It was also the fastest
+parametrization in these cells. With 5 species, centring both did worse
+than the default at every number of sites (70% against 95% at 300
+sites).
+
+The default of `centered` and `centered_occ`, `"auto"`, follows this
+grid: both are `TRUE` with at least 20 species and 100 sites, and
+`FALSE` otherwise. The grid did not cover other designs, such as 10
+species, or more than 10 occasions, so the rule is a starting point.
+When the sampler reports divergent transitions or low ESS, refitting
+with the other choice is cheap to try, since the model is the same.
 
 #### Recovery
 
@@ -501,6 +559,17 @@ for 95% of the 131 parameters with a true value. The largest R-hat was
 The fit had 42 divergent transitions, 34 of them in one chain. By the
 criterion used above, it therefore did not converge. The smallest bulk
 ESS (339) was that of `sd_recorder`, whose true value was 0.
+
+To see whether the divergences came from this boundary, the same model
+was fitted to data simulated with a recorder effect of standard
+deviation 0.5 and the same seed (task `full-sdrec` of
+`dev/ms-sim/cost_real.R`). The fit did not end within the limit of 30
+hours: three chains ended after 16, 22 and 26 hours, and the fourth had
+reached 80% of its sampling iterations. With a recorder effect away from
+0 the sampler was therefore two to four times slower, and whether the
+divergences come from the boundary at 0 remains open. Fits of data of
+this size are long, and their diagnostics should be checked before the
+estimates are used.
 
 ## References
 

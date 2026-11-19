@@ -4,10 +4,8 @@ Fits the false-positive occupancy model of
 [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) to
 several species at once, with the coefficients of each species drawn
 from distributions of the community, so that rare species borrow
-strength from the others. **This function is in development** (see
-[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md)):
-its arguments, results and output names may change in a minor version.
-Besides [`print()`](https://rdrr.io/r/base/print.html),
+strength from the others. Besides
+[`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
 [`as_draws_df()`](https://mc-stan.org/posterior/reference/draws_df.html),
 it works with
@@ -35,8 +33,8 @@ fp_occu_ms(
   by_species = character(),
   random_fp = FALSE,
   fp_group = NULL,
-  centered = FALSE,
-  centered_occ = FALSE,
+  centered = "auto",
+  centered_occ = "auto",
   chains = 4,
   parallel_chains = chains,
   threads_per_chain = "auto",
@@ -98,20 +96,27 @@ as_draws_df(x, ...)
 - centered:
 
   Use the centred parametrization of the detection intercepts, gaps,
-  recorder effects and the terms of `by_species`? The model is the same.
-  `TRUE` suits passive acoustic monitoring, with thousands of occasions
-  per species: their posteriors are then so narrow that the default
-  takes very small steps and reaches the maximum tree depth. Keep
-  `FALSE` with few occasions per species or recorder.
+  recorder effects and the terms of `by_species`? `TRUE`, `FALSE` or
+  `"auto"` (the default). The model is the same; only the sampling
+  changes. The centred form suits data with much information on each
+  species: many sites, or thousands of occasions per species in passive
+  acoustic monitoring, where the non-centred form takes very small steps
+  and reaches the maximum tree depth. With few sites the centred form
+  samples worse.
 
 - centered_occ:
 
   Use the centred parametrization of the occupancy coefficients of the
-  species? The model is the same. Their posteriors narrow with the
-  number of sites, not of occasions: `TRUE` suits many sites (in
-  simulations of 50 species at 100 sites, the default left the community
-  occupancy intercept poorly mixed), and `FALSE` few sites, where the
-  centred form samples worse.
+  species? `TRUE`, `FALSE` or `"auto"` (the default). Their posteriors
+  narrow with the number of sites, not of occasions. `"auto"` makes
+  `centered` and `centered_occ` `TRUE` with at least 20 species and 100
+  sites, and `FALSE` otherwise, with a message. The rule comes from
+  simulations of 5, 20 and 50 species at 30, 100 and 300 sites with 10
+  occasions (see
+  [`vignette("multispecies", package = "crywolf")`](https://provetelab.org/crywolf/articles/multispecies.md)):
+  with 20 or more species and 100 or more sites, the fits converged with
+  both centred, and with 30 sites or 5 species they converged more often
+  without. Other designs, for example 10 species, were not simulated.
 
 - chains, parallel_chains, threads_per_chain, iter_warmup,
   iter_sampling, adapt_delta, seed, refresh, ...:

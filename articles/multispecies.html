@@ -95,9 +95,6 @@
 
     
     
-<p><strong><code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> is in development</strong> (see
-<code>?crywolf-api</code>): its arguments, results and output names may
-change in a minor version.</p>
 <p>A classifier run on passive acoustic recordings rarely targets one
 species. The same recordings, the same recorders and often the same
 reviewer serve the whole list of species that the classifier knows.
@@ -288,6 +285,18 @@ replicates per scenario. In the “fs” scenario the false-positive rate
 varied among groups (<span class="math inline">\sigma_v = 0.7</span>);
 in the “mixed” scenario it varied among groups and among sites (<span class="math inline">\sigma_v = 0.7</span>, <span class="math inline">\sigma_t = 0.5</span>). Both models were fitted to
 every dataset.</li>
+<li>
+<strong>Grid of parametrizations.</strong> Communities of 5 and 20
+species at 30, 100 and 300 sites, and of 50 species at 100 sites, with
+10 occasions and 20 replicates, base scenario. Each dataset was fitted
+with the four combinations of <code>centered</code> and
+<code>centered_occ</code>: neither (<code>ms</code>),
+<code>centered</code> only (<code>ms_centered</code>),
+<code>centered_occ</code> only (<code>ms_occ</code>) and both
+(<code>ms_centered_occ</code>). At 100 sites the datasets were those of
+the first 20 replicates of the recovery cells, whose fits are reused.
+The default (<code>ms</code>) with 20 species at 300 sites was left out,
+for its cost (more than 31 hours per fit).</li>
 <li>
 <strong>Simulation-based calibration.</strong> Communities of 10
 species at 80 sites with 8 occasions, the community parameters drawn
@@ -643,11 +652,327 @@ occasions, sets how narrow their posteriors are. With
 criterion. The mean bulk ESS of the occupancy intercept rose from 536 to
 7524. A fit took a median of 5.7 hours. Bias, RMSE and coverage were
 practically the same in the three versions, since the model is the same.
-For communities of 50 species at 100 sites, we therefore suggest
-<code>centered = TRUE</code> and <code>centered_occ = TRUE</code>. With
-few sites, the centred occupancy coefficients can mix worse; with two
-species at 40 sites, they increased the number of divergent
-transitions.</p>
+The grid below shows when each parametrization helps.</p>
+</div>
+<div class="section level4">
+<h4 id="grid-of-parametrizations">Grid of parametrizations<a class="anchor" aria-label="anchor" href="#grid-of-parametrizations"></a>
+</h4>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="9%">
+<col width="6%">
+<col width="16%">
+<col width="10%">
+<col width="17%">
+<col width="15%">
+<col width="13%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">nspecies</th>
+<th align="right">nsite</th>
+<th align="left">model</th>
+<th align="right">converged</th>
+<th align="right">with_divergences</th>
+<th align="right">median_min_ess</th>
+<th align="right">median_hours</th>
+<th align="right">coverage</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">30</td>
+<td align="left">ms</td>
+<td align="right">0.95</td>
+<td align="right">0.05</td>
+<td align="right">1200</td>
+<td align="right">0.085</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="right">30</td>
+<td align="left">ms_centered</td>
+<td align="right">0.20</td>
+<td align="right">0.80</td>
+<td align="right">870</td>
+<td align="right">0.071</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">30</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">0.00</td>
+<td align="right">1.00</td>
+<td align="right">350</td>
+<td align="right">0.110</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="right">30</td>
+<td align="left">ms_occ</td>
+<td align="right">0.00</td>
+<td align="right">1.00</td>
+<td align="right">450</td>
+<td align="right">0.120</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">100</td>
+<td align="left">ms</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">1300</td>
+<td align="right">0.720</td>
+<td align="right">0.97</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="right">100</td>
+<td align="left">ms_centered</td>
+<td align="right">0.75</td>
+<td align="right">0.25</td>
+<td align="right">1300</td>
+<td align="right">0.350</td>
+<td align="right">0.97</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">100</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">0.05</td>
+<td align="right">0.95</td>
+<td align="right">760</td>
+<td align="right">0.270</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="right">100</td>
+<td align="left">ms_occ</td>
+<td align="right">0.25</td>
+<td align="right">0.75</td>
+<td align="right">1000</td>
+<td align="right">0.670</td>
+<td align="right">0.97</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">300</td>
+<td align="left">ms</td>
+<td align="right">0.95</td>
+<td align="right">0.05</td>
+<td align="right">1500</td>
+<td align="right">7.300</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="right">300</td>
+<td align="left">ms_centered</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">1300</td>
+<td align="right">3.400</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">300</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">0.70</td>
+<td align="right">0.30</td>
+<td align="right">2500</td>
+<td align="right">1.200</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="right">300</td>
+<td align="left">ms_occ</td>
+<td align="right">0.70</td>
+<td align="right">0.30</td>
+<td align="right">1200</td>
+<td align="right">5.500</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">30</td>
+<td align="left">ms</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">900</td>
+<td align="right">0.470</td>
+<td align="right">0.92</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">30</td>
+<td align="left">ms_centered</td>
+<td align="right">0.90</td>
+<td align="right">0.10</td>
+<td align="right">1200</td>
+<td align="right">0.400</td>
+<td align="right">0.92</td>
+</tr>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">30</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">0.05</td>
+<td align="right">0.95</td>
+<td align="right">370</td>
+<td align="right">0.440</td>
+<td align="right">0.92</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">30</td>
+<td align="left">ms_occ</td>
+<td align="right">0.15</td>
+<td align="right">0.85</td>
+<td align="right">360</td>
+<td align="right">0.500</td>
+<td align="right">0.93</td>
+</tr>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">100</td>
+<td align="left">ms</td>
+<td align="right">0.70</td>
+<td align="right">0.00</td>
+<td align="right">480</td>
+<td align="right">4.500</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">100</td>
+<td align="left">ms_centered</td>
+<td align="right">0.85</td>
+<td align="right">0.00</td>
+<td align="right">760</td>
+<td align="right">3.200</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">100</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">2400</td>
+<td align="right">2.200</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">100</td>
+<td align="left">ms_occ</td>
+<td align="right">0.80</td>
+<td align="right">0.00</td>
+<td align="right">540</td>
+<td align="right">4.300</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">300</td>
+<td align="left">ms_centered</td>
+<td align="right">0.60</td>
+<td align="right">0.00</td>
+<td align="right">460</td>
+<td align="right">23.000</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">300</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">3900</td>
+<td align="right">5.100</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="right">20</td>
+<td align="right">300</td>
+<td align="left">ms_occ</td>
+<td align="right">0.30</td>
+<td align="right">0.00</td>
+<td align="right">390</td>
+<td align="right">16.000</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right">50</td>
+<td align="right">100</td>
+<td align="left">ms</td>
+<td align="right">0.10</td>
+<td align="right">0.00</td>
+<td align="right">260</td>
+<td align="right">7.800</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="right">50</td>
+<td align="right">100</td>
+<td align="left">ms_centered</td>
+<td align="right">0.75</td>
+<td align="right">0.00</td>
+<td align="right">550</td>
+<td align="right">5.900</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right">50</td>
+<td align="right">100</td>
+<td align="left">ms_centered_occ</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">3500</td>
+<td align="right">5.700</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="right">50</td>
+<td align="right">100</td>
+<td align="left">ms_occ</td>
+<td align="right">0.20</td>
+<td align="right">0.00</td>
+<td align="right">330</td>
+<td align="right">7.300</td>
+<td align="right">0.95</td>
+</tr>
+</tbody>
+</table>
+<p><code>median_min_ess</code> is the median, over fits, of the smallest
+bulk ESS of the community parameters, and <code>coverage</code> that of
+the 95% intervals of the community parameters. The coverage stayed
+between 92% and 98% in every cell, so the parametrizations differed in
+sampling, not in what they estimate.</p>
+<p>With 30 sites the default sampled best: 95% of the fits of 5 species
+and 100% of those of 20 species converged. The centred occupancy
+coefficients failed there, with divergent transitions in almost every
+fit (0% and 5% converged). With 20 or more species and 100 or more
+sites, centring both converged every fit: 100% of 20 species at 100
+sites, 100% at 300 sites and 100% of 50 species at 100 sites, against
+70% and 10% for the default at 100 sites. It was also the fastest
+parametrization in these cells. With 5 species, centring both did worse
+than the default at every number of sites (70% against 95% at 300
+sites).</p>
+<p>The default of <code>centered</code> and <code>centered_occ</code>,
+<code>"auto"</code>, follows this grid: both are <code>TRUE</code> with
+at least 20 species and 100 sites, and <code>FALSE</code> otherwise. The
+grid did not cover other designs, such as 10 species, or more than 10
+occasions, so the rule is a starting point. When the sampler reports
+divergent transitions or low ESS, refitting with the other choice is
+cheap to try, since the model is the same.</p>
 </div>
 <div class="section level4">
 <h4 id="recovery">Recovery<a class="anchor" aria-label="anchor" href="#recovery"></a>
@@ -1613,8 +1938,16 @@ for 95% of the 131 parameters with a true value. The largest R-hat was
 criterion used above, it therefore did not converge. The smallest bulk
 ESS (339) was that of <code>sd_recorder</code>, whose true value was
 0.</p>
-<!-- TODO(full-sdrec): fill in once the fit with sd_recorder = 0.5 ends
-(PR #43): whether the divergences come from the boundary at 0. -->
+<p>To see whether the divergences came from this boundary, the same
+model was fitted to data simulated with a recorder effect of standard
+deviation 0.5 and the same seed (task <code>full-sdrec</code> of
+<code>dev/ms-sim/cost_real.R</code>). The fit did not end within the
+limit of 30 hours: three chains ended after 16, 22 and 26 hours, and the
+fourth had reached 80% of its sampling iterations. With a recorder
+effect away from 0 the sampler was therefore two to four times slower,
+and whether the divergences come from the boundary at 0 remains open.
+Fits of data of this size are long, and their diagnostics should be
+checked before the estimates are used.</p>
 </div>
 </div>
 <div class="section level2">

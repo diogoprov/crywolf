@@ -184,7 +184,7 @@ returns a list of datasets, each with `data` and `truth`; its truth
 fields are `pars` (named generating coefficients), `z`, `p10_site`, and
 `p10_bar`.
 
-## Multispecies model (in development)
+## Multispecies model
 
 [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
 gives the community means under the names above (`occ_*`, `det_*`,

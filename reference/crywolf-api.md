@@ -16,8 +16,9 @@ From crywolf 2.0.0, for the stable functions listed below:
   (`fp_data`, `fp_occu`, `fp_priors`, `fp_sim`, `fp_calibration`,
   `fp_sbc`, `fp_ppc`, `fp_prior_predictive`, `fp_effects`, `fp_sites`,
   `fp_threshold_sweep`, `fp_sheepdog`, `fp_occu_dyn`, `fp_sim_dyn`,
-  `summary.fp_occu`, `summary.fp_calibration`, `summary.fp_sbc`), and
-  the class of the design warnings of
+  `fp_occu_ms`, `fp_sim_ms`, `summary.fp_occu`,
+  `summary.fp_calibration`, `summary.fp_sbc`), and the class of the
+  design warnings of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   (`crywolf_design_warning`), which code may catch. Classes of other
   packages (the `CmdStanModel` of
@@ -85,7 +86,13 @@ and
 From 2.3.0,
 [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md),
 the dynamic (multi-season) model, with its methods and
-[`simulate.fp_occu_dyn()`](https://provetelab.org/crywolf/reference/simulate.fp_occu_dyn.md).
+[`simulate.fp_occu_dyn()`](https://provetelab.org/crywolf/reference/simulate.fp_occu_dyn.md),
+and
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
+the multispecies model, with the `species` argument of
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md), the
+methods of the `fp_occu_ms` class and
+[`simulate.fp_occu_ms()`](https://provetelab.org/crywolf/reference/simulate.fp_occu_ms.md).
 
 Results and simulation:
 [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md),
@@ -96,7 +103,10 @@ Results and simulation:
 [`fp_calibrate_fit()`](https://provetelab.org/crywolf/reference/fp_calibrate_fit.md),
 [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md), and,
 from 2.3.0,
-[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md).
+[`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
+[`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
+and
+[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md).
 
 The [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
@@ -114,15 +124,6 @@ propagate a classifier calibration from 'sheepdog' into the model or
 pass data to 'unmarked', and are still being evaluated. Their arguments,
 classes and results may change in a minor version; the NEWS will say so.
 Each says so in its help.
-[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
-the multispecies model, with the `fp_occu_ms` class and its methods,
-[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md)
-and
-[`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md),
-is in development and experimental in the same way, as is the `species`
-argument of
-[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md) that
-feeds it.
 [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md),
 by contrast, reads a versioned export format (`sheepdog-occupancy`,
 schema 1) and is stable.

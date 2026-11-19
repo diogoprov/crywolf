@@ -88,20 +88,27 @@ Validation selects thresholds only; it is not passed as confirmation data
 to \code{\link[=fp_aggregate]{fp_aggregate()}}.
 }
 \examples{
-\dontrun{
-# occasions: one row per one-minute recording, with site_night and covariates
-sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.1, 0.4, 0.7),
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
+# one site-night in ten of the curiango data; occasions are one-minute
+# recordings, scored by the custom classifier
+nights <- curiango$nights[seq(1, nrow(curiango$nights), by = 10), ]
+m <- curiango$minutes[curiango$minutes$site_night \%in\% nights$site_night, ]
+occasions <- data.frame(file = paste(m$site_night, format(m$time, "\%Y\%m\%d_\%H\%M")),
+                        site_night = m$site_night)
+detections <- data.frame(file = occasions$file, confidence = m$conf_custom)
+verified <- curiango$verified[curiango$verified$site_night \%in\% nights$site_night,
+                              c("site_night", "y")]
+sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.2, 0.6),
                             sites = nights, verified = verified,
-                            site = "site_night", occ = ~ temp + rh, fp = ~ 1,
-                            random_recorder = FALSE)
+                            site = "site_night", occ = ~ 1, fp = ~ 1,
+                            random_recorder = FALSE, chains = 2,
+                            threads_per_chain = 1)
 plot(sweep)
-# Derive both thresholds from reviewed classifier clips:
-reviews <- fp_read_validation("validation_by_clip.csv")
-selected <- fp_threshold_sweep(occasions, detections, sites = nights,
-                               site = "site_night", validation = reviews,
-                               random_recorder = FALSE)
-attr(selected, "threshold_selection")
+# `validation` derives both thresholds from reviewed classifier clips;
+# see vignette("threshold")
 }
+\dontshow{\}) # examplesIf}
 }
 \references{
 Piatti, L., de Sousa, D. L. H., Oliveira, B. S., de Melo,

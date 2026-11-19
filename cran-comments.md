@@ -1,6 +1,23 @@
-## Submission
+## Resubmission
 
-This is a new submission.
+This is a resubmission. In response to the review of 19 November 2026:
+
+* `\dontrun{}` is no longer used. Examples that fit models are in
+  `\donttest{}` and run only when CmdStan is installed
+  (`@examplesIf instantiate::stan_cmdstan_exists()`), since fitting needs
+  this external software. Examples that read files use a small export
+  shipped in `inst/extdata` and run unwrapped.
+* Nothing is written to the user's filespace in examples, vignettes or
+  tests: they write only to `tempdir()`. When the model has to be compiled
+  after installation (binary packages), the executable is kept in
+  `tools::R_user_dir("crywolf", "cache")`, as the CRAN policy allows; it
+  holds only the Stan program and its executable, which a new version
+  replaces. Under `R CMD check` this cache is in `tempdir()`.
+* Examples and vignettes use at most two cores: fits in examples set
+  `chains = 2, threads_per_chain = 1`, fits in vignettes set
+  `parallel_chains = 2, threads_per_chain = 1`, and under `R CMD check`
+  every fit is limited to two cores in total.
+* Tessa Rhinehart is no longer listed as an author.
 
 crywolf fits Bayesian false-positive occupancy models written in Stan. The
 model is compiled through 'instantiate' when the package is installed from
@@ -12,8 +29,7 @@ and is available from the repository in `Additional_repositories`
 'instantiate'. 'sheepdog' (Suggests) is available from
 https://diogoprov.r-universe.dev.
 
-Examples that fit models are in `\dontrun{}`, tests that need CmdStan are
-skipped, and vignettes evaluate model fits only when CmdStan is found (the
+Tests that need CmdStan are skipped, and vignettes evaluate model fits only when CmdStan is found (the
 long ones show precomputed results). Under `R CMD check` a fit uses at
 most two cores.
 

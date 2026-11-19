@@ -65,11 +65,14 @@ and species, with the species column of the data after the site columns,
 and every column refers to that species at that site.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
 st <- fp_sites(m)
 head(st)
 plot(st)
 }
+\dontshow{\}) # examplesIf}
 }

@@ -81,13 +81,16 @@ package, so its \verb{ppc_*()} functions can be used directly, for example
 \code{bayesplot::ppc_bars(ppc$y, ppc$yrep)}.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
 ppc <- fp_ppc(m, ndraws = 500, seed = 1)
 ppc
 bayesplot::ppc_bars(ppc$y, ppc$yrep)
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_occu]{fp_occu()}}, \code{\link[=fp_calibrate]{fp_calibrate()}}

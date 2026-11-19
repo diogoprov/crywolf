@@ -1,5 +1,13 @@
 # crywolf (development version)
 
+* Changes for CRAN: examples that fit models run in `\donttest{}` when
+  CmdStan is installed, with two chains and one thread each, instead of
+  never; examples that read a sheepdog export use one shipped in
+  `inst/extdata/sheepdog-export`. Vignette fits run at most two chains at a
+  time. Under `R CMD check`, a model compiled after installation goes to
+  `tempdir()` instead of the user cache.
+* Tessa Rhinehart is no longer listed as an author.
+
 * `fp_occu_ms()`, `simulate_fp_ms()`, `fp_richness()`, the `fp_occu_ms` and
   `fp_sim_ms` classes and their methods, and the `species` argument of
   `fp_data()` are no longer in development. Their arguments, classes and

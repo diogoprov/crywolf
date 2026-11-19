@@ -62,10 +62,11 @@
 #'   Bayesian p-value of each species.
 #' @seealso [fp_occu()], [fp_calibrate()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' ppc <- fp_ppc(m, ndraws = 500, seed = 1)
 #' ppc
 #' bayesplot::ppc_bars(ppc$y, ppc$yrep)

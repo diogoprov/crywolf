@@ -204,16 +204,18 @@
 #' misidentification. *Ecology*, 92, 1422–1428. \doi{10.1890/10-1396.1}
 #' @seealso [crywolf-output], [fp_data()], [fp_priors()], [fp_calibrate()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
 #'                    conf_cor = 0.7, seed = 42)
 #'
 #' # constant false-positive rate (the simulated recorders have no effect,
 #' # so the recorder term is left out)
-#' m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'               chains = 2, threads_per_chain = 1)
 #' # false-positive rate that tracks the occupancy covariate
-#' m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+#'               chains = 2, threads_per_chain = 1)
 #'
 #' coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8
 #' loo::loo_compare(loo(m0), loo(m1))

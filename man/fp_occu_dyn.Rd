@@ -118,13 +118,16 @@ transitions, the equilibrium occupancy (\code{psi_eq}); see \link{crywolf-output
 parameters.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 s <- simulate_fp_dyn(nsite = 150, nseason = 4, b_col = 1, b_ext = -1, seed = 1)
 m <- fp_occu_dyn(s$data, psi1 = ~ x, col = ~ rain, ext = ~ x,
-                 random_recorder = FALSE)
+                 random_recorder = FALSE,
+  chains = 2, threads_per_chain = 1)
 m
 head(fp_sites(m))   # one row per site-season
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_occu]{fp_occu()}}, \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}, \link{crywolf-output};

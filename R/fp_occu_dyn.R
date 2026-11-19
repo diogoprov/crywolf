@@ -65,11 +65,12 @@
 #'   `vignette("dynamic")` fits it to the `curiango` data, with the nights
 #'   of each site as seasons.
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' s <- simulate_fp_dyn(nsite = 150, nseason = 4, b_col = 1, b_ext = -1, seed = 1)
 #' m <- fp_occu_dyn(s$data, psi1 = ~ x, col = ~ rain, ext = ~ x,
-#'                  random_recorder = FALSE)
+#'                  random_recorder = FALSE,
+#'   chains = 2, threads_per_chain = 1)
 #' m
 #' head(fp_sites(m))   # one row per site-season
 #' }
@@ -522,10 +523,11 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
 #'   its mean `p10_bar`).
 #' @seealso [fp_occu_dyn()], [simulate_fp_dyn()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' s <- simulate_fp_dyn(nsite = 100, nseason = 4, seed = 1)
-#' m <- fp_occu_dyn(s$data, col = ~ rain, ext = ~ x, random_recorder = FALSE)
+#' m <- fp_occu_dyn(s$data, col = ~ rain, ext = ~ x, random_recorder = FALSE,
+#'                  chains = 2, threads_per_chain = 1)
 #' new <- simulate(m, nsim = 2, seed = 1)
 #' new[[1]]$truth$pars
 #' }

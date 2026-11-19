@@ -7,10 +7,11 @@
 #' @param prob Width of the equal-tailed credible interval.
 #' @param digits Number of digits to print.
 #' @param ... Unused, or passed on (see each method).
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' m                                   # posterior summary and diagnostics
 #' summary(m, prob = 0.9)$table
 #' coef(m, "occ")
@@ -235,12 +236,14 @@ loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL,
 #'   stacking to average Bayesian predictive distributions. *Bayesian
 #'   Analysis*, 13, 917–1007. \doi{10.1214/17-BA1091}
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, conf_effect = 1.5,
 #'                    conf_cor = 0.7, seed = 1)
-#' m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
-#' m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'               chains = 2, threads_per_chain = 1)
+#' m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+#'               chains = 2, threads_per_chain = 1)
 #' fp_loo_weights(constant = m0, fp_on_x = m1)
 #' }
 fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {

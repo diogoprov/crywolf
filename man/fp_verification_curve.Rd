@@ -38,9 +38,12 @@ model the false-positive rate (for instance on the occupancy covariate),
 not to verify more.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 fp_verification_curve(p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7,
                       models = list(constant = ~ 1, fp_on_x = ~ x),
-                      reps = 50)
+                      frac_verified = c(0.1, 0.5), reps = 5,
+                      fit_args = list(chains = 2, threads_per_chain = 1))
 }
+\dontshow{\}) # examplesIf}
 }

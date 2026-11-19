@@ -22,13 +22,17 @@ stacking of their leave-one-site-out predictive densities (Yao et al.
 that accepts fits or \code{loo()} results.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 1)
-m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
-m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
 fp_loo_weights(constant = m0, fp_on_x = m1)
 }
+\dontshow{\}) # examplesIf}
 }
 \references{
 Yao, Y., Vehtari, A., Simpson, D., & Gelman, A. (2018). Using

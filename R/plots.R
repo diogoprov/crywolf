@@ -21,10 +21,11 @@
 #' @return A 'ggplot2' object (for `"pairs"`, a 'bayesplot' grid).
 #' @seealso [fp_effects()], [fp_sites()], [plot.fp_ppc()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' plot(m)
 #' plot(m, type = "trace")
 #' plot(m, type = "pairs", pars = c("fp_(Intercept)", "fp_gap"))
@@ -120,10 +121,11 @@ plot.fp_occu <- function(x, type = c("intervals", "trace", "rank", "pairs"),
 #'   posterior mean and interval of the probability; [plot()] draws it.
 #' @seealso [predict.fp_occu()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' plot(fp_effects(m, "x"))
 #' plot(fp_effects(m, "x", process = "fp"))
 #' }
@@ -230,10 +232,11 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #'   `detections` (number of automated detections), and `verified` (whether
 #'   a verified detection proves occupancy). [plot()] draws it.
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' st <- fp_sites(m)
 #' head(st)
 #' plot(st)
@@ -331,10 +334,11 @@ plot.fp_sites <- function(x, coords = NULL, ...) {
 #'
 #' @return A 'ggplot2' object.
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' p <- fp_ppc(m, ndraws = 500, seed = 1)
 #' plot(p)
 #' plot(p, type = "counts")

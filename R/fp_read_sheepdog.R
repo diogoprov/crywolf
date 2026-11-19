@@ -85,15 +85,17 @@
 #'   the tables found). Tables absent from the export are `NULL`.
 #' @seealso [fp_aggregate()], [fp_data()], [fp_read_validation()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf requireNamespace("jsonlite", quietly = TRUE)
+#' # a small export of sheepdog with three species, shipped with crywolf
+#' dir <- system.file("extdata", "sheepdog-export", package = "crywolf")
 #' # the tables hold only the target species, so fp_aggregate() needs no
-#' # `species`
-#' x <- fp_read_sheepdog("occupancy_export", species = "compau")
+#' # `species`; the reviewed clips of this export are top-scoring clips,
+#' # dropped with a warning, so no detection is confirmed
+#' x <- fp_read_sheepdog(dir, species = "phy_cuv")
 #' auto <- fp_aggregate(x$occasions, x$detections, threshold = 0.5,
 #'                      by = c("site", "occasion_id"), validation = x$validation)
-#' d <- fp_data(auto, x$sites, x$verified, confirmed = c("n_true", "n_false"))
-#' }
+#' d <- fp_data(auto, x$sites)
+#' d
 fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
   .require_pkg("jsonlite")
   schema_file <- file.path(path, "schema.json")

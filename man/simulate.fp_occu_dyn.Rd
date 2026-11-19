@@ -37,12 +37,15 @@ states are drawn anew over seasons, from initial occupancy, colonization
 and extinction, and the detections given them.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 s <- simulate_fp_dyn(nsite = 100, nseason = 4, seed = 1)
-m <- fp_occu_dyn(s$data, col = ~ rain, ext = ~ x, random_recorder = FALSE)
+m <- fp_occu_dyn(s$data, col = ~ rain, ext = ~ x, random_recorder = FALSE,
+                 chains = 2, threads_per_chain = 1)
 new <- simulate(m, nsim = 2, seed = 1)
 new[[1]]$truth$pars
 }
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=fp_occu_dyn]{fp_occu_dyn()}}, \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}

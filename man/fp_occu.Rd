@@ -242,19 +242,23 @@ averaged over sites or automated occasions, depending on the FP covariates).
 See \link{crywolf-output} for all names, scales, and availability conditions.
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
                    conf_cor = 0.7, seed = 42)
 
 # constant false-positive rate (the simulated recorders have no effect,
 # so the recorder term is left out)
-m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
 # false-positive rate that tracks the occupancy covariate
-m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+              chains = 2, threads_per_chain = 1)
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8
 loo::loo_compare(loo(m0), loo(m1))
 }
+\dontshow{\}) # examplesIf}
 }
 \references{
 Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false

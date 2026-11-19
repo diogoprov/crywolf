@@ -41,10 +41,11 @@
 #'   `p10_bar`).
 #' @seealso [fp_calibrate_fit()], [simulate_fp()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+#' m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'              chains = 2, threads_per_chain = 1)
 #' new <- simulate(m, nsim = 2, seed = 1)
 #' new[[1]]$data
 #' new[[1]]$truth$p10_bar
@@ -107,13 +108,15 @@ simulate.fp_occu <- function(object, nsim = 1, seed = NULL,
 #'   with a single design cell.
 #' @seealso [fp_calibrate()], [simulate.fp_occu()]
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
 #' sim <- simulate_fp(nsite = 300, nocc = 20, conf_effect = 1.5,
 #'                    conf_cor = 0.7, seed = 1)
-#' m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)
+#' m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+#'                chains = 2, threads_per_chain = 1)
 #' cal <- fp_calibrate_fit(m_x, models = list(constant = ~ 1, fp_on_x = ~ x),
-#'                         reps = 20)
+#'                         reps = 5,
+#'                         fit_args = list(chains = 2, threads_per_chain = 1))
 #' summary(cal)
 #' plot(cal, parameter = "occ_x")
 #' }

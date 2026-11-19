@@ -26,11 +26,14 @@ A 'ggplot2' object.
 Plot a posterior predictive check
 }
 \examples{
-\dontrun{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
 sim <- simulate_fp(nsite = 200, nocc = 10, seed = 1)
-m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE)
+m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+             chains = 2, threads_per_chain = 1)
 p <- fp_ppc(m, ndraws = 500, seed = 1)
 plot(p)
 plot(p, type = "counts")
 }
+\dontshow{\}) # examplesIf}
 }

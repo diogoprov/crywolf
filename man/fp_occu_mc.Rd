@@ -27,10 +27,12 @@ fp_occu_mc(
 }
 \arguments{
 \item{data_list}{A list of \code{fp_data} objects with the same sites, one per
-draw of the detection histories.}
+draw of the detection histories, as \code{\link[=fp_draws_data]{fp_draws_data()}} returns. When they
+hold several species (\code{fp_data(species = )}), every version must have
+the same species and each is fitted with \code{\link[=fp_occu_ms]{fp_occu_ms()}}.}
 
-\item{...}{Arguments passed to \code{\link[=fp_occu]{fp_occu()}} for every fit (formulas,
-priors, sampler settings).}
+\item{...}{Arguments passed to \code{\link[=fp_occu]{fp_occu()}} or \code{\link[=fp_occu_ms]{fp_occu_ms()}} for every fit
+(formulas, priors, sampler settings).}
 
 \item{seed}{Optional integer: fit \code{i} uses seed \code{seed + i - 1}. The
 fits are reproduced draw for draw only with one thread per chain
@@ -72,7 +74,8 @@ between fits (\code{share_between}), and the largest R-hat and smallest bulk
 effective sample size over the fits.
 }
 \description{
-Fits \code{\link[=fp_occu]{fp_occu()}} to each of several versions of the same data, which
+Fits \code{\link[=fp_occu]{fp_occu()}}, or \code{\link[=fp_occu_ms]{fp_occu_ms()}} when the data hold several species,
+to each of several versions of the same data, which
 differ only in which occasions count as detections, and pools the
 posterior draws in equal shares. The versions are typically detection
 histories drawn from the posterior of a calibration of the classifier,
@@ -120,6 +123,15 @@ higher \code{adapt_delta}. The summary reports the largest R-hat and the
 smallest effective sample size over the fits kept, and \code{diagnostics}
 lists every fit, with \code{kept} marking those in the pool.
 
+\strong{Several species.} The versions are fitted with \code{\link[=fp_occu_ms]{fp_occu_ms()}}, and
+the pooled draws hold its parameters (species effects, community means
+and standard deviations among species). The parametrization
+(\code{centered}, \code{centered_occ}) is the same in every fit: when left at
+\code{"auto"}, it is chosen once from the number of species and sites. With
+\code{keep_fits = TRUE}, \code{\link[=fp_richness]{fp_richness()}} and the other methods of
+\code{\link[=fp_occu_ms]{fp_occu_ms()}} apply to each fit in \code{fits}; they are not defined for the
+pool.
+
 \strong{Number of versions.} The cost is that of one fit times the number of
 versions. The between-fit variance is estimated from the versions, so
 it needs several of them; check that the estimates of interest are
@@ -148,8 +160,16 @@ versions <- purrr::map(1:3, function(i) {
 mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                  threads_per_chain = 1, seed = 1)
 summary(mc)
+
+# several species, from a 'sheepdog' export
+x <- fp_read_sheepdog("occupancy_export",
+                      species = c("ela_bic", "lep_fus", "phy_cuv"))
+versions <- fp_draws_data(x, n_draws = 20, seed = 1)
+mc_ms <- fp_occu_mc(versions, occ = ~ 1, fp = ~ 1, seed = 1)
+summary(mc_ms)
 }
 }
 \seealso{
-\code{\link[=fp_occu]{fp_occu()}}, \code{\link[=fp_read_sheepdog]{fp_read_sheepdog()}}
+\code{\link[=fp_occu]{fp_occu()}}, \code{\link[=fp_occu_ms]{fp_occu_ms()}}, \code{\link[=fp_read_sheepdog]{fp_read_sheepdog()}},
+\code{\link[=fp_draws_data]{fp_draws_data()}}
 }

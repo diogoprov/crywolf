@@ -10,6 +10,11 @@
   otherwise, with a message. The rule comes from a grid of simulations of 5,
   20 and 50 species at 30, 100 and 300 sites (`vignette("multispecies")`).
   Pass `centered = FALSE, centered_occ = FALSE` for the earlier default.
+* `fp_occu_mc()` fits `fp_occu_ms()` when the versions hold several
+  species, as `fp_draws_data()` returns them from a multispecies export of
+  sheepdog, and pools its draws. The parametrization is chosen once for all
+  the fits. `vignette("multispecies")` shows the path from the export to
+  the pooled posterior.
 * `vignette("multispecies")` reports the cost of `fp_occu_ms()` on a dataset
   of the size of `curiango` with 20 species, and the time per gradient by
   `threads_per_chain`.

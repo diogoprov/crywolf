@@ -1,6 +1,7 @@
 #' Fit the model to draws of the detection histories
 #'
-#' Fits [fp_occu()] to each of several versions of the same data, which
+#' Fits [fp_occu()], or [fp_occu_ms()] when the data hold several species,
+#' to each of several versions of the same data, which
 #' differ only in which occasions count as detections, and pools the
 #' posterior draws in equal shares. The versions are typically detection
 #' histories drawn from the posterior of a calibration of the classifier,
@@ -9,9 +10,11 @@
 #' propagation).
 #'
 #' @param data_list A list of `fp_data` objects with the same sites, one per
-#'   draw of the detection histories.
-#' @param ... Arguments passed to [fp_occu()] for every fit (formulas,
-#'   priors, sampler settings).
+#'   draw of the detection histories, as [fp_draws_data()] returns. When they
+#'   hold several species (`fp_data(species = )`), every version must have
+#'   the same species and each is fitted with [fp_occu_ms()].
+#' @param ... Arguments passed to [fp_occu()] or [fp_occu_ms()] for every fit
+#'   (formulas, priors, sampler settings).
 #' @param seed Optional integer: fit `i` uses seed `seed + i - 1`. The
 #'   fits are reproduced draw for draw only with one thread per chain
 #'   (`threads_per_chain = 1`, the setting when `parallel = TRUE`).
@@ -67,6 +70,15 @@
 #' smallest effective sample size over the fits kept, and `diagnostics`
 #' lists every fit, with `kept` marking those in the pool.
 #'
+#' **Several species.** The versions are fitted with [fp_occu_ms()], and
+#' the pooled draws hold its parameters (species effects, community means
+#' and standard deviations among species). The parametrization
+#' (`centered`, `centered_occ`) is the same in every fit: when left at
+#' `"auto"`, it is chosen once from the number of species and sites. With
+#' `keep_fits = TRUE`, [fp_richness()] and the other methods of
+#' [fp_occu_ms()] apply to each fit in `fits`; they are not defined for the
+#' pool.
+#'
 #' **Number of versions.** The cost is that of one fit times the number of
 #' versions. The between-fit variance is estimated from the versions, so
 #' it needs several of them; check that the estimates of interest are
@@ -79,7 +91,8 @@
 #'   largest R-hat, smallest bulk and tail effective sample sizes, and
 #'   `kept`), `fits` (with `keep_fits = TRUE`, the fits kept), `n_fits` (the
 #'   fits in the pool), and `call`.
-#' @seealso [fp_occu()], [fp_read_sheepdog()]
+#' @seealso [fp_occu()], [fp_occu_ms()], [fp_read_sheepdog()],
+#'   [fp_draws_data()]
 #' @section Experimental:
 #' This function is experimental (new in 2.0.0, part of the integration with
 #' 'sheepdog'): its arguments, its class and methods, and its results may
@@ -102,6 +115,13 @@
 #' mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
 #'                  threads_per_chain = 1, seed = 1)
 #' summary(mc)
+#'
+#' # several species, from a 'sheepdog' export
+#' x <- fp_read_sheepdog("occupancy_export",
+#'                       species = c("ela_bic", "lep_fus", "phy_cuv"))
+#' versions <- fp_draws_data(x, n_draws = 20, seed = 1)
+#' mc_ms <- fp_occu_mc(versions, occ = ~ 1, fp = ~ 1, seed = 1)
+#' summary(mc_ms)
 #' }
 fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
                        max_rhat = 1.05, keep_fits = FALSE) {
@@ -109,7 +129,15 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
       !all(purrr::map_lgl(data_list, inherits, "fp_data"))) {
     stop("`data_list` must be a list of `fp_data` objects.", call. = FALSE)
   }
-  .check_fp_data(data_list[[1]])
+  first <- data_list[[1]]
+  multi <- !is.null(first$species)
+  if (!multi) .check_fp_data(first)
+  same_species <- function(d) identical(d$species, first$species) &&
+    identical(d$species_names, first$species_names)
+  if (!all(purrr::map_lgl(data_list, same_species))) {
+    stop("The versions in `data_list` must all hold one species, or all the ",
+         "same species (`fp_data(species = )`).", call. = FALSE)
+  }
   dots <- list(...)
   if (!is.numeric(max_rhat) || length(max_rhat) != 1 || is.na(max_rhat) || max_rhat < 1) {
     stop("`max_rhat` must be a single number of at least 1 (Inf keeps every fit).",
@@ -127,11 +155,30 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
     one <- list(parallel_chains = 1, threads_per_chain = 1)
     dots <- c(dots, one[setdiff(names(one), names(dots))])
   }
-  fp_compile()
+  fit_fun <- fp_occu
+  if (multi) {
+    fit_fun <- fp_occu_ms
+    # resolve "auto" once, so that each fit does not repeat the message
+    nsp <- length(first$species_names)
+    nsite <- nrow(first$sites)
+    auto <- FALSE
+    for (arg in c("centered", "centered_occ")) {
+      if (is.null(dots[[arg]]) || identical(dots[[arg]], "auto")) {
+        dots[[arg]] <- .ms_centered_auto(nsp, nsite)
+        auto <- TRUE
+      }
+    }
+    if (auto) {
+      message("Parametrization (", nsp, " species at ", nsite, " sites): centered = ",
+              dots$centered, ", centered_occ = ", dots$centered_occ, "; see ?fp_occu_ms.")
+    }
+  }
+  # compile before the fits, so that parallel workers do not each compile
+  if (multi) .compile_model("fp_occu_ms") else fp_compile()
   jobs <- tibble::tibble(i = seq_along(data_list), d = data_list)
   run_one <- function(i, d) {
     s <- if (is.null(seed)) NULL else as.integer(seed) + i - 1L
-    m <- tryCatch(do.call(fp_occu, c(list(d, seed = s), dots)),
+    m <- tryCatch(do.call(fit_fun, c(list(d, seed = s), dots)),
                   error = function(e) conditionMessage(e))
     if (is.character(m)) return(list(ok = FALSE, msg = m))
     list(ok = TRUE, draws = m$draws, summary = summary(m)$table,

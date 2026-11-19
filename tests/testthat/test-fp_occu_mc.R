@@ -110,15 +110,17 @@ test_that("one multispecies version reproduces fp_occu_ms()", {
                threads_per_chain = 1, refresh = 0, show_messages = FALSE)
   m1 <- suppressWarnings(suppressMessages(
     do.call(fp_occu_ms, c(list(d, seed = 5), args))))
+  # short chains: the test is about equal draws, not convergence
+  args_mc <- c(args, max_rhat = Inf)
   expect_message(
-    mc1 <- suppressWarnings(do.call(fp_occu_mc, c(list(list(d), seed = 5), args))),
+    mc1 <- suppressWarnings(do.call(fp_occu_mc, c(list(list(d), seed = 5), args_mc))),
     "centered = FALSE, centered_occ = FALSE")
   expect_identical(unclass(posterior::as_draws_matrix(mc1$draws)),
                    unclass(posterior::as_draws_matrix(m1$draws)))
   # set by the user: no message
   expect_no_message(suppressWarnings(do.call(
     fp_occu_mc, c(list(list(d), seed = 5, centered = FALSE, centered_occ = FALSE),
-                  args))))
+                  args_mc))))
 })
 
 test_that("a multispecies sheepdog export runs from end to end", {

@@ -8,8 +8,9 @@
 # with fp_occu() alone. The pilot of cell 10 (model "ms_centered") is
 # compared with the 50 species cell in its own table. Fits count as
 # converged with R-hat < 1.01 for every parameter with a true value and no
-# divergent transitions. Cells that have
-# not ended yet are left out. Run from the package root:
+# divergent transitions. The grid of parametrizations (5, 20 and 50
+# species at 30, 100 and 300 sites) gives the rule of centered = "auto".
+# Cells that have not ended yet are left out. Run from the package root:
 #   Rscript dev/ms-sim/summarise.R
 # =============================================================================
 
@@ -21,6 +22,7 @@ read_part <- function(part) {
 }
 recovery <- read_part("recovery")
 sbc <- read_part("sbc")
+grid <- read_part("grid")
 
 # one row per parameter (and grouping), with bias, RMSE, 95% coverage and width
 metrics <- function(d, by) {
@@ -91,6 +93,42 @@ if (!is.null(sbc)) {
   res$sbc_fits <- c(n = length(unique(sbc$rep)), failed = length(unique(sbc$rep[!sbc$ok])),
                     with_divergences = length(unique(ok$rep[ok$divergences > 0])))
 }
+# grid of parametrizations: one row per number of species, sites and model,
+# with the share of converged fits, the median of the smallest bulk ESS of
+# the community parameters, the median hours and the 95% coverage of the
+# community parameters. At 100 sites the grid reuses the datasets of the
+# recovery cells (scenario "base", replicates 1 to 20) and does not repeat
+# their fits: the default ("ms") for 5 and 20 species, and every model for 50
+# species. Their cell numbers are negated so as not to meet those of the grid.
+if (!is.null(grid)) {
+  base <- recovery[recovery$scenario == "base" & recovery$rep <= 20 &
+                     (recovery$model == "ms" | recovery$nspecies == 50), ]
+  base$nsite <- 100
+  base$cell <- -base$cell
+  keep <- c(fit_keys, "nspecies", "nsite", "ok", "variable", "mean", "lower", "upper",
+            "rhat", "ess_bulk", "truth", "divergences", "seconds")
+  g <- rbind(grid[keep], base[keep])
+  g$converged <- fit_ok(g)
+  g$community <- !grepl("\\[sp\\d+\\]$", g$variable)
+  by_fit <- split(g, interaction(g[fit_keys], drop = TRUE))
+  fits_g <- do.call(rbind, lapply(by_fit, function(x) {
+    data.frame(x[1, c("nspecies", "nsite", "model")], converged = x$converged[1],
+               divergent = any(x$divergences > 0, na.rm = TRUE),
+               min_ess = min(x$ess_bulk[x$community]), hours = x$seconds[1] / 3600)
+  }))
+  res$grid <- do.call(rbind, lapply(split(fits_g, interaction(fits_g[c("nspecies", "nsite",
+                                                                        "model")], drop = TRUE)),
+    function(x) data.frame(x[1, c("nspecies", "nsite", "model")], n = nrow(x),
+                           converged = mean(x$converged), with_divergences = mean(x$divergent),
+                           median_min_ess = stats::median(x$min_ess),
+                           median_hours = stats::median(x$hours), row.names = NULL)))
+  ok <- g[g$ok & g$community, ]
+  cover <- stats::aggregate(cbind(coverage = ok$lower <= ok$truth & ok$truth <= ok$upper),
+                            ok[c("nspecies", "nsite", "model")], mean)
+  res$grid <- merge(res$grid, cover, by = c("nspecies", "nsite", "model"))
+  res$grid <- res$grid[order(res$grid$nspecies, res$grid$nsite, res$grid$model), ]
+  rownames(res$grid) <- NULL
+}
 # cost on a dataset of real size (dev/ms-sim/cost_real.R): seconds per
 # gradient by threads, and one row per full fit
 cost_dir <- file.path("dev", "ms-sim", "cost-jobs")
@@ -131,6 +169,9 @@ if (!is.null(res$fits)) {
            "## fs and mixed", "", md(res$fs_mixed), "",
            if (!is.null(res$centered)) c("## 50 species: default and centered = TRUE", "",
                                          md(res$centered), ""))
+}
+if (!is.null(res$grid)) {
+  out <- c(out, "## Grid of parametrizations", "", md(res$grid), "")
 }
 if (!is.null(res$sbc)) {
   out <- c(out, "## Simulation-based calibration", "",

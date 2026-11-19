@@ -3,8 +3,7 @@
 #' Fits the false-positive occupancy model of [fp_occu()] to several species
 #' at once, with the coefficients of each species drawn from distributions
 #' of the community, so that rare species borrow strength from the others.
-#' **This function is in development** (see [crywolf-api]): its arguments,
-#' results and output names may change in a minor version. Besides `print()`,
+#' Besides `print()`,
 #' `summary()` and `as_draws_df()`, it works with [fp_sites()] (by site and
 #' species), [fp_ppc()], [simulate()][simulate.fp_occu_ms()] and
 #' [fp_richness()]; the other methods of [fp_occu()] are not available.
@@ -57,18 +56,23 @@
 #'   the sites; adds a random effect on the logit of the false-positive rate
 #'   for each group and species. See Details.
 #' @param centered Use the centred parametrization of the detection
-#'   intercepts, gaps, recorder effects and the terms of `by_species`? The
-#'   model is the same. `TRUE`
-#'   suits passive acoustic monitoring, with thousands of occasions per
-#'   species: their posteriors are then so narrow that the default takes very
-#'   small steps and reaches the maximum tree depth. Keep `FALSE` with few
-#'   occasions per species or recorder.
+#'   intercepts, gaps, recorder effects and the terms of `by_species`?
+#'   `TRUE`, `FALSE` or `"auto"` (the default). The model is the same; only
+#'   the sampling changes. The centred form suits data with much
+#'   information on each species: many sites, or thousands of occasions per
+#'   species in passive acoustic monitoring, where the non-centred form takes
+#'   very small steps and reaches the maximum tree depth. With few sites the
+#'   centred form samples worse.
 #' @param centered_occ Use the centred parametrization of the occupancy
-#'   coefficients of the species? The model is the same. Their posteriors
-#'   narrow with the number of sites, not of occasions: `TRUE` suits many
-#'   sites (in simulations of 50 species at 100 sites, the default left the
-#'   community occupancy intercept poorly mixed), and `FALSE` few sites, where
-#'   the centred form samples worse.
+#'   coefficients of the species? `TRUE`, `FALSE` or `"auto"` (the default).
+#'   Their posteriors narrow with the number of sites, not of occasions.
+#'   `"auto"` makes `centered` and `centered_occ` `TRUE` with at least 20
+#'   species and 100 sites, and `FALSE` otherwise, with a message. The rule
+#'   comes from simulations of 5, 20 and 50 species at 30, 100 and 300 sites
+#'   with 10 occasions (see `vignette("multispecies", package = "crywolf")`):
+#'   with 20 or more species and 100 or more sites, the fits converged with
+#'   both centred, and with 30 sites or 5 species they converged more often
+#'   without. Other designs, for example 10 species, were not simulated.
 #' @param chains,parallel_chains,threads_per_chain,iter_warmup,iter_sampling,adapt_delta,seed,refresh,...
 #'   Passed to the sampler, as in [fp_occu()]. Runs of detections
 #'   (`markov`) and site effects on true detection (`random_det`) are not
@@ -119,8 +123,8 @@
 fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                        random_recorder = !is.null(data$recorder),
                        ver = ~ 1, priors = fp_priors(), by_species = character(),
-                       random_fp = FALSE, fp_group = NULL, centered = FALSE,
-                       centered_occ = FALSE,
+                       random_fp = FALSE, fp_group = NULL, centered = "auto",
+                       centered_occ = "auto",
                        chains = 4, parallel_chains = chains, threads_per_chain = "auto",
                        iter_warmup = 1000, iter_sampling = 1000,
                        adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
@@ -130,7 +134,18 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   }
   for (arg in c("centered", "centered_occ")) {
     x <- get(arg)
-    if (!isTRUE(x) && !isFALSE(x)) stop("`", arg, "` must be TRUE or FALSE.", call. = FALSE)
+    if (!isTRUE(x) && !isFALSE(x) && !identical(x, "auto")) {
+      stop("`", arg, "` must be TRUE, FALSE or \"auto\".", call. = FALSE)
+    }
+  }
+  if (identical(centered, "auto") || identical(centered_occ, "auto")) {
+    nsp <- length(data$species_names)
+    nsite <- nrow(data$sites)
+    rich <- .ms_centered_auto(nsp, nsite)
+    if (identical(centered, "auto")) centered <- rich
+    if (identical(centered_occ, "auto")) centered_occ <- rich
+    message("Parametrization (", nsp, " species at ", nsite, " sites): centered = ",
+            centered, ", centered_occ = ", centered_occ, "; see ?fp_occu_ms.")
   }
   by_species <- .check_by_species(by_species, data)
   .check_fp_effects(random_fp, fp_group, fp, data)
@@ -236,6 +251,10 @@ summary.fp_occu_ms <- function(object, prob = 0.95, ...) {
 as_draws_df.fp_occu_ms <- function(x, ...) {
   x$draws
 }
+
+# The rule of centered = "auto" and centered_occ = "auto": both centred with
+# at least 20 species and 100 sites, from the grid of dev/ms-sim/run_sims.R.
+.ms_centered_auto <- function(nspecies, nsite) nspecies >= 20 && nsite >= 100
 
 # The data of fp_occu_ms.stan. Each site x species is a unit, numbered
 # (site - 1) * nspecies + species; the units form an fp_data whose "sites"

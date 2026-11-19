@@ -18,8 +18,8 @@ fp_occu_ms(
   by_species = character(),
   random_fp = FALSE,
   fp_group = NULL,
-  centered = FALSE,
-  centered_occ = FALSE,
+  centered = "auto",
+  centered_occ = "auto",
   chains = 4,
   parallel_chains = chains,
   threads_per_chain = "auto",
@@ -61,19 +61,24 @@ the sites; adds a random effect on the logit of the false-positive rate
 for each group and species. See Details.}
 
 \item{centered}{Use the centred parametrization of the detection
-intercepts, gaps, recorder effects and the terms of \code{by_species}? The
-model is the same. \code{TRUE}
-suits passive acoustic monitoring, with thousands of occasions per
-species: their posteriors are then so narrow that the default takes very
-small steps and reaches the maximum tree depth. Keep \code{FALSE} with few
-occasions per species or recorder.}
+intercepts, gaps, recorder effects and the terms of \code{by_species}?
+\code{TRUE}, \code{FALSE} or \code{"auto"} (the default). The model is the same; only
+the sampling changes. The centred form suits data with much
+information on each species: many sites, or thousands of occasions per
+species in passive acoustic monitoring, where the non-centred form takes
+very small steps and reaches the maximum tree depth. With few sites the
+centred form samples worse.}
 
 \item{centered_occ}{Use the centred parametrization of the occupancy
-coefficients of the species? The model is the same. Their posteriors
-narrow with the number of sites, not of occasions: \code{TRUE} suits many
-sites (in simulations of 50 species at 100 sites, the default left the
-community occupancy intercept poorly mixed), and \code{FALSE} few sites, where
-the centred form samples worse.}
+coefficients of the species? \code{TRUE}, \code{FALSE} or \code{"auto"} (the default).
+Their posteriors narrow with the number of sites, not of occasions.
+\code{"auto"} makes \code{centered} and \code{centered_occ} \code{TRUE} with at least 20
+species and 100 sites, and \code{FALSE} otherwise, with a message. The rule
+comes from simulations of 5, 20 and 50 species at 30, 100 and 300 sites
+with 10 occasions (see \code{vignette("multispecies", package = "crywolf")}):
+with 20 or more species and 100 or more sites, the fits converged with
+both centred, and with 30 sites or 5 species they converged more often
+without. Other designs, for example 10 species, were not simulated.}
 
 \item{chains, parallel_chains, threads_per_chain, iter_warmup, iter_sampling, adapt_delta, seed, refresh, ...}{Passed to the sampler, as in \code{\link[=fp_occu]{fp_occu()}}. Runs of detections
 (\code{markov}) and site effects on true detection (\code{random_det}) are not
@@ -99,8 +104,7 @@ An object of class \code{fp_occu_ms}, a list with \code{fit}, \code{draws}
 Fits the false-positive occupancy model of \code{\link[=fp_occu]{fp_occu()}} to several species
 at once, with the coefficients of each species drawn from distributions
 of the community, so that rare species borrow strength from the others.
-\strong{This function is in development} (see \link{crywolf-api}): its arguments,
-results and output names may change in a minor version. Besides \code{print()},
+Besides \code{print()},
 \code{summary()} and \code{as_draws_df()}, it works with \code{\link[=fp_sites]{fp_sites()}} (by site and
 species), \code{\link[=fp_ppc]{fp_ppc()}}, \link[=simulate.fp_occu_ms]{simulate()} and
 \code{\link[=fp_richness]{fp_richness()}}; the other methods of \code{\link[=fp_occu]{fp_occu()}} are not available.

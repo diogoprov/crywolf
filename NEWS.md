@@ -1,5 +1,19 @@
 # crywolf (development version)
 
+* `fp_occu_ms()`, `simulate_fp_ms()`, `fp_richness()`, the `fp_occu_ms` and
+  `fp_sim_ms` classes and their methods, and the `species` argument of
+  `fp_data()` are no longer in development. Their arguments, classes and
+  output names join the stable interface from 2.3.0 (see
+  `help("crywolf-api")`).
+* `fp_occu_ms()`: `centered` and `centered_occ` now default to `"auto"`,
+  which centres both with at least 20 species and 100 sites and neither
+  otherwise, with a message. The rule comes from a grid of simulations of 5,
+  20 and 50 species at 30, 100 and 300 sites (`vignette("multispecies")`).
+  Pass `centered = FALSE, centered_occ = FALSE` for the earlier default.
+* `vignette("multispecies")` reports the cost of `fp_occu_ms()` on a dataset
+  of the size of `curiango` with 20 species, and the time per gradient by
+  `threads_per_chain`.
+
 * With cmdstanr 0.9.0, the current release on r-universe, `fp_occu()`,
   `fp_occu_dyn()`, `fp_occu_ms()` and the other fitting functions ran each
   chain on one thread whatever `threads_per_chain`: cmdstanr dropped the

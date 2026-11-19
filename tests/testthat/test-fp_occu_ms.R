@@ -278,8 +278,21 @@ test_that("the centred parametrization gives the same posterior", {
   gap <- (colMeans(da) - colMeans(db)) / vapply(da, stats::sd, numeric(1))
   expect_lt(max(abs(gap)), 0.3)
   expect_identical(b$stan_data$centered_occ, 0L)
-  expect_error(fp_occu_ms(s$ms, centered = 1), "`centered` must be TRUE or FALSE")
-  expect_error(fp_occu_ms(s$ms, centered_occ = NA), "`centered_occ` must be TRUE or FALSE")
+  expect_error(fp_occu_ms(s$ms, centered = 1), "`centered` must be TRUE, FALSE or \"auto\"")
+  expect_error(fp_occu_ms(s$ms, centered_occ = NA),
+               "`centered_occ` must be TRUE, FALSE or \"auto\"")
+})
+
+test_that("centered = \"auto\" centres with 20 species and 100 sites", {
+  auto <- crywolf:::.ms_centered_auto
+  expect_true(auto(20, 100))
+  expect_true(auto(50, 1753))
+  expect_false(auto(19, 300))
+  expect_false(auto(20, 99))
+  expect_false(auto(5, 30))
+  expect_identical(formals(fp_occu_ms)$centered, "auto")
+  expect_identical(formals(fp_occu_ms)$centered_occ, "auto")
+  expect_error(fp_occu_ms(ms_sim(1)$ms, centered = "yes"), "TRUE, FALSE or \"auto\"")
 })
 
 test_that("simulate_fp_ms() shares the design among species", {

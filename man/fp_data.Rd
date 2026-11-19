@@ -74,7 +74,7 @@ Seasons added between dates need rows only if a formula uses them.}
 
 \item{species}{Optional name of a column of \code{auto} (and of \code{verified}, if
 given) holding the species, for the multispecies model
-\code{\link[=fp_occu_ms]{fp_occu_ms()}}, which is in development. The tables are then in long format by species too: one
+\code{\link[=fp_occu_ms]{fp_occu_ms()}}. The tables are then in long format by species too: one
 row per occasion and species, with every surveyed occasion present for
 every species (\code{y = 0} where the species was not detected), since the
 non-detections are data. The species are the levels of a factor, and

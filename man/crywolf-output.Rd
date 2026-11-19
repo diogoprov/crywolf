@@ -174,7 +174,7 @@ its truth fields are \code{pars} (named generating coefficients), \code{z},
 \code{p10_site}, and \code{p10_bar}.
 }
 
-\section{Multispecies model (in development)}{
+\section{Multispecies model}{
 
 \code{\link[=fp_occu_ms]{fp_occu_ms()}} gives the community means under the names above
 (\verb{occ_*}, \verb{det_*}, \verb{fp_*}, \code{fp_gap}, which is the median gap among

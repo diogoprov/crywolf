@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 2.3.0
 
 * rOpenSci statistical standards: every general and Bayesian standard is
   tagged with 'srr' next to the code or test that addresses it, or declared

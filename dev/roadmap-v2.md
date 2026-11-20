@@ -635,3 +635,12 @@ semanas no total, extrapolada do `fp_occu_dyn()` e do multiespécies):**
 
 A versão de contagem (minutos com detecção por manhã, com mistura de minutos
 verdadeiros e falsos) somaria cerca de uma semana.
+
+## 2.3.0 (preparada em 19/11/2026)
+
+Multiespécies estável (#46), `fp_occu_mc()` multiespécies (#48), correções do
+CRAN (#49), `curiango$verified$test_set` (#50) e a correção do `fp_ppc()` com
+confirmação (#51). O Diogo pediu o release em 19/11/2026, mas a tag espera a
+resposta da Tessa sobre a autoria (20/11/2026): se ela ficar, reverter a saída
+dela no `DESCRIPTION`, no `CITATION.cff`, no NEWS e no `cran-comments.md`
+antes da tag. Ajustar `date-released` ao dia do release.

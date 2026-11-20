@@ -67,8 +67,11 @@ near 0 or 1 indicate lack of fit; values near 0.5 indicate that the
 observed data are typical of the fitted model.
 
 Under the observation-confirmation design, the conditional probability of
-\eqn{z_i} also uses the confirmed occasions, and \code{"automated"} checks the
-occasions that were not confirmed.
+\eqn{z_i} also uses the confirmed occasions, and \code{"automated"} checks all
+automated occasions, confirmed or not, as detections or non-detections.
+Confirmed occasions are usually chosen among the detections, so the
+unconfirmed ones alone would hold too few detections for the model to
+reproduce.
 
 A p-value near 0.5 does not show that the false-positive process is
 correctly specified: a check of detection counts can have little power

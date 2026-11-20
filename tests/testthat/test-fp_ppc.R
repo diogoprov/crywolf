@@ -25,6 +25,34 @@ test_that(".ppc_core returns objects of the right shape", {
   expect_equal(sum(v$y), sum(k$sd$y1))
 })
 
+test_that("the automated check counts confirmed occasions too", {
+  # confirmation among the detections only, as when a reviewer checks some of
+  # what the classifier detected; the unconfirmed occasions then hold too few
+  # detections, so leaving the confirmed ones out would bias the check
+  s <- simulate_fp(nsite = 40, nocc = 5, frac_confirmed = 1, frac_verified = 0,
+                   seed = 3)
+  a <- s$data$auto
+  for (frac in c(0.5, 1)) {
+    set.seed(4)
+    chk <- a$y == 1 & stats::runif(nrow(a)) < frac
+    a2 <- a
+    a2$n_true[!chk] <- NA
+    a2$n_false[!chk] <- NA
+    d <- suppressWarnings(fp_data(auto = a2, sites = s$data$sites,
+                                  confirmed = c("n_true", "n_false")))
+    sd <- crywolf:::.build_stan_data(d, ~ x, ~ 1, ~ 1, FALSE,
+                                     fp_priors())$stan_data
+    S <- 20
+    pars <- list(beta = cbind(rep(0, S), rep(-0.8, S)),
+                 alpha = matrix(0.4, S, 1), delta0 = rep(0.5, S), u = NULL,
+                 gamma0 = rep(-3, S), gamma_fp = matrix(0, S, 0))
+    r <- crywolf:::.ppc_core(sd, pars, "automated", "freeman-tukey")
+    expect_equal(r$y, as.vector(tapply(a$y, a$site, sum))[r$keep])
+    expect_length(r$keep, length(unique(a$site)))
+    expect_true(all(r$yrep <= 5))
+  }
+})
+
 test_that("z is fixed where the data determine it", {
   set.seed(2)
   # sites with a verified detection are occupied

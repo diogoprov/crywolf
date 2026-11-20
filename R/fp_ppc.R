@@ -39,8 +39,11 @@
 #' observed data are typical of the fitted model.
 #'
 #' Under the observation-confirmation design, the conditional probability of
-#' \eqn{z_i} also uses the confirmed occasions, and `"automated"` checks the
-#' occasions that were not confirmed.
+#' \eqn{z_i} also uses the confirmed occasions, and `"automated"` checks all
+#' automated occasions, confirmed or not, as detections or non-detections.
+#' Confirmed occasions are usually chosen among the detections, so the
+#' unconfirmed ones alone would hold too few detections for the model to
+#' reproduce.
 #'
 #' A p-value near 0.5 does not show that the false-positive process is
 #' correctly specified: a check of detection counts can have little power
@@ -277,6 +280,20 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     y <- tabulate(rep(sd$site2, y2), nbins = nsite)
     E <- .site_sum(n_row * p_row, sd$site2, nsite)
     yrep <- .site_sum(yrep_row, sd$site2, nsite)
+    if (conf) {
+      # confirmed occasions enter as detections or not: which occasions were
+      # checked may depend on whether they had a detection, so leaving them
+      # out would select the unchecked ones on y
+      z3 <- z[, sd$site3, drop = FALSE]
+      p3 <- z3 * -expm1(stats::plogis(-lp3, log.p = TRUE) +
+                          stats::plogis(-lp10_3, log.p = TRUE)) +
+        (1 - z3) * stats::plogis(lp10_3)
+      keep <- keep | tabulate(sd$site3, nbins = nsite) > 0
+      y <- y + tabulate(sd$site3[sd$v3 > 0], nbins = nsite)
+      E <- E + .site_sum(p3, sd$site3, nsite)
+      yrep <- yrep + .site_sum(matrix(stats::rbinom(length(p3), 1, p3), S),
+                               sd$site3, nsite)
+    }
   } else {
     keep <- tabulate(sd$site1, nbins = nsite) > 0
     y <- tabulate(sd$site1[sd$y1 == 1], nbins = nsite)

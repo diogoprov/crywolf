@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 2.3.0
 
 * `fp_ppc()` under the observation-confirmation design now checks all
   automated occasions, confirmed or not. It left the confirmed ones out, but

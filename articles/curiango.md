@@ -11,9 +11,13 @@ to real data: passive acoustic monitoring of the Common Pauraque
 (*Nyctidromus albicollis*) at seven sites in the Pantanal and adjacent
 Cerrado, Brazil (Piatti et al., 2026). Two automated classifiers scored
 every one-minute recording, a custom model and BirdNET (Kahl et al.,
-2021), and an independent sample of about 1% of the recordings was
-annotated by ear. The annotated recordings are the verified method of
-the multiple-methods design (Miller et al., 2011).
+2021), and about 1% of the recordings was annotated by ear. The
+annotated recordings are the verified method of the multiple-methods
+design (Miller et al., 2011). Part of them was chosen by BirdNET, not at
+random (`test_set` 3). The models below use all of them, although
+[`?curiango`](https://provetelab.org/crywolf/reference/curiango.md)
+advises leaving set 3 out, so their detection estimates for the verified
+method may be biased.
 
 We ask three questions. How often does each classifier produce a false
 positive? Do the environmental effects on occupancy change when false
@@ -31,7 +35,7 @@ str(curiango, max.level = 1)
 #> List of 3
 #>  $ minutes :'data.frame':    97806 obs. of  7 variables:
 #>  $ nights  :'data.frame':    1753 obs. of  6 variables:
-#>  $ verified:'data.frame':    1199 obs. of  4 variables:
+#>  $ verified:'data.frame':    1199 obs. of  5 variables:
 ```
 
 The occupancy unit is the site-night (whether the species called that

@@ -528,10 +528,14 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
 - **Integração com o sheepdog**: a sessão do sheepdog respondeu em
   19/11/2026. O ρ implausível na curiango vinha da mistura de f1, e a PPC
   ainda reprova a autocorrelação. O export-1.3-ms continua válido; o
-  esquema atual é o 1.4. Plano proposto, à espera do Diogo: (1) exemplo
-  ponta a ponta com `fp_occu_ms()` no export-1.3-ms; (2) `fp_occu_mc()`
-  aceitando `fp_occu_ms`; (3) `fp_occu_score()` com uma espécie, depois
-  do diagnóstico do ρ; (4) `fp_review_priority()`.
+  esquema atual é o 1.4. Plano: (1) exemplo ponta a ponta com
+  `fp_occu_ms()` no export-1.3-ms e (2) `fp_occu_mc()` aceitando dados
+  multiespécies, **feitos no #48 (19/11/2026)**; (3) `fp_occu_score()` com
+  uma espécie, à espera do estágio 1 do sheepdog refeito só com o ct01+ct02
+  da curiango (decisão de 19/11/2026); (4) `fp_review_priority()`, ligado ao
+  `select_directed()` do sheepdog, **aprovado em 19/11/2026**: primeira versão
+  sobre `fp_occu()` e `fp_occu_ms()`, sem esperar o `fp_occu_score()`, com
+  `size` = incerteza de z por unidade (~2–3 dias, depois da 2.3.0).
 - **Pontos fracos da grade**: o efeito do gravador só foi testado com 10
   ocasiões. Designs com 10 espécies ou mais ocasiões ficaram de fora.
 
@@ -590,3 +594,44 @@ exige uma matriz de classificação e estado latente multinomial, com
 verificação desenhada para identificá-la. É problema de pesquisa, não de
 implementação; não entra no crywolf.
 
+
+## Depois das tarefas atuais: Royle–Nichols com falsos positivos (pedido de 19/11/2026)
+
+**Origem:** pedido da sessão FrogNet, com os dados ACAD (Panwar et al. 2026,
+privados). O `random_det` absorve a variação de atividade (abundância ou taxa
+de canto) entre sítios. A pergunta do artigo é outra: se os falsos negativos
+do BirdNET têm estrutura de sítio além da atividade.
+
+**Modelo proposto:**
+- N_i ~ Poisson(λ_i) e p11_i = 1 − (1 − r_i)^N_i, com um efeito aleatório de
+  sítio em r além de λ.
+- Mantém p10, as verificadas e a confirmação de Chambert.
+- Fica como opção do `fp_occu()`, sem dinâmico nem multiespécies.
+
+**Decidido pelo Diogo em 19/11/2026:** a etapa 1 entra no roadmap e só
+começa depois das tarefas em andamento. A implementação, as etapas 2 a 5,
+fica para depois da etapa 1.
+
+**Etapa 1, o ponto de decisão (1–2 dias):**
+- Simular dados RN com falsos positivos e ajustar um protótipo em Stan fora do
+  pacote, em `dev/`.
+- Pergunta: um efeito de sítio em r, somado à variação em λ, é recuperável
+  sem anotação completa?
+- Se não for, o modelo não responde à pergunta. O caminho é então um GLMM dos
+  verdadeiros positivos do BirdNET com a atividade anotada da ACAD como offset,
+  fora do crywolf.
+
+**Etapas seguintes, só se a etapa 1 for favorável (estimativa: 1,5–2,5
+semanas no total, extrapolada do `fp_occu_dyn()` e do multiespécies):**
+2. Programa Stan e interface em R (2–3 dias). Marginaliza N_i de 0 a N_max,
+   o que multiplica o custo da verossimilhança por cerca de N_max. É preciso
+   decidir como r11 das verificadas depende de N.
+3. Saídas (`fp_ppc()`, `loo()`, `fp_sites()`, `simulate()`, `print()`) e
+   testes, incluindo a igualdade entre a verossimilhança em R e a do Stan (2
+   dias).
+4. SBC e grade de simulações (2–3 dias de relógio). Provavelmente na AWS,
+   com o custo confirmado antes.
+5. Vinheta, documentação, review e check (1–2 dias).
+
+A versão de contagem (minutos com detecção por manhã, com mistura de minutos
+verdadeiros e falsos) somaria cerca de uma semana.

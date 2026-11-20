@@ -180,7 +180,7 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 1 finished in 0.5 seconds.
-#> Chain 2 finished in 0.5 seconds.
+#> Chain 2 finished in 0.4 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 0.5 seconds.
@@ -190,20 +190,20 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 1 finished in 0.5 seconds.
-#> Chain 2 finished in 0.5 seconds.
+#> Chain 2 finished in 0.4 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 0.5 seconds.
-#> Total execution time: 0.6 seconds.
+#> Total execution time: 0.5 seconds.
 #> 
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
+#> Chain 2 finished in 0.4 seconds.
 #> Chain 1 finished in 0.5 seconds.
-#> Chain 2 finished in 0.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 0.5 seconds.
+#> Mean chain execution time: 0.4 seconds.
 #> Total execution time: 0.6 seconds.
 #> 
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
@@ -213,8 +213,8 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Chain 2 finished in 0.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 0.5 seconds.
-#> Total execution time: 0.6 seconds.
+#> Mean chain execution time: 0.4 seconds.
+#> Total execution time: 0.5 seconds.
 #> 
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
@@ -223,8 +223,8 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Chain 2 finished in 0.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 0.5 seconds.
-#> Total execution time: 0.6 seconds.
+#> Mean chain execution time: 0.4 seconds.
+#> Total execution time: 0.5 seconds.
 #> 
 #> Posterior pooled over 5 fits (95% equal-tailed intervals)
 #> 

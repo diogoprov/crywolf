@@ -2,6 +2,13 @@
 
 ## crywolf (development version)
 
+- [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) under
+  the observation-confirmation design now checks all automated
+  occasions, confirmed or not. It left the confirmed ones out, but these
+  are usually chosen among the detections, so the unconfirmed ones held
+  too few detections and the check gave false alarms (a p-value of 0 or
+  1 when every detection was confirmed).
+
 - Changes for CRAN: examples that fit models run in `\donttest{}` when
   CmdStan is installed, with two chains and one thread each, instead of
   never; examples that read a sheepdog export use one shipped in

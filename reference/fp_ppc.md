@@ -81,7 +81,10 @@ are typical of the fitted model.
 
 Under the observation-confirmation design, the conditional probability
 of \\z_i\\ also uses the confirmed occasions, and `"automated"` checks
-the occasions that were not confirmed.
+all automated occasions, confirmed or not, as detections or
+non-detections. Confirmed occasions are usually chosen among the
+detections, so the unconfirmed ones alone would hold too few detections
+for the model to reproduce.
 
 A p-value near 0.5 does not show that the false-positive process is
 correctly specified: a check of detection counts can have little power
@@ -108,12 +111,12 @@ m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
              chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 21.2 seconds.
-#> Chain 2 finished in 21.5 seconds.
+#> Chain 1 finished in 19.1 seconds.
+#> Chain 2 finished in 19.7 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 21.4 seconds.
-#> Total execution time: 21.7 seconds.
+#> Mean chain execution time: 19.4 seconds.
+#> Total execution time: 19.8 seconds.
 #> 
 ppc <- fp_ppc(m, ndraws = 500, seed = 1)
 ppc

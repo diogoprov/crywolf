@@ -88,7 +88,7 @@ figures, and set a seed so that the results can be reproduced.
 library(crywolf)
 library(ggplot2)
 library(bayesplot)
-#> This is bayesplot version 1.16.0
+#> This is bayesplot version 1.17.0
 #> - Online documentation and vignettes at mc-stan.org/bayesplot
 #> - bayesplot theme set to bayesplot::theme_default()
 #>    * Does _not_ affect other ggplot2 plots

@@ -325,6 +325,13 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   max(1L, as.integer(cores %/% max(1L, parallel_chains)))
 }
 
+.check_flag <- function(x, what) {
+  if (!is.logical(x) || length(x) != 1 || is.na(x)) {
+    stop("`", what, "` must be TRUE or FALSE.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 # TRUE when R CMD check limits the cores (set by --as-cran and on CRAN)
 .check_limits_cores <- function() {
   chk <- tolower(Sys.getenv("_R_CHECK_LIMIT_CORES_", ""))
@@ -366,8 +373,18 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 fp_priors <- function(intercept_sd = 1.5, slope_sd = 2.5,
                       gap_mean = 2, gap_sd = 1.5, recorder_sd = 2,
                       fp_site_sd = 1, det_site_sd = 1, species_sd = 1) {
-  stopifnot(intercept_sd > 0, slope_sd > 0, gap_sd > 0, recorder_sd > 0,
-            fp_site_sd > 0, det_site_sd > 0, species_sd > 0)
+  sds <- list(intercept_sd = intercept_sd, slope_sd = slope_sd, gap_sd = gap_sd,
+              recorder_sd = recorder_sd, fp_site_sd = fp_site_sd,
+              det_site_sd = det_site_sd, species_sd = species_sd)
+  for (nm in names(sds)) {
+    v <- sds[[nm]]
+    if (!is.numeric(v) || length(v) != 1 || !is.finite(v) || v <= 0) {
+      stop("`", nm, "` must be a single positive number.", call. = FALSE)
+    }
+  }
+  if (!is.numeric(gap_mean) || length(gap_mean) != 1 || !is.finite(gap_mean)) {
+    stop("`gap_mean` must be a single finite number.", call. = FALSE)
+  }
   structure(list(intercept_sd = intercept_sd, slope_sd = slope_sd,
                  gap_mean = gap_mean, gap_sd = gap_sd, recorder_sd = recorder_sd,
                  fp_site_sd = fp_site_sd, det_site_sd = det_site_sd,
@@ -407,6 +424,10 @@ print.fp_priors <- function(x, ...) {
   if (anyNA(mf)) {
     stop("Missing values in the covariates of `", what, "`.", call. = FALSE)
   }
+  num <- vapply(mf, is.numeric, logical(1))
+  if (any(num) && !all(is.finite(as.matrix(mf[num])))) {
+    stop("Infinite values in the covariates of `", what, "`.", call. = FALSE)
+  }
   tt <- stats::terms(mf)
   X <- stats::model.matrix(tt, mf)
   list(X = X, terms = tt, xlevels = stats::.getXlevels(tt, mf),
@@ -417,6 +438,15 @@ print.fp_priors <- function(x, ...) {
 .build_stan_data <- function(data, occ, det, fp, random_recorder, priors,
                              random_fp = FALSE, ver = ~ 1, markov = NULL,
                              random_det = FALSE) {
+  if (!inherits(priors, "fp_priors")) {
+    stop("`priors` must come from fp_priors().", call. = FALSE)
+  }
+  # rebuilt, so that edited or older priors pass the same checks
+  pr <- unclass(priors)
+  priors <- do.call(fp_priors, pr[intersect(names(pr), names(formals(fp_priors)))])
+  .check_flag(random_recorder, "random_recorder")
+  .check_flag(random_fp, "random_fp")
+  .check_flag(random_det, "random_det")
   s <- data$site
   sites <- data$sites
   auto <- data$auto

@@ -82,6 +82,17 @@ simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
                         r11 = 0.6, frac_verified = 0.3, nver = 3,
                         a_bio = 0, a_aci = 0, sd_recorder = 0, nrec = 5,
                         frac_confirmed = 0, seed = NULL) {
+  args <- list(nsite = nsite, nocc = nocc, psi = psi, b1 = b1, p11 = p11, p10 = p10,
+               sigma_p10 = sigma_p10, conf_effect = conf_effect, conf_cor = conf_cor,
+               r11 = r11, frac_verified = frac_verified, nver = nver, a_bio = a_bio,
+               a_aci = a_aci, sd_recorder = sd_recorder, nrec = nrec,
+               frac_confirmed = frac_confirmed)
+  bad <- names(args)[!vapply(args, function(v) is.numeric(v) && length(v) == 1 &&
+                                       is.finite(v), logical(1))]
+  if (length(bad)) {
+    stop("Argument(s) ", paste0("`", bad, "`", collapse = ", "),
+         " must be single finite numbers.", call. = FALSE)
+  }
   stopifnot(nsite >= 2, nocc >= 1, nver >= 1,
             psi > 0, psi < 1, p11 > 0, p11 < 1, p10 > 0, p10 < 1,
             r11 > 0, r11 <= 1, frac_verified >= 0, frac_verified <= 1,

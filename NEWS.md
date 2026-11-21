@@ -1,5 +1,17 @@
 # crywolf (development version)
 
+* Bug fix: `fp_data()` read a detection column stored as a factor by its
+  level codes, so that `factor(y, levels = c(1, 0))` turned detections into
+  1s and 2s. Factors are now read by their labels, and detections become
+  integer 0/1 in the returned data.
+* Stricter checks of inputs, with messages that name the argument:
+  `fp_priors()` takes single positive numbers (and a single finite
+  `gap_mean`); `random_recorder`, `random_fp` and `random_det` must be `TRUE`
+  or `FALSE`; `priors` must come from `fp_priors()`; infinite covariates are
+  rejected; `fp_data()` stops when `auto` has no occasion with a detection
+  record; `simulate_fp()` takes single finite numbers; and `predict()` stops
+  on missing covariates in `newdata` instead of returning fewer rows than
+  `newdata`.
 * `fp_ppc()` under the observation-confirmation design now checks all
   automated occasions, confirmed or not. It left the confirmed ones out, but
   these are usually chosen among the detections, so the unconfirmed ones held

@@ -20,7 +20,9 @@
 #'   the false-positive rate is identified only by the priors, and
 #'   [fp_occu()] warns about it.
 #' @param site,y Names of the site and detection columns, shared by all
-#'   tables.
+#'   tables. Detections are 0/1, given as numbers, logicals, the strings
+#'   `"0"` and `"1"`, or a factor with those labels (read by its labels, not
+#'   its level codes); rows with a missing detection are dropped.
 #' @param recorder Optional name of a column of `auto` that identifies the
 #'   recorder or observer, used for a random intercept on true detection.
 #' @param confirmed Optional names of two columns of `auto` holding, for the
@@ -120,13 +122,17 @@ fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
          site, "`.", call. = FALSE)
   }
   auto <- auto[!is.na(auto[[y]]), , drop = FALSE]
-  .check_binary(auto[[y]], "auto")
+  auto[[y]] <- .as_binary(auto[[y]], "auto")
+  if (nrow(auto) == 0) {
+    stop("`auto` has no automated occasion with a 0/1 detection in `", y, "`.",
+         call. = FALSE)
+  }
   .check_sites_known(auto[[site]], sites[[site]], "auto", site)
 
   if (!is.null(verified)) {
     .check_df(verified, "verified", c(site, y, season, species))
     verified <- verified[!is.na(verified[[y]]), , drop = FALSE]
-    .check_binary(verified[[y]], "verified")
+    verified[[y]] <- .as_binary(verified[[y]], "verified")
     .check_sites_known(verified[[site]], sites[[site]], "verified", site)
   }
   if (!is.null(recorder) && anyNA(auto[[recorder]])) {
@@ -318,11 +324,15 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
-.check_binary <- function(v, what) {
-  if (!all(v %in% c(0, 1))) {
+# detections as integer 0/1: numbers, logicals and "0"/"1" are taken as
+# they read; a factor is read by its labels, not by its level codes
+.as_binary <- function(v, what) {
+  if (is.factor(v)) v <- as.character(v)
+  if (!(is.numeric(v) || is.logical(v) || is.character(v)) ||
+      !all(v %in% c(0, 1))) {
     stop("Detections in `", what, "` must be coded 0/1.", call. = FALSE)
   }
-  invisible(TRUE)
+  as.integer(as.numeric(v))
 }
 
 # warnings about data that fit but are unlikely to be what the user meant;

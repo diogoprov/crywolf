@@ -129,7 +129,8 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
   }
   des <- object$design[[process]]
   tt <- stats::delete.response(des$terms)
-  mf <- stats::model.frame(tt, newdata, xlev = des$xlevels)
+  mf <- stats::model.frame(tt, newdata, xlev = des$xlevels, na.action = stats::na.pass)
+  if (anyNA(mf)) stop("Missing values in the covariates of `newdata`.", call. = FALSE)
   X <- stats::model.matrix(tt, mf, contrasts.arg = des$contrasts)
 
   vars <- paste0(process, "_", colnames(X))
@@ -271,7 +272,7 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   st <- purrr::compact(if (is.null(x$sampler)) list() else x$sampler)
   refit <- suppressWarnings(do.call(fp_occu, c(list(
     d_i, occ = x$formulas$occ, det = x$formulas$det, fp = x$formulas$fp,
-    random_recorder = x$random_recorder, random_fp = isTRUE(x$random_fp),
+    random_recorder = isTRUE(x$random_recorder), random_fp = isTRUE(x$random_fp),
     random_det = isTRUE(x$random_det),
     ver = if (is.null(x$formulas$ver)) ~ 1 else x$formulas$ver, markov = x$markov,
     priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE), st)))

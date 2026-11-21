@@ -35,7 +35,9 @@ the false-positive rate is identified only by the priors, and
 \code{\link[=fp_occu]{fp_occu()}} warns about it.}
 
 \item{site, y}{Names of the site and detection columns, shared by all
-tables.}
+tables. Detections are 0/1, given as numbers, logicals, the strings
+\code{"0"} and \code{"1"}, or a factor with those labels (read by its labels, not
+its level codes); rows with a missing detection are dropped.}
 
 \item{recorder}{Optional name of a column of \code{auto} that identifies the
 recorder or observer, used for a random intercept on true detection.}

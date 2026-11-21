@@ -329,24 +329,24 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 25.9 seconds.
-#> Chain 2 finished in 27.5 seconds.
+#> Chain 1 finished in 27.0 seconds.
+#> Chain 2 finished in 30.9 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 26.7 seconds.
-#> Total execution time: 27.6 seconds.
+#> Mean chain execution time: 28.9 seconds.
+#> Total execution time: 31.0 seconds.
 #> 
 # false-positive rate that tracks the occupancy covariate
 m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 32.1 seconds.
-#> Chain 2 finished in 32.0 seconds.
+#> Chain 2 finished in 34.9 seconds.
+#> Chain 1 finished in 35.6 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 32.0 seconds.
-#> Total execution time: 32.1 seconds.
+#> Mean chain execution time: 35.3 seconds.
+#> Total execution time: 35.8 seconds.
 #> 
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8

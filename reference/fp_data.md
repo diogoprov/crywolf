@@ -55,6 +55,9 @@ fp_data(
 - site, y:
 
   Names of the site and detection columns, shared by all tables.
+  Detections are 0/1, given as numbers, logicals, the strings `"0"` and
+  `"1"`, or a factor with those labels (read by its labels, not its
+  level codes); rows with a missing detection are dropped.
 
 - recorder:
 

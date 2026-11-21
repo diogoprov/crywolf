@@ -2,6 +2,28 @@
 
 ## crywolf (development version)
 
+- Bug fix:
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  read a detection column stored as a factor by its level codes, so that
+  `factor(y, levels = c(1, 0))` turned detections into 1s and 2s.
+  Factors are now read by their labels, and detections become integer
+  0/1 in the returned data.
+
+- Stricter checks of inputs, with messages that name the argument:
+  [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
+  takes single positive numbers (and a single finite `gap_mean`);
+  `random_recorder`, `random_fp` and `random_det` must be `TRUE` or
+  `FALSE`; `priors` must come from
+  [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md);
+  infinite covariates are rejected;
+  [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  stops when `auto` has no occasion with a detection record;
+  [`simulate_fp()`](https://provetelab.org/crywolf/reference/simulate_fp.md)
+  takes single finite numbers; and
+  [`predict()`](https://rdrr.io/r/stats/predict.html) stops on missing
+  covariates in `newdata` instead of returning fewer rows than
+  `newdata`.
+
 - [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) under
   the observation-confirmation design now checks all automated
   occasions, confirmed or not. It left the confirmed ones out, but these

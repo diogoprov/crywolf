@@ -76,7 +76,7 @@ Clips of the `"score_bands"` design are always dropped, whatever
 of score, so that thresholds and calibration curves see the whole score
 range; being chosen by their score, they over-represent some bands and
 would bias the false-positive rate in either direction. They serve
-`sheepdog::threshold_bootstrap()`,
+[`sheepdog::threshold_bootstrap()`](https://provetelab.org/sheepdog/reference/threshold_bootstrap.html),
 [`sheepdog::calibrate()`](https://provetelab.org/sheepdog/reference/calibrate.html)
 and
 [`sheepdog::fit_calibration()`](https://provetelab.org/sheepdog/reference/fit_calibration.html),

@@ -4,6 +4,10 @@
 \alias{crywolf-output}
 \alias{output-names}
 \title{Output names and interpretation}
+\value{
+None. This page documents the names in crywolf's results and has
+no function.
+}
 \description{
 A reference for the parameter names and result fields returned by crywolf.
 Use \code{help("crywolf-output")} to open this page. Coefficients keep the same
@@ -255,6 +259,19 @@ coefficient names. \code{design} and \code{stan_data} describe internal encoding
 their field names and raw Stan names are implementation details.
 }
 
+\examples{
+\dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
+\donttest{
+sim <- simulate_fp(nsite = 100, nocc = 10, seed = 1)
+fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+               chains = 2, iter_warmup = 300, iter_sampling = 300,
+               threads_per_chain = 1, refresh = 0)
+# readable coefficient names, shared by coef(), summary() and the draws
+names(coef(fit))
+summary(fit)$table
+}
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 \code{\link[=fp_occu]{fp_occu()}}, \link{fp_occu-methods}, \code{\link[=fp_sites]{fp_sites()}}, \code{\link[=fp_effects]{fp_effects()}},
 \code{\link[=fp_ppc]{fp_ppc()}}, \code{\link[=fp_threshold_sweep]{fp_threshold_sweep()}}, \code{\link[=fp_calibrate]{fp_calibrate()}}, \code{\link[=fp_sbc]{fp_sbc()}}

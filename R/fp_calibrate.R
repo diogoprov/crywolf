@@ -219,11 +219,15 @@ print.summary.fp_calibration <- function(x, ...) {
 
 # internal ---------------------------------------------------------------------
 
+#' Label an interval coverage as ok, low or collapsed against the nominal level
+#' @noRd
 .verdict <- function(cov, nominal = 0.95, tol = 0.05) {
   if (is.na(cov)) return("NA")
   if (cov >= nominal - tol) "ok" else if (cov >= 0.80) "low" else "collapsed"
 }
 
+#' Fit one simulated data set and score the coverage and bias of its estimates
+#' @noRd
 .score_fit <- function(sim, fp, occ, det, model, prob, seed, fit_args) {
   tr <- sim$truth
   # fit a recorder effect only when the data were simulated with one: with
@@ -244,8 +248,9 @@ print.summary.fp_calibration <- function(x, ...) {
                  model = model, prob = prob, seed = seed, fit_args = fit_args)
 }
 
-# fits one model and scores the posterior intervals of `targets`, a named
-# vector of true values of output parameters
+#' fits one model and scores the posterior intervals of `targets`, a named
+#' vector of true values of output parameters
+#' @noRd
 .fit_and_score <- function(data, targets, fp, occ, det, model, prob, seed,
                            fit_args) {
   t0 <- Sys.time()
@@ -387,7 +392,8 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
     ggplot2::theme_minimal()
 }
 
-# design columns of a calibration summary that vary among cells
+#' design columns of a calibration summary that vary among cells
+#' @noRd
 .varying_design <- function(s) {
   fixed <- c("cell", "model", "parameter", "n", "failed", "coverage", "mc_se",
              "bias", "rmse", "prop_divergent")
@@ -397,8 +403,9 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
 
 utils::globalVariables(c("y", "lo", "hi", "model"))
 
-# runs one replicate per row of `jobs`, sequentially or with 'furrr', with a
-# progress bar that shows the time remaining in interactive sessions
+#' runs one replicate per row of `jobs`, sequentially or with 'furrr', with a
+#' progress bar that shows the time remaining in interactive sessions
+#' @noRd
 .run_jobs <- function(jobs, run_one, parallel) {
   if (parallel && !requireNamespace("furrr", quietly = TRUE)) {
     stop("`parallel = TRUE` needs the 'furrr' package.", call. = FALSE)

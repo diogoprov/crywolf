@@ -296,10 +296,11 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
   structure(out, draws = ids, rule = rule)
 }
 
-# The detection histories of occasion_draws.parquet, when sheepdog drew them
-# as fp_draws_data() would here: same species, rule, p_min or seed, at least
-# these draws, and every prediction in `occasions` (`complete`). NULL
-# otherwise.
+#' The detection histories of occasion_draws.parquet, when sheepdog drew them
+#' as fp_draws_data() would here: same species, rule, p_min or seed, at least
+#' these draws, and every prediction in `occasions` (`complete`). NULL
+#' otherwise.
+#' @noRd
 .saved_occasion_draws <- function(x, rule, p_min, seed, ids, species, complete) {
   od <- x$schema$occasion_draws
   if (is.null(od) || !"occasion_draws" %in% names(x$files) || !complete ||
@@ -318,11 +319,12 @@ fp_draws_data <- function(x, rule = c("sample", "threshold"), p_min = 0.95,
   saved
 }
 
-# The detection histories sheepdog drew at export for a calibration with
-# continuous covariates (schema 1.3), the only ones there are: `rule`,
-# `p_min` and `seed` left NULL take the ones of the export, and other values
-# are an error. A list with `saved` (occasion_draws.parquet, target species,
-# the draws used), `ids` and `rule`.
+#' The detection histories sheepdog drew at export for a calibration with
+#' continuous covariates (schema 1.3), the only ones there are: `rule`,
+#' `p_min` and `seed` left NULL take the ones of the export, and other values
+#' are an error. A list with `saved` (occasion_draws.parquet, target species,
+#' the draws used), `ids` and `rule`.
+#' @noRd
 .covariate_draws <- function(x, rule, p_min, seed, n_draws, species) {
   od <- x$schema$occasion_draws
   covariates <- paste(unlist(x$schema$calibration$covariates), collapse = ", ")

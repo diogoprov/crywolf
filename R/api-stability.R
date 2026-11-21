@@ -72,6 +72,10 @@
 #' so in its help. [fp_read_sheepdog()], by contrast, reads a versioned
 #' export format (`sheepdog-occupancy`, schema 1) and is stable.
 #'
+#' @returns None. This page documents the interface and has no function.
+#' @examples
+#' # the arguments of a stable function, which the guarantee covers
+#' names(formals(fp_occu))
 #' @name crywolf-api
 #' @keywords documentation
 NULL

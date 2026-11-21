@@ -19,3 +19,4 @@
 ^\.dockerignore$
 ^codecov\.yml$
 ^vignettes/articles$
+^codemeta\.json$

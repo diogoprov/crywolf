@@ -5,21 +5,25 @@
 # that the posterior regression test showed to give the same posterior), so
 # that a vignette can say when its results may be out of date.
 
-# of the program and of the functions it includes
+#' of the program and of the functions it includes
+#' @noRd
 .stan_md5 <- function() {
   files <- c(fp_stan_file(),
              file.path(dirname(fp_stan_file()), "fp_emissions.stanfunctions"))
   paste(tools::md5sum(files), collapse = "-")
 }
 
+#' Tag a precomputed object with the Stan program checksum and package version
+#' @noRd
 .stamp <- function(x) {
   attr(x, "crywolf_stan_md5") <- .stan_md5()
   attr(x, "crywolf_version") <- as.character(utils::packageVersion("crywolf"))
   x
 }
 
-# a note for the vignette when the stamp does not match the Stan program in
-# use; an empty string otherwise
+#' a note for the vignette when the stamp does not match the Stan program in
+#' use; an empty string otherwise
+#' @noRd
 .stale_note <- function(x, file) {
   if (identical(attr(x, "crywolf_stan_md5"), .stan_md5())) return("")
   paste0("*The precomputed results on this page (`", file, "`) were made with ",

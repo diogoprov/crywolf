@@ -266,7 +266,8 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   stats::setNames(as.numeric(w), names(fits))
 }
 
-# exact leave-one-site-out log predictive density of site i
+#' exact leave-one-site-out log predictive density of site i
+#' @noRd
 .elpd_without_site <- function(x, i, seed, nodes = NULL) {
   d <- x$data
   id <- d$sites[[d$site]][i]
@@ -305,12 +306,13 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   .log_mean_exp(ll)
 }
 
-# Log-likelihood of each site (S x nsite) with its random effects integrated
-# out: log of the integral of p(y_i | e, d) over e ~ Normal(0, sigma_fp) (on
-# the false-positive rate) and d ~ Normal(0, sigma_det) (on true detection),
-# whichever the model has, for each draw, by Gauss-Hermite quadrature with a
-# product grid of `nodes` points per effect. The terms are summed as they
-# come (a running log-sum-exp), so memory does not grow with the grid.
+#' Log-likelihood of each site (S x nsite) with its random effects integrated
+#' out: log of the integral of p(y_i | e, d) over e ~ Normal(0, sigma_fp) (on
+#' the false-positive rate) and d ~ Normal(0, sigma_det) (on true detection),
+#' whichever the model has, for each draw, by Gauss-Hermite quadrature with a
+#' product grid of `nodes` points per effect. The terms are summed as they
+#' come (a running log-sum-exp), so memory does not grow with the grid.
+#' @noRd
 .integrate_site_effect <- function(sd, pars, nodes = NULL) {
   effects <- c(e_fp = "sigma_fp", d_det = "sigma_det")
   effects <- effects[!purrr::map_lgl(pars[effects], is.null)]
@@ -334,8 +336,9 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   acc$m + log(acc$s)
 }
 
-# nodes and weights of Gauss-Hermite quadrature (weight function exp(-x^2)),
-# from the eigen decomposition of the Jacobi matrix (Golub and Welsch)
+#' nodes and weights of Gauss-Hermite quadrature (weight function exp(-x^2)),
+#' from the eigen decomposition of the Jacobi matrix (Golub and Welsch)
+#' @noRd
 .gauss_hermite <- function(n) {
   stopifnot(n >= 2)
   off <- sqrt(seq_len(n - 1) / 2)
@@ -346,6 +349,8 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   list(x = e$values, w = sqrt(pi) * e$vectors[1, ]^2)
 }
 
+#' Log of the mean of exp(v), computed stably
+#' @noRd
 .log_mean_exp <- function(v) max(v) + log(mean(exp(v - max(v))))
 
 #' @rdname fp_occu-methods
@@ -358,8 +363,12 @@ as_draws_df.fp_occu <- function(x, ...) {
 
 # helpers ---------------------------------------------------------------------
 
+#' A formula as a single line of text
+#' @noRd
 .fmt_formula <- function(f) paste(deparse(f, width.cutoff = 500L), collapse = "")
 
+#' Print a one-line summary of the sampler diagnostics
+#' @noRd
 .print_diag <- function(d) {
   cat(sprintf(paste0("\n  Sampler: %s divergent transitions, max R-hat %.3f, ",
                      "min bulk/tail ESS %.0f/%.0f\n"),

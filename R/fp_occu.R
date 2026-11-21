@@ -49,7 +49,16 @@
 #'   random effect on true detection".
 #' @param priors Prior settings from [fp_priors()].
 #' @param chains,iter_warmup,iter_sampling,adapt_delta,seed Passed to the
-#'   `$sample()` method of 'cmdstanr'.
+#'   `$sample()` method of 'cmdstanr', which runs Stan's No-U-Turn sampler
+#'   (Hoffman & Gelman, 2014). `chains` is the number of Markov chains (4 by
+#'   default); `iter_warmup` and `iter_sampling` are the warm-up and kept
+#'   iterations of each chain (1000 each); warm-up draws adapt the sampler
+#'   and are discarded. `adapt_delta` is the target acceptance rate during
+#'   adaptation (0.95, above the Stan default of 0.8, because the
+#'   false-positive models often have curved posteriors); raise it towards
+#'   0.99 when divergent transitions are reported. `seed` is the random
+#'   seed; with `NULL`, CmdStan draws one, and the seed used is stored in
+#'   `$sampler$seed` either way.
 #' @param refresh How often each chain reports its progress, in iterations.
 #'   The default, `NULL`, reports every 10% of the iterations in interactive
 #'   sessions and nothing otherwise; `0` silences it. Warm-up iterations are
@@ -207,6 +216,11 @@
 #' Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 #' two types of observational error occur: non-detection and species
 #' misidentification. *Ecology*, 92, 1422–1428. \doi{10.1890/10-1396.1}
+#'
+#' Hoffman, M. D., & Gelman, A. (2014). The No-U-Turn sampler: adaptively
+#' setting path lengths in Hamiltonian Monte Carlo. *Journal of Machine
+#' Learning Research*, 15, 1593–1623.
+#' <https://jmlr.org/papers/v15/hoffman14a.html>
 #' @seealso [crywolf-output], [fp_data()], [fp_priors()], [fp_calibrate()]
 #' @export
 #' @examplesIf instantiate::stan_cmdstan_exists()
@@ -300,8 +314,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   out
 }
 
-# threads per chain ("auto" or a positive integer) and parallel chains,
-# within the two cores that R CMD check allows
+#' threads per chain ("auto" or a positive integer) and parallel chains,
+#' within the two cores that R CMD check allows
+#' @noRd
 .sampler_cores <- function(threads_per_chain, parallel_chains) {
   if (identical(threads_per_chain, "auto")) {
     threads_per_chain <- .auto_threads(parallel_chains)
@@ -319,16 +334,18 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   list(threads_per_chain = threads_per_chain, parallel_chains = parallel_chains)
 }
 
-# a name for CmdStan's output files that no other fit in any session shares,
-# made without R's random numbers so that the user's stream is untouched
+#' a name for CmdStan's output files that no other fit in any session shares,
+#' made without R's random numbers so that the user's stream is untouched
+#' @noRd
 .output_basename <- function() {
   .fp_env$n_fits <- if (is.null(.fp_env$n_fits)) 1L else .fp_env$n_fits + 1L
   paste0("fp_occu-", gsub("[^0-9]", "", format(Sys.time(), "%Y%m%d%H%M%OS6")),
          "-", Sys.getpid(), "-", .fp_env$n_fits)
 }
 
-# physical cores divided among the parallel chains, at most two in total
-# under R CMD check
+#' physical cores divided among the parallel chains, at most two in total
+#' under R CMD check
+#' @noRd
 .auto_threads <- function(parallel_chains) {
   cores <- parallel::detectCores(logical = FALSE)
   if (is.na(cores)) cores <- 1L
@@ -336,6 +353,8 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   max(1L, as.integer(cores %/% max(1L, parallel_chains)))
 }
 
+#' Stop unless `x` is a single TRUE or FALSE
+#' @noRd
 .check_flag <- function(x, what) {
   if (!is.logical(x) || length(x) != 1 || is.na(x)) {
     stop("`", what, "` must be TRUE or FALSE.", call. = FALSE)
@@ -343,7 +362,8 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   invisible(TRUE)
 }
 
-# TRUE when R CMD check limits the cores (set by --as-cran and on CRAN)
+#' TRUE when R CMD check limits the cores (set by --as-cran and on CRAN)
+#' @noRd
 .check_limits_cores <- function() {
   chk <- tolower(Sys.getenv("_R_CHECK_LIMIT_CORES_", ""))
   nzchar(chk) && chk != "false"
@@ -421,6 +441,8 @@ print.fp_priors <- function(x, ...) {
 
 # internal: data list for Stan ------------------------------------------------
 
+#' Model matrix of a one-sided formula, with checks of its covariates
+#' @noRd
 .design <- function(form, df, what) {
   if (!inherits(form, "formula") || length(form) != 2) {
     stop("`", what, "` must be a one-sided formula, e.g. ~ x.", call. = FALSE)
@@ -446,6 +468,8 @@ print.fp_priors <- function(x, ...) {
        intercept = attr(tt, "intercept") == 1)
 }
 
+#' The data list for the Stan program, with the design and readable names
+#' @noRd
 .build_stan_data <- function(data, occ, det, fp, random_recorder, priors,
                              random_fp = FALSE, ver = ~ 1, markov = NULL,
                              random_det = FALSE) {
@@ -630,6 +654,8 @@ print.fp_priors <- function(x, ...) {
 
 # internal: readable parameter names ------------------------------------------
 
+#' Map from raw Stan parameter names to readable crywolf names
+#' @noRd
 .name_map <- function(design, estimate_fp, use_re, has_verified = TRUE,
                       use_fp_re = FALSE, use_det_re = FALSE) {
   m <- c(
@@ -659,6 +685,8 @@ print.fp_priors <- function(x, ...) {
   m
 }
 
+#' Posterior draws with the readable parameter names
+#' @noRd
 .pretty_draws <- function(fit, sd_list) {
   sd <- sd_list$stan_data
   map <- .name_map(sd_list$design, sd$estimate_fp == 1, sd$estimate_re == 1,
@@ -671,6 +699,8 @@ print.fp_priors <- function(x, ...) {
   dr
 }
 
+#' Sampler diagnostics: divergences, tree depth, R-hat and ESS
+#' @noRd
 .diagnostics <- function(fit, draws) {
   ds <- tryCatch(fit$diagnostic_summary(quiet = TRUE), error = function(e) NULL)
   summ <- posterior::summarise_draws(draws, "rhat", "ess_bulk", "ess_tail")
@@ -683,6 +713,8 @@ print.fp_priors <- function(x, ...) {
   )
 }
 
+#' Warn when the sampler diagnostics signal problems
+#' @noRd
 .warn_diagnostics <- function(diag) {
   msgs <- c(
     if (isTRUE(diag$divergences > 0))
@@ -697,10 +729,11 @@ print.fp_priors <- function(x, ...) {
   invisible(NULL)
 }
 
-# Is each occasion (sorted by site and time) one time step after the previous
-# row of the same site? The step is the smallest interval between consecutive
-# occasions in the data, so missing occasions (e.g. rows with NA dropped by
-# fp_data()) break the chain instead of joining non-adjacent occasions.
+#' Is each occasion (sorted by site and time) one time step after the previous
+#' row of the same site? The step is the smallest interval between consecutive
+#' occasions in the data, so missing occasions (e.g. rows with NA dropped by
+#' fp_data()) break the chain instead of joining non-adjacent occasions.
+#' @noRd
 .markov_adjacent <- function(site, time, name) {
   if (!is.numeric(time) && !inherits(time, c("POSIXt", "Date"))) {
     stop("The `markov` column '", name, "' must be numeric, a date, or a ",

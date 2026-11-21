@@ -164,12 +164,16 @@ fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
   # observation
   known_present <- matrix(0L, nrow(sites), max(1L, length(species_names)),
                           dimnames = list(NULL, species_names))
-  mark <- function(d, rows) {
+  cells <- function(d, rows) {
     sp <- if (is.null(species)) 1L else match(as.character(d[[species]][rows]), species_names)
-    known_present[cbind(match(d[[site]][rows], sites[[site]]), sp)] <<- 1L
+    cbind(match(d[[site]][rows], sites[[site]]), sp)
   }
-  if (!is.null(verified) && nrow(verified) > 0) mark(verified, verified[[y]] == 1)
-  if (!is.null(confirmed)) mark(auto, which(auto[[confirmed[1]]] > 0))
+  if (!is.null(verified) && nrow(verified) > 0) {
+    known_present[cells(verified, verified[[y]] == 1)] <- 1L
+  }
+  if (!is.null(confirmed)) {
+    known_present[cells(auto, which(auto[[confirmed[1]]] > 0))] <- 1L
+  }
   if (is.null(species)) known_present <- known_present[, 1]
 
   structure(
@@ -301,7 +305,8 @@ print.fp_data <- function(x, ...) {
 
 # validation helpers ----------------------------------------------------------
 
-# the data of the single-species models
+#' the data of the single-species models
+#' @noRd
 .check_fp_data <- function(data) {
   if (!inherits(data, "fp_data")) {
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
@@ -314,6 +319,8 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
+#' Stop unless `df` is a data frame with the columns `cols`
+#' @noRd
 .check_df <- function(df, what, cols) {
   if (!is.data.frame(df)) stop("`", what, "` must be a data frame.", call. = FALSE)
   miss <- setdiff(cols, names(df))
@@ -324,8 +331,9 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
-# detections as integer 0/1: numbers, logicals and "0"/"1" are taken as
-# they read; a factor is read by its labels, not by its level codes
+#' detections as integer 0/1: numbers, logicals and "0"/"1" are taken as
+#' they read; a factor is read by its labels, not by its level codes
+#' @noRd
 .as_binary <- function(v, what) {
   if (is.factor(v)) v <- as.character(v)
   if (!(is.numeric(v) || is.logical(v) || is.character(v)) ||
@@ -335,8 +343,9 @@ print.fp_data <- function(x, ...) {
   as.integer(as.numeric(v))
 }
 
-# warnings about data that fit but are unlikely to be what the user meant;
-# their class lets the simulation functions silence them
+#' warnings about data that fit but are unlikely to be what the user meant;
+#' their class lets the simulation functions silence them
+#' @noRd
 .warn_design <- function(auto, sites, verified, site, y, confirmed, species, season) {
   warn <- function(...) {
     msg <- paste0(...)
@@ -389,8 +398,9 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
-# the seasons in time order: the levels of a factor, otherwise the sorted
-# values of `auto` and `verified` together
+#' the seasons in time order: the levels of a factor, otherwise the sorted
+#' values of `auto` and `verified` together
+#' @noRd
 .season_levels <- function(auto, verified, season) {
   a <- auto[[season]]
   v <- if (is.null(verified)) NULL else verified[[season]]
@@ -414,10 +424,11 @@ print.fp_data <- function(x, ...) {
   sort(unique(c(a, v)))
 }
 
-# Seasons that are dates: the missing dates between the first and the last
-# are added, in steps of the shortest interval, so that each transition
-# spans the same time. Attribute "step": that interval in days (NULL when
-# the seasons are not dates).
+#' Seasons that are dates: the missing dates between the first and the last
+#' are added, in steps of the shortest interval, so that each transition
+#' spans the same time. Attribute "step": that interval in days (NULL when
+#' the seasons are not dates).
+#' @noRd
 .fill_seasons <- function(lv) {
   d <- .season_dates(lv)
   gaps <- if (is.numeric(lv)) diff(lv) else numeric(0)
@@ -442,8 +453,9 @@ print.fp_data <- function(x, ...) {
   structure(out, step = step)
 }
 
-# the seasons as dates (Date, or text as YYYY-MM-DD or YYYYMMDD), with the
-# text format as attribute; NULL if they are not dates
+#' the seasons as dates (Date, or text as YYYY-MM-DD or YYYYMMDD), with the
+#' text format as attribute; NULL if they are not dates
+#' @noRd
 .season_dates <- function(lv) {
   if (inherits(lv, "Date")) return(structure(lv, format = NULL))
   if (!is.character(lv)) return(NULL)
@@ -454,6 +466,8 @@ print.fp_data <- function(x, ...) {
   structure(d, format = fmt)
 }
 
+#' Check that the season covariates match the seasons and sites of the data
+#' @noRd
 .check_season_covs <- function(season_covs, season, seasons, sites, site) {
   if (is.null(season)) {
     stop("`season_covs` needs `season`.", call. = FALSE)
@@ -473,20 +487,24 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
+#' Signal a design warning of class crywolf_design_warning
+#' @noRd
 .design_warning <- function(...) {
   warning(structure(class = c("crywolf_design_warning", "warning", "condition"),
                     list(message = paste0(...), call = NULL)))
 }
 
-# index of the season of each row of a table; numbers and dates are matched
-# by value, factor levels and text as text
+#' index of the season of each row of a table; numbers and dates are matched
+#' by value, factor levels and text as text
+#' @noRd
 .season_index <- function(df, season, seasons) {
   x <- df[[season]]
   if (is.character(seasons)) x <- as.character(x)
   match(x, seasons)
 }
 
-# number of sites with automated or verified data in each season
+#' number of sites with automated or verified data in each season
+#' @noRd
 .sites_per_season <- function(x) {
   t_all <- .season_index(x$auto, x$season, x$seasons)
   s_all <- as.character(x$auto[[x$site]])
@@ -498,8 +516,9 @@ print.fp_data <- function(x, ...) {
   tabulate(t_all[first], nbins = length(x$seasons))
 }
 
-# the species: the levels of a factor, otherwise the sorted values of `auto`
-# and `verified` together, as text
+#' the species: the levels of a factor, otherwise the sorted values of `auto`
+#' and `verified` together, as text
+#' @noRd
 .species_levels <- function(auto, verified, species) {
   a <- auto[[species]]
   v <- if (is.null(verified)) NULL else verified[[species]]
@@ -515,8 +534,9 @@ print.fp_data <- function(x, ...) {
   levels(a)
 }
 
-# per species: automated occasions and detections, sites with an automated
-# detection, naive occupancy, verified occasions and detections
+#' per species: automated occasions and detections, sites with an automated
+#' detection, naive occupancy, verified occasions and detections
+#' @noRd
 .species_table <- function(x) {
   sp <- factor(as.character(x$auto[[x$species]]), levels = x$species_names)
   det <- x$auto[[x$y]] == 1
@@ -535,6 +555,8 @@ print.fp_data <- function(x, ...) {
              verified_det = as.vector(tapply(vdet, vsp, sum, default = 0L)))
 }
 
+#' Warn about species with no automated detection or no verified record
+#' @noRd
 .warn_species <- function(auto, verified, site, y, species, species_names) {
   warn <- .design_warning
   sp <- factor(as.character(auto[[species]]), levels = species_names)
@@ -562,6 +584,8 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
+#' Warn about seasons without sampling, detection or verification
+#' @noRd
 .warn_seasons <- function(auto, verified, confirmed, season, seasons) {
   warn <- .design_warning
   nt <- length(seasons)
@@ -584,6 +608,8 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
+#' Check the two columns of confirmed true and false observations
+#' @noRd
 .check_confirmed <- function(auto, confirmed, y) {
   if (length(confirmed) != 2) {
     stop("`confirmed` must name two columns: confirmed true and confirmed ",
@@ -607,6 +633,8 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
+#' Stop when `v` holds sites missing from the site table
+#' @noRd
 .check_sites_known <- function(v, known, what, site) {
   bad <- setdiff(unique(v), known)
   if (length(bad)) {

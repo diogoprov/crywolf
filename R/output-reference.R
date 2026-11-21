@@ -232,6 +232,18 @@
 #'
 #' @seealso [fp_occu()], [fp_occu-methods], [fp_sites()], [fp_effects()],
 #'   [fp_ppc()], [fp_threshold_sweep()], [fp_calibrate()], [fp_sbc()]
+#' @returns None. This page documents the names in crywolf's results and has
+#'   no function.
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
+#' sim <- simulate_fp(nsite = 100, nocc = 10, seed = 1)
+#' fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+#'                chains = 2, iter_warmup = 300, iter_sampling = 300,
+#'                threads_per_chain = 1, refresh = 0)
+#' # readable coefficient names, shared by coef(), summary() and the draws
+#' names(coef(fit))
+#' summary(fit)$table
+#' }
 #' @name crywolf-output
 #' @aliases output-names
 #' @keywords documentation

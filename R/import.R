@@ -117,6 +117,16 @@ fp_read_birdnet <- function(path, pattern = "\\.txt$", recursive = TRUE,
 #'   `occasion_id` when the file has it.
 #' @seealso [fp_aggregate()]
 #' @export
+#' @examples
+#' path <- tempfile(fileext = ".csv")
+#' utils::write.csv(data.frame(
+#'   site = c("A", "A", "B"), species_code = "compau",
+#'   source_audio = c("a1.wav", "a2.wav", "b1.wav"),
+#'   clip_start = c(3, 12, 30), clip_end = c(6, 15, 33),
+#'   confidence = c(0.91, 0.42, 0.57),
+#'   verdict = c("positive", "negative", "not_reviewed")
+#' ), path, row.names = FALSE)
+#' fp_read_validation(path)
 fp_read_validation <- function(path) {
   header <- names(utils::read.csv(path, nrows = 1, check.names = FALSE))
   fmt <- .validation_formats[[if (!"site" %in% header && "local" %in% header)
@@ -308,6 +318,8 @@ fp_aggregate <- function(occasions, detections, threshold, by = "file",
   occasions
 }
 
+#' Column names in lower case, with units and punctuation removed
+#' @noRd
 .std_names <- function(x) {
   x <- tolower(x)
   x <- gsub("\\((s|hz)\\)", "", x)

@@ -77,7 +77,8 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
              row.names = NULL)
 }
 
-# fp_sites() for the multispecies model: one row per site and species
+#' fp_sites() for the multispecies model: one row per site and species
+#' @noRd
 .fp_sites_ms <- function(object, prob, ndraws, seed) {
   if (!is.null(seed)) .set_seed(seed)
   data <- object$data
@@ -99,9 +100,10 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   structure(out, class = c("fp_sites", "data.frame"), prob = prob)
 }
 
-# fp_ppc() for the multispecies model: the columns are site x species, the
-# discrepancy is summed over species, and p_species holds the p-value of each
-# species
+#' fp_ppc() for the multispecies model: the columns are site x species, the
+#' discrepancy is summed over species, and p_species holds the p-value of each
+#' species
+#' @noRd
 .fp_ppc_ms <- function(object, method, fit_stat, ndraws, seed) {
   data <- object$data
   if (method == "verified" && object$stan_data$N1 == 0) {
@@ -281,22 +283,25 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   })
 }
 
-# the posterior means as one draw; the random effects on logit(p10), whose
-# means are shrunk towards zero, drawn anew from their distributions with the
-# posterior mean of their standard deviation, as simulate.fp_occu() does
+#' the posterior means as one draw; the random effects on logit(p10), whose
+#' means are shrunk towards zero, drawn anew from their distributions with the
+#' posterior mean of their standard deviation, as simulate.fp_occu() does
+#' @noRd
 .ms_mean_row <- function(dm, sd) {
   row <- matrix(colMeans(dm), 1, dimnames = list(NULL, colnames(dm)))
-  redraw <- function(raw, sigma) {
-    j <- grep(paste0("^", raw, "\\["), colnames(row))
-    if (length(j)) row[, j] <<- stats::rnorm(length(j), 0, if (sd$centered == 1) row[, sigma] else 1)
+  for (re in list(c("v_raw", "sigma_v[1]"), c("t_raw", "sigma_t[1]"))) {
+    j <- grep(paste0("^", re[1], "\\["), colnames(row))
+    if (length(j)) {
+      row[, j] <- stats::rnorm(length(j), 0,
+                               if (sd$centered == 1) row[, re[2]] else 1)
+    }
   }
-  redraw("v_raw", "sigma_v[1]")
-  redraw("t_raw", "sigma_t[1]")
   row
 }
 
-# the simulated data of each species (from .simulate_from()) as one
-# multispecies data set and its truth
+#' the simulated data of each species (from .simulate_from()) as one
+#' multispecies data set and its truth
+#' @noRd
 .ms_combine_sims <- function(res, data) {
   sp <- names(res)
   rows <- function(what) {
@@ -326,9 +331,10 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
 
 # internal ---------------------------------------------------------------------
 
-# the data of species s alone, as an fp_data of fp_occu(): its rows of the
-# automated and verified tables (with the species column, kept for
-# simulate()) and its column of known presences
+#' the data of species s alone, as an fp_data of fp_occu(): its rows of the
+#' automated and verified tables (with the species column, kept for
+#' simulate()) and its column of known presences
+#' @noRd
 .ms_species_data <- function(data, s) {
   sp <- data$species_names[s]
   keep <- function(df) {
@@ -346,8 +352,9 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   d
 }
 
-# for each species, what .simulate_from() and .ppc_core() need: its data,
-# the stan_data of fp_occu() for it, its design and occasions
+#' for each species, what .simulate_from() and .ppc_core() need: its data,
+#' the stan_data of fp_occu() for it, its design and occasions
+#' @noRd
 .ms_species_gens <- function(object) {
   f <- object$formulas
   purrr::map(seq_along(object$data$species_names), function(s) {
@@ -360,8 +367,9 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   })
 }
 
-# the posterior draws of fp_occu_ms() that make the parameters of each
-# species, a matrix with one row per draw (ndraws of them, if given)
+#' the posterior draws of fp_occu_ms() that make the parameters of each
+#' species, a matrix with one row per draw (ndraws of them, if given)
+#' @noRd
 .ms_draws <- function(object, ndraws) {
   sd <- object$stan_data
   fl <- .ms_flags(sd)
@@ -378,7 +386,8 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   dm
 }
 
-# which terms vary by species and have values to vary
+#' which terms vary by species and have values to vary
+#' @noRd
 .ms_flags <- function(sd) {
   fp <- sd$estimate_fp == 1
   list(fp = fp,
@@ -389,9 +398,10 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
        unit = isTRUE(sd$estimate_fp_re == 1))
 }
 
-# the parameters of species s in the format of .ppc_pars(), from the draws
-# dm of fp_occu_ms(); gen is the generator of the species (.ms_species_gens()),
-# whose recorders and verified terms may be a subset of those of the model
+#' the parameters of species s in the format of .ppc_pars(), from the draws
+#' dm of fp_occu_ms(); gen is the generator of the species (.ms_species_gens()),
+#' whose recorders and verified terms may be a subset of those of the model
+#' @noRd
 .ms_pars <- function(dm, object, gen, s) {
   sd <- object$stan_data
   des <- object$design
@@ -430,8 +440,9 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   )
 }
 
-# the random effects on logit(p10) of the sites of species s (S draws x
-# nsite): that of its cell (group of sites x species) plus that of its unit
+#' the random effects on logit(p10) of the sites of species s (S draws x
+#' nsite): that of its cell (group of sites x species) plus that of its unit
+#' @noRd
 .ms_fp_effects <- function(dm, sd, s, fl) {
   if (!fl$group && !fl$unit) return(NULL)
   nsp <- sd$nspecies
@@ -446,7 +457,8 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   unname(e)
 }
 
-# each species with its generator and its parameters in the same draws
+#' each species with its generator and its parameters in the same draws
+#' @noRd
 .ms_species <- function(object, ndraws) {
   dm <- .ms_draws(object, ndraws)
   purrr::imap(.ms_species_gens(object), function(g, s) {

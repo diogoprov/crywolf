@@ -250,15 +250,17 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   x$draws
 }
 
-# The rule of centered = "auto" and centered_occ = "auto": both centred with
-# at least 20 species and 100 sites, from the grid of dev/ms-sim/run_sims.R.
+#' The rule of centered = "auto" and centered_occ = "auto": both centred with
+#' at least 20 species and 100 sites, from the grid of dev/ms-sim/run_sims.R.
+#' @noRd
 .ms_centered_auto <- function(nspecies, nsite) nspecies >= 20 && nsite >= 100
 
-# The data of fp_occu_ms.stan. Each site x species is a unit, numbered
-# (site - 1) * nspecies + species; the units form an fp_data whose "sites"
-# are the units, so that .build_stan_data() builds the observation model of
-# each unit as fp_occu() builds that of each site, and the occupancy design
-# of each unit from the covariates of its site.
+#' The data of fp_occu_ms.stan. Each site x species is a unit, numbered
+#' (site - 1) * nspecies + species; the units form an fp_data whose "sites"
+#' are the units, so that .build_stan_data() builds the observation model of
+#' each unit as fp_occu() builds that of each site, and the occupancy design
+#' of each unit from the covariates of its site.
+#' @noRd
 .build_ms_stan_data <- function(data, occ, det, fp, random_recorder, priors, ver = ~ 1,
                                 centered = FALSE, centered_occ = FALSE,
                                 by_species = character(), random_fp = FALSE,
@@ -291,7 +293,8 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   sl
 }
 
-# the terms of fp_occu_ms(by_species = ), checked
+#' the terms of fp_occu_ms(by_species = ), checked
+#' @noRd
 .check_by_species <- function(by_species, data) {
   terms <- c("det", "fp", "ver")
   if (is.null(by_species)) return(character())
@@ -304,7 +307,8 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   unique(by_species)
 }
 
-# the random effects on logit(p10) of fp_occu_ms(), checked
+#' the random effects on logit(p10) of fp_occu_ms(), checked
+#' @noRd
 .check_fp_effects <- function(random_fp, fp_group, fp, data) {
   if (!isTRUE(random_fp) && !isFALSE(random_fp)) {
     stop("`random_fp` must be TRUE or FALSE.", call. = FALSE)
@@ -334,9 +338,10 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   invisible(NULL)
 }
 
-# the site x species units of a multispecies data set, as an fp_data with
-# one "site" per unit (column .unit); the table of units carries the site
-# covariates and the species
+#' the site x species units of a multispecies data set, as an fp_data with
+#' one "site" per unit (column .unit); the table of units carries the site
+#' covariates and the species
+#' @noRd
 .ms_units <- function(data) {
   s <- data$site
   sites <- data$sites
@@ -358,9 +363,10 @@ as_draws_df.fp_occu_ms <- function(x, ...) {
   data
 }
 
-# readable draws: the names of fp_occu() for the community means, sd_* for
-# the standard deviations among species and [species] for the values of
-# each species
+#' readable draws: the names of fp_occu() for the community means, sd_* for
+#' the standard deviations among species and `[species]` for the values of
+#' each species
+#' @noRd
 .pretty_draws_ms <- function(fit, sd_list) {
   sd <- sd_list$stan_data
   des <- sd_list$design

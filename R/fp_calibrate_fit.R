@@ -167,8 +167,9 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
 
 # internal ---------------------------------------------------------------------
 
-# everything needed to simulate from a fit, without the CmdStan objects (so
-# that it can be sent to parallel workers)
+#' everything needed to simulate from a fit, without the CmdStan objects (so
+#' that it can be sent to parallel workers)
+#' @noRd
 .fit_generator <- function(fit) {
   f <- fit$formulas
   sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, isTRUE(fit$random_recorder),
@@ -181,7 +182,8 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
        draws = .ppc_pars(fit$fit, sl$stan_data, NULL))
 }
 
-# one set of parameter values: posterior means, or one random draw
+#' one set of parameter values: posterior means, or one random draw
+#' @noRd
 .pick_pars <- function(draws, truth) {
   i <- if (truth == "mean") NULL else sample.int(length(draws$delta0), 1)
   pick <- function(m) {
@@ -198,8 +200,9 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   p
 }
 
-# with z, the latent states are those given (the dynamic model draws them
-# over seasons), not drawn from the occupancy probability
+#' with z, the latent states are those given (the dynamic model draws them
+#' over seasons), not drawn from the occupancy probability
+#' @noRd
 .simulate_from <- function(gen, p, z = NULL) {
   sd <- gen$stan_data
   oc <- gen$occasions
@@ -317,7 +320,8 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
                               else mean(p10_site)))
 }
 
-# true values of the quantities scored for one refitted model
+#' true values of the quantities scored for one refitted model
+#' @noRd
 .fit_targets <- function(truth, fp, gen) {
   tp <- truth$pars
   keep <- grepl("^(occ_|det_)", names(tp))

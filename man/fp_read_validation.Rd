@@ -49,6 +49,17 @@ confidence) are a second, manual method of detection: give them to
 \code{\link[=fp_data]{fp_data()}} as verified occasions, not to the \code{validation} argument of
 \code{\link[=fp_aggregate]{fp_aggregate()}}.
 }
+\examples{
+path <- tempfile(fileext = ".csv")
+utils::write.csv(data.frame(
+  site = c("A", "A", "B"), species_code = "compau",
+  source_audio = c("a1.wav", "a2.wav", "b1.wav"),
+  clip_start = c(3, 12, 30), clip_end = c(6, 15, 33),
+  confidence = c(0.91, 0.42, 0.57),
+  verdict = c("positive", "negative", "not_reviewed")
+), path, row.names = FALSE)
+fp_read_validation(path)
+}
 \seealso{
 \code{\link[=fp_aggregate]{fp_aggregate()}}
 }

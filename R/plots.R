@@ -58,6 +58,8 @@ plot.fp_occu <- function(x, type = c("intervals", "trace", "rank", "pairs"),
   )
 }
 
+#' Posterior intervals of the coefficients, as a table for plotting
+#' @noRd
 .plot_intervals <- function(x, prob) {
   d <- posterior::as_draws_matrix(x$draws)
   keep <- grepl("^(occ_|det_|fp_|verified_|sd_)", colnames(d)) &
@@ -85,7 +87,8 @@ plot.fp_occu <- function(x, type = c("intervals", "trace", "rank", "pairs"),
     ggplot2::theme_minimal()
 }
 
-# sampler diagnostics in the long format of bayesplot::nuts_params()
+#' sampler diagnostics in the long format of bayesplot::nuts_params()
+#' @noRd
 .nuts_params <- function(fit) {
   sd <- posterior::as_draws_df(fit$sampler_diagnostics())
   cols <- intersect(c("accept_stat__", "stepsize__", "treedepth__",
@@ -252,8 +255,9 @@ fp_sites <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
             class = c("fp_sites", "data.frame"), prob = prob)
 }
 
-# the columns of fp_sites() for the sites of one fp_occu() model, given the
-# draws of its parameters and the conditional probabilities of occupancy pz
+#' the columns of fp_sites() for the sites of one fp_occu() model, given the
+#' draws of its parameters and the conditional probabilities of occupancy pz
+#' @noRd
 .sites_table <- function(sites, sd, pars, pz, prob) {
   psi <- stats::plogis(pars$beta %*% t(sd$X))
   a <- (1 - prob) / 2
@@ -371,12 +375,15 @@ plot.fp_ppc <- function(x, type = c("discrepancy", "histogram", "counts"), ...) 
     ggplot2::theme_minimal()
 }
 
-# quantile of every column of a draws matrix
+#' quantile of every column of a draws matrix
+#' @noRd
 .col_quantile <- function(m, p) {
   stats::setNames(purrr::map_dbl(seq_len(ncol(m)), function(j) stats::quantile(m[, j], p)),
                   colnames(m))
 }
 
+#' Stop unless a suggested package is installed
+#' @noRd
 .require_pkg <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop("This function needs the '", pkg, "' package.", call. = FALSE)

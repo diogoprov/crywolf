@@ -3,6 +3,9 @@
 \name{crywolf-api}
 \alias{crywolf-api}
 \title{Stability of the crywolf interface}
+\value{
+None. This page documents the interface and has no function.
+}
 \description{
 What crywolf promises not to change between versions, and which
 functions are still experimental.
@@ -83,4 +86,8 @@ so in its help. \code{\link[=fp_read_sheepdog]{fp_read_sheepdog()}}, by contrast
 export format (\code{sheepdog-occupancy}, schema 1) and is stable.
 }
 
+\examples{
+# the arguments of a stable function, which the guarantee covers
+names(formals(fp_occu))
+}
 \keyword{documentation}

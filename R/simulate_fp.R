@@ -215,10 +215,11 @@ print.fp_sim <- function(x, ...) {
   invisible(x)
 }
 
-# set.seed() with R's default generators whatever kind is active: the
-# workers of 'furrr' use L'Ecuyer-CMRG, under which the same seed would give
-# other draws than in a sequential run (and than the fpcalib compendium).
-# The caller's generator kinds are restored when the caller returns.
+#' set.seed() with R's default generators whatever kind is active: the
+#' workers of 'furrr' use L'Ecuyer-CMRG, under which the same seed would give
+#' other draws than in a sequential run (and than the fpcalib compendium).
+#' The caller's generator kinds are restored when the caller returns.
+#' @noRd
 .set_seed <- function(seed, envir = parent.frame()) {
   default <- c("Mersenne-Twister", "Inversion", "Rejection")
   old <- RNGkind()

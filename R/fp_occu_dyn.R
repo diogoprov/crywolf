@@ -196,7 +196,8 @@ summary.fp_occu_dyn <- function(object, prob = 0.95, ...) {
   s
 }
 
-# derived quantities of fp_occu_dyn.stan, by readable name
+#' derived quantities of fp_occu_dyn.stan, by readable name
+#' @noRd
 .is_derived <- function(v) grepl("^(psi_mean|psi_fs|turnover)\\[|^psi_eq$", v)
 
 #' @rdname fp_occu_dyn
@@ -205,13 +206,14 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   x$draws
 }
 
-# The data of fp_occu_dyn.stan. Each site-season is a unit, numbered
-# (site - 1) * nseason + season; the units form an fp_data whose "sites" are
-# the units, so that .build_stan_data() builds the observation model of each
-# unit as fp_occu() builds that of each site. The designs of initial
-# occupancy, colonization and extinction come from the table of units, with
-# the season covariates: the first season for psi1, the later ones for col
-# and ext (rows of the first season are zero and unused).
+#' The data of fp_occu_dyn.stan. Each site-season is a unit, numbered
+#' (site - 1) * nseason + season; the units form an fp_data whose "sites" are
+#' the units, so that .build_stan_data() builds the observation model of each
+#' unit as fp_occu() builds that of each site. The designs of initial
+#' occupancy, colonization and extinction come from the table of units, with
+#' the season covariates: the first season for psi1, the later ones for col
+#' and ext (rows of the first season are zero and unused).
+#' @noRd
 .build_dyn_stan_data <- function(data, psi1, col, ext, det, fp, random_recorder, priors,
                                  random_fp = FALSE, ver = ~ 1, markov = NULL,
                                  random_det = FALSE) {
@@ -263,8 +265,9 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   sl
 }
 
-# readable draws: the names of fp_occu() with psi1_ for occ_, plus col_ and
-# ext_
+#' readable draws: the names of fp_occu() with psi1_ for occ_, plus col_ and
+#' ext_
+#' @noRd
 .pretty_draws_dyn <- function(fit, sd_list) {
   sd <- sd_list$stan_data
   des <- sd_list$design
@@ -293,9 +296,10 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   dr
 }
 
-# the site-season units of a dynamic data set, as an fp_data with one "site"
-# per unit (column .unit); the table of units carries the site covariates,
-# the season and the season covariates
+#' the site-season units of a dynamic data set, as an fp_data with one "site"
+#' per unit (column .unit); the table of units carries the site covariates,
+#' the season and the season covariates
+#' @noRd
 .dyn_units <- function(data) {
   s <- data$site
   sites <- data$sites
@@ -342,11 +346,12 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   data
 }
 
-# Emissions of the units, S draws x nunit: the log-likelihood of each
-# site-season's observations given that it is occupied (occ) and given that
-# it is not (unocc, -Inf at units known to be occupied), from .ppc_core()
-# with the site effects expanded to units. Also returns the unit-level
-# stan_data and parameters, for replicating observations.
+#' Emissions of the units, S draws x nunit: the log-likelihood of each
+#' site-season's observations given that it is occupied (occ) and given that
+#' it is not (unocc, -Inf at units known to be occupied), from .ppc_core()
+#' with the site effects expanded to units. Also returns the unit-level
+#' stan_data and parameters, for replicating observations.
+#' @noRd
 .dyn_emissions <- function(sd, pars) {
   unit_site <- rep(seq_len(sd$nsite), each = sd$nseason)
   pars_u <- pars
@@ -359,7 +364,8 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   c(em, list(sd_u = sd_u, pars_u = pars_u))
 }
 
-# log(exp(a) + exp(b)), elementwise, with -Inf for both -Inf
+#' log(exp(a) + exp(b)), elementwise, with -Inf for both -Inf
+#' @noRd
 .lse <- function(a, b) {
   m <- pmax(a, b)
   out <- m + log(exp(a - m) + exp(b - m))
@@ -367,10 +373,11 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   out
 }
 
-# Forward algorithm over seasons, from the emissions: lists, one element per
-# season, of the S x nsite matrices log P(z_t = 1, y_1..t) (a1) and
-# log P(z_t = 0, y_1..t) (a0), and the logits of colonization (lcol) and
-# extinction (lext) of the units
+#' Forward algorithm over seasons, from the emissions: lists, one element per
+#' season, of the S x nsite matrices log P(z_t = 1, y_1..t) (a1) and
+#' log P(z_t = 0, y_1..t) (a0), and the logits of colonization (lcol) and
+#' extinction (lext) of the units
+#' @noRd
 .dyn_forward <- function(sd, pars, em) {
   nsite <- sd$nsite
   nt <- sd$nseason
@@ -393,19 +400,21 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   list(a1 = a1, a0 = a0, lcol = lcol, lext = lext)
 }
 
-# Marginal log-likelihood of each site, S draws x nsite, as the log_lik of
-# fp_occu_dyn.stan
+#' Marginal log-likelihood of each site, S draws x nsite, as the log_lik of
+#' fp_occu_dyn.stan
+#' @noRd
 .dyn_loglik <- function(sd, pars) {
   fw <- .dyn_forward(sd, pars, .dyn_emissions(sd, pars))
   nt <- sd$nseason
   .lse(fw$a1[[nt]], fw$a0[[nt]])
 }
 
-# Forward filtering, backward sampling. Returns, S draws x nunit (units
-# numbered (site - 1) * nseason + season), the probability that each
-# site-season is occupied given all the data and the parameters of the draw
-# (pz, by the forward-backward algorithm) and one draw of the states from
-# their joint conditional posterior (z), plus the emissions.
+#' Forward filtering, backward sampling. Returns, S draws x nunit (units
+#' numbered (site - 1) * nseason + season), the probability that each
+#' site-season is occupied given all the data and the parameters of the draw
+#' (pz, by the forward-backward algorithm) and one draw of the states from
+#' their joint conditional posterior (z), plus the emissions.
+#' @noRd
 .dyn_ffbs <- function(sd, pars) {
   em <- .dyn_emissions(sd, pars)
   fw <- .dyn_forward(sd, pars, em)
@@ -445,8 +454,9 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   list(pz = pz, z = z, em = em)
 }
 
-# posterior draws for the dynamic model: those of .ppc_pars() plus the
-# coefficients of colonization and extinction, all from the same draws
+#' posterior draws for the dynamic model: those of .ppc_pars() plus the
+#' coefficients of colonization and extinction, all from the same draws
+#' @noRd
 .dyn_pars <- function(fit, sd, ndraws = NULL) {
   pars <- .ppc_pars(fit, sd, NULL)
   dm <- unclass(posterior::as_draws_matrix(fit$draws(variables = c("beta_col", "beta_ext"))))
@@ -462,7 +472,8 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   pars
 }
 
-# fp_sites() for the dynamic model: one row per site-season
+#' fp_sites() for the dynamic model: one row per site-season
+#' @noRd
 .fp_sites_dyn <- function(object, prob, ndraws, seed) {
   sd <- object$stan_data
   if (!is.null(seed)) .set_seed(seed)
@@ -554,6 +565,8 @@ simulate.fp_occu_dyn <- function(object, nsim = 1, seed = NULL,
   })
 }
 
+#' Simulate a dynamic data set from one set of parameter values
+#' @noRd
 .simulate_dyn_from <- function(gen, sd, p, data) {
   nsite <- sd$nsite
   nt <- sd$nseason

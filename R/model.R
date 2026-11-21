@@ -33,9 +33,10 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
   .compile_model("fp_occu", force = force, quiet = quiet)
 }
 
-# where a model without its installed executable is compiled: the user cache,
-# or the session's temporary directory under R CMD check, which must not
-# write to the user's filespace
+#' where a model without its installed executable is compiled: the user cache,
+#' or the session's temporary directory under R CMD check, which must not
+#' write to the user's filespace
+#' @noRd
 .cache_dir <- function() {
   if (nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))) {
     return(file.path(tempdir(), "crywolf-cache"))
@@ -43,8 +44,9 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
   tools::R_user_dir("crywolf", which = "cache")
 }
 
-# Compiles (or loads) one of the Stan programs of the package, `fp_occu` or
-# `fp_occu_dyn`; both #include fp_emissions.stanfunctions
+#' Compiles (or loads) one of the Stan programs of the package, `fp_occu` or
+#' `fp_occu_dyn`; both #include fp_emissions.stanfunctions
+#' @noRd
 .compile_model <- function(name, force = FALSE, quiet = TRUE) {
   if (!force && !is.null(.fp_env[[name]])) return(invisible(.fp_env[[name]]))
   .check_cmdstan()
@@ -88,10 +90,11 @@ fp_compile <- function(force = FALSE, quiet = TRUE) {
   invisible(.fp_env[[name]])
 }
 
-# cmdstanr 0.9.0 takes the options of an executable it loads from the
-# executable (as STAN_THREADS) but checks threads_per_chain against
-# cpp_options()[["stan_threads"]], so it drops the threads with a warning;
-# add the lower-case name to a model compiled with threads
+#' cmdstanr 0.9.0 takes the options of an executable it loads from the
+#' executable (as STAN_THREADS) but checks threads_per_chain against
+#' `cpp_options()[["stan_threads"]]`, so it drops the threads with a warning;
+#' add the lower-case name to a model compiled with threads
+#' @noRd
 .threads_option <- function(mod) {
   if (.has_threads(mod) && !isTRUE(mod$cpp_options()[["stan_threads"]])) {
     tryCatch(mod$.__enclos_env__$private$cpp_options_$stan_threads <- TRUE,
@@ -113,6 +116,8 @@ fp_stan_file <- function() {
   .stan_file("fp_occu")
 }
 
+#' Path of a Stan program of the package, installed or in the sources
+#' @noRd
 .stan_file <- function(name) {
   file <- paste0(name, ".stan")
   path <- system.file("bin", "stan", file, package = "crywolf")
@@ -123,6 +128,8 @@ fp_stan_file <- function() {
   path
 }
 
+#' Whether a compiled model was built with threading
+#' @noRd
 .has_threads <- function(mod) {
   opts <- mod$cpp_options()
   v <- unlist(opts[tolower(names(opts)) == "stan_threads"])
@@ -131,7 +138,8 @@ fp_stan_file <- function() {
 
 .min_cmdstan <- "2.40.0"
 
-# the version of CmdStan that cmdstanr finds, or NULL
+#' the version of CmdStan that cmdstanr finds, or NULL
+#' @noRd
 .cmdstan_found <- function() {
   if (!requireNamespace("cmdstanr", quietly = TRUE)) return(NULL)
   path <- tryCatch(cmdstanr::cmdstan_path(), error = function(e) "")
@@ -139,15 +147,20 @@ fp_stan_file <- function() {
   tryCatch(as.character(cmdstanr::cmdstan_version()), error = function(e) NULL)
 }
 
+#' Whether a CmdStan version is recent enough for crywolf
+#' @noRd
 .cmdstan_recent <- function(v) utils::compareVersion(v, .min_cmdstan) >= 0
 
-# a CmdStan that crywolf can use: found, and recent enough (tests and
-# vignettes skip the fits otherwise)
+#' a CmdStan that crywolf can use: found, and recent enough (tests and
+#' vignettes skip the fits otherwise)
+#' @noRd
 .has_cmdstan <- function() {
   v <- .cmdstan_found()
   !is.null(v) && .cmdstan_recent(v)
 }
 
+#' Stop unless a recent enough CmdStan is installed
+#' @noRd
 .check_cmdstan <- function() {
   v <- .cmdstan_found()
   if (is.null(v)) {

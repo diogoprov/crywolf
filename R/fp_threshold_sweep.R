@@ -131,7 +131,8 @@ fp_threshold_sweep <- function(occasions, detections,
   out
 }
 
-# Metrics use complete score groups so tied scores always cross together.
+#' Metrics use complete score groups so tied scores always cross together.
+#' @noRd
 .threshold_metrics <- function(validation, species = NULL) {
   .check_df(validation, "validation", c("confidence", "verdict"))
   sp_cols <- intersect(c("species_code", "common_name"), names(validation))

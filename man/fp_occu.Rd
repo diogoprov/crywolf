@@ -80,7 +80,16 @@ random effect on true detection".}
 \item{priors}{Prior settings from \code{\link[=fp_priors]{fp_priors()}}.}
 
 \item{chains, iter_warmup, iter_sampling, adapt_delta, seed}{Passed to the
-\verb{$sample()} method of 'cmdstanr'.}
+\verb{$sample()} method of 'cmdstanr', which runs Stan's No-U-Turn sampler
+(Hoffman & Gelman, 2014). \code{chains} is the number of Markov chains (4 by
+default); \code{iter_warmup} and \code{iter_sampling} are the warm-up and kept
+iterations of each chain (1000 each); warm-up draws adapt the sampler
+and are discarded. \code{adapt_delta} is the target acceptance rate during
+adaptation (0.95, above the Stan default of 0.8, because the
+false-positive models often have curved posteriors); raise it towards
+0.99 when divergent transitions are reported. \code{seed} is the random
+seed; with \code{NULL}, CmdStan draws one, and the seed used is stored in
+\verb{$sampler$seed} either way.}
 
 \item{parallel_chains}{Number of chains run in parallel.}
 
@@ -276,6 +285,11 @@ Miller, D. A., Nichols, J. D., McClintock, B. T., Grant, E. H. C.,
 Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 two types of observational error occur: non-detection and species
 misidentification. \emph{Ecology}, 92, 1422–1428. \doi{10.1890/10-1396.1}
+
+Hoffman, M. D., & Gelman, A. (2014). The No-U-Turn sampler: adaptively
+setting path lengths in Hamiltonian Monte Carlo. \emph{Journal of Machine
+Learning Research}, 15, 1593–1623.
+\url{https://jmlr.org/papers/v15/hoffman14a.html}
 }
 \seealso{
 \link{crywolf-output}, \code{\link[=fp_data]{fp_data()}}, \code{\link[=fp_priors]{fp_priors()}}, \code{\link[=fp_calibrate]{fp_calibrate()}}

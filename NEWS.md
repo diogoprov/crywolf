@@ -1,5 +1,12 @@
 # crywolf (development version)
 
+* Documentation for the rOpenSci review: a contributing guide
+  (`.github/CONTRIBUTING.md`), project-status and lifecycle badges, a
+  `codemeta.json`, a Value section and examples for `help("crywolf-api")`
+  and `help("crywolf-output")`, an example for `fp_read_validation()`, a
+  fuller description of the sampler arguments of `fp_occu()`, and a note in
+  the README on how crywolf relates to `unmarked::occuFP()`. Internal
+  functions now carry roxygen comments with `@noRd`.
 * `fp_occu(prior_only = TRUE)` samples from the priors alone, through the
   same Stan program, to check what the priors imply and that the sampler
   recovers them.

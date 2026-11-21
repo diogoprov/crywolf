@@ -132,7 +132,8 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
             ndraws = ndraws)
 }
 
-# true values of the parameters, with the output names of fp_occu()
+#' true values of the parameters, with the output names of fp_occu()
+#' @noRd
 .sbc_truth <- function(p, design, sd) {
   c(stats::setNames(p$beta, paste0("occ_", design$occ_names)),
     stats::setNames(p$alpha, paste0("det_", design$det_names)),
@@ -148,7 +149,8 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
     if (isTRUE(sd$estimate_det_re == 1)) c(sd_det_site = p$sigma_det))
 }
 
-# true parameter values in the layout of .ppc_pars(), as one draw
+#' true parameter values in the layout of .ppc_pars(), as one draw
+#' @noRd
 .truth_pars <- function(p, sd) {
   row <- function(v) matrix(v, nrow = 1)
   list(beta = row(p$beta), alpha = row(p$alpha), delta0 = p$delta0,
@@ -158,6 +160,8 @@ fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NUL
        gamma_fp = row(if (sd$estimate_fp == 1 && sd$Kfp > 0) p$gamma_fp else numeric(0)))
 }
 
+#' Stop unless `bins` divides the number of possible SBC ranks
+#' @noRd
 .check_bins <- function(L, bins) {
   if ((L + 1) %% bins != 0) {
     stop("`bins` must divide the number of possible ranks, ndraws + 1 = ",

@@ -59,7 +59,8 @@ fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
             observed = .data_summaries(data))
 }
 
-# one draw of every parameter from the priors
+#' one draw of every parameter from the priors
+#' @noRd
 .prior_draw <- function(sd, priors) {
   slopes <- function(k) stats::rnorm(k, 0, priors$slope_sd)
   int <- function() stats::rnorm(1, 0, priors$intercept_sd)
@@ -90,7 +91,8 @@ fp_prior_predictive <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   )
 }
 
-# summaries compared between the simulated and the observed data
+#' summaries compared between the simulated and the observed data
+#' @noRd
 .data_summaries <- function(d) {
   a <- d$auto
   # every site in the denominator, also those without automated occasions

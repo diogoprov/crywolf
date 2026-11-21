@@ -135,8 +135,9 @@ print.fp_ppc <- function(x, digits = 3, ...) {
 
 # internal ---------------------------------------------------------------------
 
-# posterior draws of the parameters the replication needs, as matrices with
-# one row per draw
+#' posterior draws of the parameters the replication needs, as matrices with
+#' one row per draw
+#' @noRd
 .ppc_pars <- function(fit, sd, ndraws) {
   vars <- c("beta", "alpha", "delta0",
             if (isTRUE(sd$Kver_s > 0)) "delta_s",
@@ -173,7 +174,8 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   )
 }
 
-# sum the columns of an S x N matrix by group, into an S x nsite matrix
+#' sum the columns of an S x N matrix by group, into an S x nsite matrix
+#' @noRd
 .site_sum <- function(M, g, nsite) {
   out <- matrix(0, nrow(M), nsite)
   if (length(g) == 0) return(out)
@@ -182,13 +184,14 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   out
 }
 
-# with ll_only = TRUE, returns only the log-likelihood, without drawing
-# random numbers (for loo()); with emissions_only = TRUE, only the
-# log-likelihood of each site's observations given that it is occupied (occ)
-# and given that it is not (unocc), without the occupancy probability (for
-# the units of the dynamic model); with z (S draws x nsite), the latent
-# states are those given, not drawn from their conditional posterior (the
-# states of the dynamic model, from .dyn_ffbs()), and pz and ll are NULL
+#' with ll_only = TRUE, returns only the log-likelihood, without drawing
+#' random numbers (for loo()); with emissions_only = TRUE, only the
+#' log-likelihood of each site's observations given that it is occupied (occ)
+#' and given that it is not (unocc), without the occupancy probability (for
+#' the units of the dynamic model); with z (S draws x nsite), the latent
+#' states are those given, not drawn from their conditional posterior (the
+#' states of the dynamic model, from .dyn_ffbs()), and pz and ll are NULL
+#' @noRd
 .ppc_core <- function(sd, pars, method, fit_stat, ll_only = FALSE,
                       emissions_only = FALSE, z = NULL) {
   S <- nrow(pars$beta)
@@ -314,7 +317,8 @@ print.fp_ppc <- function(x, digits = 3, ...) {
        z = z, pz = pz, ll = ll, keep = which(keep))
 }
 
-# logit of the false-positive rate of each site, S draws x nsite
+#' logit of the false-positive rate of each site, S draws x nsite
+#' @noRd
 .lp10_draws <- function(sd, pars) {
   lp10 <- matrix(pars$gamma0, length(pars$gamma0), sd$nsite)
   if (sd$Kfp > 0 && !isTRUE(sd$fp_by_row == 1)) lp10 <- lp10 + pars$gamma_fp %*% t(sd$Xfp)
@@ -322,8 +326,9 @@ print.fp_ppc <- function(x, digits = 3, ...) {
   lp10
 }
 
-# false-positive rate of each site, S x nsite: with occasion-level covariates,
-# its mean over the site's automated occasions
+#' false-positive rate of each site, S x nsite: with occasion-level covariates,
+#' its mean over the site's automated occasions
+#' @noRd
 .p10_site_draws <- function(sd, pars) {
   if (!isTRUE(sd$fp_by_row == 1)) return(stats::plogis(.lp10_draws(sd, pars)))
   lp <- .lp10_draws(sd, pars)[, sd$site2, drop = FALSE] + pars$gamma_fp %*% t(sd$Xfp2)
@@ -333,7 +338,8 @@ print.fp_ppc <- function(x, digits = 3, ...) {
            nrow(lp), sd$nsite, byrow = TRUE)
 }
 
-# logit of the verified detection probability of each verified occasion, S x N1
+#' logit of the verified detection probability of each verified occasion, S x N1
+#' @noRd
 .eta_verified <- function(sd, pars) {
   eta <- matrix(pars$delta0, length(pars$delta0), sd$N1)
   if (isTRUE(sd$Kver_s > 0)) eta <- eta + pars$delta_s %*% t(sd$X1s)

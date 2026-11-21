@@ -1,6 +1,8 @@
 # crywolf <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/diogoprov/crywolf/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/diogoprov/crywolf/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23385045.svg)](https://doi.org/10.5281/zenodo.23385045)
 [![R-universe](https://diogoprov.r-universe.dev/crywolf/badges/version)](https://diogoprov.r-universe.dev/crywolf)
@@ -88,6 +90,15 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 ## Related tools
 
+- [unmarked](https://cran.r-project.org/package=unmarked) fits the
+  multiple-methods false-positive model by maximum likelihood with
+  `occuFP()`, and `fp_to_unmarked()` passes crywolf data to it. crywolf
+  fits the same likelihood in a Bayesian framework. It adds random effects,
+  which `occuFP()` does not fit: a recorder effect on detection and site
+  effects on the false-positive and true-detection rates. It also adds
+  simulation-based checks (`fp_calibrate()`, `fp_sbc()`) of whether the
+  interval for the occupancy covariate keeps its nominal coverage under a
+  given design.
 - [fpcalib](https://github.com/diogoprov/fpcalib) is the research compendium
   of the simulation study behind the calibration checks
   (https://doi.org/10.5281/zenodo.23379100). `simulate_fp(seed = s)`

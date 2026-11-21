@@ -137,7 +137,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   gen <- .fit_generator(fit)
   fit_args <- utils::modifyList(
     list(show_messages = FALSE, show_exceptions = FALSE, refresh = 0,
-         threads_per_chain = 1, random_recorder = fit$random_recorder,
+         threads_per_chain = 1, random_recorder = isTRUE(fit$random_recorder),
          random_fp = isTRUE(fit$random_fp), random_det = isTRUE(fit$random_det),
          priors = fit$priors,
          ver = if (is.null(fit$formulas$ver)) ~ 1 else fit$formulas$ver,
@@ -171,7 +171,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
 # that it can be sent to parallel workers)
 .fit_generator <- function(fit) {
   f <- fit$formulas
-  sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, fit$random_recorder,
+  sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, isTRUE(fit$random_recorder),
                          fit$priors, random_fp = isTRUE(fit$random_fp),
                          random_det = isTRUE(fit$random_det),
                          ver = if (is.null(f$ver)) ~ 1 else f$ver,

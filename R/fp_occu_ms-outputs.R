@@ -202,7 +202,8 @@ predict.fp_occu_ms <- function(object, newdata, process = c("occ", "fp"), specie
 
   des <- object$design[[process]]
   tt <- stats::delete.response(des$terms)
-  mf <- stats::model.frame(tt, newdata, xlev = des$xlevels)
+  mf <- stats::model.frame(tt, newdata, xlev = des$xlevels, na.action = stats::na.pass)
+  if (anyNA(mf)) stop("Missing values in the covariates of `newdata`.", call. = FALSE)
   X <- stats::model.matrix(tt, mf, contrasts.arg = des$contrasts)
   dm <- .ms_draws(object, NULL)
   sd <- object$stan_data

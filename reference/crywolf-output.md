@@ -5,6 +5,11 @@ crywolf. Use `help("crywolf-output")` to open this page. Coefficients
 keep the same names in `as_draws_df(fit)`, `summary(fit)$table`, and
 `coef(fit)`.
 
+## Value
+
+None. This page documents the names in crywolf's results and has no
+function.
+
 ## Stability
 
 From crywolf 1.9.0, the names documented on this page are frozen: the
@@ -276,3 +281,44 @@ implementation details.
 [`fp_threshold_sweep()`](https://provetelab.org/crywolf/reference/fp_threshold_sweep.md),
 [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
 [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md)
+
+## Examples
+
+``` r
+# \donttest{
+sim <- simulate_fp(nsite = 100, nocc = 10, seed = 1)
+fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
+               chains = 2, iter_warmup = 300, iter_sampling = 300,
+               threads_per_chain = 1, refresh = 0)
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 2 finished in 3.2 seconds.
+#> Chain 1 finished in 3.9 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 3.5 seconds.
+#> Total execution time: 4.0 seconds.
+#> 
+#> Warning: Largest R-hat is 1.012 (> 1.01); run longer chains.
+# readable coefficient names, shared by coef(), summary() and the draws
+names(coef(fit))
+#>  [1] "occ_(Intercept)"      "occ_x"                "det_(Intercept)"     
+#>  [4] "verified_(Intercept)" "p_verified"           "p11_ref"             
+#>  [7] "fp_(Intercept)"       "fp_gap"               "p10_ref"             
+#> [10] "p10_bar"             
+summary(fit)$table
+#> # A tibble: 10 × 8
+#>    variable                mean     sd   lower   upper  rhat ess_bulk ess_tail
+#>    <chr>                  <dbl>  <dbl>   <dbl>   <dbl> <dbl>    <dbl>    <dbl>
+#>  1 occ_(Intercept)      -0.0261 0.226  -0.467   0.420  0.998     889.     439.
+#>  2 occ_x                -1.11   0.290  -1.68   -0.584  1.00      555.     486.
+#>  3 det_(Intercept)       0.361  0.0999  0.180   0.557  1.01      790.     378.
+#>  4 verified_(Intercept) -0.271  0.292  -0.826   0.302  1.01      446.     445.
+#>  5 p_verified            0.434  0.0705  0.304   0.575  1.01      446.     445.
+#>  6 p11_ref               0.589  0.0241  0.545   0.636  1.01      790.     378.
+#>  7 fp_(Intercept)       -2.90   0.214  -3.35   -2.52   1.01      860.     464.
+#>  8 fp_gap                3.26   0.229   2.83    3.73   1.01      746.     320.
+#>  9 p10_ref               0.0530 0.0106  0.0339  0.0748 1.01      860.     464.
+#> 10 p10_bar               0.0530 0.0106  0.0339  0.0748 1.01      860.     464.
+# }
+```

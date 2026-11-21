@@ -57,3 +57,21 @@ verified occasions, not to the `validation` argument of
 ## See also
 
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
+
+## Examples
+
+``` r
+path <- tempfile(fileext = ".csv")
+utils::write.csv(data.frame(
+  site = c("A", "A", "B"), species_code = "compau",
+  source_audio = c("a1.wav", "a2.wav", "b1.wav"),
+  clip_start = c(3, 12, 30), clip_end = c(6, 15, 33),
+  confidence = c(0.91, 0.42, 0.57),
+  verdict = c("positive", "negative", "not_reviewed")
+), path, row.names = FALSE)
+fp_read_validation(path)
+#>   site species_code   file start end confidence verdict
+#> 1    A       compau a1.wav     3   6       0.91    TRUE
+#> 2    A       compau a2.wav    12  15       0.42   FALSE
+#> 3    B       compau b1.wav    30  33       0.57      NA
+```

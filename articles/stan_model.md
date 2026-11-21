@@ -74,6 +74,7 @@ declares it:
       real<lower=0> fp_site_sd;                  // half-Normal(0, fp_site_sd) on sigma_fp
       int<lower=0, upper=1> estimate_det_re;     // site random effect on logit(p11)
       real<lower=0> det_site_sd;                 // half-Normal(0, det_site_sd) on sigma_det
+      int<lower=0, upper=1> prior_only;          // 1: sample from the priors alone
     }
 
 The occupancy design `X`, the detection design `Z`, and the
@@ -296,30 +297,33 @@ number of physical cores.
       d_raw          ~ std_normal();
       sigma_det      ~ normal(0, det_site_sd);
 
-      // The four calls differ only in the site effects on the false-positive
-      // and true-detection rates: parameters when estimated, otherwise the data
-      // vector zero_site, which reduce_sum() neither copies nor differentiates
-      // for each slice.
-      if (estimate_fp_re == 1 && estimate_det_re == 1) {
-        vector[nsite] e_fp = sigma_fp[1] * e_raw;
-        vector[nsite] d_det = sigma_det[1] * d_raw;
-        target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
-                             e_fp, u, d_det, delta0, delta_s, design, automated, verified,
-                             confirmed, options);
-      } else if (estimate_fp_re == 1) {
-        vector[nsite] e_fp = sigma_fp[1] * e_raw;
-        target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
-                             e_fp, u, zero_site, delta0, delta_s, design, automated, verified,
-                             confirmed, options);
-      } else if (estimate_det_re == 1) {
-        vector[nsite] d_det = sigma_det[1] * d_raw;
-        target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
-                             zero_site, u, d_det, delta0, delta_s, design, automated, verified,
-                             confirmed, options);
-      } else {
-        target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
-                             zero_site, u, zero_site, delta0, delta_s, design, automated,
-                             verified, confirmed, options);
+      // the likelihood is left out when sampling from the priors alone
+      if (prior_only == 0) {
+        // The four calls differ only in the site effects on the false-positive
+        // and true-detection rates: parameters when estimated, otherwise the data
+        // vector zero_site, which reduce_sum() neither copies nor differentiates
+        // for each slice.
+        if (estimate_fp_re == 1 && estimate_det_re == 1) {
+          vector[nsite] e_fp = sigma_fp[1] * e_raw;
+          vector[nsite] d_det = sigma_det[1] * d_raw;
+          target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                               e_fp, u, d_det, delta0, delta_s, design, automated, verified,
+                               confirmed, options);
+        } else if (estimate_fp_re == 1) {
+          vector[nsite] e_fp = sigma_fp[1] * e_raw;
+          target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                               e_fp, u, zero_site, delta0, delta_s, design, automated, verified,
+                               confirmed, options);
+        } else if (estimate_det_re == 1) {
+          vector[nsite] d_det = sigma_det[1] * d_raw;
+          target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                               zero_site, u, d_det, delta0, delta_s, design, automated, verified,
+                               confirmed, options);
+        } else {
+          target += reduce_sum(partial_loglik, site_index, 1, beta, alpha, gamma0, gamma_fp,
+                               zero_site, u, zero_site, delta0, delta_s, design, automated,
+                               verified, confirmed, options);
+        }
       }
     }
 

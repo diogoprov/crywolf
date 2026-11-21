@@ -73,6 +73,11 @@ names in <code>as_draws_df(fit)</code>, <code>summary(fit)$table</code>, and <co
 
 
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>None. This page documents the names in crywolf's results and has
+no function.</p>
+    </div>
+    <div class="section level2">
     <h2 id="stability">Stability<a class="anchor" aria-label="anchor" href="#stability"></a></h2>
 
 
@@ -270,6 +275,46 @@ their field names and raw Stan names are implementation details.</p>
 <code><a href="fp_ppc.html">fp_ppc()</a></code>, <code><a href="fp_threshold_sweep.html">fp_threshold_sweep()</a></code>, <code><a href="fp_calibrate.html">fp_calibrate()</a></code>, <code><a href="fp_sbc.html">fp_sbc()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_fp.html">simulate_fp</a></span><span class="op">(</span>nsite <span class="op">=</span> <span class="fl">100</span>, nocc <span class="op">=</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>               chains <span class="op">=</span> <span class="fl">2</span>, iter_warmup <span class="op">=</span> <span class="fl">300</span>, iter_sampling <span class="op">=</span> <span class="fl">300</span>,</span></span>
+<span class="r-in"><span>               threads_per_chain <span class="op">=</span> <span class="fl">1</span>, refresh <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 3.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 3.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 3.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 4.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.012 (&gt; 1.01); run longer chains.</span>
+<span class="r-in"><span><span class="co"># readable coefficient names, shared by coef(), summary() and the draws</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "occ_(Intercept)"      "occ_x"                "det_(Intercept)"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "verified_(Intercept)" "p_verified"           "p11_ref"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "fp_(Intercept)"       "fp_gap"               "p10_ref"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "p10_bar"             </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">$</span><span class="va">table</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    variable                mean     sd   lower   upper  rhat ess_bulk ess_tail</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> occ_(Intercept)      -<span style="color: #BB0000;">0.026</span><span style="color: #BB0000; text-decoration: underline;">1</span> 0.226  -<span style="color: #BB0000;">0.467</span>   0.420  0.998     889.     439.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> occ_x                -<span style="color: #BB0000;">1.11</span>   0.290  -<span style="color: #BB0000;">1.68</span>   -<span style="color: #BB0000;">0.584</span>  1.00      555.     486.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> det_(Intercept)       0.361  0.099<span style="text-decoration: underline;">9</span>  0.180   0.557  1.01      790.     378.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> verified_(Intercept) -<span style="color: #BB0000;">0.271</span>  0.292  -<span style="color: #BB0000;">0.826</span>   0.302  1.01      446.     445.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> p_verified            0.434  0.070<span style="text-decoration: underline;">5</span>  0.304   0.575  1.01      446.     445.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> p11_ref               0.589  0.024<span style="text-decoration: underline;">1</span>  0.545   0.636  1.01      790.     378.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> fp_(Intercept)       -<span style="color: #BB0000;">2.90</span>   0.214  -<span style="color: #BB0000;">3.35</span>   -<span style="color: #BB0000;">2.52</span>   1.01      860.     464.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> fp_gap                3.26   0.229   2.83    3.73   1.01      746.     320.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> p10_ref               0.053<span style="text-decoration: underline;">0</span> 0.010<span style="text-decoration: underline;">6</span>  0.033<span style="text-decoration: underline;">9</span>  0.074<span style="text-decoration: underline;">8</span> 1.01      860.     464.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> p10_bar               0.053<span style="text-decoration: underline;">0</span> 0.010<span style="text-decoration: underline;">6</span>  0.033<span style="text-decoration: underline;">9</span>  0.074<span style="text-decoration: underline;">8</span> 1.01      860.     464.</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

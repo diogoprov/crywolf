@@ -30,6 +30,7 @@ fp_occu(
   adapt_delta = 0.95,
   seed = NULL,
   refresh = NULL,
+  prior_only = FALSE,
   ...
 )
 ```
@@ -114,7 +115,16 @@ fp_occu(
 
 - chains, iter_warmup, iter_sampling, adapt_delta, seed:
 
-  Passed to the `$sample()` method of 'cmdstanr'.
+  Passed to the `$sample()` method of 'cmdstanr', which runs Stan's
+  No-U-Turn sampler (Hoffman & Gelman, 2014). `chains` is the number of
+  Markov chains (4 by default); `iter_warmup` and `iter_sampling` are
+  the warm-up and kept iterations of each chain (1000 each); warm-up
+  draws adapt the sampler and are discarded. `adapt_delta` is the target
+  acceptance rate during adaptation (0.95, above the Stan default of
+  0.8, because the false-positive models often have curved posteriors);
+  raise it towards 0.99 when divergent transitions are reported. `seed`
+  is the random seed; with `NULL`, CmdStan draws one, and the seed used
+  is stored in `$sampler$seed` either way.
 
 - parallel_chains:
 
@@ -153,6 +163,14 @@ fp_occu(
   and nothing otherwise; `0` silences it. Warm-up iterations are usually
   slower than sampling ones, so the first half of the run takes more
   than half of the time.
+
+- prior_only:
+
+  Logical. If `TRUE`, the likelihood is left out and the sampler draws
+  from the priors alone, through the same Stan program. This checks what
+  the priors imply and that the sampler recovers them;
+  [`fp_prior_predictive()`](https://provetelab.org/crywolf/reference/fp_prior_predictive.md)
+  gives the prior predictive distribution without CmdStan.
 
 - ...:
 
@@ -309,6 +327,11 @@ two types of observational error occur: non-detection and species
 misidentification. *Ecology*, 92, 1422–1428.
 [doi:10.1890/10-1396.1](https://doi.org/10.1890/10-1396.1)
 
+Hoffman, M. D., & Gelman, A. (2014). The No-U-Turn sampler: adaptively
+setting path lengths in Hamiltonian Monte Carlo. *Journal of Machine
+Learning Research*, 15, 1593–1623.
+<https://jmlr.org/papers/v15/hoffman14a.html>
+
 ## See also
 
 [crywolf-output](https://provetelab.org/crywolf/reference/crywolf-output.md),
@@ -329,24 +352,24 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 27.0 seconds.
-#> Chain 2 finished in 30.9 seconds.
+#> Chain 1 finished in 22.3 seconds.
+#> Chain 2 finished in 25.1 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 28.9 seconds.
-#> Total execution time: 31.0 seconds.
+#> Mean chain execution time: 23.7 seconds.
+#> Total execution time: 25.3 seconds.
 #> 
 # false-positive rate that tracks the occupancy covariate
 m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 34.9 seconds.
-#> Chain 1 finished in 35.6 seconds.
+#> Chain 1 finished in 28.5 seconds.
+#> Chain 2 finished in 28.4 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 35.3 seconds.
-#> Total execution time: 35.8 seconds.
+#> Mean chain execution time: 28.5 seconds.
+#> Total execution time: 28.6 seconds.
 #> 
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8

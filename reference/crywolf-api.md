@@ -3,6 +3,10 @@
 What crywolf promises not to change between versions, and which
 functions are still experimental.
 
+## Value
+
+None. This page documents the interface and has no function.
+
 ## What is frozen
 
 From crywolf 2.0.0, for the stable functions listed below:
@@ -127,3 +131,17 @@ Each says so in its help.
 [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md),
 by contrast, reads a versioned export format (`sheepdog-occupancy`,
 schema 1) and is stable.
+
+## Examples
+
+``` r
+# the arguments of a stable function, which the guarantee covers
+names(formals(fp_occu))
+#>  [1] "data"              "occ"               "det"              
+#>  [4] "fp"                "random_recorder"   "ver"              
+#>  [7] "markov"            "random_fp"         "random_det"       
+#> [10] "priors"            "chains"            "parallel_chains"  
+#> [13] "threads_per_chain" "iter_warmup"       "iter_sampling"    
+#> [16] "adapt_delta"       "seed"              "refresh"          
+#> [19] "prior_only"        "..."              
+```

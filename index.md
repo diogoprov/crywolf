@@ -85,6 +85,19 @@ fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
 
 ## Related tools
 
+- [unmarked](https://cran.r-project.org/package=unmarked) fits the
+  multiple-methods false-positive model by maximum likelihood with
+  `occuFP()`, and
+  [`fp_to_unmarked()`](https://provetelab.org/crywolf/reference/fp_to_unmarked.md)
+  passes crywolf data to it. crywolf fits the same likelihood in a
+  Bayesian framework. It adds random effects, which `occuFP()` does not
+  fit: a recorder effect on detection and site effects on the
+  false-positive and true-detection rates. It also adds simulation-based
+  checks
+  ([`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
+  [`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md)) of
+  whether the interval for the occupancy covariate keeps its nominal
+  coverage under a given design.
 - [fpcalib](https://github.com/diogoprov/fpcalib) is the research
   compendium of the simulation study behind the calibration checks
   (<https://doi.org/10.5281/zenodo.23379100>). `simulate_fp(seed = s)`

@@ -101,6 +101,7 @@ false-positive rate is either constant or a function of site covariates.</p>
 <span>  adapt_delta <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prior_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -182,7 +183,16 @@ random effect on true detection".</p></dd>
 
 <dt id="arg-chains-iter-warmup-iter-sampling-adapt-delta-seed">chains, iter_warmup, iter_sampling, adapt_delta, seed<a class="anchor" aria-label="anchor" href="#arg-chains-iter-warmup-iter-sampling-adapt-delta-seed"></a></dt>
 <dd><p>Passed to the
-<code>$sample()</code> method of 'cmdstanr'.</p></dd>
+<code>$sample()</code> method of 'cmdstanr', which runs Stan's No-U-Turn sampler
+(Hoffman &amp; Gelman, 2014). <code>chains</code> is the number of Markov chains (4 by
+default); <code>iter_warmup</code> and <code>iter_sampling</code> are the warm-up and kept
+iterations of each chain (1000 each); warm-up draws adapt the sampler
+and are discarded. <code>adapt_delta</code> is the target acceptance rate during
+adaptation (0.95, above the Stan default of 0.8, because the
+false-positive models often have curved posteriors); raise it towards
+0.99 when divergent transitions are reported. <code>seed</code> is the random
+seed; with <code>NULL</code>, CmdStan draws one, and the seed used is stored in
+<code>$sampler$seed</code> either way.</p></dd>
 
 
 <dt id="arg-parallel-chains">parallel_chains<a class="anchor" aria-label="anchor" href="#arg-parallel-chains"></a></dt>
@@ -217,6 +227,14 @@ The default, <code>NULL</code>, reports every 10% of the iterations in interacti
 sessions and nothing otherwise; <code>0</code> silences it. Warm-up iterations are
 usually slower than sampling ones, so the first half of the run takes
 more than half of the time.</p></dd>
+
+
+<dt id="arg-prior-only">prior_only<a class="anchor" aria-label="anchor" href="#arg-prior-only"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, the likelihood is left out and
+the sampler draws from the priors alone, through the same Stan program.
+This checks what the priors imply and that the sampler recovers them;
+<code><a href="fp_prior_predictive.html">fp_prior_predictive()</a></code> gives the prior predictive distribution without
+CmdStan.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -340,6 +358,10 @@ designs. <em>Ecology</em>, 96, 332–339. <a href="https://doi.org/10.1890/14-15
 Bailey, L. L., &amp; Weir, L. A. (2011). Improving occupancy estimation when
 two types of observational error occur: non-detection and species
 misidentification. <em>Ecology</em>, 92, 1422–1428. <a href="https://doi.org/10.1890/10-1396.1" class="external-link">doi:10.1890/10-1396.1</a></p>
+<p>Hoffman, M. D., &amp; Gelman, A. (2014). The No-U-Turn sampler: adaptively
+setting path lengths in Hamiltonian Monte Carlo. <em>Journal of Machine
+Learning Research</em>, 15, 1593–1623.
+<a href="https://jmlr.org/papers/v15/hoffman14a.html" class="external-link">https://jmlr.org/papers/v15/hoffman14a.html</a></p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -358,24 +380,24 @@ misidentification. <em>Ecology</em>, 92, 1422–1428. <a href="https://doi.org/1
 <span class="r-in"><span>              chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 27.0 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 30.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 22.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 25.1 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 28.9 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 31.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 23.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 25.3 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># false-positive rate that tracks the occupancy covariate</span></span></span>
 <span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu">fp_occu</span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>              chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 34.9 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 35.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 28.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 28.4 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 35.3 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 35.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 28.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 28.6 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m0</span><span class="op">)</span><span class="op">[</span><span class="st">"occ_x"</span><span class="op">]</span>; <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m1</span><span class="op">)</span><span class="op">[</span><span class="st">"occ_x"</span><span class="op">]</span>   <span class="co"># truth: -0.8</span></span></span>

@@ -70,6 +70,10 @@ functions are still experimental.</p>
 
 
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>None. This page documents the interface and has no function.</p>
+    </div>
+    <div class="section level2">
     <h2 id="what-is-frozen">What is frozen<a class="anchor" aria-label="anchor" href="#what-is-frozen"></a></h2>
 
 
@@ -142,6 +146,19 @@ so in its help. <code><a href="fp_read_sheepdog.html">fp_read_sheepdog()</a></co
 export format (<code>sheepdog-occupancy</code>, schema 1) and is stable.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># the arguments of a stable function, which the guarantee covers</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/formals.html" class="external-link">formals</a></span><span class="op">(</span><span class="va">fp_occu</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "data"              "occ"               "det"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "fp"                "random_recorder"   "ver"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "markov"            "random_fp"         "random_det"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "priors"            "chains"            "parallel_chains"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "threads_per_chain" "iter_warmup"       "iter_sampling"    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "adapt_delta"       "seed"              "refresh"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "prior_only"        "..."              </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

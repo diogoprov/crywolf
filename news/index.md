@@ -2,6 +2,32 @@
 
 ## crywolf (development version)
 
+- Documentation for the rOpenSci review: a contributing guide
+  (`.github/CONTRIBUTING.md`), project-status and lifecycle badges, a
+  `codemeta.json`, a Value section and examples for
+  [`help("crywolf-api")`](https://provetelab.org/crywolf/reference/crywolf-api.md)
+  and
+  [`help("crywolf-output")`](https://provetelab.org/crywolf/reference/crywolf-output.md),
+  an example for
+  [`fp_read_validation()`](https://provetelab.org/crywolf/reference/fp_read_validation.md),
+  a fuller description of the sampler arguments of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  and a note in the README on how crywolf relates to
+  [`unmarked::occuFP()`](https://ecoverseR.github.io/unmarked/reference/occuFP.html).
+  Internal functions now carry roxygen comments with `@noRd`.
+
+- `fp_occu(prior_only = TRUE)` samples from the priors alone, through
+  the same Stan program, to check what the priors imply and that the
+  sampler recovers them.
+
+- The seed CmdStan used is stored in `$sampler$seed` of a fit, also when
+  `seed = NULL`, so any fit can be reproduced.
+
+- New tests of parameter recovery and of the recovery of the priors;
+  longer statistical tests (recovery over ten datasets, stability to
+  noise and to the seed) run when `CRYWOLF_EXTENDED_TESTS` is `"true"`
+  (see `tests/README.md`).
+
 - Bug fix:
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
   read a detection column stored as a factor by its level codes, so that

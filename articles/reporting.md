@@ -107,8 +107,8 @@ c(crywolf = as.character(utils::packageVersion("crywolf")),
 unlist(m$sampler)
 #>            chains   parallel_chains threads_per_chain       iter_warmup 
 #>              4.00              2.00              1.00           1000.00 
-#>     iter_sampling       adapt_delta 
-#>           1000.00              0.95
+#>     iter_sampling       adapt_delta              seed 
+#>           1000.00              0.95              1.00
 ```
 
 Then the diagnostics: the largest R-hat (Vehtari et al., 2021), the

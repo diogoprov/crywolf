@@ -186,8 +186,8 @@ the fit:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">sampler</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            chains   parallel_chains threads_per_chain       iter_warmup </span></span>
 <span><span class="co">#&gt;              4.00              2.00              1.00           1000.00 </span></span>
-<span><span class="co">#&gt;     iter_sampling       adapt_delta </span></span>
-<span><span class="co">#&gt;           1000.00              0.95</span></span></code></pre></div>
+<span><span class="co">#&gt;     iter_sampling       adapt_delta              seed </span></span>
+<span><span class="co">#&gt;           1000.00              0.95              1.00</span></span></code></pre></div>
 <p>Then the diagnostics: the largest R-hat (Vehtari et al., 2021), the
 smallest bulk and tail effective sample sizes, and the number of
 divergent transitions. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> gives them per parameter,

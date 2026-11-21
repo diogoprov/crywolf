@@ -23,6 +23,7 @@ fp_occu(
   adapt_delta = 0.95,
   seed = NULL,
   refresh = NULL,
+  prior_only = FALSE,
   ...
 )
 }
@@ -112,6 +113,12 @@ The default, \code{NULL}, reports every 10\% of the iterations in interactive
 sessions and nothing otherwise; \code{0} silences it. Warm-up iterations are
 usually slower than sampling ones, so the first half of the run takes
 more than half of the time.}
+
+\item{prior_only}{Logical. If \code{TRUE}, the likelihood is left out and
+the sampler draws from the priors alone, through the same Stan program.
+This checks what the priors imply and that the sampler recovers them;
+\code{\link[=fp_prior_predictive]{fp_prior_predictive()}} gives the prior predictive distribution without
+CmdStan.}
 
 \item{...}{Further arguments passed to \verb{$sample()}.}
 }

@@ -29,6 +29,9 @@ print.fp_occu <- function(x, digits = 3, ...) {
   cat("Bayesian false-positive occupancy model (",
       if (isTRUE(sd$obs_confirm == 1)) "observation-confirmation" else "multiple-methods",
       " design)\n\n", sep = "")
+  if (isTRUE(x$prior_only)) {
+    cat("  Draws from the priors alone (prior_only = TRUE), not a fit to the data.\n\n")
+  }
   f <- x$formulas
   cat("  occupancy:      ", .fmt_formula(f$occ), "\n")
   cat("  true detection: ", .fmt_formula(f$det),
@@ -182,6 +185,10 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
 #' @export
 loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL,
                         integrate = TRUE, nodes = NULL, ...) {
+  if (isTRUE(x$prior_only)) {
+    stop("`x` holds draws from the priors alone (prior_only = TRUE); ",
+         "leave-one-out needs a fit to the data.", call. = FALSE)
+  }
   if ((isTRUE(x$random_fp) || isTRUE(x$random_det)) && integrate) {
     pars <- .ppc_pars(x$fit, x$stan_data, NULL)
     llm <- .integrate_site_effect(x$stan_data, pars, nodes)
@@ -270,6 +277,8 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
     crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
   # fits saved before crywolf 1.5.0 lack the sampler settings: use defaults
   st <- purrr::compact(if (is.null(x$sampler)) list() else x$sampler)
+  # the refit takes the seed given here, not the one the fit used
+  st$seed <- NULL
   refit <- suppressWarnings(do.call(fp_occu, c(list(
     d_i, occ = x$formulas$occ, det = x$formulas$det, fp = x$formulas$fp,
     random_recorder = isTRUE(x$random_recorder), random_fp = isTRUE(x$random_fp),

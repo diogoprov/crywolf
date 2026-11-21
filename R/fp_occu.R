@@ -77,6 +77,11 @@
 #'   `"auto"` since crywolf 2.0.0 (it was 1 before). Under `R CMD check`
 #'   (when `_R_CHECK_LIMIT_CORES_` is set, as on CRAN) a fit uses at most
 #'   two cores, counting `parallel_chains * threads_per_chain`.
+#' @param prior_only Logical. If `TRUE`, the likelihood is left out and
+#'   the sampler draws from the priors alone, through the same Stan program.
+#'   This checks what the priors imply and that the sampler recovers them;
+#'   [fp_prior_predictive()] gives the prior predictive distribution without
+#'   CmdStan.
 #' @param ... Further arguments passed to `$sample()`.
 #'
 #' @details
@@ -226,7 +231,8 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     random_det = FALSE, priors = fp_priors(),
                     chains = 4, parallel_chains = chains, threads_per_chain = "auto",
                     iter_warmup = 1000, iter_sampling = 1000,
-                    adapt_delta = 0.95, seed = NULL, refresh = NULL, ...) {
+                    adapt_delta = 0.95, seed = NULL, refresh = NULL,
+                    prior_only = FALSE, ...) {
   .check_fp_data(data)
   no_ver <- is.null(data$verified) || nrow(data$verified) == 0
   no_conf <- is.null(data$confirmed) || all(is.na(data$auto[[data$confirmed[1]]]))
@@ -257,6 +263,8 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   run_sampler <- function(..., output_basename = .output_basename()) {
     mod$sample(..., output_basename = output_basename)
   }
+  .check_flag(prior_only, "prior_only")
+  sd_list$stan_data$prior_only <- as.integer(prior_only)
   fit <- run_sampler(data = sd_list$stan_data, chains = chains,
                      parallel_chains = parallel_chains,
                      threads_per_chain = threads_per_chain,
@@ -282,7 +290,10 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
          sampler = list(chains = chains, parallel_chains = parallel_chains,
                         threads_per_chain = threads_per_chain,
                         iter_warmup = iter_warmup, iter_sampling = iter_sampling,
-                        adapt_delta = adapt_delta), diagnostics = diag, call = match.call()),
+                        adapt_delta = adapt_delta,
+                        # the seed CmdStan used, also when `seed = NULL`
+                        seed = fit$metadata()$seed),
+         prior_only = prior_only, diagnostics = diag, call = match.call()),
     class = "fp_occu"
   )
   .warn_diagnostics(diag)
@@ -606,7 +617,8 @@ print.fp_priors <- function(x, ...) {
     # fits saved before this prior existed carry no value for it
     fp_site_sd = if (is.null(priors$fp_site_sd)) 1 else priors$fp_site_sd,
     estimate_det_re = as.integer(isTRUE(random_det)),
-    det_site_sd = if (is.null(priors$det_site_sd)) 1 else priors$det_site_sd
+    det_site_sd = if (is.null(priors$det_site_sd)) 1 else priors$det_site_sd,
+    prior_only = 0L
   )
   design <- list(occ = d_occ, det = d_det, fp = d_fp, ver = d_ver,
                  occ_names = colnames(d_occ$X), det_names = colnames(d_det$X),

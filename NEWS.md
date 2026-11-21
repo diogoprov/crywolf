@@ -1,5 +1,14 @@
 # crywolf (development version)
 
+* `fp_occu(prior_only = TRUE)` samples from the priors alone, through the
+  same Stan program, to check what the priors imply and that the sampler
+  recovers them.
+* The seed CmdStan used is stored in `$sampler$seed` of a fit, also when
+  `seed = NULL`, so any fit can be reproduced.
+* New tests of parameter recovery and of the recovery of the priors; longer
+  statistical tests (recovery over ten datasets, stability to noise and to
+  the seed) run when `CRYWOLF_EXTENDED_TESTS` is `"true"` (see
+  `tests/README.md`).
 * Bug fix: `fp_data()` read a detection column stored as a factor by its
   level codes, so that `factor(y, levels = c(1, 0))` turned detections into
   1s and 2s. Factors are now read by their labels, and detections become

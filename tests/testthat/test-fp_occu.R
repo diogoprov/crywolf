@@ -14,6 +14,8 @@ test_that("fp_occu fits and its methods work", {
   p <- predict(m, newdata = data.frame(x = c(-1, 0, 1)))
   expect_equal(nrow(p), 3)
   expect_true(all(p$estimate > 0 & p$estimate < 1))
+  expect_error(predict(m, newdata = data.frame(x = c(-1, NA, 1))),
+               "Missing values in the covariates of `newdata`")
   expect_s3_class(loo(m), "psis_loo")
   expect_output(print(m), "false positive")
 })

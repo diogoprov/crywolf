@@ -225,12 +225,12 @@ m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
 #> Parametrization (4 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 103.8 seconds.
-#> Chain 2 finished in 113.2 seconds.
+#> Chain 1 finished in 97.3 seconds.
+#> Chain 2 finished in 99.7 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 108.5 seconds.
-#> Total execution time: 113.3 seconds.
+#> Mean chain execution time: 98.5 seconds.
+#> Total execution time: 99.9 seconds.
 #> 
 #> Warning: Largest R-hat is 1.013 (> 1.01); run longer chains.
 m

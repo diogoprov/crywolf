@@ -66,12 +66,12 @@ m <- fp_occu_dyn(s$data, col = ~ rain, ext = ~ x, random_recorder = FALSE,
                  chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 10.1 seconds.
-#> Chain 1 finished in 10.4 seconds.
+#> Chain 2 finished in 9.7 seconds.
+#> Chain 1 finished in 10.1 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 10.3 seconds.
-#> Total execution time: 10.6 seconds.
+#> Mean chain execution time: 9.9 seconds.
+#> Total execution time: 10.2 seconds.
 #> 
 new <- simulate(m, nsim = 2, seed = 1)
 new[[1]]$truth$pars

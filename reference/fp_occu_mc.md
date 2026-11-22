@@ -205,30 +205,30 @@ mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                  chains = 2, threads_per_chain = 1, seed = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 5.7 seconds.
-#> Chain 1 finished in 6.4 seconds.
-#> 
-#> Both chains finished successfully.
-#> Mean chain execution time: 6.1 seconds.
-#> Total execution time: 6.5 seconds.
-#> 
-#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
-#> 
-#> Chain 2 finished in 5.5 seconds.
+#> Chain 2 finished in 5.3 seconds.
 #> Chain 1 finished in 5.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 5.7 seconds.
+#> Mean chain execution time: 5.6 seconds.
 #> Total execution time: 5.9 seconds.
 #> 
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 5.7 seconds.
-#> Chain 2 finished in 6.5 seconds.
+#> Chain 2 finished in 5.1 seconds.
+#> Chain 1 finished in 5.2 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 6.1 seconds.
-#> Total execution time: 6.6 seconds.
+#> Mean chain execution time: 5.2 seconds.
+#> Total execution time: 5.3 seconds.
+#> 
+#> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
+#> 
+#> Chain 1 finished in 5.2 seconds.
+#> Chain 2 finished in 5.8 seconds.
+#> 
+#> Both chains finished successfully.
+#> Mean chain execution time: 5.5 seconds.
+#> Total execution time: 5.9 seconds.
 #> 
 summary(mc)
 #> Posterior pooled over 3 fits (95% equal-tailed intervals)
@@ -276,12 +276,12 @@ if (requireNamespace("jsonlite", quietly = TRUE) &&
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 2.0 seconds.
-#> Chain 2 finished in 2.0 seconds.
+#> Chain 1 finished in 1.8 seconds.
+#> Chain 2 finished in 1.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 2.0 seconds.
-#> Total execution time: 2.1 seconds.
+#> Mean chain execution time: 1.8 seconds.
+#> Total execution time: 1.9 seconds.
 #> 
 #> Warning: 7 of 2000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
@@ -289,22 +289,22 @@ if (requireNamespace("jsonlite", quietly = TRUE) &&
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 4.3 seconds.
-#> Chain 2 finished in 4.7 seconds.
+#> Chain 1 finished in 4.1 seconds.
+#> Chain 2 finished in 4.4 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 4.5 seconds.
-#> Total execution time: 4.8 seconds.
+#> Mean chain execution time: 4.2 seconds.
+#> Total execution time: 4.5 seconds.
 #> 
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 4.8 seconds.
-#> Chain 2 finished in 5.4 seconds.
+#> Chain 1 finished in 4.4 seconds.
+#> Chain 2 finished in 4.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 5.1 seconds.
-#> Total execution time: 5.5 seconds.
+#> Mean chain execution time: 4.6 seconds.
+#> Total execution time: 4.9 seconds.
 #> 
 #> Posterior pooled over 3 fits (95% equal-tailed intervals)
 #> 

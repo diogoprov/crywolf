@@ -79,7 +79,8 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
          paste(bad, collapse = ", "), ".", call. = FALSE)
   }
   if (is.null(names(models)) || any(!nzchar(names(models)))) {
-    stop("`models` must be a named list of formulas.", call. = FALSE)
+    stop("`models` must be a named list of formulas, one per model fitted by ",
+         "fp_calibrate().", call. = FALSE)
   }
   design$cell <- seq_len(nrow(design))
   jobs <- expand.grid(rep = seq_len(reps), cell = design$cell)

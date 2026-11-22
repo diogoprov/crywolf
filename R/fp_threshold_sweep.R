@@ -81,8 +81,8 @@ fp_threshold_sweep <- function(occasions, detections,
   selection <- metrics <- NULL
   if (is.character(thresholds)) {
     if (!length(thresholds)) {
-      stop("`thresholds` must be nonempty numeric values in [0, 1] or named methods.",
-           call. = FALSE)
+      stop("`thresholds` is an empty character vector; give numeric values in ",
+           "[0, 1] or named methods.", call. = FALSE)
     }
     methods <- match.arg(thresholds, c("MaxF1", "MaxPrecision"), several.ok = TRUE)
     if (is.null(validation)) {

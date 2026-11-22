@@ -67,6 +67,7 @@
 #' summary(sbc)   # use 100 or more replicates in practice
 #' plot(sbc)
 #' }
+#' @srrstats {BS4.2} Simulation-based calibration of the computation (Talts et al., 2018; Modrák et al., 2025); fp_ppc() and fp_calibrate() give posterior predictive checks and frequentist coverage.
 fp_sbc <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1, ver = ~ 1, markov = NULL,
                    random_recorder = !is.null(data$recorder),
                    random_fp = FALSE, random_det = FALSE, priors = fp_priors(),

@@ -120,9 +120,26 @@
 #' d <- fp_data(auto = sim$data$auto, sites = sim$data$sites,
 #'              verified = sim$data$verified, recorder = "recorder")
 #' d
+#' @srrstats {G2.0, G2.2} Column-name arguments must be single names (`.check_colname()`).
+#' @srrstats {G2.1} Inputs must be data frames with the named columns (`.check_df()`), and detections 0/1.
+#' @srrstats {G2.1a} Each @param states the expected type (data frame, column name, logical).
+#' @srrstats {G2.4, G2.4a, G2.4c, G2.4e} Detections are converted with `as.integer()` after factors are read by their labels (`as.character()`); site, season and species identifiers are compared as character.
+#' @srrstats {G2.4b, G2.4d} Detections pass through `as.numeric()` before the 0/1 check, and species are stored as factors with `factor()`.
+#' @srrstats {G2.6} Detection columns that are numeric, logical, character or factor give the same 0/1 integers.
+#' @srrstats {G2.7} Accepts data.frame, tibble and data.table; `fp_data_wide()` takes matrices, and readers take BirdNET, validation and sheepdog output.
+#' @srrstats {G2.9} No conversion loses information: detections are checked to be 0/1 before conversion, and design problems raise `crywolf_design_warning`.
+#' @srrstats {G2.10} Columns are extracted with `[[` and rows subset with `drop = FALSE`, so all tabular classes behave alike.
+#' @srrstats {G2.13, G2.14, G2.14a, G2.14b} Missing values are checked here: a missing detection marks an unsurveyed occasion and its row is dropped (documented under 'Missing values'); missing identifiers stop with an error.
+#' @srrstats {G2.15} Summaries of user data use `na.rm = TRUE`, and model frames are built with `na.pass` and then checked.
+#' @srrstats {BS1.1} Documents with examples how to enter the automated, verified and confirmed detections and the site covariates, in long and wide layouts.
+#' @srrstats {BS2.1} Checks one row per site, sites present in `sites`, matching dimensions of wide matrices and covariates, and 0/1 coding.
+#' @srrstats {BS3.0} 'Missing values' in the details states how each kind of missing value is handled.
 fp_data <- function(auto, sites, verified = NULL, site = "site", y = "y",
                     recorder = NULL, confirmed = NULL, season = NULL,
                     season_covs = NULL, species = NULL) {
+  for (arg in c("site", "y", "recorder", "season", "species")) {
+    .check_colname(get(arg), arg, optional = !arg %in% c("site", "y"))
+  }
   .check_df(auto, "auto", c(site, y, recorder, confirmed, season, species))
   .check_df(sites, "sites", site)
   if (anyDuplicated(sites[[site]])) {
@@ -315,6 +332,7 @@ print.fp_data <- function(x, ...) {
 
 #' the data of the single-species models
 #' @noRd
+#' @srrstats {G2.8} Fitting and simulation functions take only `fp_data` objects, built once by `fp_data()` or `fp_data_wide()`.
 .check_fp_data <- function(data) {
   if (!inherits(data, "fp_data")) {
     stop("`data` must be an `fp_data` object; see `fp_data()`.", call. = FALSE)
@@ -413,7 +431,7 @@ print.fp_data <- function(x, ...) {
   a <- auto[[season]]
   v <- if (is.null(verified)) NULL else verified[[season]]
   if (anyNA(a) || anyNA(v)) {
-    stop("Column `", season, "` has missing values.", call. = FALSE)
+    stop("The season column `", season, "` has missing values.", call. = FALSE)
   }
   if (is.factor(a)) {
     lv <- levels(a)
@@ -495,6 +513,17 @@ print.fp_data <- function(x, ...) {
   invisible(TRUE)
 }
 
+#' Stop unless `x` is a single column name (or NULL, when optional)
+#' @noRd
+.check_colname <- function(x, arg, optional = FALSE) {
+  if (optional && is.null(x)) return(invisible(TRUE))
+  if (!is.character(x) || length(x) != 1 || is.na(x) || !nzchar(x)) {
+    stop("`", arg, "` must be the name of one column", if (optional) " or NULL",
+         ".", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 #' Signal a design warning of class crywolf_design_warning
 #' @noRd
 .design_warning <- function(...) {
@@ -539,7 +568,7 @@ print.fp_data <- function(x, ...) {
   a <- auto[[species]]
   v <- if (is.null(verified)) NULL else verified[[species]]
   if (anyNA(a) || anyNA(v)) {
-    stop("Column `", species, "` has missing values.", call. = FALSE)
+    stop("The species column `", species, "` has missing values.", call. = FALSE)
   }
   if (!is.factor(a)) return(sort(unique(as.character(c(a, v)))))
   bad <- setdiff(as.character(v), levels(a))

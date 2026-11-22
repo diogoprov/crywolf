@@ -106,6 +106,33 @@ number of physical cores. \code{\link[=fp_calibrate]{fp_calibrate()}} fits many 
 worker; compile the model with \code{\link[=fp_compile]{fp_compile()}} before starting workers.
 }
 
+\section{Relation to other implementations}{
+
+crywolf does not introduce a new estimation algorithm. The false-positive
+occupancy models of Miller et al. (2011) and Chambert et al. (2015) are
+already fitted in R by maximum likelihood with \code{occuFP()} of the
+'unmarked' package, and crywolf fits the same likelihood in a Bayesian
+framework with Stan's No-U-Turn sampler. It improves on that
+implementation in three ways: random effects of recorder and site, which
+\code{occuFP()} does not fit; diagnostics and posterior predictive checks of
+the fit; and simulation-based checks (\code{\link[=fp_calibrate]{fp_calibrate()}}, \code{\link[=fp_sbc]{fp_sbc()}}) of
+whether the intervals keep their nominal coverage under a given design.
+\code{vignette("unmarked")} fits one dataset with both packages and compares
+the estimates.
+}
+
+\section{Conventions}{
+
+Character options that take one of a set of values, such as \code{type},
+\code{process} or \code{method}, are matched with \code{\link[=match.arg]{match.arg()}}: they are
+case-sensitive (\code{type = "Trace"} is an error) and accept an unambiguous
+abbreviation (\code{type = "tr"}). Unless its documentation says otherwise
+(as for \code{confirmed} in \code{\link[=fp_data]{fp_data()}}, which names two columns), every
+argument that is a number, a logical flag (\code{TRUE} or \code{FALSE}, not \code{NA}),
+or the name of a column takes a single value, and the fitting,
+simulation and prior functions stop with a message when it does not.
+}
+
 \section{Citation}{
 
 \code{citation("crywolf")} gives the reference to the package. Every release

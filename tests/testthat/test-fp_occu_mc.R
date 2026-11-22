@@ -148,3 +148,12 @@ test_that("a multispecies sheepdog export runs from end to end", {
   expect_equal(t$sd^2, t$sd_within^2 + t$sd_between^2, tolerance = 0.02)
   expect_s3_class(fp_richness(mc$fits[[1]]), "data.frame")
 })
+
+#' @srrstats {BS2.15} Errors of the fits are caught and reported.
+test_that("errors raised by the fits are caught and reported", {
+  s <- simulate_fp(nsite = 20, nocc = 3, seed = 1)
+  local_mocked_bindings(fp_compile = function(...) NULL,
+                        fp_occu = function(...) stop("the sampler broke"))
+  expect_error(fp_occu_mc(list(s$data, s$data)),
+               "Every fit failed; the first error: the sampler broke")
+})

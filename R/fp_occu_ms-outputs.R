@@ -107,7 +107,7 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
 .fp_ppc_ms <- function(object, method, fit_stat, ndraws, seed) {
   data <- object$data
   if (method == "verified" && object$stan_data$N1 == 0) {
-    stop("The data have no verified occasions.", call. = FALSE)
+    stop("The data of this multispecies fit have no verified occasions.", call. = FALSE)
   }
   if (!is.null(seed)) .set_seed(seed)
   sp <- .ms_species(object, ndraws)
@@ -175,7 +175,7 @@ predict.fp_occu_ms <- function(object, newdata, process = c("occ", "fp"), specie
   sp_col <- d$species
   sp_names <- d$species_names
   if (process == "fp" && is.null(object$formulas$fp)) {
-    stop("This model has no false-positive process.", call. = FALSE)
+    stop("This multispecies model has no false-positive process.", call. = FALSE)
   }
   if (missing(newdata)) {
     newdata <- d$sites
@@ -205,7 +205,10 @@ predict.fp_occu_ms <- function(object, newdata, process = c("occ", "fp"), specie
   des <- object$design[[process]]
   tt <- stats::delete.response(des$terms)
   mf <- stats::model.frame(tt, newdata, xlev = des$xlevels, na.action = stats::na.pass)
-  if (anyNA(mf)) stop("Missing values in the covariates of `newdata`.", call. = FALSE)
+  if (anyNA(mf)) {
+    stop("Missing values in the covariates of `newdata` for the multispecies fit.",
+         call. = FALSE)
+  }
   X <- stats::model.matrix(tt, mf, contrasts.arg = des$contrasts)
   dm <- .ms_draws(object, NULL)
   sd <- object$stan_data

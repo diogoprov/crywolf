@@ -1,5 +1,17 @@
 # crywolf (development version)
 
+* rOpenSci statistical standards: every general and Bayesian standard is
+  tagged with 'srr' next to the code or test that addresses it, or declared
+  not applicable with a reason in `R/srr-stats-standards.R`.
+* `fp_data()` checks that `site`, `y`, `recorder`, `season` and `species`
+  each name one column.
+* `plot(fit, type = "trace")` shows the warm-up draws, shaded, when the fit
+  kept them (`save_warmup = TRUE`).
+* Messages of conditions are now unique, so each points to where it arose.
+* `?crywolf` has sections on the relation to 'unmarked' and on argument
+  conventions (single values, case-sensitive options); the README shows how
+  to set a prior.
+
 * Checks before sampling: `fp_occu()`, `fp_occu_dyn()` and `fp_occu_ms()`
   warn (class `crywolf_design_warning`) on collinear or constant covariates
   and unused factor levels, naming the redundant column whose posterior only

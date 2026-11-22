@@ -75,6 +75,8 @@
 #' s1 <- simulate_fp(nsite = 100, nocc = 10, conf_effect = 1.5,
 #'                   conf_cor = 0.7, seed = 1)
 #' s1$truth$p10_marginal
+#' @srrstats {G5.1} Simulators are exported, so every test dataset can be regenerated from its seed.
+#' @srrstats {G2.0} Numeric arguments must be single finite numbers.
 simulate_fp <- function(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8,
                         p11 = 0.6, p10 = 0.05,
                         sigma_p10 = 0, p10_conc = NULL,

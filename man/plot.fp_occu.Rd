@@ -20,7 +20,10 @@ and \code{prob} intervals of every coefficient on the logit scale, one panel
 per process, and the standard deviations of the random effects.
 \code{"trace"}, \code{"rank"}, and \code{"pairs"} draw sampler diagnostics with
 'bayesplot': trace plots and rank histograms by chain, and pairs plots
-with divergent transitions marked.}
+with divergent transitions marked. The trace plot shows the warm-up
+draws, shaded, when the fit kept them (\code{save_warmup = TRUE} in
+\code{\link[=fp_occu]{fp_occu()}}); otherwise it shows the sampling draws, with divergent
+transitions marked.}
 
 \item{pars}{Output names of the parameters for the diagnostics. The
 default takes the occupancy slopes and the parameters that are hardest

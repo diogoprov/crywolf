@@ -245,6 +245,9 @@
 #' names(coef(fit))
 #' summary(fit)$table
 #' }
+#' @srrstats {G1.3} Defines every parameter name and result field (p11, p10, fp_gap, coverage, diagnostics).
+#' @srrstats {BS5.1, BS5.2} Documents that a fit returns its data, Stan data, design matrices (with their dimensions and factor levels), formulas and `fp_priors` object.
+#' @srrstats {BS5.3, BS5.5} Documents `$diagnostics` (divergences, tree depth, E-BFMI, R-hat, ESS), also reported by `print()` and `summary()`.
 #' @name crywolf-output
 #' @aliases output-names
 #' @keywords documentation

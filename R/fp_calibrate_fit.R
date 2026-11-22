@@ -132,7 +132,8 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   }
   truth <- match.arg(truth)
   if (is.null(names(models)) || any(!nzchar(names(models)))) {
-    stop("`models` must be a named list of formulas.", call. = FALSE)
+    stop("`models` must be a named list of formulas, one per model refitted by ",
+         "fp_calibrate_fit().", call. = FALSE)
   }
   gen <- .fit_generator(fit)
   fit_args <- utils::modifyList(

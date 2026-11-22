@@ -89,6 +89,14 @@
 #' column.
 #' [fp_aggregate()] builds `auto` from classifier output.
 #'
+#' **Missing values.** A missing detection (`NA` in `y`) marks an occasion
+#' that was not surveyed (or, in `verified`, not checked), so its row is
+#' dropped: an unsurveyed occasion carries no information about detection,
+#' and the occupancy likelihood is the same with or without it. No other
+#' missing value is dropped or imputed. Missing recorders, seasons or
+#' species stop with an error here, and missing covariates stop the fit in
+#' [fp_occu()], because the model cannot tell how they arose.
+#'
 #' @return An object of class `fp_data`: a list with the tables `auto`,
 #'   `verified` and `sites` (rows with a missing detection dropped), the
 #'   column names `site`, `y`, `recorder`, `confirmed` and `season`, the
@@ -492,6 +500,14 @@ print.fp_data <- function(x, ...) {
 .design_warning <- function(...) {
   warning(structure(class = c("crywolf_design_warning", "warning", "condition"),
                     list(message = paste0(...), call = NULL)))
+}
+
+#' Evaluate `expr` without its design warnings, for code that rebuilds the
+#' design of a fitted model (the user saw those warnings when fitting)
+#' @noRd
+.muffle_design <- function(expr) {
+  withCallingHandlers(expr,
+    crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
 }
 
 #' index of the season of each row of a table; numbers and dates are matched

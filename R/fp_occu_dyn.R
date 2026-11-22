@@ -91,6 +91,7 @@ fp_occu_dyn <- function(data, psi1 = ~ 1, col = ~ 1, ext = ~ 1, det = ~ 1, fp = 
     warning("No verified data: the false-positive rate is identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
+  .check_sampler(chains, iter_warmup, iter_sampling, adapt_delta, seed)
   cores <- .sampler_cores(threads_per_chain, parallel_chains)
   threads_per_chain <- cores$threads_per_chain
   parallel_chains <- cores$parallel_chains
@@ -107,8 +108,9 @@ fp_occu_dyn <- function(data, psi1 = ~ 1, col = ~ 1, ext = ~ 1, det = ~ 1, fp = 
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
   mod <- .compile_model("fp_occu_dyn")
-  run_sampler <- function(..., output_basename = .output_basename()) {
-    mod$sample(..., output_basename = output_basename)
+  run_sampler <- function(..., init = NULL, output_basename = .output_basename()) {
+    mod$sample(..., init = .init_from_fit(init, chains),
+               output_basename = output_basename)
   }
   fit <- run_sampler(data = sd_list$stan_data, chains = chains,
                      parallel_chains = parallel_chains,
@@ -546,12 +548,13 @@ simulate.fp_occu_dyn <- function(object, nsim = 1, seed = NULL,
                                  truth = c("mean", "posterior"), ...) {
   truth <- match.arg(truth)
   f <- object$formulas
-  sl <- .build_dyn_stan_data(object$data, f$psi1, f$col, f$ext, f$det, f$fp,
-                             object$random_recorder, object$priors,
-                             random_fp = isTRUE(object$random_fp),
-                             random_det = isTRUE(object$random_det),
-                             ver = if (is.null(f$ver)) ~ 1 else f$ver,
-                             markov = object$markov)
+  sl <- .muffle_design(.build_dyn_stan_data(
+    object$data, f$psi1, f$col, f$ext, f$det, f$fp,
+    object$random_recorder, object$priors,
+    random_fp = isTRUE(object$random_fp),
+    random_det = isTRUE(object$random_det),
+    ver = if (is.null(f$ver)) ~ 1 else f$ver,
+    markov = object$markov))
   sd <- sl$stan_data
   sd_u <- sd
   sd_u$nsite <- sd$nunit

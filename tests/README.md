@@ -12,9 +12,14 @@ Sys.setenv(CRYWOLF_EXTENDED_TESTS = "true")
 devtools::test()
 ```
 
-They check parameter recovery over ten simulated datasets and the stability of
-the estimates to small noise in the covariates and to the random seed, and
-take several minutes. The tests that always run with CmdStan include a
+They check parameter recovery over ten simulated datasets, the stability of
+the estimates to small noise in the covariates and to the random seed, the
+agreement with `unmarked::occuFP()`, that precision improves and run time
+grows about linearly with the number of sites, that the scale of a covariate
+changes only the scale of its effect, and that replicated detections match
+the observed scale (`tests/testthat/test-extended.R`). They take about
+half an hour, and run weekly on GitHub Actions
+(`.github/workflows/extended-tests.yaml`). The tests that always run with CmdStan include a
 recovery test on one dataset and a check that sampling with
 `fp_occu(prior_only = TRUE)` recovers the priors.
 

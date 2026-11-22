@@ -91,9 +91,38 @@
 #'   This checks what the priors imply and that the sampler recovers them;
 #'   [fp_prior_predictive()] gives the prior predictive distribution without
 #'   CmdStan.
-#' @param ... Further arguments passed to `$sample()`.
+#' @param ... Further arguments passed to the `$sample()` method of
+#'   'cmdstanr', for example `max_treedepth`, `show_messages = FALSE` and
+#'   `show_exceptions = FALSE` (with `refresh = 0`, a silent run), or `init`.
+#'   `init` takes starting values (a number, a list per chain, or a
+#'   function), or a previous fit, `init = old$fit`, so that a run starts
+#'   where an earlier one ended; the draws of the earlier run are not
+#'   pooled with the new ones. Only Stan's No-U-Turn sampler is offered.
 #'
 #' @details
+#' **Checks before sampling.** Covariates must be complete and finite (a
+#' missing or infinite value stops the fit; impute or drop the rows before
+#' fitting), and the columns of each design matrix must be linearly
+#' independent. A constant or collinear covariate, or an unused factor
+#' level, triggers a warning of class `crywolf_design_warning` that names
+#' the redundant column. The fit still runs, because the priors keep the
+#' posterior proper, but the posterior of that coefficient only repeats its
+#' prior; remove the column, or drop unused levels with
+#' [droplevels()]. Factor
+#' covariates use the contrasts of R's [stats::model.matrix()]: treatment
+#' contrasts for unordered factors and orthogonal polynomials for ordered
+#' ones (columns such as `habitat.L`); set `contrasts()` on the factor to
+#' change them.
+#'
+#' **Diagnostics and warnings.** After sampling, the fit warns when there
+#' are divergent transitions, when the largest R-hat exceeds 1.01, when the
+#' smallest bulk effective sample size is below 400, when transitions hit
+#' the maximum tree depth, and when the E-BFMI of a chain is below 0.3.
+#' These warnings have class `crywolf_sampler_warning`, so they can be
+#' muffled selectively, for example with
+#' `withCallingHandlers(fp_occu(...), crywolf_sampler_warning = function(w) invokeRestart("muffleWarning"))`;
+#' the diagnostics are kept in `$diagnostics` either way.
+#'
 #' **Identifiability.** The intercept of the false-positive rate equals the
 #' intercept of true detection minus a positive gap, \eqn{\gamma_0 = \alpha_1 -
 #' \Delta}, so that at the reference values of the covariates (all zero) a
@@ -248,6 +277,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     adapt_delta = 0.95, seed = NULL, refresh = NULL,
                     prior_only = FALSE, ...) {
   .check_fp_data(data)
+  .check_sampler(chains, iter_warmup, iter_sampling, adapt_delta, seed)
   no_ver <- is.null(data$verified) || nrow(data$verified) == 0
   no_conf <- is.null(data$confirmed) || all(is.na(data$auto[[data$confirmed[1]]]))
   if (no_ver && no_conf) {
@@ -274,8 +304,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   # random numbers: after the same set.seed(), two fits in one minute share
   # file names, and discarding the first deletes the files of the second.
   # A name of our own unless the user gives one in `...`.
-  run_sampler <- function(..., output_basename = .output_basename()) {
-    mod$sample(..., output_basename = output_basename)
+  run_sampler <- function(..., init = NULL, output_basename = .output_basename()) {
+    mod$sample(..., init = .init_from_fit(init, chains),
+               output_basename = output_basename)
   }
   .check_flag(prior_only, "prior_only")
   sd_list$stan_data$prior_only <- as.integer(prior_only)
@@ -358,6 +389,73 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 .check_flag <- function(x, what) {
   if (!is.logical(x) || length(x) != 1 || is.na(x)) {
     stop("`", what, "` must be TRUE or FALSE.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+#' Warn when the columns of a design matrix are linearly dependent, naming
+#' the columns that the others determine (constant or collinear covariates,
+#' or factor levels absent from the data)
+#' @noRd
+.check_rank <- function(X, what) {
+  if (nrow(X) == 0 || ncol(X) == 0) return(invisible(TRUE))
+  q <- qr(X)
+  if (q$rank < ncol(X)) {
+    alias <- colnames(X)[q$pivot[seq(q$rank + 1, ncol(X))]]
+    .design_warning("The covariates of `", what, "` are collinear: ",
+                    paste(alias, collapse = ", "), " is (are) determined by ",
+                    "the other columns, so the data carry no information on ",
+                    "that coefficient and its posterior follows the prior. ",
+                    "Remove the redundant covariates, or drop unused factor ",
+                    "levels with droplevels().")
+  }
+  invisible(TRUE)
+}
+
+#' Starting values from a previous fit: the last draw of each of its chains,
+#' recycled over `chains`. Other values of `init` are returned unchanged.
+#' cmdstanr can take a fit as `init` itself, but some versions build empty
+#' lists when the model carries no variable information (as with a
+#' precompiled model), so the conversion is done here.
+#' @noRd
+.init_from_fit <- function(init, chains) {
+  if (!inherits(init, "CmdStanMCMC")) return(init)
+  d <- init$draws(format = "draws_array")
+  d <- posterior::subset_draws(d, iteration = posterior::niterations(d))
+  vars <- setdiff(posterior::variables(d), "lp__")
+  rv <- posterior::as_draws_rvars(posterior::merge_chains(
+    posterior::subset_draws(d, variable = vars)))
+  nch <- posterior::ndraws(rv)
+  lapply(seq_len(chains), function(k) {
+    i <- (k - 1) %% nch + 1
+    purrr::imap(unclass(rv), function(r, nm) {
+      x <- as.vector(posterior::draws_of(posterior::subset_draws(r, draw = i)))
+      if (nm %in% vars) x else array(x, dim = dim(r))
+    })
+  })
+}
+
+#' Stop unless the sampler settings are valid, before compiling or sampling
+#' @noRd
+.check_sampler <- function(chains, iter_warmup, iter_sampling, adapt_delta, seed) {
+  whole <- function(x, min) {
+    is.numeric(x) && length(x) == 1 && is.finite(x) && x %% 1 == 0 && x >= min
+  }
+  if (!whole(chains, 1)) {
+    stop("`chains` must be a single whole number of at least 1.", call. = FALSE)
+  }
+  if (!whole(iter_warmup, 0)) {
+    stop("`iter_warmup` must be a single whole number of at least 0.", call. = FALSE)
+  }
+  if (!whole(iter_sampling, 1)) {
+    stop("`iter_sampling` must be a single whole number of at least 1.", call. = FALSE)
+  }
+  if (!is.numeric(adapt_delta) || length(adapt_delta) != 1 || is.na(adapt_delta) ||
+      adapt_delta <= 0 || adapt_delta >= 1) {
+    stop("`adapt_delta` must be a single number between 0 and 1.", call. = FALSE)
+  }
+  if (!is.null(seed) && !whole(seed, 0)) {
+    stop("`seed` must be NULL or a single non-negative whole number.", call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -453,6 +551,11 @@ print.fp_priors <- function(x, ...) {
     stop("Variable(s) in `", what, "` not found: ", paste(miss, collapse = ", "),
          ".", call. = FALSE)
   }
+  lst <- vars[vapply(vars, function(v) is.list(df[[v]]), logical(1))]
+  if (length(lst)) {
+    stop("Covariate(s) in `", what, "` are list columns: ",
+         paste(lst, collapse = ", "), ". Use atomic columns.", call. = FALSE)
+  }
   mf <- stats::model.frame(form, df, na.action = stats::na.pass)
   if (anyNA(mf)) {
     stop("Missing values in the covariates of `", what, "`.", call. = FALSE)
@@ -463,6 +566,7 @@ print.fp_priors <- function(x, ...) {
   }
   tt <- stats::terms(mf)
   X <- stats::model.matrix(tt, mf)
+  .check_rank(X, what)
   list(X = X, terms = tt, xlevels = stats::.getXlevels(tt, mf),
        contrasts = attr(X, "contrasts"),
        intercept = attr(tt, "intercept") == 1)
@@ -707,6 +811,8 @@ print.fp_priors <- function(x, ...) {
   list(
     divergences = if (is.null(ds)) NA_integer_ else sum(ds$num_divergent),
     max_treedepth = if (is.null(ds)) NA_integer_ else sum(ds$num_max_treedepth),
+    low_ebfmi = if (is.null(ds) || is.null(ds$ebfmi)) NA_integer_
+                else sum(ds$ebfmi < 0.3, na.rm = TRUE),
     max_rhat = max(summ$rhat, na.rm = TRUE),
     min_ess_bulk = min(summ$ess_bulk, na.rm = TRUE),
     min_ess_tail = min(summ$ess_tail, na.rm = TRUE)
@@ -723,9 +829,21 @@ print.fp_priors <- function(x, ...) {
     if (isTRUE(diag$max_rhat > 1.01))
       sprintf("Largest R-hat is %.3f (> 1.01); run longer chains.", diag$max_rhat),
     if (isTRUE(diag$min_ess_bulk < 400))
-      sprintf("Smallest bulk ESS is %.0f (< 400).", diag$min_ess_bulk)
+      sprintf("Smallest bulk ESS is %.0f (< 400).", diag$min_ess_bulk),
+    if (isTRUE(diag$max_treedepth > 0))
+      sprintf(paste0("%d transition(s) hit the maximum tree depth; the sampler ",
+                     "was not efficient (raise `max_treedepth` through `...`)."),
+              diag$max_treedepth),
+    if (isTRUE(diag$low_ebfmi > 0))
+      sprintf(paste0("E-BFMI below 0.3 in %d chain(s); the posterior may be ",
+                     "hard to explore."), diag$low_ebfmi)
   )
-  if (length(msgs)) warning(paste(msgs, collapse = "\n"), call. = FALSE)
+  if (length(msgs)) {
+    warning(structure(
+      class = c("crywolf_sampler_warning", "warning", "condition"),
+      list(message = paste(msgs, collapse = "\n"), call = NULL)
+    ))
+  }
   invisible(NULL)
 }
 

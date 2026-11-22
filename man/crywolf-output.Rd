@@ -88,7 +88,8 @@ Its \code{table} has one row per readable variable:\tabular{ll}{
 
 \code{fit$diagnostics} contains \code{divergences} (total divergent transitions),
 \code{max_treedepth} (the number of transitions reaching the maximum depth,
-not the maximum depth observed), \code{max_rhat} (largest R-hat),
+not the maximum depth observed), \code{low_ebfmi} (the number of chains with
+an E-BFMI below 0.3), \code{max_rhat} (largest R-hat),
 \code{min_ess_bulk}, and \code{min_ess_tail} (smallest effective sample sizes).
 R-hat and the effective sample sizes are summarized across the readable
 variables; \code{divergences} and \code{max_treedepth} count sampler transitions.

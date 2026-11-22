@@ -129,7 +129,13 @@ This checks what the priors imply and that the sampler recovers them;
 \code{\link[=fp_prior_predictive]{fp_prior_predictive()}} gives the prior predictive distribution without
 CmdStan.}
 
-\item{...}{Further arguments passed to \verb{$sample()}.}
+\item{...}{Further arguments passed to the \verb{$sample()} method of
+'cmdstanr', for example \code{max_treedepth}, \code{show_messages = FALSE} and
+\code{show_exceptions = FALSE} (with \code{refresh = 0}, a silent run), or \code{init}.
+\code{init} takes starting values (a number, a list per chain, or a
+function), or a previous fit, \code{init = old$fit}, so that a run starts
+where an earlier one ended; the draws of the earlier run are not
+pooled with the new ones. Only Stan's No-U-Turn sampler is offered.}
 }
 \value{
 An object of class \code{fp_occu}, with methods for \code{\link[base:print]{base::print()}},
@@ -145,6 +151,29 @@ probability depends on site covariates, true detection on observation
 false-positive rate is either constant or a function of site covariates.
 }
 \details{
+\strong{Checks before sampling.} Covariates must be complete and finite (a
+missing or infinite value stops the fit; impute or drop the rows before
+fitting), and the columns of each design matrix must be linearly
+independent. A constant or collinear covariate, or an unused factor
+level, triggers a warning of class \code{crywolf_design_warning} that names
+the redundant column. The fit still runs, because the priors keep the
+posterior proper, but the posterior of that coefficient only repeats its
+prior; remove the column, or drop unused levels with
+\code{\link[=droplevels]{droplevels()}}. Factor
+covariates use the contrasts of R's \code{\link[stats:model.matrix]{stats::model.matrix()}}: treatment
+contrasts for unordered factors and orthogonal polynomials for ordered
+ones (columns such as \code{habitat.L}); set \code{contrasts()} on the factor to
+change them.
+
+\strong{Diagnostics and warnings.} After sampling, the fit warns when there
+are divergent transitions, when the largest R-hat exceeds 1.01, when the
+smallest bulk effective sample size is below 400, when transitions hit
+the maximum tree depth, and when the E-BFMI of a chain is below 0.3.
+These warnings have class \code{crywolf_sampler_warning}, so they can be
+muffled selectively, for example with
+\code{withCallingHandlers(fp_occu(...), crywolf_sampler_warning = function(w) invokeRestart("muffleWarning"))};
+the diagnostics are kept in \verb{$diagnostics} either way.
+
 \strong{Identifiability.} The intercept of the false-positive rate equals the
 intercept of true detection minus a positive gap, \eqn{\gamma_0 = \alpha_1 -
 \Delta}, so that at the reference values of the covariates (all zero) a

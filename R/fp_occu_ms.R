@@ -158,6 +158,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     warning("No verified data: the false-positive rates are identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
+  .check_sampler(chains, iter_warmup, iter_sampling, adapt_delta, seed)
   cores <- .sampler_cores(threads_per_chain, parallel_chains)
   threads_per_chain <- cores$threads_per_chain
   parallel_chains <- cores$parallel_chains
@@ -169,8 +170,9 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
   mod <- .compile_model("fp_occu_ms")
-  run_sampler <- function(..., output_basename = .output_basename()) {
-    mod$sample(..., output_basename = output_basename)
+  run_sampler <- function(..., init = NULL, output_basename = .output_basename()) {
+    mod$sample(..., init = .init_from_fit(init, chains),
+               output_basename = output_basename)
   }
   fit <- run_sampler(data = sd_list$stan_data, chains = chains,
                      parallel_chains = parallel_chains,

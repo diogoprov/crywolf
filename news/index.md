@@ -2,6 +2,25 @@
 
 ## crywolf (development version)
 
+- rOpenSci statistical standards: every general and Bayesian standard is
+  tagged with ‘srr’ next to the code or test that addresses it, or
+  declared not applicable with a reason in `R/srr-stats-standards.R`.
+
+- [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
+  checks that `site`, `y`, `recorder`, `season` and `species` each name
+  one column.
+
+- `plot(fit, type = "trace")` shows the warm-up draws, shaded, when the
+  fit kept them (`save_warmup = TRUE`).
+
+- Messages of conditions are now unique, so each points to where it
+  arose.
+
+- [`?crywolf`](https://provetelab.org/crywolf/reference/crywolf-package.md)
+  has sections on the relation to ‘unmarked’ and on argument conventions
+  (single values, case-sensitive options); the README shows how to set a
+  prior.
+
 - Checks before sampling:
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)

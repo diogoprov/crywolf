@@ -205,29 +205,29 @@ mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                  chains = 2, threads_per_chain = 1, seed = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 10.1 seconds.
-#> Chain 1 finished in 11.1 seconds.
+#> Chain 2 finished in 9.9 seconds.
+#> Chain 1 finished in 11.0 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 10.6 seconds.
-#> Total execution time: 11.2 seconds.
+#> Mean chain execution time: 10.4 seconds.
+#> Total execution time: 11.1 seconds.
 #> 
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 2 finished in 9.7 seconds.
-#> Chain 1 finished in 10.1 seconds.
+#> Chain 1 finished in 10.2 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 9.9 seconds.
-#> Total execution time: 10.2 seconds.
+#> Total execution time: 10.3 seconds.
 #> 
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 10.1 seconds.
+#> Chain 1 finished in 9.9 seconds.
 #> Chain 2 finished in 11.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 10.7 seconds.
+#> Mean chain execution time: 10.6 seconds.
 #> Total execution time: 11.4 seconds.
 #> 
 summary(mc)
@@ -272,16 +272,16 @@ if (requireNamespace("jsonlite", quietly = TRUE) &&
 #> Warning: 670 reviewed clip(s) drawn with sampling_mode = "top" were dropped: they were chosen for their high scores and would make the false-positive rate look lower than it is. Use keep_top = TRUE to keep them.
 #> Warning: 1 species have no automated detection (e.g. lep_fus); their occupancy is informed mostly by the other species.
 #> Warning: 3 species have no verified detection (e.g. ela_bic, lep_fus, phy_cuv); their false-positive rates are informed only by the other species and the priors.
-#> Parametrization (3 species at 4 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
+#> Parametrization of every version (3 species at 4 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 1 finished in 3.3 seconds.
-#> Chain 2 finished in 3.4 seconds.
+#> Chain 2 finished in 3.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 3.4 seconds.
-#> Total execution time: 3.5 seconds.
+#> Mean chain execution time: 3.3 seconds.
+#> Total execution time: 3.4 seconds.
 #> 
 #> Warning: 7 of 2000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
@@ -289,22 +289,22 @@ if (requireNamespace("jsonlite", quietly = TRUE) &&
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 7.3 seconds.
-#> Chain 2 finished in 7.8 seconds.
+#> Chain 1 finished in 7.1 seconds.
+#> Chain 2 finished in 7.7 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 7.5 seconds.
-#> Total execution time: 8.0 seconds.
+#> Mean chain execution time: 7.4 seconds.
+#> Total execution time: 7.9 seconds.
 #> 
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 8.4 seconds.
-#> Chain 2 finished in 9.1 seconds.
+#> Chain 1 finished in 7.9 seconds.
+#> Chain 2 finished in 8.6 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 8.7 seconds.
-#> Total execution time: 9.2 seconds.
+#> Mean chain execution time: 8.3 seconds.
+#> Total execution time: 8.8 seconds.
 #> 
 #> Posterior pooled over 3 fits (95% equal-tailed intervals)
 #> 

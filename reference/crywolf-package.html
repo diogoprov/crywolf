@@ -233,6 +233,35 @@ number of physical cores. <code><a href="fp_calibrate.html">fp_calibrate()</a></
 worker; compile the model with <code><a href="fp_compile.html">fp_compile()</a></code> before starting workers.</p>
     </div>
     <div class="section level2">
+    <h2 id="relation-to-other-implementations">Relation to other implementations<a class="anchor" aria-label="anchor" href="#relation-to-other-implementations"></a></h2>
+
+
+<p>crywolf does not introduce a new estimation algorithm. The false-positive
+occupancy models of Miller et al. (2011) and Chambert et al. (2015) are
+already fitted in R by maximum likelihood with <code>occuFP()</code> of the
+'unmarked' package, and crywolf fits the same likelihood in a Bayesian
+framework with Stan's No-U-Turn sampler. It improves on that
+implementation in three ways: random effects of recorder and site, which
+<code>occuFP()</code> does not fit; diagnostics and posterior predictive checks of
+the fit; and simulation-based checks (<code><a href="fp_calibrate.html">fp_calibrate()</a></code>, <code><a href="fp_sbc.html">fp_sbc()</a></code>) of
+whether the intervals keep their nominal coverage under a given design.
+<code><a href="../articles/unmarked.html">vignette("unmarked")</a></code> fits one dataset with both packages and compares
+the estimates.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="conventions">Conventions<a class="anchor" aria-label="anchor" href="#conventions"></a></h2>
+
+
+<p>Character options that take one of a set of values, such as <code>type</code>,
+<code>process</code> or <code>method</code>, are matched with <code><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg()</a></code>: they are
+case-sensitive (<code>type = "Trace"</code> is an error) and accept an unambiguous
+abbreviation (<code>type = "tr"</code>). Unless its documentation says otherwise
+(as for <code>confirmed</code> in <code><a href="fp_data.html">fp_data()</a></code>, which names two columns), every
+argument that is a number, a logical flag (<code>TRUE</code> or <code>FALSE</code>, not <code>NA</code>),
+or the name of a column takes a single value, and the fitting,
+simulation and prior functions stop with a message when it does not.</p>
+    </div>
+    <div class="section level2">
     <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a></h2>
 
 

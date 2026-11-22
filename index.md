@@ -57,6 +57,12 @@ m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE)  # rate de
 coef(m0, "occ"); coef(m1, "occ")                # true slope: -0.8
 loo::loo_compare(loo(m0), loo(m1))
 
+# priors are Normal on the logit scale, one standard deviation per class of
+# coefficient; fp_priors() prints the defaults and changes them, here a
+# tighter prior on every slope (see vignette("crywolf"), section Priors)
+m2 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
+              priors = fp_priors(slope_sd = 1))
+
 # is a constant rate calibrated for this design, and does verifying more help?
 fp_verification_curve(nsite = 300, nocc = 20, conf_effect = 1.5,
                       conf_cor = 0.7,

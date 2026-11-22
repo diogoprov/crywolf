@@ -28,7 +28,11 @@ plot(
   process, and the standard deviations of the random effects. `"trace"`,
   `"rank"`, and `"pairs"` draw sampler diagnostics with 'bayesplot':
   trace plots and rank histograms by chain, and pairs plots with
-  divergent transitions marked.
+  divergent transitions marked. The trace plot shows the warm-up draws,
+  shaded, when the fit kept them (`save_warmup = TRUE` in
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md));
+  otherwise it shows the sampling draws, with divergent transitions
+  marked.
 
 - pars:
 
@@ -64,12 +68,12 @@ m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
              chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 23.2 seconds.
-#> Chain 1 finished in 23.5 seconds.
+#> Chain 2 finished in 22.9 seconds.
+#> Chain 1 finished in 23.1 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 23.4 seconds.
-#> Total execution time: 23.7 seconds.
+#> Mean chain execution time: 23.0 seconds.
+#> Total execution time: 23.2 seconds.
 #> 
 plot(m)
 

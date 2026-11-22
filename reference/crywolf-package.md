@@ -139,6 +139,36 @@ fits many models, one chain per worker; compile the model with
 [`fp_compile()`](https://provetelab.org/crywolf/reference/fp_compile.md)
 before starting workers.
 
+## Relation to other implementations
+
+crywolf does not introduce a new estimation algorithm. The
+false-positive occupancy models of Miller et al. (2011) and Chambert et
+al. (2015) are already fitted in R by maximum likelihood with `occuFP()`
+of the 'unmarked' package, and crywolf fits the same likelihood in a
+Bayesian framework with Stan's No-U-Turn sampler. It improves on that
+implementation in three ways: random effects of recorder and site, which
+`occuFP()` does not fit; diagnostics and posterior predictive checks of
+the fit; and simulation-based checks
+([`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md),
+[`fp_sbc()`](https://provetelab.org/crywolf/reference/fp_sbc.md)) of
+whether the intervals keep their nominal coverage under a given design.
+[`vignette("unmarked")`](https://provetelab.org/crywolf/articles/unmarked.md)
+fits one dataset with both packages and compares the estimates.
+
+## Conventions
+
+Character options that take one of a set of values, such as `type`,
+`process` or `method`, are matched with
+[`match.arg()`](https://rdrr.io/r/base/match.arg.html): they are
+case-sensitive (`type = "Trace"` is an error) and accept an unambiguous
+abbreviation (`type = "tr"`). Unless its documentation says otherwise
+(as for `confirmed` in
+[`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md),
+which names two columns), every argument that is a number, a logical
+flag (`TRUE` or `FALSE`, not `NA`), or the name of a column takes a
+single value, and the fitting, simulation and prior functions stop with
+a message when it does not.
+
 ## Citation
 
 `citation("crywolf")` gives the reference to the package. Every release

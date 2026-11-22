@@ -115,7 +115,8 @@ fp_occu(
 
 - chains, iter_warmup, iter_sampling, adapt_delta, seed:
 
-  Passed to the `$sample()` method of 'cmdstanr', which runs Stan's
+  Single numbers (`seed` may be `NULL`), checked before sampling and
+  passed to the `$sample()` method of 'cmdstanr', which runs Stan's
   No-U-Turn sampler (Hoffman & Gelman, 2014). `chains` is the number of
   Markov chains (4 by default); `iter_warmup` and `iter_sampling` are
   the warm-up and kept iterations of each chain (1000 each); warm-up
@@ -176,11 +177,13 @@ fp_occu(
 
   Further arguments passed to the `$sample()` method of 'cmdstanr', for
   example `max_treedepth`, `show_messages = FALSE` and
-  `show_exceptions = FALSE` (with `refresh = 0`, a silent run), or
-  `init`. `init` takes starting values (a number, a list per chain, or a
-  function), or a previous fit, `init = old$fit`, so that a run starts
-  where an earlier one ended; the draws of the earlier run are not
-  pooled with the new ones. Only Stan's No-U-Turn sampler is offered.
+  `show_exceptions = FALSE` (with `refresh = 0`, a silent run),
+  `save_warmup = TRUE` (so that `plot(fit, type = "trace")` shows the
+  warm-up), or `init`. `init` takes starting values (a number, a list
+  per chain, or a function), or a previous fit, `init = old$fit`, so
+  that a run starts where an earlier one ended; the draws of the earlier
+  run are not pooled with the new ones. Only Stan's No-U-Turn sampler is
+  offered.
 
 ## Value
 
@@ -383,24 +386,24 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 29.6 seconds.
-#> Chain 2 finished in 31.3 seconds.
+#> Chain 1 finished in 28.0 seconds.
+#> Chain 2 finished in 30.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 30.5 seconds.
-#> Total execution time: 31.4 seconds.
+#> Mean chain execution time: 29.4 seconds.
+#> Total execution time: 31.0 seconds.
 #> 
 # false-positive rate that tracks the occupancy covariate
 m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 35.9 seconds.
-#> Chain 1 finished in 39.3 seconds.
+#> Chain 1 finished in 35.8 seconds.
+#> Chain 2 finished in 36.0 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 37.6 seconds.
-#> Total execution time: 39.4 seconds.
+#> Mean chain execution time: 35.9 seconds.
+#> Total execution time: 36.1 seconds.
 #> 
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8

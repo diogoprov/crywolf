@@ -21,6 +21,21 @@
   (single values, case-sensitive options); the README shows how to set a
   prior.
 
+- Every error, warning and message of the package now has a test that
+  triggers it and checks its text.
+
+- [`fp_data_wide()`](https://provetelab.org/crywolf/reference/fp_data_wide.md)
+  stops with a clear message when `site_covs` is not a data frame or
+  matrix.
+
+- [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
+  checks that its numeric arguments are single finite numbers, and works
+  with `frac_verified = 0`.
+
+- Messages agree in number (“`markov` and `random_det` are not
+  available”, “`validation` mixes the verdicts”), and the CmdStan
+  version message follows the version the package requires.
+
 - Checks before sampling:
   [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
   [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)

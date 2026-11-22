@@ -10,18 +10,22 @@ Authors@R: c(
     person("Larissa Sayuri Moreira", "Sugai", role = "aut",
            comment = c(ORCID = "0000-0002-6248-291X"))
     )
-Description: Fits single-season occupancy models that correct for false
-    positives from automated detectors, such as acoustic classifiers, using
-    the multiple-methods (site-confirmation) design of Miller et al. (2011)
-    <doi:10.1890/10-1396.1>, in which a subset of detections is verified.
-    Models are written in 'Stan' and fitted through 'cmdstanr'. The
-    false-positive rate can be constant or depend on site covariates, and
-    the true-detection process accepts observation covariates and a recorder
-    random effect. The package also simulates data under homogeneous,
-    unstructured, and structured false-positive regimes and runs
-    simulation-based calibration checks, so users can ask whether the
-    correction keeps nominal interval coverage for their own design and how
-    much verification it needs.
+Description: Fits occupancy models that correct for false positives from
+    automated detectors, such as acoustic classifiers, using the
+    multiple-methods (site-confirmation) design of Miller et al. (2011)
+    <doi:10.1890/10-1396.1>, in which a subset of detections is verified,
+    or the observation-confirmation design of Chambert et al. (2015)
+    <doi:10.1890/14-1507.1>. Three models are available: single-season,
+    dynamic (multi-season, with colonization and extinction), and
+    multispecies, with species-level effects drawn from community
+    distributions. Models are written in 'Stan' and fitted through
+    'cmdstanr'. The false-positive rate can be constant or depend on site
+    covariates, and the true-detection process accepts observation
+    covariates and a recorder random effect. The package also simulates
+    data under homogeneous, unstructured, and structured false-positive
+    regimes and runs simulation-based calibration checks, so users can ask
+    whether the correction keeps nominal interval coverage for their own
+    design and how much verification it needs.
 License: GPL (>= 3)
 URL: https://github.com/diogoprov/crywolf, https://provetelab.org/crywolf/
 BugReports: https://github.com/diogoprov/crywolf/issues

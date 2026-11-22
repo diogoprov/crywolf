@@ -1,6 +1,11 @@
 ## Resubmission
 
-This is a resubmission. In response to the review of 19 November 2026:
+This is a resubmission. The version moves from 2.1.0 to 2.3.0 because two
+releases (2.2.0 and 2.3.0) were made on GitHub in between; NEWS.md lists
+their changes, which add a dynamic and a multispecies model. The
+Description now names them.
+
+In response to the review of 19 November 2026:
 
 * `\dontrun{}` is no longer used. Examples that fit models are in
   `\donttest{}` and run only when CmdStan is installed

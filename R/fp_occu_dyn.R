@@ -108,8 +108,9 @@ fp_occu_dyn <- function(data, psi1 = ~ 1, col = ~ 1, ext = ~ 1, det = ~ 1, fp = 
     refresh <- if (interactive()) max(1, round((iter_warmup + iter_sampling) / 10)) else 0
   }
   mod <- .compile_model("fp_occu_dyn")
-  run_sampler <- function(..., output_basename = .output_basename()) {
-    mod$sample(..., output_basename = output_basename)
+  run_sampler <- function(..., init = NULL, output_basename = .output_basename()) {
+    mod$sample(..., init = .init_from_fit(init, chains),
+               output_basename = output_basename)
   }
   fit <- run_sampler(data = sd_list$stan_data, chains = chains,
                      parallel_chains = parallel_chains,

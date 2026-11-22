@@ -12,6 +12,10 @@
   (`init = old$fit`), how to silence progress output, and the handling of
   missing values and of factor contrasts; `?fp_data` documents why rows
   with a missing detection are dropped.
+* `init = old$fit` in `fp_occu()`, `fp_occu_dyn()` and `fp_occu_ms()` starts
+  each chain from the last draw of a chain of the earlier fit; the
+  conversion is done by crywolf, so it also works with cmdstanr versions
+  whose own conversion fails with precompiled models.
 * New tests of outputs without missing values, of starting values, of
   silenced output, and extended tests against `unmarked::occuFP()`, of
   precision and run time against the number of sites and of covariate

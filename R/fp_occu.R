@@ -304,8 +304,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   # random numbers: after the same set.seed(), two fits in one minute share
   # file names, and discarding the first deletes the files of the second.
   # A name of our own unless the user gives one in `...`.
-  run_sampler <- function(..., output_basename = .output_basename()) {
-    mod$sample(..., output_basename = output_basename)
+  run_sampler <- function(..., init = NULL, output_basename = .output_basename()) {
+    mod$sample(..., init = .init_from_fit(init, chains),
+               output_basename = output_basename)
   }
   .check_flag(prior_only, "prior_only")
   sd_list$stan_data$prior_only <- as.integer(prior_only)
@@ -409,6 +410,29 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     "levels with droplevels().")
   }
   invisible(TRUE)
+}
+
+#' Starting values from a previous fit: the last draw of each of its chains,
+#' recycled over `chains`. Other values of `init` are returned unchanged.
+#' cmdstanr can take a fit as `init` itself, but some versions build empty
+#' lists when the model carries no variable information (as with a
+#' precompiled model), so the conversion is done here.
+#' @noRd
+.init_from_fit <- function(init, chains) {
+  if (!inherits(init, "CmdStanMCMC")) return(init)
+  d <- init$draws(format = "draws_array")
+  d <- posterior::subset_draws(d, iteration = posterior::niterations(d))
+  vars <- setdiff(posterior::variables(d), "lp__")
+  rv <- posterior::as_draws_rvars(posterior::merge_chains(
+    posterior::subset_draws(d, variable = vars)))
+  nch <- posterior::ndraws(rv)
+  lapply(seq_len(chains), function(k) {
+    i <- (k - 1) %% nch + 1
+    purrr::imap(unclass(rv), function(r, nm) {
+      x <- as.vector(posterior::draws_of(posterior::subset_draws(r, draw = i)))
+      if (nm %in% vars) x else array(x, dim = dim(r))
+    })
+  })
 }
 
 #' Stop unless the sampler settings are valid, before compiling or sampling

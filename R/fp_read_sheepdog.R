@@ -30,11 +30,15 @@
 #' (`keep_top = FALSE`); they remain useful to calibrate the classifier
 #' within sheepdog. Clips of the `"directed_pps"` design (sheepdog's
 #' `select_directed()`) are kept with a warning: within each review unit
-#' (for example site x species x month) the occasion is drawn independently
-#' of the score, but the units are drawn with unequal probabilities, whose
-#' size may come from the scores, and crywolf reads `inclusion_prob` without
-#' weighting by it. Estimates from them are conditional on the units drawn;
-#' weighting comes with a model of the scores.
+#' (for example site x species) the occasion is drawn independently of the
+#' score, but the units are drawn with unequal probabilities
+#' (`inclusion_prob`), which crywolf does not use. That is right when the
+#' size of the units came from a model of data the new fit also holds, as
+#' with [fp_review_priority()]: the fit then conditions on everything that
+#' chose the units, and the selection is ignorable for the model. It is not
+#' right when the size came from the scores, which the model does not hold;
+#' estimates are then conditional on the units drawn. Design-based estimates
+#' from the clips alone still need the weights `1 / inclusion_prob`.
 #'
 #' Clips of the `"score_bands"` design are always dropped, whatever
 #' `keep_top`, with a warning. sheepdog draws them at random within bands of
@@ -200,9 +204,10 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
     pps <- validation$sampling_mode %in% "directed_pps"
     if (any(pps)) {
       warning(sum(pps), " reviewed clip(s) drawn with sampling_mode = \"directed_pps\": ",
-              "their units were drawn with unequal probabilities (inclusion_prob), ",
-              "possibly from the scores, and the models of crywolf do not weight ",
-              "them. See ?fp_read_sheepdog.", call. = FALSE)
+              "the models of crywolf use them without weighting, which is right when ",
+              "the size of their units came from a model of data the fit also holds ",
+              "(such as fp_review_priority()), not when it came from the scores. ",
+              "See ?fp_read_sheepdog.", call. = FALSE)
     }
     if (nrow(validation) == 0) validation <- NULL
   }

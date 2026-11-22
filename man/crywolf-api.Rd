@@ -80,7 +80,9 @@ are stable too.
 \code{\link[=fp_occu_mc]{fp_occu_mc()}}, \code{\link[=fp_draws_data]{fp_draws_data()}} and \code{\link[=fp_to_unmarked]{fp_to_unmarked()}}, with the
 \code{fp_occu_mc} class and its methods, are new in 2.0.0. They propagate a
 classifier calibration from 'sheepdog' into the model or pass data to
-'unmarked', and are still being evaluated. Their arguments, classes and
+'unmarked', and are still being evaluated. \code{\link[=fp_review_priority]{fp_review_priority()}}, new
+after 2.3.0, prepares directed review rounds of 'sheepdog'; it follows
+\code{select_directed()}, which may still change. Their arguments, classes and
 results may change in a minor version; the NEWS will say so. Each says
 so in its help. \code{\link[=fp_read_sheepdog]{fp_read_sheepdog()}}, by contrast, reads a versioned
 export format (\code{sheepdog-occupancy}, schema 1) and is stable.

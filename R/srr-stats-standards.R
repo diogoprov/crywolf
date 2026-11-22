@@ -1,12 +1,10 @@
 #' srr_stats
 #'
-#' Standards not yet met. They are tagged next to the code that addresses
-#' them once done.
+#' Every standard is tagged next to the code or test that addresses it, or
+#' declared not applicable below; none remains to be met.
 #'
 #' @srrstatsVerbose TRUE
 #'
-#' @srrstatsTODO {G5.4c} *Where applicable, stored values may be drawn from published paper outputs when applicable and where code from original implementations is not available.* Piatti et al. (2026) fitted the same model to the Pauraque data with an independent Stan program, at the level of detection windows; a test against their published estimates is pending.
-#' @srrstatsTODO {G5.2b} *Explicit tests should demonstrate conditions which trigger every one of those messages, and should compare the result with expected values.*
 #' @noRd
 NULL
 
@@ -15,7 +13,6 @@ NULL
 #' @srrstatsNA {G2.14c} Missing values are not imputed: a missing detection is an unsurveyed occasion, which carries no information on detection, and missing covariates arise in ways the model cannot know, so the user imputes or drops them before fitting.
 #' @srrstatsNA {G3.1, G3.1a} crywolf computes no covariance matrices; posterior summaries come from 'posterior'.
 #' @srrstatsNA {G4.0} No function writes files named by the user; CmdStan output files and the compiled model are named and stored by the package.
-#' @srrstatsNA {G5.11, G5.11a} The extended tests need no downloaded data: they simulate their data.
 #' @srrstatsNA {BS1.0} The term "hyperparameter" is not used; the standard deviations of the random effects are named as such.
 #' @srrstatsNA {BS1.3b} Only Stan's No-U-Turn sampler is offered: the discrete latent states are marginalised for Hamiltonian Monte Carlo, and other algorithms are not supported.
 #' @srrstatsNA {BS1.5, BS5.4} R-hat, bulk and tail ESS, divergences, tree depth and E-BFMI are complementary diagnostics, always computed together, not alternative convergence checkers.

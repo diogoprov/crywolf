@@ -149,7 +149,8 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
   .check_fp_effects(random_fp, fp_group, fp, data)
   na <- intersect(names(list(...)), c("markov", "random_det"))
   if (length(na)) {
-    stop("`", paste(na, collapse = "`, `"), "` is not available in fp_occu_ms().",
+    stop("`", paste(na, collapse = "` and `"), "` ",
+         if (length(na) > 1) "are" else "is", " not available in fp_occu_ms().",
          call. = FALSE)
   }
   no_ver <- is.null(data$verified) || nrow(data$verified) == 0

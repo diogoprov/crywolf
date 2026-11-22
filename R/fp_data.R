@@ -242,6 +242,10 @@ fp_data_wide <- function(y_auto, y_verified = NULL, site_covs = NULL,
   nsite <- nrow(y_auto)
   sites <- data.frame(site = seq_len(nsite))
   if (!is.null(site_covs)) {
+    if (!is.data.frame(site_covs) && !is.matrix(site_covs)) {
+      stop("`site_covs` must be a data frame or matrix with one row per row ",
+           "of `y_auto`.", call. = FALSE)
+    }
     if (nrow(site_covs) != nsite) {
       stop("`site_covs` must have one row per row of `y_auto`.", call. = FALSE)
     }

@@ -218,6 +218,13 @@ are compared by site and <code>occasion_id</code>, and also by species with <cod
 and by season with <code>season</code>, only when both tables have an <code>occasion_id</code>
 column.
 <code><a href="fp_aggregate.html">fp_aggregate()</a></code> builds <code>auto</code> from classifier output.</p>
+<p><strong>Missing values.</strong> A missing detection (<code>NA</code> in <code>y</code>) marks an occasion
+that was not surveyed (or, in <code>verified</code>, not checked), so its row is
+dropped: an unsurveyed occasion carries no information about detection,
+and the occupancy likelihood is the same with or without it. No other
+missing value is dropped or imputed. Missing recorders, seasons or
+species stop with an error here, and missing covariates stop the fit in
+<code><a href="fp_occu.html">fp_occu()</a></code>, because the model cannot tell how they arose.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

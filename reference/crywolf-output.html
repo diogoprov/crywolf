@@ -124,7 +124,8 @@ process; <code>fp = NULL</code> is rejected for that design.</p>
 <p><code>summary(fit)</code> returns <code>table</code>, <code>prob</code>, <code>diagnostics</code>, and <code>call</code>.
 Its <code>table</code> has one row per readable variable:</p><table class="table table"><tr><td>Column</td><td>Meaning</td></tr><tr><td><code>variable</code></td><td>Readable parameter or derived-quantity name.</td></tr><tr><td><code>mean</code>, <code>sd</code></td><td>Posterior mean and standard deviation.</td></tr><tr><td><code>lower</code>, <code>upper</code></td><td>Equal-tailed credible interval, with width <code>prob</code>.</td></tr><tr><td><code>rhat</code></td><td>R-hat for this variable.</td></tr><tr><td><code>ess_bulk</code>, <code>ess_tail</code></td><td>Bulk and tail effective sample sizes.</td></tr></table><p><code>fit$diagnostics</code> contains <code>divergences</code> (total divergent transitions),
 <code>max_treedepth</code> (the number of transitions reaching the maximum depth,
-not the maximum depth observed), <code>max_rhat</code> (largest R-hat),
+not the maximum depth observed), <code>low_ebfmi</code> (the number of chains with
+an E-BFMI below 0.3), <code>max_rhat</code> (largest R-hat),
 <code>min_ess_bulk</code>, and <code>min_ess_tail</code> (smallest effective sample sizes).
 R-hat and the effective sample sizes are summarized across the readable
 variables; <code>divergences</code> and <code>max_treedepth</code> count sampler transitions.</p>
@@ -284,12 +285,12 @@ their field names and raw Stan names are implementation details.</p>
 <span class="r-in"><span>               threads_per_chain <span class="op">=</span> <span class="fl">1</span>, refresh <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 3.2 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 3.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 4.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 5.0 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 3.5 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 4.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 4.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 5.2 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.012 (&gt; 1.01); run longer chains.</span>
 <span class="r-in"><span><span class="co"># readable coefficient names, shared by coef(), summary() and the draws</span></span></span>

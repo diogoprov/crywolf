@@ -87,10 +87,11 @@ process; `fp = NULL` is rejected for that design.
 
 `fit$diagnostics` contains `divergences` (total divergent transitions),
 `max_treedepth` (the number of transitions reaching the maximum depth,
-not the maximum depth observed), `max_rhat` (largest R-hat),
-`min_ess_bulk`, and `min_ess_tail` (smallest effective sample sizes).
-R-hat and the effective sample sizes are summarized across the readable
-variables; `divergences` and `max_treedepth` count sampler transitions.
+not the maximum depth observed), `low_ebfmi` (the number of chains with
+an E-BFMI below 0.3), `max_rhat` (largest R-hat), `min_ess_bulk`, and
+`min_ess_tail` (smallest effective sample sizes). R-hat and the
+effective sample sizes are summarized across the readable variables;
+`divergences` and `max_treedepth` count sampler transitions.
 
 ## Predictions and site estimates
 
@@ -292,12 +293,12 @@ fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                threads_per_chain = 1, refresh = 0)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 3.2 seconds.
-#> Chain 1 finished in 3.9 seconds.
+#> Chain 2 finished in 4.0 seconds.
+#> Chain 1 finished in 5.0 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 3.5 seconds.
-#> Total execution time: 4.0 seconds.
+#> Mean chain execution time: 4.5 seconds.
+#> Total execution time: 5.2 seconds.
 #> 
 #> Warning: Largest R-hat is 1.012 (> 1.01); run longer chains.
 # readable coefficient names, shared by coef(), summary() and the draws

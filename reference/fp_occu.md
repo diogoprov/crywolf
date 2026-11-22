@@ -174,7 +174,13 @@ fp_occu(
 
 - ...:
 
-  Further arguments passed to `$sample()`.
+  Further arguments passed to the `$sample()` method of 'cmdstanr', for
+  example `max_treedepth`, `show_messages = FALSE` and
+  `show_exceptions = FALSE` (with `refresh = 0`, a silent run), or
+  `init`. `init` takes starting values (a number, a list per chain, or a
+  function), or a previous fit, `init = old$fit`, so that a run starts
+  where an earlier one ended; the draws of the earlier run are not
+  pooled with the new ones. Only Stan's No-U-Turn sampler is offered.
 
 ## Value
 
@@ -188,6 +194,31 @@ An object of class `fp_occu`, with methods for
 The 'cmdstanr' fit is in element `fit`.
 
 ## Details
+
+**Checks before sampling.** Covariates must be complete and finite (a
+missing or infinite value stops the fit; impute or drop the rows before
+fitting), and the columns of each design matrix must be linearly
+independent. A constant or collinear covariate, or an unused factor
+level, triggers a warning of class `crywolf_design_warning` that names
+the redundant column. The fit still runs, because the priors keep the
+posterior proper, but the posterior of that coefficient only repeats its
+prior; remove the column, or drop unused levels with
+[`droplevels()`](https://rdrr.io/r/base/droplevels.html). Factor
+covariates use the contrasts of R's
+[`stats::model.matrix()`](https://rdrr.io/r/stats/model.matrix.html):
+treatment contrasts for unordered factors and orthogonal polynomials for
+ordered ones (columns such as `habitat.L`); set
+[`contrasts()`](https://rdrr.io/r/stats/contrasts.html) on the factor to
+change them.
+
+**Diagnostics and warnings.** After sampling, the fit warns when there
+are divergent transitions, when the largest R-hat exceeds 1.01, when the
+smallest bulk effective sample size is below 400, when transitions hit
+the maximum tree depth, and when the E-BFMI of a chain is below 0.3.
+These warnings have class `crywolf_sampler_warning`, so they can be
+muffled selectively, for example with
+`withCallingHandlers(fp_occu(...), crywolf_sampler_warning = function(w) invokeRestart("muffleWarning"))`;
+the diagnostics are kept in `$diagnostics` either way.
 
 **Identifiability.** The intercept of the false-positive rate equals the
 intercept of true detection minus a positive gap, \\\gamma_0 =
@@ -352,24 +383,24 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 22.3 seconds.
-#> Chain 2 finished in 25.1 seconds.
+#> Chain 1 finished in 29.6 seconds.
+#> Chain 2 finished in 31.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 23.7 seconds.
-#> Total execution time: 25.3 seconds.
+#> Mean chain execution time: 30.5 seconds.
+#> Total execution time: 31.4 seconds.
 #> 
 # false-positive rate that tracks the occupancy covariate
 m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 28.5 seconds.
-#> Chain 2 finished in 28.4 seconds.
+#> Chain 2 finished in 35.9 seconds.
+#> Chain 1 finished in 39.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 28.5 seconds.
-#> Total execution time: 28.6 seconds.
+#> Mean chain execution time: 37.6 seconds.
+#> Total execution time: 39.4 seconds.
 #> 
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8

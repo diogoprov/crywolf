@@ -194,8 +194,10 @@ divergent transitions. <code><a href="https://rdrr.io/r/base/summary.html" class
 and the fit keeps the extremes:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   divergences max_treedepth      max_rhat  min_ess_bulk  min_ess_tail </span></span>
-<span><span class="co">#&gt;      0.000000      0.000000      1.001209   3813.305312   2466.593563</span></span></code></pre></div>
+<span><span class="co">#&gt;   divergences max_treedepth     low_ebfmi      max_rhat  min_ess_bulk </span></span>
+<span><span class="co">#&gt;      0.000000      0.000000      0.000000      1.001209   3813.305312 </span></span>
+<span><span class="co">#&gt;  min_ess_tail </span></span>
+<span><span class="co">#&gt;   2466.593563</span></span></code></pre></div>
 <p>If the chains used more than one thread
 (<code>threads_per_chain</code>, <code>"auto"</code> by default,
 recorded in <code>m$sampler</code>), say so: the posterior is the same,

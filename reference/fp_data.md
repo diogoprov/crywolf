@@ -157,6 +157,15 @@ verdict copied to both tables. Occasions are compared by site and
 [`fp_aggregate()`](https://provetelab.org/crywolf/reference/fp_aggregate.md)
 builds `auto` from classifier output.
 
+**Missing values.** A missing detection (`NA` in `y`) marks an occasion
+that was not surveyed (or, in `verified`, not checked), so its row is
+dropped: an unsurveyed occasion carries no information about detection,
+and the occupancy likelihood is the same with or without it. No other
+missing value is dropped or imputed. Missing recorders, seasons or
+species stop with an error here, and missing covariates stop the fit in
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+because the model cannot tell how they arose.
+
 ## References
 
 Chambert, T., Miller, D. A. W., & Nichols, J. D. (2015). Modeling false

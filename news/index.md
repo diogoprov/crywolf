@@ -2,6 +2,45 @@
 
 ## crywolf (development version)
 
+- Checks before sampling:
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  and
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  warn (class `crywolf_design_warning`) on collinear or constant
+  covariates and unused factor levels, naming the redundant column whose
+  posterior only repeats its prior. They stop on list columns in a
+  formula and on invalid `chains`, `iter_warmup`, `iter_sampling`,
+  `adapt_delta` or `seed`.
+
+- The sampler warnings now also cover transitions that hit the maximum
+  tree depth and chains with an E-BFMI below 0.3
+  (`$diagnostics$low_ebfmi`), and have class `crywolf_sampler_warning`,
+  so they can be muffled selectively.
+
+- The help of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md)
+  documents starting a run from a previous fit (`init = old$fit`), how
+  to silence progress output, and the handling of missing values and of
+  factor contrasts;
+  [`?fp_data`](https://provetelab.org/crywolf/reference/fp_data.md)
+  documents why rows with a missing detection are dropped.
+
+- `init = old$fit` in
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  and
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  starts each chain from the last draw of a chain of the earlier fit;
+  the conversion is done by crywolf, so it also works with cmdstanr
+  versions whose own conversion fails with precompiled models.
+
+- New tests of outputs without missing values, of starting values, of
+  silenced output, and extended tests against
+  [`unmarked::occuFP()`](https://ecoverseR.github.io/unmarked/reference/occuFP.html),
+  of precision and run time against the number of sites and of covariate
+  scale; the extended tests run weekly on GitHub Actions.
+
 - Documentation for the rOpenSci review: a contributing guide
   (`.github/CONTRIBUTING.md`), project-status and lifecycle badges, a
   `codemeta.json`, a Value section and examples for

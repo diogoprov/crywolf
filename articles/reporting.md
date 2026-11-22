@@ -120,8 +120,10 @@ parameter, and the fit keeps the extremes:
 ``` r
 
 unlist(m$diagnostics)
-#>   divergences max_treedepth      max_rhat  min_ess_bulk  min_ess_tail 
-#>      0.000000      0.000000      1.001209   3813.305312   2466.593563
+#>   divergences max_treedepth     low_ebfmi      max_rhat  min_ess_bulk 
+#>      0.000000      0.000000      0.000000      1.001209   3813.305312 
+#>  min_ess_tail 
+#>   2466.593563
 ```
 
 If the chains used more than one thread (`threads_per_chain`, `"auto"`

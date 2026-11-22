@@ -158,6 +158,7 @@ fp_occu_ms <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
     warning("No verified data: the false-positive rates are identified only by ",
             "the priors. Treat the estimates with caution.", call. = FALSE)
   }
+  .check_sampler(chains, iter_warmup, iter_sampling, adapt_delta, seed)
   cores <- .sampler_cores(threads_per_chain, parallel_chains)
   threads_per_chain <- cores$threads_per_chain
   parallel_chains <- cores$parallel_chains

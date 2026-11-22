@@ -172,11 +172,12 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
 #' @noRd
 .fit_generator <- function(fit) {
   f <- fit$formulas
-  sl <- .build_stan_data(fit$data, f$occ, f$det, f$fp, isTRUE(fit$random_recorder),
-                         fit$priors, random_fp = isTRUE(fit$random_fp),
-                         random_det = isTRUE(fit$random_det),
-                         ver = if (is.null(f$ver)) ~ 1 else f$ver,
-                         markov = fit$markov)
+  sl <- .muffle_design(.build_stan_data(
+    fit$data, f$occ, f$det, f$fp, isTRUE(fit$random_recorder),
+    fit$priors, random_fp = isTRUE(fit$random_fp),
+    random_det = isTRUE(fit$random_det),
+    ver = if (is.null(f$ver)) ~ 1 else f$ver,
+    markov = fit$markov))
   list(data = fit$data, formulas = f, stan_data = sl$stan_data,
        design = sl$design, occasions = sl$occasions,
        draws = .ppc_pars(fit$fit, sl$stan_data, NULL))
@@ -333,7 +334,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     if (gen$stan_data$estimate_fp == 1) {
       targets <- c(targets, p10_bar = truth$p10_bar)
     }
-    slopes <- colnames(.design(fp, gen$data$sites, "fp")$X)[-1]
+    slopes <- colnames(.muffle_design(.design(fp, gen$data$sites, "fp"))$X)[-1]
     if (length(slopes)) {
       nm <- paste0("fp_", slopes)
       targets <- c(targets, stats::setNames(

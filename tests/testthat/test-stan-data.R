@@ -44,7 +44,10 @@ test_that("bad formulas fail early", {
 
 test_that("parameter names map to the Stan output", {
   s <- simulate_fp(nsite = 20, nocc = 2, seed = 1)
-  b <- crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ w, TRUE, fp_priors())
+  # w is constant in this simulation, which only triggers a design warning
+  b <- suppressWarnings(
+    crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ w, TRUE, fp_priors()),
+    classes = "crywolf_design_warning")
   m <- crywolf:::.name_map(b$design, TRUE, TRUE)
   expect_true(all(c("occ_x", "fp_w", "fp_(Intercept)", "sd_recorder",
                     "p10_bar") %in% m))

@@ -126,6 +126,14 @@ are compared by site and \code{occasion_id}, and also by species with \code{spec
 and by season with \code{season}, only when both tables have an \code{occasion_id}
 column.
 \code{\link[=fp_aggregate]{fp_aggregate()}} builds \code{auto} from classifier output.
+
+\strong{Missing values.} A missing detection (\code{NA} in \code{y}) marks an occasion
+that was not surveyed (or, in \code{verified}, not checked), so its row is
+dropped: an unsurveyed occasion carries no information about detection,
+and the occupancy likelihood is the same with or without it. No other
+missing value is dropped or imputed. Missing recorders, seasons or
+species stop with an error here, and missing covariates stop the fit in
+\code{\link[=fp_occu]{fp_occu()}}, because the model cannot tell how they arose.
 }
 \examples{
 sim <- simulate_fp(nsite = 50, nocc = 5, seed = 1)

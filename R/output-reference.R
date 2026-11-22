@@ -72,7 +72,8 @@
 #'
 #' `fit$diagnostics` contains `divergences` (total divergent transitions),
 #' `max_treedepth` (the number of transitions reaching the maximum depth,
-#' not the maximum depth observed), `max_rhat` (largest R-hat),
+#' not the maximum depth observed), `low_ebfmi` (the number of chains with
+#' an E-BFMI below 0.3), `max_rhat` (largest R-hat),
 #' `min_ess_bulk`, and `min_ess_tail` (smallest effective sample sizes).
 #' R-hat and the effective sample sizes are summarized across the readable
 #' variables; `divergences` and `max_treedepth` count sampler transitions.

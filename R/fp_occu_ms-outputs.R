@@ -360,8 +360,8 @@ simulate.fp_occu_ms <- function(object, nsim = 1, seed = NULL,
   purrr::map(seq_along(object$data$species_names), function(s) {
     d <- .ms_species_data(object$data, s)
     no_ver <- is.null(d$verified) || nrow(d$verified) == 0
-    sl <- .build_stan_data(d, f$occ, f$det, f$fp, object$random_recorder, object$priors,
-                           ver = if (no_ver) ~ 1 else f$ver)
+    sl <- .muffle_design(.build_stan_data(d, f$occ, f$det, f$fp, object$random_recorder,
+                                          object$priors, ver = if (no_ver) ~ 1 else f$ver))
     list(data = d, formulas = f, stan_data = sl$stan_data, design = sl$design,
          occasions = sl$occasions)
   })

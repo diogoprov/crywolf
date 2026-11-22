@@ -107,8 +107,11 @@ test_that("season covariates are validated and reach the units", {
   expect_output(print(d), "season covariates: +rain")
   u <- crywolf:::.dyn_units(d)
   expect_equal(u$sites$rain, c(5, 7, 5, 7))
-  sd <- crywolf:::.build_dyn_stan_data(d, ~ x, ~ rain, ~ x, ~ 1, ~ 1, FALSE,
-                                       fp_priors())$stan_data
+  # with two seasons, rain is constant over the transition rows
+  expect_warning(
+    sd <- crywolf:::.build_dyn_stan_data(d, ~ x, ~ rain, ~ x, ~ 1, ~ 1, FALSE,
+                                         fp_priors())$stan_data,
+    "`col` are collinear: rain", class = "crywolf_design_warning")
   # rows of the first season are unused by colonization and extinction
   expect_equal(sd$Xcol, cbind(c(0, 1, 0, 1), c(0, 7, 0, 7)))
   expect_equal(sd$Xext, cbind(c(0, 1, 0, 1), c(0, -1, 0, 1)))
@@ -196,7 +199,9 @@ test_that("with one season the dynamic likelihood equals that of fp_occu()", {
     m <- suppressWarnings(fp_occu(data, occ = ~ x, ..., chains = 1, iter_warmup = 100,
                                   iter_sampling = 20, threads_per_chain = 1, seed = 3,
                                   refresh = 0, show_messages = FALSE, sig_figs = 18))
-    sl <- crywolf:::.build_dyn_stan_data(data, ~ x, ~ 1, ~ 1, ..., priors = fp_priors())
+    sl <- suppressWarnings(
+      crywolf:::.build_dyn_stan_data(data, ~ x, ~ 1, ~ 1, ..., priors = fp_priors()),
+      classes = "crywolf_design_warning")
     # the parameters of fp_occu.stan, then those of colonization and extinction
     pars <- m$fit$draws(format = "draws_array")
     pars <- posterior::subset_draws(pars, variable = posterior::variables(pars)[

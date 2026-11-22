@@ -45,11 +45,13 @@ curiango_windows <- function(thr = 0.40) {
                           FUN = max)
   ver$site <- df$night_site_id[match(ver$key, key)]
   ver <- ver[!is.na(ver$site), c("site", "y")]
-  fp_data(auto, sites, ver, recorder = "recorder")
+  # recording effort differs among site-nights by design, so the warning on
+  # unequal effort is expected here
+  suppressWarnings(fp_data(auto, sites, ver, recorder = "recorder"))
 }
 
-# (srr G5.4c, G5.11 and G5.11a are tagged here once a full run passes.)
-# Comparison with the published estimates of Piatti et al. (2026), fitted with an independent Stan program on the same window-level data.
+#' @srrstats {G5.4c} Comparison with the published estimates of Piatti et al. (2026), fitted with an independent Stan program on the same window-level data.
+#' @srrstats {G5.11, G5.11a} The data are downloaded from Zenodo, and the test is skipped if the download fails.
 test_that("estimates agree with a published analysis of the same data (extended)", {
   skip_if_not_extended()
   d <- curiango_windows()

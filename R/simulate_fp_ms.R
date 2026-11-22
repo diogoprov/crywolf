@@ -68,6 +68,20 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
                            sd_recorder = 0, nrec = 5, frac_confirmed = 0,
                            ngroup = NULL, sd_fp_group = 0, sd_fp_site = 0, psi_rare = NULL,
                            seed = NULL) {
+  args <- list(nspecies = nspecies, nsite = nsite, nocc = nocc, psi = psi,
+               sd_psi = sd_psi, b1 = b1, sd_b1 = sd_b1, p11 = p11, sd_p11 = sd_p11,
+               p10 = p10, sd_gap = sd_gap, a_bio = a_bio, r11 = r11,
+               frac_verified = frac_verified, nver = nver, sd_recorder = sd_recorder,
+               nrec = nrec, frac_confirmed = frac_confirmed, sd_fp_group = sd_fp_group,
+               sd_fp_site = sd_fp_site)
+  if (!is.null(ngroup)) args$ngroup <- ngroup
+  if (!is.null(psi_rare)) args$psi_rare <- psi_rare
+  bad <- names(args)[!vapply(args, function(v) is.numeric(v) && length(v) == 1 &&
+                                       is.finite(v), logical(1))]
+  if (length(bad)) {
+    stop("Argument(s) ", paste0("`", bad, "`", collapse = ", "),
+         " must be single finite numbers.", call. = FALSE)
+  }
   stopifnot(nspecies >= 1, psi > 0, psi < 1, p11 > 0, p11 < 1, p10 > 0, p10 < p11,
             r11 > 0, r11 < 1, sd_psi >= 0, sd_b1 >= 0, sd_p11 >= 0, sd_gap >= 0,
             sd_recorder >= 0, sd_fp_group >= 0, sd_fp_site >= 0,
@@ -110,7 +124,11 @@ simulate_fp_ms <- function(nspecies = 5, nsite = 100, nocc = 10,
               gamma_fp = numeric(0), delta0 = delta0, delta_s = numeric(0), u = u,
               e_fp = if (any(e_fp != 0)) e_fp[, s])
     r <- .simulate_from(gen, p)
-    tag <- function(df) if (is.null(df)) NULL else transform(df, species = sp[s])
+    tag <- function(df) {
+      if (is.null(df)) return(NULL)
+      df$species <- rep(sp[s], nrow(df))
+      df
+    }
     r$data$auto <- tag(r$data$auto)
     r$data$verified <- tag(r$data$verified)
     r

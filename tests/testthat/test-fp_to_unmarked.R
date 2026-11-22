@@ -21,7 +21,9 @@ test_that("fp_to_unmarked() undoes fp_data_wide()", {
   ya[2, 2] <- NA
   d2 <- fp_data_wide(ya, yv)
   expect_equal(unname(fp_to_unmarked(d2, occasion = "occasion")@y[2, 3:6]), ya[2, ])
-  expect_error(fp_to_unmarked(d, obs_covs = "METH"), "data\\$auto|METH")
+  expect_error(fp_to_unmarked(d, obs_covs = "METH"), "`data\\$auto` lacks column\\(s\\): METH")
+  d$auto$METH <- 1
+  expect_error(fp_to_unmarked(d, obs_covs = "METH"), "`METH` is the method covariate")
 })
 
 test_that("sites with fewer occasions are padded at the end", {

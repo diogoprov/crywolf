@@ -137,6 +137,27 @@ test_that("the sites of the model can be other than the recorders", {
   expect_equal(v[[1]]$verified$site_night, "B n1")
 })
 
+test_that("annotated recordings outside `occasions` are left out with a warning", {
+  skip_if_not_installed("jsonlite")
+  skip_if_not_installed("arrow")
+  x <- fp_read_sheepdog(write_cal_export(file.path(tempdir(), "cal-export-nights-ver")))
+  occ <- x$occasions
+  occ$site_night <- paste(occ$site, occ$night)
+  occ <- occ[occ$occasion_id != "b2", ]
+  nights <- data.frame(site_night = unique(occ$site_night))
+  w <- character()
+  v <- withCallingHandlers(
+    fp_draws_data(x, rule = "threshold", occasions = occ, sites = nights,
+                  site = "site_night"),
+    warning = function(cnd) {
+      w <<- c(w, conditionMessage(cnd))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_true("1 annotated recording(s) are not in `occasions` and were left out." %in% w)
+  expect_equal(nrow(v[[1]]$verified), 0)
+})
+
 test_that("an export without calibration draws is refused", {
   skip_if_not_installed("jsonlite")
   dir <- write_cal_export(file.path(tempdir(), "cal-export-none"))

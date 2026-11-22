@@ -6,7 +6,6 @@
 #' @srrstatsVerbose TRUE
 #'
 #' @srrstatsTODO {G5.4c} *Where applicable, stored values may be drawn from published paper outputs when applicable and where code from original implementations is not available.* Piatti et al. (2026) fitted the same model to the Pauraque data with an independent Stan program, at the level of detection windows; a test against their published estimates is pending.
-#' @srrstatsTODO {G5.2b} *Explicit tests should demonstrate conditions which trigger every one of those messages, and should compare the result with expected values.*
 #' @noRd
 NULL
 

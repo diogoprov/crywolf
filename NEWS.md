@@ -11,6 +11,15 @@
 * `?crywolf` has sections on the relation to 'unmarked' and on argument
   conventions (single values, case-sensitive options); the README shows how
   to set a prior.
+* Every error, warning and message of the package now has a test that
+  triggers it and checks its text.
+* `fp_data_wide()` stops with a clear message when `site_covs` is not a
+  data frame or matrix.
+* `simulate_fp_ms()` checks that its numeric arguments are single finite
+  numbers, and works with `frac_verified = 0`.
+* Messages agree in number ("`markov` and `random_det` are not available",
+  "`validation` mixes the verdicts"), and the CmdStan version message follows
+  the version the package requires.
 
 * Checks before sampling: `fp_occu()`, `fp_occu_dyn()` and `fp_occu_ms()`
   warn (class `crywolf_design_warning`) on collinear or constant covariates

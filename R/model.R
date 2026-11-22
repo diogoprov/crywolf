@@ -168,7 +168,8 @@ fp_stan_file <- function() {
          "`cmdstanr::install_cmdstan()` and try again.", call. = FALSE)
   }
   if (!.cmdstan_recent(v)) {
-    stop("crywolf needs CmdStan 2.40 or later (found ", v, "). Update it ",
+    stop("crywolf needs CmdStan ", sub("[.]0$", "", .min_cmdstan),
+         " or later (found ", v, "). Update it ",
          "with `cmdstanr::install_cmdstan()`.", call. = FALSE)
   }
   invisible(TRUE)

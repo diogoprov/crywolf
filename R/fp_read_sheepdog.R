@@ -155,7 +155,8 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
                          function(d) !is.null(d) && length(unique(d$species_code)) > 1)
   if (is.null(species) && length(several)) {
     warning("The export holds several species, so `",
-            paste(names(several), collapse = "` and `"), "` mix the verdicts ",
+            paste(names(several), collapse = "` and `"), "` ",
+            if (length(several) > 1) "mix" else "mixes", " the verdicts ",
             "of all of them. Name the target species in `species`, or all ",
             "the species to keep them for the multispecies model.", call. = FALSE)
   }

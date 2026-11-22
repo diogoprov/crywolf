@@ -405,6 +405,9 @@ test_that("the outputs of fp_occu_ms() use the likelihood of each species", {
   expect_error(predict(m2, newdata = data.frame(x = 0, species = "sp1"), species = "sp1"),
                "not both")
   expect_error(predict(m2, newdata = data.frame(x = 0), species = "nope"), "Unknown species")
+  expect_error(predict(m2, newdata = data.frame(x = NA_real_), species = "sp1"),
+               "Missing values in the covariates of `newdata` for the multispecies fit.",
+               fixed = TRUE)
 })
 
 test_that("the random effects on p10 enter the likelihood as in fp_occu()", {

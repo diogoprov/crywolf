@@ -4,9 +4,10 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/diogoprov/crywolf/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/diogoprov/crywolf/actions/workflows/R-CMD-check.yaml)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23385045.svg)](https://doi.org/10.5281/zenodo.23385045)
+[![Zenodo concept DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23385045.svg)](https://doi.org/10.5281/zenodo.23385045)
 [![R-universe](https://diogoprov.r-universe.dev/crywolf/badges/version)](https://diogoprov.r-universe.dev/crywolf)
 [![Codecov test coverage](https://codecov.io/gh/diogoprov/crywolf/graph/badge.svg)](https://app.codecov.io/gh/diogoprov/crywolf)
+[![License: GPL (>= 3)](https://img.shields.io/badge/license-GPL%20(%E2%89%A5%203)-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 <!-- badges: end -->
 
 Bayesian false-positive occupancy models for data from automated detectors,

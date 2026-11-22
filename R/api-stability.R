@@ -76,6 +76,7 @@
 #' @examples
 #' # the arguments of a stable function, which the guarantee covers
 #' names(formals(fp_occu))
+#' @srrstats {G1.2} Life cycle statement: this page lists the stable interface and the experimental functions; the README carries repostatus and lifecycle badges.
 #' @name crywolf-api
 #' @keywords documentation
 NULL

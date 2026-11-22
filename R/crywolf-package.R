@@ -91,6 +91,29 @@
 #' number of physical cores. [fp_calibrate()] fits many models, one chain per
 #' worker; compile the model with [fp_compile()] before starting workers.
 #'
+#' @section Relation to other implementations:
+#' crywolf does not introduce a new estimation algorithm. The false-positive
+#' occupancy models of Miller et al. (2011) and Chambert et al. (2015) are
+#' already fitted in R by maximum likelihood with `occuFP()` of the
+#' 'unmarked' package, and crywolf fits the same likelihood in a Bayesian
+#' framework with Stan's No-U-Turn sampler. It improves on that
+#' implementation in three ways: random effects of recorder and site, which
+#' `occuFP()` does not fit; diagnostics and posterior predictive checks of
+#' the fit; and simulation-based checks ([fp_calibrate()], [fp_sbc()]) of
+#' whether the intervals keep their nominal coverage under a given design.
+#' `vignette("unmarked")` fits one dataset with both packages and compares
+#' the estimates.
+#'
+#' @section Conventions:
+#' Character options that take one of a set of values, such as `type`,
+#' `process` or `method`, are matched with [match.arg()]: they are
+#' case-sensitive (`type = "Trace"` is an error) and accept an unambiguous
+#' abbreviation (`type = "tr"`). Unless its documentation says otherwise
+#' (as for `confirmed` in [fp_data()], which names two columns), every
+#' argument that is a number, a logical flag (`TRUE` or `FALSE`, not `NA`),
+#' or the name of a column takes a single value, and the fitting,
+#' simulation and prior functions stop with a message when it does not.
+#'
 #' @section Citation:
 #' `citation("crywolf")` gives the reference to the package. Every release
 #' is archived on Zenodo; \doi{10.5281/zenodo.23385045} always resolves to
@@ -106,6 +129,14 @@
 #' positive detections in species occurrence data under different study
 #' designs. *Ecology*, 96, 332–339. \doi{10.1890/14-1507.1}
 #'
+#' @srrstats {G1.0} Primary references (Miller et al. 2011; Chambert et al. 2015) are listed under References.
+#' @srrstats {G1.1} Section 'Relation to other implementations' states that crywolf improves on the maximum-likelihood implementation in 'unmarked' (`occuFP()`).
+#' @srrstats {G1.4} Every function is documented with roxygen2 (markdown enabled).
+#' @srrstats {G1.4a} Internal functions carry roxygen blocks ending in `@noRd`.
+#' @srrstats {G2.0a, G2.3b} Section 'Conventions' states that numbers, flags and column names take single values, and that `match.arg()` options are case-sensitive.
+#' @srrstats {BS4.0} The sampler is Stan's No-U-Turn sampler through 'cmdstanr', cited in ?fp_occu (Hoffman & Gelman, 2014); the Model section gives the likelihood and the priors.
+#' @srrstats {G3.0} Equality comparisons are made between integers or 0/1 data; tests compare floating-point results with explicit tolerances.
+#' @srrstats {G5.2a} Every message raised by `stop()`, `warning()` and `message()` has its own text.
 #' @keywords internal
 "_PACKAGE"
 

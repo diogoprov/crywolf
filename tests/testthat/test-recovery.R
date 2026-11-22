@@ -8,6 +8,7 @@ inside <- function(m, par, truth) {
   truth >= q[[1]] && truth <= q[[2]]
 }
 
+#' @srrstats {BS7.0, BS7.1} The prior is recovered by sampling without the likelihood (`prior_only = TRUE`).
 test_that("sampling from the priors alone recovers the priors", {
   skip_if_no_cmdstan()
   s <- simulate_fp(nsite = 60, nocc = 5, seed = 4)
@@ -28,6 +29,7 @@ test_that("sampling from the priors alone recovers the priors", {
   expect_equal(mean(dr[["fp_gap"]]), gap_mean, tolerance = 0.1)
 })
 
+#' @srrstats {G5.6, G5.6a, BS7.2} Known parameters fall inside their 95% intervals.
 test_that("fp_occu() recovers known parameters from simulated data", {
   skip_if_no_cmdstan()
   s <- simulate_fp(nsite = 300, nocc = 20, seed = 21)
@@ -38,6 +40,7 @@ test_that("fp_occu() recovers known parameters from simulated data", {
   expect_true(inside(m, "p10_ref", t$p10))
 })
 
+#' @srrstats {BS5.0} The stored seed reproduces the fit.
 test_that("the seed CmdStan used is stored and reproduces the fit", {
   skip_if_no_cmdstan()
   s <- simulate_fp(nsite = 60, nocc = 5, seed = 5)
@@ -51,6 +54,7 @@ test_that("the seed CmdStan used is stored and reproduces the fit", {
   expect_identical(coef(m1), coef(m2))
 })
 
+#' @srrstats {G5.6b} Recovery over ten seeds (extended).
 test_that("recovery holds over several datasets (extended)", {
   skip_if_not_extended()
   hits <- vapply(1:10, function(i) {
@@ -61,6 +65,7 @@ test_that("recovery holds over several datasets (extended)", {
   expect_gte(sum(hits), 8)
 })
 
+#' @srrstats {G5.9, G5.9a, G5.9b} Noise of machine-epsilon scale and another seed change estimates by less than five MCSE (extended).
 test_that("estimates are stable to noise in the data and to the seed (extended)", {
   skip_if_not_extended()
   s <- simulate_fp(nsite = 300, nocc = 20, seed = 31)

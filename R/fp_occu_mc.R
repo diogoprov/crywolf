@@ -128,6 +128,7 @@
 #'   summary(mc_ms)
 #' }
 #' }
+#' @srrstats {BS2.15} Errors raised by a fit are caught; failed fits are left out with a warning, or reported in one error when all fail. fp_calibrate() and fp_sbc() record failed replicates likewise.
 fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
                        max_rhat = 1.05, keep_fits = FALSE) {
   if (inherits(data_list, "fp_data") || !is.list(data_list) || !length(data_list) ||
@@ -174,7 +175,8 @@ fp_occu_mc <- function(data_list, ..., seed = NULL, parallel = FALSE,
       }
     }
     if (auto) {
-      message("Parametrization (", nsp, " species at ", nsite, " sites): centered = ",
+      message("Parametrization of every version (", nsp, " species at ", nsite,
+              " sites): centered = ",
               dots$centered, ", centered_occ = ", dots$centered_occ, "; see ?fp_occu_ms.")
     }
   }

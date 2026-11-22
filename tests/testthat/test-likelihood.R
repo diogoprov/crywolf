@@ -15,6 +15,7 @@ ll_gap <- function(data, ...) {
   max(abs(r$ll - ll) / pmax(1, abs(ll)))
 }
 
+#' @srrstats {G5.4, G5.4a} The Stan log-likelihood equals an independent R implementation under every option.
 test_that("the R likelihood matches the Stan log_lik with every option", {
   skip_if_no_cmdstan()
   s_miller <- simulate_fp(nsite = 80, nocc = 6, a_bio = 0.5, sd_recorder = 0.5,

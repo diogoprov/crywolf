@@ -10,7 +10,10 @@
 #'   per process, and the standard deviations of the random effects.
 #'   `"trace"`, `"rank"`, and `"pairs"` draw sampler diagnostics with
 #'   'bayesplot': trace plots and rank histograms by chain, and pairs plots
-#'   with divergent transitions marked.
+#'   with divergent transitions marked. The trace plot shows the warm-up
+#'   draws, shaded, when the fit kept them (`save_warmup = TRUE` in
+#'   [fp_occu()]); otherwise it shows the sampling draws, with divergent
+#'   transitions marked.
 #' @param pars Output names of the parameters for the diagnostics. The
 #'   default takes the occupancy slopes and the parameters that are hardest
 #'   to sample in this model: the false-positive intercept, the gap, and the
@@ -30,6 +33,9 @@
 #' plot(m, type = "trace")
 #' plot(m, type = "pairs", pars = c("fp_(Intercept)", "fp_gap"))
 #' }
+#' @srrstats {BS6.1} Default plot method for fits.
+#' @srrstats {BS6.2} `type = "trace"` plots the sequences of draws by chain; with `save_warmup = TRUE` the warm-up is shown, shaded.
+#' @srrstats {BS6.3} `type = "intervals"` plots the posterior of every coefficient; [fp_effects()] plots posterior curves.
 plot.fp_occu <- function(x, type = c("intervals", "trace", "rank", "pairs"),
                          pars = NULL, prob = 0.95, ...) {
   .require_pkg("ggplot2")
@@ -52,7 +58,14 @@ plot.fp_occu <- function(x, type = c("intervals", "trace", "rank", "pairs"),
   }
   np <- .nuts_params(x$fit)
   switch(type,
-    trace = bayesplot::mcmc_trace(x$draws, pars = pars, np = np, ...),
+    trace = {
+      warm <- .warmup_draws(x)
+      if (is.null(warm)) {
+        bayesplot::mcmc_trace(x$draws, pars = pars, np = np, ...)
+      } else {
+        bayesplot::mcmc_trace(warm$draws, pars = pars, n_warmup = warm$n_warmup, ...)
+      }
+    },
     rank = bayesplot::mcmc_rank_overlay(x$draws, pars = pars, ...),
     pairs = bayesplot::mcmc_pairs(x$draws, pars = pars, np = np, ...)
   )
@@ -136,7 +149,7 @@ fp_effects <- function(object, covariate, process = c("occ", "fp"),
                        values = NULL, transform = NULL, prob = 0.95) {
   process <- match.arg(process)
   f <- object$formulas[[process]]
-  if (is.null(f)) stop("This model has no false-positive process.", call. = FALSE)
+  if (is.null(f)) stop("This model has no false-positive process to plot.", call. = FALSE)
   vars <- all.vars(f)
   if (!covariate %in% vars) {
     stop("`", covariate, "` is not in the ", process, " formula.", call. = FALSE)
@@ -395,3 +408,18 @@ utils::globalVariables(c("median", "parameter", "lo", "hi", "l50", "u50",
                          "estimate", "lower", "upper", "occupied",
                          "occupied_lower", "occupied_upper", "evidence",
                          "observed", "replicated", "Parameter", ".data", "d"))
+
+#' The draws of a fit including the warm-up, with readable names, and the
+#' number of warm-up iterations; NULL when the fit did not keep the warm-up,
+#' or when it can no longer be read (a saved fit whose CmdStan files are gone)
+#' @noRd
+.warmup_draws <- function(x) {
+  meta <- tryCatch(x$fit$metadata(), error = function(e) NULL)
+  if (is.null(meta) || !isTRUE(as.logical(meta$save_warmup))) return(NULL)
+  dr <- tryCatch(
+    .pretty_draws(x$fit, list(stan_data = x$stan_data, design = x$design),
+                  inc_warmup = TRUE),
+    error = function(e) NULL)
+  if (is.null(dr)) return(NULL)
+  list(draws = dr, n_warmup = meta$iter_warmup)
+}

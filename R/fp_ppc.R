@@ -87,7 +87,8 @@ fp_ppc <- function(object, method = c("automated", "verified"),
   if (ms) return(.fp_ppc_ms(object, method, fit_stat, ndraws, seed))
   sd <- object$stan_data
   if (method == "verified" && sd$N1 == 0) {
-    stop("The data have no verified occasions.", call. = FALSE)
+    stop("The data have no verified occasions, so `method = \"verified\"` is not ",
+         "available.", call. = FALSE)
   }
   if (!is.null(seed)) .set_seed(seed)
   if (dyn) {

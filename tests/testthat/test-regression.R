@@ -9,6 +9,8 @@
 
 refs_file <- test_path("fixtures", "regression-refs.rds")
 
+#' @srrstats {G5.0} Tests use data simulated with known generating values; the real datasets shipped (`curiango`, `pika`) have no known truth, and are used in examples and vignettes.
+#' @srrstats {G5.5} Correctness tests use fixed seeds and stored references.
 test_that("the likelihood matches the reference values", {
   skip_if_no_cmdstan()
   refs <- readRDS(refs_file)

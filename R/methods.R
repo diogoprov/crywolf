@@ -24,6 +24,7 @@ NULL
 
 #' @rdname fp_occu-methods
 #' @export
+#' @srrstats {BS6.0} Print method for fits, also for the other result classes.
 print.fp_occu <- function(x, digits = 3, ...) {
   sd <- x$stan_data
   cat("Bayesian false-positive occupancy model (",
@@ -65,6 +66,7 @@ print.fp_occu <- function(x, digits = 3, ...) {
 #'   element `table` is a tibble with the posterior mean, standard deviation,
 #'   credible interval, R-hat, and effective sample sizes of every parameter.
 #' @export
+#' @srrstats {BS6.4} Summary method with posterior summaries, R-hat and ESS per parameter.
 summary.fp_occu <- function(object, prob = 0.95, ...) {
   a <- (1 - prob) / 2
   tab <- posterior::summarise_draws(
@@ -119,7 +121,7 @@ predict.fp_occu <- function(object, newdata, process = c("occ", "fp"),
                             prob = 0.95, summary = TRUE, ...) {
   process <- match.arg(process)
   if (process == "fp" && is.null(object$formulas$fp)) {
-    stop("This model has no false-positive process.", call. = FALSE)
+    stop("This model has no false-positive process to predict.", call. = FALSE)
   }
   if (missing(newdata)) {
     d <- object$data

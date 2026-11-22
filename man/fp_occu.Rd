@@ -79,7 +79,8 @@ random effect on true detection".}
 
 \item{priors}{Prior settings from \code{\link[=fp_priors]{fp_priors()}}.}
 
-\item{chains, iter_warmup, iter_sampling, adapt_delta, seed}{Passed to the
+\item{chains, iter_warmup, iter_sampling, adapt_delta, seed}{Single numbers
+(\code{seed} may be \code{NULL}), checked before sampling and passed to the
 \verb{$sample()} method of 'cmdstanr', which runs Stan's No-U-Turn sampler
 (Hoffman & Gelman, 2014). \code{chains} is the number of Markov chains (4 by
 default); \code{iter_warmup} and \code{iter_sampling} are the warm-up and kept
@@ -131,7 +132,9 @@ CmdStan.}
 
 \item{...}{Further arguments passed to the \verb{$sample()} method of
 'cmdstanr', for example \code{max_treedepth}, \code{show_messages = FALSE} and
-\code{show_exceptions = FALSE} (with \code{refresh = 0}, a silent run), or \code{init}.
+\code{show_exceptions = FALSE} (with \code{refresh = 0}, a silent run),
+\code{save_warmup = TRUE} (so that \code{plot(fit, type = "trace")} shows the
+warm-up), or \code{init}.
 \code{init} takes starting values (a number, a list per chain, or a
 function), or a previous fit, \code{init = old$fit}, so that a run starts
 where an earlier one ended; the draws of the earlier run are not

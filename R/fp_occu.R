@@ -48,7 +48,8 @@
 #'   default; it can be combined with `random_fp`. See the section "Site
 #'   random effect on true detection".
 #' @param priors Prior settings from [fp_priors()].
-#' @param chains,iter_warmup,iter_sampling,adapt_delta,seed Passed to the
+#' @param chains,iter_warmup,iter_sampling,adapt_delta,seed Single numbers
+#'   (`seed` may be `NULL`), checked before sampling and passed to the
 #'   `$sample()` method of 'cmdstanr', which runs Stan's No-U-Turn sampler
 #'   (Hoffman & Gelman, 2014). `chains` is the number of Markov chains (4 by
 #'   default); `iter_warmup` and `iter_sampling` are the warm-up and kept
@@ -93,7 +94,9 @@
 #'   CmdStan.
 #' @param ... Further arguments passed to the `$sample()` method of
 #'   'cmdstanr', for example `max_treedepth`, `show_messages = FALSE` and
-#'   `show_exceptions = FALSE` (with `refresh = 0`, a silent run), or `init`.
+#'   `show_exceptions = FALSE` (with `refresh = 0`, a silent run),
+#'   `save_warmup = TRUE` (so that `plot(fit, type = "trace")` shows the
+#'   warm-up), or `init`.
 #'   `init` takes starting values (a number, a list per chain, or a
 #'   function), or a previous fit, `init = old$fit`, so that a run starts
 #'   where an earlier one ended; the draws of the earlier run are not
@@ -268,6 +271,17 @@
 #' coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8
 #' loo::loo_compare(loo(m0), loo(m1))
 #' }
+#' @srrstats {G2.3, G2.3a} Enumerated character options use `match.arg()` throughout the package.
+#' @srrstats {G2.5} Details state that factor covariates use treatment contrasts and ordered factors orthogonal polynomials.
+#' @srrstats {BS1.2c} `priors` points to [fp_priors()], whose examples set priors.
+#' @srrstats {BS1.3} Documents every argument that controls sampling (chains, iterations, adapt_delta, seed, refresh, threads), and the useful `...` options.
+#' @srrstats {BS1.3a, BS2.7, BS2.8} `init` takes starting values (a number, a list per chain or a function) or a previous fit (`init = old$fit`); see `.init_from_fit()`.
+#' @srrstats {BS1.4} Details describe the diagnostics computed after every fit and how to silence their warnings.
+#' @srrstats {BS2.9} One seed goes to CmdStan, which gives each chain its own random-number stream.
+#' @srrstats {BS2.12} `refresh` controls the progress output (verbose in interactive sessions by default), and `show_messages` passes to cmdstanr.
+#' @srrstats {BS2.13} `refresh = 0` and `show_messages = FALSE` silence progress while warnings are kept.
+#' @srrstats {BS4.5} Non-convergence raises warnings with remedies; a run can be restarted from a previous fit with `init = old$fit`.
+#' @srrstats {BS5.0} The seed CmdStan used is stored in `$sampler$seed`.
 fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                     random_recorder = !is.null(data$recorder),
                     ver = ~ 1, markov = NULL, random_fp = FALSE,
@@ -386,6 +400,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 
 #' Stop unless `x` is a single TRUE or FALSE
 #' @noRd
+#' @srrstats {G2.1} Logical options must be TRUE or FALSE; other values stop with a message.
 .check_flag <- function(x, what) {
   if (!is.logical(x) || length(x) != 1 || is.na(x)) {
     stop("`", what, "` must be TRUE or FALSE.", call. = FALSE)
@@ -397,6 +412,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #' the columns that the others determine (constant or collinear covariates,
 #' or factor levels absent from the data)
 #' @noRd
+#' @srrstats {BS3.1} Diagnoses perfect collinearity in each design matrix and warns, naming the redundant columns.
 .check_rank <- function(X, what) {
   if (nrow(X) == 0 || ncol(X) == 0) return(invisible(TRUE))
   q <- qr(X)
@@ -418,6 +434,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #' lists when the model carries no variable information (as with a
 #' precompiled model), so the conversion is done here.
 #' @noRd
+#' @srrstats {BS2.8} Converts a previous fit into starting values for each chain.
 .init_from_fit <- function(init, chains) {
   if (!inherits(init, "CmdStanMCMC")) return(init)
   d <- init$draws(format = "draws_array")
@@ -437,6 +454,7 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 
 #' Stop unless the sampler settings are valid, before compiling or sampling
 #' @noRd
+#' @srrstats {BS2.6} Checks that chains, iterations, adapt_delta and seed lie in their valid ranges before compiling or sampling.
 .check_sampler <- function(chains, iter_warmup, iter_sampling, adapt_delta, seed) {
   whole <- function(x, min) {
     is.numeric(x) && length(x) == 1 && is.finite(x) && x %% 1 == 0 && x >= min
@@ -499,6 +517,9 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #' @examples
 #' fp_priors()
 #' fp_priors(slope_sd = 1)
+#' @srrstats {BS1.2a, BS1.2b} The README example sets a prior with `fp_priors(slope_sd = 1)`, and `vignette("crywolf")` has a Priors section with defaults, rationale and code.
+#' @srrstats {BS1.2} Priors are Normal on the logit scale with one standard deviation per class of coefficient; the README, `vignette("crywolf")` (section Priors) and these examples show how to set them.
+#' @srrstats {BS2.3, BS2.5} Every prior parameter must be a single number; standard deviations must be positive and finite, and `gap_mean` finite.
 fp_priors <- function(intercept_sd = 1.5, slope_sd = 2.5,
                       gap_mean = 2, gap_sd = 1.5, recorder_sd = 2,
                       fp_site_sd = 1, det_site_sd = 1, species_sd = 1) {
@@ -541,6 +562,9 @@ print.fp_priors <- function(x, ...) {
 
 #' Model matrix of a one-sided formula, with checks of its covariates
 #' @noRd
+#' @srrstats {G2.12} List columns used in a formula are refused with an informative error.
+#' @srrstats {G2.16} Infinite covariate values stop the fit; NaN is treated as missing.
+#' @srrstats {G2.11} Columns with other classes (difftime, units) enter through their numeric values.
 .design <- function(form, df, what) {
   if (!inherits(form, "formula") || length(form) != 2) {
     stop("`", what, "` must be a one-sided formula, e.g. ~ x.", call. = FALSE)
@@ -574,6 +598,7 @@ print.fp_priors <- function(x, ...) {
 
 #' The data list for the Stan program, with the design and readable names
 #' @noRd
+#' @srrstats {BS2.2} Priors, logical options and designs are validated here, once, before the data reach the sampler and its chains.
 .build_stan_data <- function(data, occ, det, fp, random_recorder, priors,
                              random_fp = FALSE, ver = ~ 1, markov = NULL,
                              random_det = FALSE) {
@@ -791,13 +816,14 @@ print.fp_priors <- function(x, ...) {
 
 #' Posterior draws with the readable parameter names
 #' @noRd
-.pretty_draws <- function(fit, sd_list) {
+.pretty_draws <- function(fit, sd_list, inc_warmup = FALSE) {
   sd <- sd_list$stan_data
   map <- .name_map(sd_list$design, sd$estimate_fp == 1, sd$estimate_re == 1,
                    has_verified = sd$N1 > 0,
                    use_fp_re = isTRUE(sd$estimate_fp_re == 1),
                    use_det_re = isTRUE(sd$estimate_det_re == 1))
-  dr <- posterior::as_draws_df(fit$draws(variables = unique(sub("\\[.*", "", names(map)))))
+  dr <- posterior::as_draws_df(fit$draws(variables = unique(sub("\\[.*", "", names(map))),
+                                         inc_warmup = inc_warmup))
   dr <- posterior::subset_draws(dr, variable = names(map))
   posterior::variables(dr) <- unname(map[posterior::variables(dr)])
   dr
@@ -805,6 +831,7 @@ print.fp_priors <- function(x, ...) {
 
 #' Sampler diagnostics: divergences, tree depth, R-hat and ESS
 #' @noRd
+#' @srrstats {BS4.3} Convergence is checked with rank-normalised R-hat and bulk and tail ESS from 'posterior' (Vehtari et al., 2021, cited in `vignette("reporting")`), plus divergences, tree depth and E-BFMI from CmdStan.
 .diagnostics <- function(fit, draws) {
   ds <- tryCatch(fit$diagnostic_summary(quiet = TRUE), error = function(e) NULL)
   summ <- posterior::summarise_draws(draws, "rhat", "ess_bulk", "ess_tail")
@@ -821,6 +848,7 @@ print.fp_priors <- function(x, ...) {
 
 #' Warn when the sampler diagnostics signal problems
 #' @noRd
+#' @srrstats {BS2.14} Sampler warnings have class `crywolf_sampler_warning` and can be muffled selectively.
 .warn_diagnostics <- function(diag) {
   msgs <- c(
     if (isTRUE(diag$divergences > 0))

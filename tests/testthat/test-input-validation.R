@@ -2,6 +2,7 @@ sim_data <- function() {
   suppressWarnings(simulate_fp(nsite = 40, nocc = 5, seed = 3)$data)
 }
 
+#' @srrstats {G2.4e, G2.6} Factor detections are read by their labels.
 test_that("a factor detection column is read by its labels", {
   d <- sim_data()
   a <- d$auto
@@ -14,6 +15,7 @@ test_that("a factor detection column is read by its labels", {
   expect_identical(sl_f$stan_data$y2, sl_n$stan_data$y2)
 })
 
+#' @srrstats {G5.8b} Detections of unsupported types or values.
 test_that("logical and character 0/1 detections are accepted; others are not", {
   d <- sim_data()
   a <- d$auto
@@ -27,6 +29,7 @@ test_that("logical and character 0/1 detections are accepted; others are not", {
   expect_error(fp_data(a, d$sites), "coded 0/1")
 })
 
+#' @srrstats {G5.8, G5.8a, G5.8c} Zero-row and all-NA detections.
 test_that("automated data without any detection record are rejected", {
   d <- sim_data()
   expect_error(fp_data(d$auto[0, ], d$sites), "no automated occasion")
@@ -35,6 +38,7 @@ test_that("automated data without any detection record are rejected", {
   expect_error(fp_data(a, d$sites), "no automated occasion")
 })
 
+#' @srrstats {G2.16} Infinite covariates.
 test_that("infinite covariates are rejected", {
   d <- sim_data()
   d$sites$x[1] <- Inf
@@ -42,6 +46,7 @@ test_that("infinite covariates are rejected", {
                "Infinite values in the covariates of `occ`")
 })
 
+#' @srrstats {BS2.3, BS2.5} Lengths and values of prior parameters.
 test_that("fp_priors() takes single positive numbers", {
   expect_error(fp_priors(intercept_sd = "a"), "`intercept_sd` must be a single positive")
   expect_error(fp_priors(slope_sd = c(1, 2)), "`slope_sd` must be a single positive")
@@ -51,6 +56,7 @@ test_that("fp_priors() takes single positive numbers", {
   expect_s3_class(fp_priors(gap_mean = -1), "fp_priors")
 })
 
+#' @srrstats {BS2.2} Priors are validated before fitting.
 test_that("priors and logical options are checked before fitting", {
   d <- sim_data()
   expect_error(crywolf:::.build_stan_data(d, ~ x, ~ 1, ~ 1, FALSE, list(slope_sd = 1)),

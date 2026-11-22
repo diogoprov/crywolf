@@ -9,6 +9,7 @@ fit_ext <- function(data, occ = ~ x, ..., chains = 4, seed = 1) {
 post <- function(m, par) posterior::extract_variable(m$draws, par)
 mcse <- function(m, par) posterior::mcse_mean(post(m, par))
 
+#' @srrstats {G1.6, G5.4b, BS4.1} Comparison with the maximum-likelihood estimates of unmarked::occuFP().
 test_that("estimates agree with unmarked::occuFP() (extended)", {
   skip_if_not_extended()
   skip_if_not_installed("unmarked")
@@ -26,6 +27,7 @@ test_that("estimates agree with unmarked::occuFP() (extended)", {
   expect_lt(abs(cw[["fp_(Intercept)"]] - cu[["fp(Int)"]]), se[["fp(Int)"]])
 })
 
+#' @srrstats {G5.7} Posterior precision improves with the number of sites.
 test_that("precision improves with the number of sites (extended)", {
   skip_if_not_extended()
   sd_x <- vapply(c(100, 400), function(n) {
@@ -36,6 +38,7 @@ test_that("precision improves with the number of sites (extended)", {
   expect_lt(sd_x[2], 0.75 * sd_x[1])
 })
 
+#' @srrstats {BS7.3} Scaling of run time with the number of sites.
 test_that("run time grows about linearly with the number of sites (extended)", {
   skip_if_not_extended()
   fp_compile()
@@ -47,6 +50,7 @@ test_that("run time grows about linearly with the number of sites (extended)", {
   expect_lt(secs[2] / secs[1], 10)
 })
 
+#' @srrstats {BS7.4a} Rescaling a covariate changes only the scale of its effect, not the reference probabilities.
 test_that("the scale of a covariate changes only the scale of its effect (extended)", {
   skip_if_not_extended()
   s <- simulate_fp(nsite = 300, nocc = 10, seed = 43)
@@ -61,6 +65,7 @@ test_that("the scale of a covariate changes only the scale of its effect (extend
             5 * sqrt(mcse(m1, "p10_ref")^2 + mcse(m2, "p10_ref")^2))
 })
 
+#' @srrstats {BS7.4} Replicated detections are on the scale of the observed ones.
 test_that("replicated detections match the observed scale (extended)", {
   skip_if_not_extended()
   s <- simulate_fp(nsite = 300, nocc = 10, seed = 44)

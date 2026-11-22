@@ -88,8 +88,9 @@ fp_occu_dyn <- function(data, psi1 = ~ 1, col = ~ 1, ext = ~ 1, det = ~ 1, fp = 
   no_ver <- is.null(data$verified) || nrow(data$verified) == 0
   no_conf <- is.null(data$confirmed) || all(is.na(data$auto[[data$confirmed[1]]]))
   if (no_ver && no_conf) {
-    warning("No verified data: the false-positive rate is identified only by ",
-            "the priors. Treat the estimates with caution.", call. = FALSE)
+    warning("No verified data: the false-positive rate of the dynamic model is ",
+            "identified only by the priors. Treat the estimates with caution.",
+            call. = FALSE)
   }
   .check_sampler(chains, iter_warmup, iter_sampling, adapt_delta, seed)
   cores <- .sampler_cores(threads_per_chain, parallel_chains)
@@ -100,7 +101,8 @@ fp_occu_dyn <- function(data, psi1 = ~ 1, col = ~ 1, ext = ~ 1, det = ~ 1, fp = 
                                   random_det = random_det)
   if (isTRUE(random_fp) && isTRUE(random_det)) {
     warning("Site effects on both the false-positive rate and true detection ",
-            "mix slowly: check R-hat and the effective sample sizes, and run ",
+            "of the dynamic model mix slowly: check R-hat and the effective ",
+            "sample sizes, and run ",
             "longer chains (`iter_warmup`, `iter_sampling`) if they are poor.",
             call. = FALSE)
   }
@@ -500,7 +502,7 @@ as_draws_df.fp_occu_dyn <- function(x, ...) {
   clash <- intersect(new, names(units))
   if (length(clash)) {
     stop("The sites table already has column(s) ", paste(clash, collapse = ", "),
-         "; rename them before calling fp_sites().", call. = FALSE)
+         "; rename them before calling fp_sites() on a dynamic fit.", call. = FALSE)
   }
   a <- (1 - prob) / 2
   q <- .col_quantile

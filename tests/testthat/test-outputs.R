@@ -3,6 +3,7 @@ finite_num <- function(df) {
   all(is.finite(as.matrix(df[num])))
 }
 
+#' @srrstats {G5.3} No missing or infinite values in the results.
 test_that("the results of a fit hold no missing or infinite values", {
   skip_if_no_cmdstan()
   s <- simulate_fp(nsite = 120, nocc = 8, seed = 31)
@@ -21,6 +22,7 @@ test_that("the results of a fit hold no missing or infinite values", {
   expect_false(anyNA(unlist(st[vapply(st, is.numeric, logical(1))])))
 })
 
+#' @srrstats {BS2.7, BS2.8} Starting values, and a run started from a previous fit.
 test_that("a run can start from the end of a previous one", {
   skip_if_no_cmdstan()
   s <- simulate_fp(nsite = 80, nocc = 6, seed = 32)
@@ -37,6 +39,7 @@ test_that("a run can start from the end of a previous one", {
   expect_s3_class(m3, "fp_occu")
 })
 
+#' @srrstats {BS2.13} Progress silenced, warnings kept.
 test_that("progress output can be silenced while sampler warnings remain", {
   skip_if_no_cmdstan()
   s <- simulate_fp(nsite = 60, nocc = 5, seed = 33)
@@ -58,4 +61,24 @@ test_that("progress output can be silenced while sampler warnings remain", {
     warning = function(c) invokeRestart("muffleWarning")
   )))
   expect_s3_class(w, "crywolf_sampler_warning")
+})
+
+#' @srrstats {BS6.2} Warm-up draws in trace plots.
+test_that("trace plots show the warm-up when the fit kept it", {
+  skip_if_no_cmdstan()
+  skip_if_not_installed("bayesplot")
+  s <- simulate_fp(nsite = 60, nocc = 5, seed = 34)
+  fit <- function(...) suppressWarnings(
+    fp_occu(s$data, occ = ~ x, random_recorder = FALSE, chains = 2,
+            iter_warmup = 150, iter_sampling = 100, threads_per_chain = 1,
+            seed = 6, refresh = 0, show_messages = FALSE, ...)
+  )
+  m <- fit(save_warmup = TRUE)
+  w <- crywolf:::.warmup_draws(m)
+  expect_equal(posterior::niterations(w$draws), 250)
+  expect_equal(w$n_warmup, 150)
+  expect_setequal(posterior::variables(w$draws), posterior::variables(m$draws))
+  expect_equal(posterior::niterations(m$draws), 100)
+  expect_s3_class(plot(m, type = "trace"), "ggplot")
+  expect_null(crywolf:::.warmup_draws(fit()))
 })

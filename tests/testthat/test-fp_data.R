@@ -1,3 +1,4 @@
+#' @srrstats {BS2.1a, G5.2} Dimension and coding checks of the input data.
 test_that("fp_data validates its inputs", {
   sites <- data.frame(site = 1:3, x = c(-1, 0, 1))
   auto <- data.frame(site = rep(1:3, each = 2), y = c(0, 1, 0, 0, 1, 1))

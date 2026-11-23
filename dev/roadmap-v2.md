@@ -531,11 +531,17 @@ Os cinco PRs de `dev/proposal-mso.md` estão no main, com o
   esquema atual é o 1.4. Plano: (1) exemplo ponta a ponta com
   `fp_occu_ms()` no export-1.3-ms e (2) `fp_occu_mc()` aceitando dados
   multiespécies, **feitos no #48 (19/11/2026)**; (3) `fp_occu_score()` com
-  uma espécie, à espera do estágio 1 do sheepdog refeito só com o ct01+ct02
-  da curiango (decisão de 19/11/2026); (4) `fp_review_priority()`, ligado ao
-  `select_directed()` do sheepdog, **aprovado em 19/11/2026**: primeira versão
-  sobre `fp_occu()` e `fp_occu_ms()`, sem esperar o `fp_occu_score()`, com
-  `size` = incerteza de z por unidade (~2–3 dias, depois da 2.3.0).
+  uma espécie: o estágio 1 do sheepdog só com o ct01+ct02 da curiango (pesos
+  1/π₁, ct03 só como sensibilidade) foi refeito em 19/11/2026, seguido do
+  estágio 2 com réplicas do bootstrap (20/11), do estágio 1 por faixas de
+  score (21/11) e da cobertura de ψ (22/11). Dos critérios para levar o v1 ao
+  crywolf, o 2 passou; falta o 3, a rodada aleatória do FrogNet (plano em
+  `dev/fase2/PLANO-v1-markov.md`, no sheepdog; atualizado em 23/11/2026);
+  (4) `fp_review_priority()`, ligado ao `select_directed()` do sheepdog,
+  **feito no #62 (23/11/2026)**, experimental: `size` = q(1 − q) de
+  `fp_sites()`, sobre `fp_occu()` e `fp_occu_ms()`. O sheepdog aceita a saída
+  como `units` e avisa antes de mudar a chave das unidades, a coluna de
+  tamanho ou o esquema do export.
 - **Pontos fracos da grade**: o efeito do gravador só foi testado com 10
   ocasiões. Designs com 10 espécies ou mais ocasiões ficaram de fora.
 

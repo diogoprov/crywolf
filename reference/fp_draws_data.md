@@ -179,8 +179,8 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 0.3 seconds.
 #> Chain 2 finished in 0.3 seconds.
+#> Chain 1 finished in 0.3 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 0.3 seconds.
@@ -194,13 +194,13 @@ if (instantiate::stan_cmdstan_exists()) {
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 0.3 seconds.
-#> Total execution time: 0.3 seconds.
+#> Total execution time: 0.4 seconds.
 #> 
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
+#> Chain 2 finished in 0.3 seconds.
 #> Chain 1 finished in 0.3 seconds.
-#> Chain 2 finished in 0.2 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 0.3 seconds.
@@ -209,17 +209,17 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 0.2 seconds.
+#> Chain 1 finished in 0.3 seconds.
 #> Chain 2 finished in 0.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 0.2 seconds.
+#> Mean chain execution time: 0.3 seconds.
 #> Total execution time: 0.4 seconds.
 #> 
 #> Warning: No verified data: the false-positive rate is identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 0.2 seconds.
+#> Chain 1 finished in 0.3 seconds.
 #> Chain 2 finished in 0.3 seconds.
 #> 
 #> Both chains finished successfully.

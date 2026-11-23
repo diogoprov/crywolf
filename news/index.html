@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,12 @@
       <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<ul><li>New <code><a href="../reference/fp_review_priority.html">fp_review_priority()</a></code> (experimental) gives every site, or site and species, a size for a directed review round of ‘sheepdog’ (<code><a href="https://provetelab.org/sheepdog/reference/select_directed.html" class="external-link">sheepdog::select_directed()</a></code>): the variance of its occupancy state given the data. Units already confirmed (a verified detection, or a confirmed clip in <code>validation</code>) are left out.</li>
+<li>
+<code><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog()</a></code>: the warning on clips of the <code>"directed_pps"</code> design now says when using them without weights is right (the size of the units came from a model of data the fit also holds, as with <code><a href="../reference/fp_review_priority.html">fp_review_priority()</a></code>) and when it is not (the size came from the scores).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.3.0" id="crywolf-230">crywolf 2.3.0<a class="anchor" aria-label="anchor" href="#crywolf-230"></a></h2>
 <ul><li><p>rOpenSci statistical standards: every general and Bayesian standard is tagged with ‘srr’ next to the code or test that addresses it, or declared not applicable with a reason in <code>R/srr-stats-standards.R</code>.</p></li>

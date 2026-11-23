@@ -271,6 +271,9 @@ Coefficients, diagnostics, marginal effects, and occupancy of each site.
 - [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
   [`plot(`*`<fp_sites>`*`)`](https://provetelab.org/crywolf/reference/fp_sites.md)
   : Site-level estimates
+- [`fp_review_priority()`](https://provetelab.org/crywolf/reference/fp_review_priority.md)
+  : Review priority of each site, for a directed review round of
+  sheepdog
 - [`plot(`*`<fp_ppc>`*`)`](https://provetelab.org/crywolf/reference/plot.fp_ppc.md)
   : Plot a posterior predictive check
 

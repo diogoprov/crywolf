@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@
 <li>Fork the repository and create a branch from <code>main</code>.</li>
 <li>Follow the existing style: tidyverse style, the native pipe <code>|&gt;</code>, and roxygen2 documentation with Markdown. Internal functions get a short roxygen comment with <code>@noRd</code>.</li>
 <li>Add tests with testthat for every change in behaviour. Tests that fit a model need CmdStan and are skipped on CRAN; the slow statistical tests run only with <code>CRYWOLF_EXTENDED_TESTS=true</code> (see <code>tests/README.md</code>).</li>
-<li>Run <code>devtools::document()</code>, <code>devtools::test()</code> and <code>devtools::check()</code> before opening the pull request, and add a bullet to the development section of <code>NEWS.md</code>.</li>
+<li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>, <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> and <code><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">devtools::check()</a></code> before opening the pull request, and add a bullet to the development section of <code>NEWS.md</code>.</li>
 </ol></div>
 <div class="section level2">
 <h2 id="changes-to-the-stan-programs">Changes to the Stan programs<a class="anchor" aria-label="anchor" href="#changes-to-the-stan-programs"></a></h2>

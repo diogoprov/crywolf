@@ -17,7 +17,7 @@ expect."><meta property="og:image" content="https://provetelab.org/crywolf/logo.
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,11 +135,15 @@ look lower than it is. By default they are dropped with a warning
 (<code>keep_top = FALSE</code>); they remain useful to calibrate the classifier
 within sheepdog. Clips of the <code>"directed_pps"</code> design (sheepdog's
 <code>select_directed()</code>) are kept with a warning: within each review unit
-(for example site x species x month) the occasion is drawn independently
-of the score, but the units are drawn with unequal probabilities, whose
-size may come from the scores, and crywolf reads <code>inclusion_prob</code> without
-weighting by it. Estimates from them are conditional on the units drawn;
-weighting comes with a model of the scores.</p>
+(for example site x species) the occasion is drawn independently of the
+score, but the units are drawn with unequal probabilities
+(<code>inclusion_prob</code>), which crywolf does not use. That is right when the
+size of the units came from a model of data the new fit also holds, as
+with <code><a href="fp_review_priority.html">fp_review_priority()</a></code>: the fit then conditions on everything that
+chose the units, and the selection is ignorable for the model. It is not
+right when the size came from the scores, which the model does not hold;
+estimates are then conditional on the units drawn. Design-based estimates
+from the clips alone still need the weights <code>1 / inclusion_prob</code>.</p>
 <p>Clips of the <code>"score_bands"</code> design are always dropped, whatever
 <code>keep_top</code>, with a warning. sheepdog draws them at random within bands of
 score, so that thresholds and calibration curves see the whole score

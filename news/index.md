@@ -1,5 +1,22 @@
 # Changelog
 
+## crywolf (development version)
+
+- New
+  [`fp_review_priority()`](https://provetelab.org/crywolf/reference/fp_review_priority.md)
+  (experimental) gives every site, or site and species, a size for a
+  directed review round of ‘sheepdog’
+  ([`sheepdog::select_directed()`](https://provetelab.org/sheepdog/reference/select_directed.html)):
+  the variance of its occupancy state given the data. Units already
+  confirmed (a verified detection, or a confirmed clip in `validation`)
+  are left out.
+- [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md):
+  the warning on clips of the `"directed_pps"` design now says when
+  using them without weights is right (the size of the units came from a
+  model of data the fit also holds, as with
+  [`fp_review_priority()`](https://provetelab.org/crywolf/reference/fp_review_priority.md))
+  and when it is not (the size came from the scores).
+
 ## crywolf 2.3.0
 
 - rOpenSci statistical standards: every general and Bayesian standard is

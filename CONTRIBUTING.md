@@ -34,9 +34,13 @@ issues too.
     fit a model need CmdStan and are skipped on CRAN; the slow
     statistical tests run only with `CRYWOLF_EXTENDED_TESTS=true` (see
     `tests/README.md`).
-5.  Run `devtools::document()`, `devtools::test()` and
-    `devtools::check()` before opening the pull request, and add a
-    bullet to the development section of `NEWS.md`.
+5.  Run
+    [`devtools::document()`](https://devtools.r-lib.org/reference/document.html),
+    [`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
+    and
+    [`devtools::check()`](https://devtools.r-lib.org/reference/check.html)
+    before opening the pull request, and add a bullet to the development
+    section of `NEWS.md`.
 
 ## Changes to the Stan programs
 

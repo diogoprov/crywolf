@@ -178,12 +178,12 @@ m <- fp_occu_dyn(s$data, psi1 = ~ x, col = ~ rain, ext = ~ x,
   chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 19.6 seconds.
-#> Chain 2 finished in 20.5 seconds.
+#> Chain 1 finished in 24.5 seconds.
+#> Chain 2 finished in 25.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 20.0 seconds.
-#> Total execution time: 20.6 seconds.
+#> Mean chain execution time: 24.9 seconds.
+#> Total execution time: 25.4 seconds.
 #> 
 m
 #> Dynamic Bayesian false-positive occupancy model (multiple-methods design)

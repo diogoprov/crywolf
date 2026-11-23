@@ -61,6 +61,7 @@ reference:
       - plot.fp_occu
       - fp_effects
       - fp_sites
+      - fp_review_priority
       - plot.fp_ppc
   - title: Simulation and calibration
     desc: Simulate false-positive regimes and check interval calibration for a design.

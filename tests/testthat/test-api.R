@@ -3,7 +3,8 @@
 # version. A deliberate change updates the snapshot with
 # testthat::snapshot_accept("api").
 test_that("the arguments of the stable functions do not change", {
-  experimental <- c("fp_occu_mc", "fp_draws_data", "fp_to_unmarked")
+  experimental <- c("fp_occu_mc", "fp_draws_data", "fp_to_unmarked",
+                    "fp_review_priority")
   ns <- asNamespace("crywolf")
   # re-exports (as_draws_df(), loo()) belong to their own packages
   reexports <- c("as_draws_df", "loo")

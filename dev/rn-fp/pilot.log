@@ -1,0 +1,42 @@
+Warning: 79 of 2000 (4.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 116 of 2000 (6.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 10 of 2000 (0.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+Warning: 1 of 4 chains had an E-BFMI less than 0.3.
+See https://mc-stan.org/misc/warnings for details.
+
+
+== A | tempo 142 s | divergências 79 | treedepth 0 
+       variable    mean      5%     95% rhat ess_bulk truth
+1            b0  0.0983 -0.1489  0.3743 1.02      175  0.00
+2            b1  0.4207  0.2728  0.5833 1.01      540  0.50
+3            a0 -1.0694 -1.5357 -0.7091 1.02      160 -1.00
+4   sigma_r_out  0.8792  0.5551  1.1966 1.02      224  1.00
+5 sigma_lam_out  0.3880  0.0373  0.8432 1.03      130  0.00
+6           p10  0.0561  0.0380  0.0745 1.01      999  0.05
+7            rv  0.5243  0.4078  0.6319 1.02      205  0.50
+
+== B | tempo 142 s | divergências 116 | treedepth 0 
+       variable    mean      5%     95% rhat ess_bulk truth
+1            b0 -0.2342 -0.4535 -0.0023 1.00    689.6  0.00
+2            b1  0.6028  0.4538  0.7501 1.00    898.4  0.50
+3            a0 -0.7440 -1.0079 -0.5054 1.02    465.9 -1.00
+4   sigma_r_out  0.3401  0.0500  0.6600 1.02    282.1  0.00
+5 sigma_lam_out  0.3523  0.0392  0.7507 1.10     33.1  0.70
+6           p10  0.0557  0.0396  0.0731 1.02    270.3  0.05
+7            rv  0.6132  0.4954  0.7182 1.02    340.6  0.50
+
+== C | tempo 224 s | divergências 10 | treedepth 0 
+       variable    mean     5%     95% rhat ess_bulk truth
+1            b0 -0.4260 -0.738 -0.1115 1.00     1020  0.00
+2            b1  0.7788  0.545  1.0370 1.00     1059  0.50
+3            a0 -0.7665 -1.158 -0.3816 1.00      625 -1.00
+4   sigma_r_out  0.6461  0.144  1.1340 1.01      304  1.00
+5 sigma_lam_out  0.9135  0.484  1.2461 1.02      188  0.70
+6           p10  0.0742  0.056  0.0927 1.00     1260  0.05
+7            rv  0.5589  0.429  0.6916 1.00      939  0.50

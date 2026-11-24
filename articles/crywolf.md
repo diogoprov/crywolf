@@ -364,6 +364,7 @@ fp_priors()
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
 #>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
+#>   sd_abund_site   ~ half-Normal(0, 1) (fp_occu_rn())
 fp_priors(slope_sd = 1, gap_sd = 1)
 #> <fp_priors> (logit scale)
 #>   intercepts      ~ Normal(0, 1.5)
@@ -373,6 +374,7 @@ fp_priors(slope_sd = 1, gap_sd = 1)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
 #>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
+#>   sd_abund_site   ~ half-Normal(0, 1) (fp_occu_rn())
 ```
 
 When a random sample of detections has been reviewed, the precision of
@@ -395,6 +397,7 @@ fp_gap_prior(n_true = 46, n_false = 4, p11 = 0.6, psi = 0.5)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
 #>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
+#>   sd_abund_site   ~ half-Normal(0, 1) (fp_occu_rn())
 ```
 
 Before fitting,

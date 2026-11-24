@@ -142,7 +142,10 @@ are stable too.</p>
 classifier calibration from 'sheepdog' into the model or pass data to
 'unmarked', and are still being evaluated. <code><a href="fp_review_priority.html">fp_review_priority()</a></code>, new
 after 2.3.0, prepares directed review rounds of 'sheepdog'; it follows
-<code>select_directed()</code>, which may still change. Their arguments, classes and
+<code>select_directed()</code>, which may still change. <code><a href="fp_occu_rn.html">fp_occu_rn()</a></code> and
+<code><a href="simulate_fp_rn.html">simulate_fp_rn()</a></code>, new after 2.3.0, fit and simulate the Royle-Nichols
+model with false positives, with the <code>fp_occu_rn</code> class and its methods.
+Their arguments, classes and
 results may change in a minor version; the NEWS will say so. Each says
 so in its help. <code><a href="fp_read_sheepdog.html">fp_read_sheepdog()</a></code>, by contrast, reads a versioned
 export format (<code>sheepdog-occupancy</code>, schema 1) and is stable.</p>

@@ -14,7 +14,8 @@ fp_priors(
   recorder_sd = 2,
   fp_site_sd = 1,
   det_site_sd = 1,
-  species_sd = 1
+  species_sd = 1,
+  abund_site_sd = 1
 )
 ```
 
@@ -63,6 +64,16 @@ fp_priors(
   those of the occupancy coefficients and of the detection intercept, on
   the logit scale, and that of the logarithm of the gap.
 
+- abund_site_sd:
+
+  Scale of the half-Normal(0, sd) prior on the standard deviation of the
+  site random intercept on log abundance
+  (`fp_occu_rn(random_abund = TRUE)`). In
+  [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
+  the intercepts and slopes of `occ` are on log abundance, and
+  `det_site_sd` sets the prior of the site effect on the per-individual
+  detection.
+
 ## Value
 
 A list of class `fp_priors`.
@@ -79,6 +90,7 @@ fp_priors()
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
 #>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
+#>   sd_abund_site   ~ half-Normal(0, 1) (fp_occu_rn())
 fp_priors(slope_sd = 1)
 #> <fp_priors> (logit scale)
 #>   intercepts      ~ Normal(0, 1.5)
@@ -88,4 +100,5 @@ fp_priors(slope_sd = 1)
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
 #>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
+#>   sd_abund_site   ~ half-Normal(0, 1) (fp_occu_rn())
 ```

@@ -79,6 +79,7 @@ m$priors
 #>   sd_fp_site      ~ half-Normal(0, 1)
 #>   sd_det_site     ~ half-Normal(0, 1)
 #>   sd among species ~ half-Normal(0, 1) (fp_occu_ms())
+#>   sd_abund_site   ~ half-Normal(0, 1) (fp_occu_rn())
 ```
 
 Give a reason for each, even a short one: the intercept and slope priors

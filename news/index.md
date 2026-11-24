@@ -3,6 +3,24 @@
 ## crywolf (development version)
 
 - New
+  [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
+  (experimental) fits the Royle-Nichols occupancy model with false
+  positives: Poisson abundance, per-individual detection, false
+  positives on every occasion, verified occasions and the
+  observation-confirmation design, with site effects on the
+  per-individual detection (`random_det`), on log abundance
+  (`random_abund`) and on the false-positive rate (`random_fp`).
+  `random_det` then measures variation in detection among sites beyond
+  that due to abundance.
+  [`simulate_fp_rn()`](https://provetelab.org/crywolf/reference/simulate_fp_rn.md)
+  (experimental) simulates data from it, with unbalanced occasions if
+  needed, and
+  [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
+  gains `abund_site_sd`.
+- [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) no
+  longer fails when every automated occasion is confirmed
+  (observation-confirmation design with nothing left unchecked).
+- New
   [`fp_review_priority()`](https://provetelab.org/crywolf/reference/fp_review_priority.md)
   (experimental) gives every site, or site and species, a size for a
   directed review round of ‘sheepdog’

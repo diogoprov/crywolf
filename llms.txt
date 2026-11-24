@@ -222,6 +222,12 @@ Fit the model and inspect, summarize, predict, and compare fits.
   : Predicted probabilities of a fitted multispecies model
 - [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
   : Simulate data for a multispecies false-positive occupancy model
+- [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
+  : Fit a Royle-Nichols occupancy model with false positives
+- [`print(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
+  [`summary(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
+  [`as_draws_df(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
+  : Methods for Royle-Nichols fits
 - [`fp_occu_mc()`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`summary(`*`<fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
   [`print(`*`<summary.fp_occu_mc>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_mc.md)
@@ -286,6 +292,8 @@ design.
   : Simulate data for a false-positive occupancy model
 - [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
   : Simulate data for a dynamic false-positive occupancy model
+- [`simulate_fp_rn()`](https://provetelab.org/crywolf/reference/simulate_fp_rn.md)
+  : Simulate data for a Royle-Nichols model with false positives
 - [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
   : Simulation-based calibration check for a study design
 - [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)

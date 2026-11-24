@@ -4,3 +4,5 @@ jobs/
 *.rds
 !grid.rds
 logs/
+!rerun-list.rds
+jobs-ad99/

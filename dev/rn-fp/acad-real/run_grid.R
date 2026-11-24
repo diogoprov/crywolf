@@ -16,6 +16,10 @@
 #          psi 0.97 and 30 otherwise, 4 chains of 1000 + 1000 run one after
 #          the other, adapt_delta 0.95 (the default).
 #
+# Rerun: RERUN = an .rds of (cell, rep, prior) refits only those fits, with
+# the same data and seed, at ADAPT_DELTA (e.g. 0.99), one job file per fit
+# (cellXX-repYYYY-<prior>.rds) in JOBS.
+#
 # Each task is saved in JOBS (default dev/rn-fp/acad-real/jobs) as soon as it
 # ends and skipped on a rerun. Run from the package root with crywolf installed:
 #   WORKERS=64 Rscript dev/rn-fp/acad-real/run_grid.R
@@ -24,6 +28,8 @@
 if (Sys.getenv("LOAD_ALL") == "1") devtools::load_all(quiet = TRUE) else library(crywolf)
 reps <- as.integer(Sys.getenv("REPS", "100"))
 workers <- as.integer(Sys.getenv("WORKERS", "8"))
+adapt_delta <- as.numeric(Sys.getenv("ADAPT_DELTA", "0.95"))
+rerun <- Sys.getenv("RERUN", "")
 job_dir <- Sys.getenv("JOBS", "dev/rn-fp/acad-real/jobs")
 dir.create(job_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -34,7 +40,14 @@ cells$n_max <- ifelse(cells$psi > 0.9, 40L, 30L)
 priors <- c("hn0.5", "hn1", "hn2", "t3")
 tasks <- expand.grid(rep = seq_len(reps), cell = seq_len(nrow(cells)))
 tasks$seed <- 600000 + 1000 * tasks$cell + tasks$rep
-tasks$file <- file.path(job_dir, sprintf("cell%02d-rep%04d.rds", tasks$cell, tasks$rep))
+tasks$prior <- "all"
+if (nzchar(rerun)) {
+  tasks <- readRDS(rerun)[, c("rep", "cell", "prior")]
+  tasks$seed <- 600000 + 1000 * tasks$cell + tasks$rep
+}
+tasks$file <- file.path(job_dir, ifelse(tasks$prior == "all",
+  sprintf("cell%02d-rep%04d.rds", tasks$cell, tasks$rep),
+  sprintf("cell%02d-rep%04d-%s.rds", tasks$cell, tasks$rep, tasks$prior)))
 tasks <- tasks[!file.exists(tasks$file), ]
 if (nzchar(Sys.getenv("MAX_TASKS"))) tasks <- head(tasks, as.integer(Sys.getenv("MAX_TASKS")))
 message(nrow(tasks), " tasks to run on ", workers, " workers")
@@ -60,7 +73,7 @@ fit_one <- function(s, cl, prior, seed) {
     s$data, occ = ~ x, random_det = TRUE, random_abund = TRUE,
     n_max = cl$n_max, priors = fp_priors(det_site_sd = sd), chains = 4,
     parallel_chains = 1, threads_per_chain = 1, seed = seed, refresh = 0,
-    show_messages = FALSE, output_dir = out_dir))
+    show_messages = FALSE, output_dir = out_dir, adapt_delta = adapt_delta))
   secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
   d <- m$fit$diagnostic_summary(quiet = TRUE)
   sm <- as.data.frame(m$fit$summary(pars, "mean", "median",
@@ -74,17 +87,18 @@ fit_one <- function(s, cl, prior, seed) {
        ebfmi = d$ebfmi, sigma_r_draws = sig)
 }
 
-run_task <- function(cell, rep, seed, file) {
+run_task <- function(cell, rep, seed, file, prior) {
   cl <- cells[cell, ]
   s <- simulate_fp_rn(nsite = 21, nocc = nocc, psi = cl$psi, b1 = 0.5, r = 0.27,
                       p10 = cl$p10, sigma_r = cl$sigma_r, sigma_lam = 0.7,
                       frac_verified = 0, frac_confirmed = 1, seed = seed)
-  fits <- lapply(priors, function(p) fit_one(s, cl, p, seed))
-  names(fits) <- priors
+  use <- if (prior == "all") priors else prior
+  fits <- lapply(use, function(p) fit_one(s, cl, p, seed))
+  names(fits) <- use
   res <- list(cell = cell, rep = rep, seed = seed, design = cl,
               truth = s$truth[c("b0", "b1", "a0", "r", "p10", "sigma_r",
                                 "sigma_lam", "psi")],
-              n_occupied = sum(s$truth$z), fits = fits)
+              n_occupied = sum(s$truth$z), adapt_delta = adapt_delta, fits = fits)
   tmp <- paste0(file, ".tmp")
   saveRDS(res, tmp)
   file.rename(tmp, file)

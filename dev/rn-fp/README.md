@@ -29,3 +29,27 @@ in lambda when it was 0. sigma_lam was poorly identified on its own (B). The
 divergences come from the funnel of u_i; the grid should raise adapt_delta or
 integrate u_i too. One replicate per cell says nothing about coverage or
 power: that needs the grid.
+
+## adapt_delta = 0.99, 23/11/2026
+
+Scenarios A and B refitted with adapt_delta = 0.99 (same data): no
+divergences in either, at about twice the time (256 s and 282 s); the
+posteriors of sigma_r and sigma_lam are as above. The grid uses 0.99.
+
+## Grid (`run_grid.R`, `summarise_grid.R`)
+
+sigma_r {0, 0.5, 1} x sigma_lam {0, 0.7} x frac_verified {0.1, 0.3, 0.6},
+20 replicates per cell (360 fits), 4 chains of 1000 + 1000 iterations on one
+core each. A test with ITER = 100 took about 5.5 minutes per fit on the Mac,
+so a full fit takes about 40–50 minutes. Run on spot with the recipe of
+`dev/dyn-sim/aws/` (commit first):
+
+```bash
+export AWS_PROFILE=pcps
+B=pcps-sim-560246495553
+dev/dyn-sim/aws/pack_code.sh $B crywolf-rn
+ID=$(JOBS=dev/rn-fp/jobs dev/dyn-sim/aws/launch_spot.sh $B crywolf-rn dev/rn-fp/run_grid.R c7a.48xlarge 180 pcps-sim-ec2 6)
+JOBS=dev/rn-fp/jobs dev/dyn-sim/aws/supervise.sh $B crywolf-rn dev/rn-fp/run_grid.R 180 pcps-sim-ec2 6 $ID c7a.48xlarge c7i.48xlarge m7a.48xlarge
+aws s3 sync s3://$B/fpcalib/runs/crywolf-rn/jobs dev/rn-fp/jobs
+Rscript dev/rn-fp/summarise_grid.R
+```

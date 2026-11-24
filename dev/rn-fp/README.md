@@ -41,15 +41,21 @@ posteriors of sigma_r and sigma_lam are as above. The grid uses 0.99.
 sigma_r {0, 0.5, 1} x sigma_lam {0, 0.7} x frac_verified {0.1, 0.3, 0.6},
 20 replicates per cell (360 fits), 4 chains of 1000 + 1000 iterations on one
 core each. A test with ITER = 100 took about 5.5 minutes per fit on the Mac,
-so a full fit takes about 40–50 minutes. Run on spot with the recipe of
+so a full fit takes about 40–50 minutes. One c7a.48xlarge spot instance was
+interrupted five times in a row within minutes (23/11/2026; spot placement
+score 1 of 10), so the grid runs as three runs of six cells on 64-vCPU
+instances (score 8 for three of them in us-east-1), with the recipe of
 `dev/dyn-sim/aws/` (commit first):
 
 ```bash
 export AWS_PROFILE=pcps
 B=pcps-sim-560246495553
-dev/dyn-sim/aws/pack_code.sh $B crywolf-rn
-ID=$(JOBS=dev/rn-fp/jobs dev/dyn-sim/aws/launch_spot.sh $B crywolf-rn dev/rn-fp/run_grid.R c7a.48xlarge 180 pcps-sim-ec2 6)
-JOBS=dev/rn-fp/jobs dev/dyn-sim/aws/supervise.sh $B crywolf-rn dev/rn-fp/run_grid.R 180 pcps-sim-ec2 6 $ID c7a.48xlarge c7i.48xlarge m7a.48xlarge
-aws s3 sync s3://$B/fpcalib/runs/crywolf-rn/jobs dev/rn-fp/jobs
+for part in "a 1,2,3,4,5,6" "b 7,8,9,10,11,12" "c 13,14,15,16,17,18"; do
+  set -- $part
+  dev/dyn-sim/aws/pack_code.sh $B crywolf-rn-$1
+  ID=$(GRID_CELLS=$2 JOBS=dev/rn-fp/jobs dev/dyn-sim/aws/launch_spot.sh $B crywolf-rn-$1 dev/rn-fp/run_grid.R m7a.16xlarge 60 pcps-sim-ec2 6)
+  GRID_CELLS=$2 JOBS=dev/rn-fp/jobs dev/dyn-sim/aws/supervise.sh $B crywolf-rn-$1 dev/rn-fp/run_grid.R 60 pcps-sim-ec2 6 $ID m7a.16xlarge c7a.16xlarge c7i.16xlarge &
+done
+for r in a b c; do aws s3 sync s3://$B/fpcalib/runs/crywolf-rn-$r/jobs dev/rn-fp/jobs; done
 Rscript dev/rn-fp/summarise_grid.R
 ```

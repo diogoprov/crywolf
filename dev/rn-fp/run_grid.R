@@ -19,7 +19,7 @@
 # rerun. Run from the package root:
 #   WORKERS=16 Rscript dev/rn-fp/run_grid.R
 # REPS sets the replicates per cell (REPS = 1 for a test); ITER the
-# iterations; CELLS (e.g. "1,7") keeps some cells. Summaries: summarise_grid.R.
+# iterations; GRID_CELLS (e.g. "1,7") keeps some cells. Summaries: summarise_grid.R.
 # =============================================================================
 
 source("dev/rn-fp/simulate_rn_fp.R")
@@ -28,7 +28,7 @@ reps <- as.integer(Sys.getenv("REPS", "20"))
 workers <- as.integer(Sys.getenv("WORKERS", "16"))
 iter <- as.integer(Sys.getenv("ITER", "1000"))
 adapt_delta <- as.numeric(Sys.getenv("ADAPT_DELTA", "0.99"))
-cells_env <- Sys.getenv("CELLS", "")
+cells_env <- Sys.getenv("GRID_CELLS", "")
 job_dir <- Sys.getenv("JOB_DIR", file.path("dev", "rn-fp", "jobs"))
 dir.create(job_dir, showWarnings = FALSE, recursive = TRUE)
 

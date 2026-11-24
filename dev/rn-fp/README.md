@@ -132,3 +132,50 @@ JOBS=dev/rn-fp/jobs-acad dev/dyn-sim/aws/supervise.sh $B crywolf-rn-acad dev/rn-
 aws s3 sync s3://$B/fpcalib/runs/crywolf-rn-acad/jobs dev/rn-fp/jobs-acad
 JOBS=jobs-acad Rscript dev/rn-fp/summarise_grid.R
 ```
+
+### Results, 24/11/2026
+
+One c7a.16xlarge spot instance, 51 minutes, no interruption. All 480 fits
+ended; median 5.2 minutes per fit. The largest R-hat is 1.014 (R-hat > 1.01
+in 5 fits, all for sigma_lam); the median of the smallest bulk ESS is 1188
+(sigma_lam) and 2629 (sigma_r). 24 fits had divergences (34 in all).
+`JOBS=jobs-acad Rscript dev/rn-fp/summarise_grid.R` writes `grid-acad.rds`.
+
+sigma_r from the 95% of fits with R-hat < 1.01 for every parameter other
+than sigma_lam and no divergences (n per cell 14–20); "signal" as above
+(lower 5% bound > 0.1). Each entry is sigma_lam = 0 / 0.7.
+
+| psi | verified | sigma_r | median of posterior means | coverage (90%) | signal |
+|---|---|---|---|---|---|
+| 0.8 | 17 | 0 | 0.31 / 0.27 | – | 0.15 / 0.00 |
+| 0.8 | 17 | 0.5 | 0.44 / 0.52 | 0.90 / 0.89 | 0.45 / 0.47 |
+| 0.8 | 17 | 1 | 0.99 / 1.02 | 0.95 / 0.90 | 1.00 / 0.95 |
+| 0.8 | 3 | 0 | 0.29 / 0.50 | – | 0.05 / 0.16 |
+| 0.8 | 3 | 0.5 | 0.47 / 0.58 | 1.00 / 0.90 | 0.30 / 0.35 |
+| 0.8 | 3 | 1 | 0.80 / 0.83 | 0.95 / 0.85 | 0.79 / 0.65 |
+| 0.3 | 17 | 0 | 0.42 / 0.42 | – | 0.00 / 0.06 |
+| 0.3 | 17 | 0.5 | 0.42 / 0.57 | 0.95 / 1.00 | 0.16 / 0.30 |
+| 0.3 | 17 | 1 | 0.84 / 0.82 | 1.00 / 1.00 | 0.63 / 0.55 |
+| 0.3 | 3 | 0 | 0.42 / 0.45 | – | 0.00 / 0.16 |
+| 0.3 | 3 | 0.5 | 0.56 / 0.57 | 1.00 / 1.00 | 0.11 / 0.20 |
+| 0.3 | 3 | 1 | 0.73 / 0.80 | 0.86 / 1.00 | 0.50 / 0.71 |
+
+sigma_lam (all fits): coverage 0.95–1.00 at 0.7; at 0 the posterior mean is
+0.4–0.7.
+
+Reading (interpretation, 20 replicates per cell):
+
+- With 21 sites, sigma_r = 0 gives a false signal in 0–16% of the fits, as
+  with 200 sites. The posterior means at 0 (0.3–0.5) are close to the
+  median of the half-Normal(0, 1) prior (0.67): at this size the prior
+  carries much of the posterior near 0, and a prior sensitivity check is
+  needed before any empirical estimate is read.
+- sigma_r = 1 is detected in 95–100% of the fits only with high occupancy
+  and every occasion verified. With three verified occasions, or occupancy
+  0.3, it is detected in 50–79%. sigma_r = 0.5 is not separable from 0
+  (signal 11–47%). Coverage stays at 0.85–1.00 throughout.
+- Unlike the grid at 200 sites, verifying every occasion helps when
+  occupancy is high (sigma_r = 1: 0.79 to 1.00 and 0.65 to 0.95).
+- Not tested here: the unbalanced occasions of the data (11–19), occupancy
+  near 1 (two species occupy all 21 sites), and verified occasions that are
+  the automated ones, as in the data.

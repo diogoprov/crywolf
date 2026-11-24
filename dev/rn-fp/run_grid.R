@@ -29,15 +29,29 @@ workers <- as.integer(Sys.getenv("WORKERS", "16"))
 iter <- as.integer(Sys.getenv("ITER", "1000"))
 adapt_delta <- as.numeric(Sys.getenv("ADAPT_DELTA", "0.99"))
 cells_env <- Sys.getenv("GRID_CELLS", "")
-job_dir <- Sys.getenv("JOB_DIR", file.path("dev", "rn-fp", "jobs"))
+# DESIGN "acad" (set by run_grid_acad.R): the design of the FrogNet ACAD data
+design <- Sys.getenv("DESIGN", "step1")
+job_dir <- Sys.getenv("JOB_DIR", file.path("dev", "rn-fp",
+                                           if (design == "acad") "jobs-acad" else "jobs"))
 dir.create(job_dir, showWarnings = FALSE, recursive = TRUE)
 
-cells <- expand.grid(sigma_r = c(0, 0.5, 1), sigma_lam = c(0, 0.7),
-                     frac_verified = c(0.1, 0.3, 0.6))
+if (design == "acad") {
+  # psi at the mean of x through b0 = log(-log(1 - psi)); nver = 17 verifies
+  # every occasion of every site, nver = 3 three occasions at every site
+  cells <- expand.grid(sigma_r = c(0, 0.5, 1), sigma_lam = c(0, 0.7),
+                       psi = c(0.8, 0.3), nver = c(17L, 3L))
+  cells$nsite <- 21L; cells$nocc <- 17L; cells$frac_verified <- 1
+  cells$b0 <- log(-log(1 - cells$psi)); cells$Nmax <- 30L; seed_base <- 400000
+} else {
+  cells <- expand.grid(sigma_r = c(0, 0.5, 1), sigma_lam = c(0, 0.7),
+                       frac_verified = c(0.1, 0.3, 0.6))
+  cells$nsite <- 200L; cells$nocc <- 10L; cells$nver <- 3L; cells$b0 <- 0
+  cells$Nmax <- 20L; seed_base <- 300000
+}
 keep <- if (nzchar(cells_env)) as.integer(strsplit(cells_env, ",")[[1]]) else
   seq_len(nrow(cells))
 tasks <- expand.grid(rep = seq_len(reps), cell = keep)
-tasks$seed <- 300000 + 1000 * tasks$cell + tasks$rep
+tasks$seed <- seed_base + 1000 * tasks$cell + tasks$rep
 tasks$file <- file.path(job_dir, sprintf("cell%02d-rep%04d.rds", tasks$cell, tasks$rep))
 tasks <- tasks[!file.exists(tasks$file), ]
 message(nrow(tasks), " tasks to run on ", workers, " workers")
@@ -58,14 +72,15 @@ pars <- c("b0", "b1", "a0", "sigma_r_out", "sigma_lam_out", "p10", "rv")
 
 run_task <- function(cell, rep, seed, file) {
   cl <- cells[cell, ]
-  s <- simulate_rn_fp(nsite = 200, nocc = 10, sigma_r = cl$sigma_r,
-                      sigma_lam = cl$sigma_lam,
-                      frac_verified = cl$frac_verified, seed = seed)
+  s <- simulate_rn_fp(nsite = cl$nsite, nocc = cl$nocc, b0 = cl$b0,
+                      sigma_r = cl$sigma_r, sigma_lam = cl$sigma_lam,
+                      frac_verified = cl$frac_verified, nver = cl$nver,
+                      seed = seed)
   mod <- cmdstanr::cmdstan_model(stan_file)
   out_dir <- tempfile("rn")
   dir.create(out_dir)
   t0 <- Sys.time()
-  f <- mod$sample(data = c(s$data, list(Nmax = 20L, site_effect = 1L,
+  f <- mod$sample(data = c(s$data, list(Nmax = cl$Nmax, site_effect = 1L,
                                         lam_effect = 1L), GH),
                   chains = 4, parallel_chains = 1, iter_warmup = iter,
                   iter_sampling = iter, adapt_delta = adapt_delta, seed = seed,

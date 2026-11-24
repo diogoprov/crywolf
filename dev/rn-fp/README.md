@@ -111,3 +111,24 @@ Reading (interpretation, 20 replicates per cell):
 - One design (200 sites, 10 occasions, 3 verified occasions, p10 = 0.05).
   Not tested: fewer sites or occasions, larger p10, and the design of the
   FrogNet data.
+
+## ACAD design (`run_grid_acad.R`), requested 24/11/2026
+
+The design of the FrogNet ACAD data (2023), sent by that session as numbers
+only: 21 sites, 11–19 mornings per site (median 17), every morning annotated.
+Grid: 21 sites x 17 occasions, sigma_r {0, 0.5, 1} x sigma_lam {0, 0.7} x
+occupancy at the mean of x {0.8, 0.3} x verified occasions {all 17, 3} at
+every site; 24 cells x 20 replicates, Nmax = 30. In the data the verified
+mornings are the automated ones (an observation confirmation design); here,
+as in the model, they are separate occasions. Pilot on the Mac (psi 0.8,
+sigma_r 1, sigma_lam 0.7): about 3 minutes per fit, no divergences.
+
+```bash
+export AWS_PROFILE=pcps
+B=pcps-sim-560246495553
+dev/dyn-sim/aws/pack_code.sh $B crywolf-rn-acad
+ID=$(JOBS=dev/rn-fp/jobs-acad dev/dyn-sim/aws/launch_spot.sh $B crywolf-rn-acad dev/rn-fp/run_grid_acad.R c7a.16xlarge 60 pcps-sim-ec2 4)
+JOBS=dev/rn-fp/jobs-acad dev/dyn-sim/aws/supervise.sh $B crywolf-rn-acad dev/rn-fp/run_grid_acad.R 60 pcps-sim-ec2 4 $ID c7a.16xlarge c7i.16xlarge c6a.16xlarge m6a.16xlarge m7a.16xlarge
+aws s3 sync s3://$B/fpcalib/runs/crywolf-rn-acad/jobs dev/rn-fp/jobs-acad
+JOBS=jobs-acad Rscript dev/rn-fp/summarise_grid.R
+```

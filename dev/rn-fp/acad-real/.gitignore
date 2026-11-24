@@ -6,3 +6,4 @@ jobs/
 logs/
 !rerun-list.rds
 jobs-ad99/
+logs-ad99/

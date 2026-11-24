@@ -25,32 +25,43 @@ Request from the FrogNet project (24/11/2026). The questions:
 
 ## Convergence
 
-- **R-hat and ESS:** R-hat never exceeded 1.05. 1–9% of fits had a largest R-hat above 1.01, and bulk ESS of the key parameters was above 400 in more than 99% of fits.
-- **Divergences:** these are the problem. Fits with at least one divergence:
+**First run (adapt_delta 0.95).**
 
-  | ψ | Fits with ≥ 1 divergence | Fits with > 5 |
-  |---|---|---|
-  | 0.3 | 77% | 19% |
-  | 0.8 | 34% | 3% |
-  | 0.97 | 19% | 1% |
+- R-hat never exceeded 1.05, and the bulk ESS of the key parameters was above 400 in more than 99% of fits.
+- Divergences were common: at least one divergence in 77% of fits at ψ = 0.3, 34% at ψ = 0.8 and 19% at ψ = 0.97. The median was 0 divergences.
 
-  The median is 0 divergences, and the 99th percentile is 17.
-- **Likely cause:** a funnel in the site effects when few sites are occupied (about 7 of 21 at ψ = 0.3). This is my interpretation and was not checked directly.
-- **Effect on the conclusions:** the metrics computed on fits without divergences differ little from those on all fits (table in the session log). Even so, the ψ = 0.3 cells rest on fits with divergences and should be read with care. A rerun at adapt_delta 0.99 would settle this.
+**Rerun (`run_rerun.R`).**
 
-## Results (all fits; signal = lower 5% bound of σ_r > 0.1)
+- The 2068 fits with divergences were refitted at adapt_delta 0.99, with the same data and seeds.
+- Run on AWS spot (c7a.16xlarge), about 1.1 h and about US$1.
+- `summarise.R` replaces the original fits with the refitted ones. The column `adapt_delta` records which run each fit comes from.
 
-- **p10:** recovered in every cell, with median bias < 0.005 and 90% coverage of 0.85–0.94.
+**After the rerun.**
+
+| ψ | Fits with ≥ 1 divergence | Largest R-hat > 1.01 |
+|---|---|---|
+| 0.3 | 12% | 1% |
+| 0.8 | 0.6% | 8% |
+| 0.97 | 0.2% | 9% |
+
+- Fits with more than 5 divergences: 0.1%. The largest count is 14.
+- 87–91% of fits meet both criteria (R-hat < 1.01, no divergences).
+- The metrics barely changed with the rerun. The first run's divergences did not drive the results.
+- The ψ = 0.3 cells keep some divergences, a likely funnel with about 7 occupied sites of 21. This is my interpretation and was not checked directly.
+
+## Results (after the rerun; signal = lower 5% bound of σ_r > 0.1)
+
+- **p10:** recovered in every cell, with median bias < 0.005 and 90% coverage of 0.86–0.96.
 - **True σ_r = 0:**
   - The posterior median of σ_r is 0.30–0.70 and follows the prior scale.
-  - False signal is 0–1% under HN(0.5), 9–33% under HN(1), 20–43% under HN(2) and 11–28% under t3. It is highest at ψ = 0.97.
+  - False signal is 0–1% under HN(0.5), 11–31% under HN(1), 20–43% under HN(2) and 9–30% under t3. It is highest at ψ = 0.97.
   - The Savage–Dickey BF01 is rarely above 3, except under HN(2) (18–34% of fits), where the prior puts little mass near 0.
   - The data almost never support σ_r = 0 against σ_r > 0.
 - **True σ_r = 1:**
-  - Coverage is 0.92–1.00 under HN(1), HN(2) and t3, but 0.51–0.78 under HN(0.5), which pulls the median down by 0.44–0.62.
-  - Power is 38–40% at ψ = 0.3, 58–61% at ψ = 0.8 and 68–71% at ψ = 0.97 under HN(1) or t3. Under HN(2) it is 56–83%.
-  - BF01 < 1/3 in 13–46% of fits.
-- **σ_λ:** σ_λ (truth 0.7) is underestimated by 0.04–0.27, most when σ_r = 0. Across datasets, the posterior medians of σ_r and σ_λ are correlated (Spearman 0.6–0.7 when σ_r = 0). Both parameters seem to absorb the same site heterogeneity in detection frequency. This is an interpretation.
+  - Coverage is 0.92–1.00 under HN(1), HN(2) and t3, but 0.49–0.78 under HN(0.5), which pulls the median down by 0.44–0.62.
+  - Power is 34–42% at ψ = 0.3, 59–62% at ψ = 0.8 and 68–72% at ψ = 0.97 under HN(1) or t3. Under HN(2) it is 57–83%.
+  - BF01 < 1/3 in 14–48% of fits (all priors except HN(0.5)).
+- **σ_λ:** σ_λ (truth 0.7) is underestimated by 0.04–0.27, most when σ_r = 0. Across datasets, the posterior medians of σ_r and σ_λ are correlated (Spearman 0.6–0.7 when σ_r = 0, first run). Both parameters seem to absorb the same site heterogeneity in detection frequency. This is an interpretation.
 
 ## Reading
 

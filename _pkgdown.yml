@@ -43,6 +43,8 @@ reference:
       - fp_richness
       - predict.fp_occu_ms
       - simulate_fp_ms
+      - fp_occu_rn
+      - fp_occu_rn-methods
       - fp_occu_mc
       - fp_draws_data
       - fp_priors
@@ -68,6 +70,7 @@ reference:
     contents:
       - simulate_fp
       - simulate_fp_dyn
+      - simulate_fp_rn
       - fp_calibrate
       - fp_verification_curve
       - fp_calibrate_fit

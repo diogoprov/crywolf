@@ -511,6 +511,11 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #'   deviations among species of the multispecies model ([fp_occu_ms()]):
 #'   those of the occupancy coefficients and of the detection intercept, on
 #'   the logit scale, and that of the logarithm of the gap.
+#' @param abund_site_sd Scale of the half-Normal(0, sd) prior on the standard
+#'   deviation of the site random intercept on log abundance
+#'   (`fp_occu_rn(random_abund = TRUE)`). In [fp_occu_rn()] the intercepts
+#'   and slopes of `occ` are on log abundance, and `det_site_sd` sets the
+#'   prior of the site effect on the per-individual detection.
 #'
 #' @return A list of class `fp_priors`.
 #' @export
@@ -522,10 +527,12 @@ fp_occu <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #' @srrstats {BS2.3, BS2.5} Every prior parameter must be a single number; standard deviations must be positive and finite, and `gap_mean` finite.
 fp_priors <- function(intercept_sd = 1.5, slope_sd = 2.5,
                       gap_mean = 2, gap_sd = 1.5, recorder_sd = 2,
-                      fp_site_sd = 1, det_site_sd = 1, species_sd = 1) {
+                      fp_site_sd = 1, det_site_sd = 1, species_sd = 1,
+                      abund_site_sd = 1) {
   sds <- list(intercept_sd = intercept_sd, slope_sd = slope_sd, gap_sd = gap_sd,
               recorder_sd = recorder_sd, fp_site_sd = fp_site_sd,
-              det_site_sd = det_site_sd, species_sd = species_sd)
+              det_site_sd = det_site_sd, species_sd = species_sd,
+              abund_site_sd = abund_site_sd)
   for (nm in names(sds)) {
     v <- sds[[nm]]
     if (!is.numeric(v) || length(v) != 1 || !is.finite(v) || v <= 0) {
@@ -538,7 +545,7 @@ fp_priors <- function(intercept_sd = 1.5, slope_sd = 2.5,
   structure(list(intercept_sd = intercept_sd, slope_sd = slope_sd,
                  gap_mean = gap_mean, gap_sd = gap_sd, recorder_sd = recorder_sd,
                  fp_site_sd = fp_site_sd, det_site_sd = det_site_sd,
-                 species_sd = species_sd),
+                 species_sd = species_sd, abund_site_sd = abund_site_sd),
             class = "fp_priors")
 }
 
@@ -554,6 +561,9 @@ print.fp_priors <- function(x, ...) {
   # priors saved before this one existed
   if (!is.null(x$species_sd)) {
     cat(sprintf("  sd among species ~ half-Normal(0, %g) (fp_occu_ms())\n", x$species_sd))
+  }
+  if (!is.null(x$abund_site_sd)) {
+    cat(sprintf("  sd_abund_site   ~ half-Normal(0, %g) (fp_occu_rn())\n", x$abund_site_sd))
   }
   invisible(x)
 }
@@ -739,7 +749,9 @@ print.fp_priors <- function(x, ...) {
                           as.data.frame(Xfp_rows), list(sep = "\r")))
   grp <- match(key, unique(key))
   first <- !duplicated(grp)
-  n2 <- tabulate(grp)
+  # nbins: with every occasion confirmed no automated row is left, and
+  # tabulate() would return one empty bin
+  n2 <- tabulate(grp, nbins = length(unique(key)))
   y2 <- as.integer(rowsum(y_raw, grp, reorder = FALSE))
   site2 <- site2[first]
   rec2 <- rec2[first]

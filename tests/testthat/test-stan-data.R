@@ -139,3 +139,11 @@ test_that("the site random effect on true detection is switched on and named", {
   old$det_site_sd <- NULL
   expect_equal(crywolf:::.build_stan_data(s$data, ~ x, ~ 1, ~ 1, FALSE, old)$stan_data$det_site_sd, 1)
 })
+
+test_that("every occasion confirmed leaves no automated row", {
+  s <- simulate_fp(nsite = 20, nocc = 3, frac_confirmed = 1, seed = 8)
+  sd <- crywolf:::.build_stan_data(s$data, ~ 1, ~ 1, ~ 1, FALSE, fp_priors())$stan_data
+  expect_identical(sd$N2, 0L)
+  expect_length(sd$n2, 0)
+  expect_identical(sd$N3, 60L)
+})

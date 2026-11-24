@@ -12,7 +12,8 @@ fp_priors(
   recorder_sd = 2,
   fp_site_sd = 1,
   det_site_sd = 1,
-  species_sd = 1
+  species_sd = 1,
+  abund_site_sd = 1
 )
 }
 \arguments{
@@ -43,6 +44,12 @@ deviation of the site random intercept on true detection
 deviations among species of the multispecies model (\code{\link[=fp_occu_ms]{fp_occu_ms()}}):
 those of the occupancy coefficients and of the detection intercept, on
 the logit scale, and that of the logarithm of the gap.}
+
+\item{abund_site_sd}{Scale of the half-Normal(0, sd) prior on the standard
+deviation of the site random intercept on log abundance
+(\code{fp_occu_rn(random_abund = TRUE)}). In \code{\link[=fp_occu_rn]{fp_occu_rn()}} the intercepts
+and slopes of \code{occ} are on log abundance, and \code{det_site_sd} sets the
+prior of the site effect on the per-individual detection.}
 }
 \value{
 A list of class \code{fp_priors}.

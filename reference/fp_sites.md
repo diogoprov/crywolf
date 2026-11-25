@@ -20,8 +20,8 @@ plot(x, coords = NULL, ...)
 
 - object:
 
-  An `fp_occu` object, an `fp_occu_dyn` object or an `fp_occu_ms` object
-  (see Details).
+  An `fp_occu` object, an `fp_occu_dyn` object, an `fp_occu_ms` object
+  or an `fp_occu_rn` object (see Details).
 
 - prob:
 
@@ -84,6 +84,15 @@ the result has one row per site and species, with the species column of
 the data after the site columns, and every column refers to that species
 at that site.
 
+For a Royle-Nichols model
+([`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)),
+`psi` is \\1 - e^{-\lambda}\\ with \\\lambda\\ from the covariates of
+log abundance alone, `occupied` the probability that the site's
+abundance exceeds 0 given its data, and three more columns give the
+posterior mean abundance given the data, `abundance`, with
+`abundance_lower` and `abundance_upper` (quantiles over the draws of
+that conditional mean). The abundance is summed over 0 to `n_max`.
+
 ## Examples
 
 ``` r
@@ -93,12 +102,12 @@ m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
              chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 22.5 seconds.
-#> Chain 1 finished in 22.7 seconds.
+#> Chain 2 finished in 20.8 seconds.
+#> Chain 1 finished in 20.9 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 22.6 seconds.
-#> Total execution time: 22.8 seconds.
+#> Mean chain execution time: 20.8 seconds.
+#> Total execution time: 21.0 seconds.
 #> 
 st <- fp_sites(m)
 head(st)

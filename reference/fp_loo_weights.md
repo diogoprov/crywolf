@@ -17,7 +17,7 @@ fp_loo_weights(..., method = c("stacking", "pseudobma"))
 
 - ...:
 
-  Named `fp_occu` fits, or the results of
+  Named `fp_occu` or `fp_occu_rn` fits, or the results of
   [`loo()`](https://mc-stan.org/loo/reference/loo.html) on them.
 
 - method:
@@ -44,23 +44,23 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 21.4 seconds.
-#> Chain 2 finished in 26.9 seconds.
+#> Chain 1 finished in 18.4 seconds.
+#> Chain 2 finished in 23.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 24.1 seconds.
-#> Total execution time: 27.0 seconds.
+#> Mean chain execution time: 20.9 seconds.
+#> Total execution time: 23.6 seconds.
 #> 
 m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 23.4 seconds.
-#> Chain 2 finished in 25.8 seconds.
+#> Chain 1 finished in 21.6 seconds.
+#> Chain 2 finished in 23.4 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 24.6 seconds.
-#> Total execution time: 25.9 seconds.
+#> Mean chain execution time: 22.5 seconds.
+#> Total execution time: 23.5 seconds.
 #> 
 fp_loo_weights(constant = m0, fp_on_x = m1)
 #>  constant   fp_on_x 

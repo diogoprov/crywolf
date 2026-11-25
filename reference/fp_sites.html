@@ -90,8 +90,8 @@ but a high false-positive rate can still be unlikely to be occupied.</p>
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>An <code>fp_occu</code> object, an <code>fp_occu_dyn</code> object or an
-<code>fp_occu_ms</code> object (see Details).</p></dd>
+<dd><p>An <code>fp_occu</code> object, an <code>fp_occu_dyn</code> object, an
+<code>fp_occu_ms</code> object or an <code>fp_occu_rn</code> object (see Details).</p></dd>
 
 
 <dt id="arg-prob">prob<a class="anchor" aria-label="anchor" href="#arg-prob"></a></dt>
@@ -150,6 +150,13 @@ forward-backward algorithm for each posterior draw). <code>detections</code>,
 <p>For a multispecies model (<code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>) the result has one row per site
 and species, with the species column of the data after the site columns,
 and every column refers to that species at that site.</p>
+<p>For a Royle-Nichols model (<code><a href="fp_occu_rn.html">fp_occu_rn()</a></code>), <code>psi</code> is
+\(1 - e^{-\lambda}\) with \(\lambda\) from the covariates of
+log abundance alone, <code>occupied</code> the probability that the site's
+abundance exceeds 0 given its data, and three more columns give the
+posterior mean abundance given the data, <code>abundance</code>, with
+<code>abundance_lower</code> and <code>abundance_upper</code> (quantiles over the draws of
+that conditional mean). The abundance is summed over 0 to <code>n_max</code>.</p>
     </div>
 
     <div class="section level2">
@@ -160,12 +167,12 @@ and every column refers to that species at that site.</p>
 <span class="r-in"><span>             chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 22.5 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 22.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 20.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 20.9 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 22.6 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 22.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 20.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 21.0 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu">fp_sites</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span></span></span>

@@ -95,7 +95,10 @@ for which detections are summed per site and season
 and the latent states are drawn jointly over seasons by forward
 filtering, backward sampling; or an <code>fp_occu_ms</code> object, for which
 detections are summed per site and species, the discrepancy is summed
-over species, and each species also gets its own p-value.</p></dd>
+over species, and each species also gets its own p-value; or an
+<code>fp_occu_rn</code> object, for which the abundance of each site is drawn
+from its conditional posterior given the data and the parameters, and
+the detections are replicated given it.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -175,12 +178,12 @@ package, so its <code>ppc_*()</code> functions can be used directly, for example
 <span class="r-in"><span>             chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 22.1 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 22.2 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 19.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 20.0 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 22.2 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 22.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 19.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 20.1 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">ppc</span> <span class="op">&lt;-</span> <span class="fu">fp_ppc</span><span class="op">(</span><span class="va">m</span>, ndraws <span class="op">=</span> <span class="fl">500</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ppc</span></span></span>

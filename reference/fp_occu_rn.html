@@ -289,9 +289,14 @@ at least one true observation \(s_1 = 1 - (1 - r)^{N_i}\) and at least
 one false observation \(s_0 = p_{10}\). They can be the same occasions
 as the automated detections, so a fully annotated survey enters as one
 row per occasion with both columns filled.</p>
+<p><strong>Outputs.</strong> <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code>, <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> (leave
+one site out), <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> (new abundances and detections with the
+design of the data) and <code><a href="fp_sites.html">fp_sites()</a></code> and <code><a href="fp_ppc.html">fp_ppc()</a></code>, which use the
+posterior of each site's abundance given its data; see
+<a href="fp_occu_rn-methods.html">fp_occu_rn-methods</a>.</p>
 <p><strong>Not supported.</strong> False-positive covariates measured on each occasion,
-runs of detections (<code>markov</code> of <code><a href="fp_occu.html">fp_occu()</a></code>), the outputs of <code><a href="fp_occu.html">fp_occu()</a></code>
-other than <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://mc-stan.org/posterior/reference/draws_df.html" class="external-link">as_draws_df()</a></code> (for now).</p>
+runs of detections (<code>markov</code> of <code><a href="fp_occu.html">fp_occu()</a></code>), and the other outputs of
+<code><a href="fp_occu.html">fp_occu()</a></code> (<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="fp_effects.html">fp_effects()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>).</p>
 <p><strong>Identifiability.</strong> Simulations at 200 sites and at 21 sites with 17
 occasions (in <code>dev/rn-fp/</code> of the package repository) recovered
 <code>sd_det_site</code> near 1 and gave few false signals when it was 0; values
@@ -328,15 +333,14 @@ designs. <em>Ecology</em>, 96, 332–339. <a href="https://doi.org/10.1890/14-15
 <span class="r-in"><span>                iter_warmup <span class="op">=</span> <span class="fl">300</span>, iter_sampling <span class="op">=</span> <span class="fl">300</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 2 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 4.2 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 4.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 4.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 4.8 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 4.5 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 4.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 4.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 4.8 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.043 (&gt; 1.01); run longer chains.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Smallest bulk ESS is 48 (&lt; 400).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Smallest bulk ESS is 187 (&lt; 400).</span>
 <span class="r-in"><span><span class="va">m</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bayesian Royle-Nichols occupancy model with false positives</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -345,21 +349,21 @@ designs. <em>Ecology</em>, 96, 332–339. <a href="https://doi.org/10.1890/14-15
 <span class="r-out co"><span class="r-pr">#&gt;</span>   false positive:   ~1  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   data:             60 sites, 600 automated (0 confirmed) and 42 verified occasions; N summed over 0..20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              variable    mean     sd   lower  upper rhat ess_bulk ess_tail</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     abund_(Intercept) -0.0902 0.3074 -0.6209  0.536 1.01    244.1      293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       det_(Intercept) -1.0123 0.3638 -1.8773 -0.412 1.01    199.6      356</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  verified_(Intercept)  0.1877 0.5241 -0.7958  1.228 1.00    383.0      228</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            r_verified  0.5439 0.1231  0.3109  0.773 1.00    383.0      228</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_ref  0.9590 0.3137  0.5375  1.710 1.01    244.1      293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_ref  0.5997 0.1081  0.4158  0.819 1.01    244.1      293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_bar  0.9590 0.3137  0.5375  1.710 1.01    244.1      293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_bar  0.5997 0.1081  0.4158  0.819 1.01    244.1      293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 r_ref  0.2724 0.0684  0.1327  0.398 1.01    199.6      356</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        fp_(Intercept) -2.6434 0.4675 -3.6821 -1.992 1.01    333.4      267</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               p10_ref  0.0713 0.0246  0.0246  0.120 1.01    333.4      267</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           sd_det_site  0.7402 0.3443  0.0677  1.435 1.04     47.6      123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              variable    mean     sd   lower  upper  rhat ess_bulk ess_tail</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     abund_(Intercept) -0.0765 0.3054 -0.6281  0.563 1.000      264      172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       det_(Intercept) -1.0104 0.3620 -1.7585 -0.352 0.998      247      368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  verified_(Intercept)  0.1929 0.5032 -0.7819  1.189 0.999      434      325</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            r_verified  0.5456 0.1178  0.3139  0.767 0.999      434      325</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_ref  0.9716 0.3145  0.5336  1.756 1.000      264      172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_ref  0.6045 0.1075  0.4135  0.827 1.000      264      172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_bar  0.9716 0.3145  0.5336  1.756 1.000      264      172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_bar  0.6045 0.1075  0.4135  0.827 1.000      264      172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 r_ref  0.2727 0.0686  0.1470  0.413 0.999      247      368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        fp_(Intercept) -2.6733 0.5843 -4.0899 -1.965 1.003      267      128</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               p10_ref  0.0712 0.0268  0.0165  0.123 1.004      267      128</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           sd_det_site  0.7320 0.3105  0.1833  1.431 1.007      187      441</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Sampler: 0 divergent transitions, max R-hat 1.043, min bulk/tail ESS 48/123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sampler: 0 divergent transitions, max R-hat 1.007, min bulk/tail ESS 187/128</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

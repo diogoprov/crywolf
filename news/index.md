@@ -16,7 +16,16 @@
   (experimental) simulates data from it, with unbalanced occasions if
   needed, and
   [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
-  gains `abund_site_sd`.
+  gains `abund_site_sd`. Its fits have
+  [`loo()`](https://mc-stan.org/loo/reference/loo.html) (leave one site
+  out, with the site effects integrated out and exact refits with
+  `reloo = TRUE`) and
+  [`simulate()`](https://rdrr.io/r/stats/simulate.html) methods, and
+  [`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+  (with the posterior mean abundance of each site),
+  [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) and
+  [`fp_loo_weights()`](https://provetelab.org/crywolf/reference/fp_loo_weights.md)
+  accept them.
 - [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) no
   longer fails when every automated occasion is confirmed
   (observation-confirmation design with nothing left unchecked).

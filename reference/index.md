@@ -51,7 +51,9 @@ Fit the model and inspect, summarize, predict, and compare fits.
   : Simulate data for a multispecies false-positive occupancy model
 - [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
   : Fit a Royle-Nichols occupancy model with false positives
-- [`print(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
+- [`loo(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
+  [`simulate(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
+  [`print(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
   [`summary(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
   [`as_draws_df(`*`<fp_occu_rn>`*`)`](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)
   : Methods for Royle-Nichols fits

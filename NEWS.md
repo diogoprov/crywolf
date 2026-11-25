@@ -17,6 +17,10 @@
   The new article `vignette("royle-nichols")` describes the model and the
   simulations that validate it (simulation-based calibration and a grid over
   sites, occasions and annotation schemes).
+* `?fp_occu` and `?fp_occu_ms` now state that the false-positive rate of a
+  species does not depend on which other species are present. They also
+  report how occupancy is overestimated when the classifier confuses two
+  species often.
 * `fp_occu()` no longer fails when every automated occasion is confirmed
   (observation-confirmation design with nothing left unchecked).
 * New `fp_review_priority()` (experimental) gives every site, or site and

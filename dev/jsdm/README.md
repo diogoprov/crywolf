@@ -75,6 +75,17 @@ transitions or hit the maximum tree depth.
 - A factor model without a site effect on detection should not be offered.
   With it, the spurious signal disappeared in this design.
 
+### What ΛΛ′ is not
+
+ΛΛ′ is residual co-occurrence, which is not evidence of species interactions
+(Blanchet et al. 2020). In a competitive metacommunity model, Barbier et al.
+(2025) found the opposite split to this pilot. Individual interactions could
+not be inferred from cross-species correlations, but the mean and variance of
+the interaction distribution could. The two results are not comparable. The
+failure here is statistical (a fitted model equal to the generating one, with
+few sites), whereas theirs comes from mapping interactions onto correlations.
+Any package documentation of ΛΛ′ should carry this caveat.
+
 ## Decision
 
 Feasible, with two conditions for a package version:
@@ -98,3 +109,13 @@ Both need AWS (an estimate goes to the user before launch).
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
   REPS=3 WORKERS=10 Rscript dev/jsdm/pilot.R
 ```
+
+## References
+
+- Barbier, M., Bunin, G. & Leibold, M. A. (2025). Getting more by asking for
+  less: Linking species interactions to species co-distributions in
+  metacommunities. *Peer Community Journal*, 5, e1.
+  https://doi.org/10.24072/pcjournal.483
+- Blanchet, F. G., Cazelles, K. & Gravel, D. (2020). Co-occurrence is not
+  evidence of ecological interactions. *Ecology Letters*, 23, 1050–1063.
+  https://doi.org/10.1111/ele.13525

@@ -18,6 +18,8 @@ the package and touches no exported code.
 - `simulate_jsdm_fp.R`: matching simulator, with an optional shared site
   effect on detection (`sigma_d`).
 - `pilot.R`: pilot below. `pilot.rds`: its results.
+- `pilot_confusion.R`: classifier-confusion pilot below.
+  `pilot_confusion.rds`: its results.
 
 Priors: community means and SDs for intercepts, slopes, detection and log gap;
 `L ~ N(0, 1)`, `sigma_L ~ N(0, 1)`, `Z ~ N(0, 1)`, `sigma_d ~ N(0, 1)`.
@@ -75,6 +77,42 @@ transitions or hit the maximum tree depth.
 - A factor model without a site effect on detection should not be offered.
   With it, the spurious signal disappeared in this design.
 
+### Classifier confusion (D1–D3)
+
+Truth: no factors and no shared detection effect. Species 1, 3 and 5
+received automated detections from the presence of species 2, 4 and 6, with
+per-occasion probability `conf`. Verified occasions had no confusion. Every
+fit used K = 1 with the shared detection effect, the configuration proposed
+for the package.
+
+| Scenario | `conf` | Verified sites |
+|---|---|---|
+| D1 | 0.15 | 30% |
+| D2 | 0.30 | 30% |
+| D3 | 0.30 | 10% |
+
+Each fit took 2.6–3.3 min. No fit had divergent transitions, and ΛΛ′ mixed
+in all of them (R-hat ≤ 1.02, bulk ESS ≥ 199).
+
+- **Spurious association.** The posterior mean of ΛΛ′ for the confused pairs
+  was positive in all nine fits. It was 0.09–1.19 in D1, 0.97–4.53 in D2 and
+  1.25–3.51 in D3. The null scenario C had mean |ΛΛ′| of 0.03–0.06.
+- **Spillover.** The factor also distorted the other pairs, with mean |ΛΛ′|
+  of 0.12–1.12.
+- **The shared detection effect does not help.** `sigma_d` was estimated at
+  0.05–0.19 (true 0), so it did not absorb the confusion.
+- **Verified data at 30% of the sites did not prevent the bias.**
+- **Occupancy bias.** The intercepts of the confused species were biased
+  upwards, by 0.18–0.61 logit in D1, 0.70–1.49 in D2, and 0.00–1.47 in D3.
+  For the other species the bias was −0.16 to 0.30.
+
+Confusion makes the false-positive rate of one species depend on the presence
+of another. The model assumes a false-positive rate that does not vary with
+site, so the factor absorbs the confusion as co-occurrence. The upward
+occupancy bias suggests the same assumption matters outside the JSDM. Our
+interpretation, not tested here: the single-species and multispecies models
+in crywolf would also be biased under this kind of confusion.
+
 ### What ΛΛ′ is not
 
 ΛΛ′ is residual co-occurrence, which is not evidence of species interactions
@@ -88,26 +126,37 @@ Any package documentation of ΛΛ′ should carry this caveat.
 
 ## Decision
 
-Feasible, with two conditions for a package version:
+Feasible in the narrow sense: the model fits, mixes and, without
+confusion, separates correlated detection from co-occurrence.
+
+Not ready for the package. Classifier confusion produced a spurious
+association that the shared detection effect did not remove, and confusion
+between similar calls is common in automated acoustic data. A package
+version needs three conditions:
 
 1. Free diagonal and signs fixed after sampling (A1), not a positive
    diagonal.
 2. A site effect on detection, shared by species, included by default
    whenever `n_factors > 0`.
+3. A confusion term: the false-positive rate of species a increases with the
+   presence of species b, for pairs the user declares. The verified data
+   would identify it.
 
-Before an implementation in the package:
+Next steps, in order:
 
-- A grid over sites (100, 200, 400) and species (10, 20) to establish when the
-  strength of ΛΛ′, and not only its pattern, is recovered.
-- An SBC run for the factor model.
-
-Both need AWS (an estimate goes to the user before launch).
+- Check whether the single-species and multispecies models are biased under
+  confusion. This matters for crywolf beyond the JSDM.
+- Prototype the confusion term and repeat D1–D3.
+- Only then, a grid over sites (50, 100, 200, 400) and species (10, 20) and an
+  SBC run. Both need AWS (an estimate goes to the user before launch).
 
 ## Run
 
 ```
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
   REPS=3 WORKERS=10 Rscript dev/jsdm/pilot.R
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
+  REPS=3 WORKERS=9 Rscript dev/jsdm/pilot_confusion.R
 ```
 
 ## References

@@ -1,0 +1,5 @@
+jobs-*/
+pilot-*/
+logs*/
+*.log
+*.rds

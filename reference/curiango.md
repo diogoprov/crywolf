@@ -56,12 +56,14 @@ Licence CC BY 4.0.
 The annotated recordings are a test set of about 1% of the recordings
 (Piatti et al., 2026), assembled in two stages:
 
-- Test sets 1 and 2 (960 recordings, 43 with the species) are random
-  draws. About 1% of the recordings of each site were drawn. The
-  inclusion probability also varies with the month and the hour: it is
-  higher from August to January and from 18:00 to 22:00. Given
-  year-month, hour and site, the classifier scores hardly predict
-  inclusion.
+- Test sets 1 and 2 (960 recordings, 43 with the species) are a weighted
+  random draw of 1% of the night-time recordings of each site (16:00 to
+  06:00). The weight of a recording was the product of a month weight (5
+  from August to October, 3 from November to January, 1 otherwise) and
+  an hour weight (4 from 18:00 to 22:00, 2 from 00:00 to 05:00, 1
+  otherwise). Drawn recordings without audio were dropped. Given
+  year-month, hour and site, the classifier scores therefore do not
+  predict inclusion.
 
 - Test set 3 (239 recordings, 214 with the species) completes them with
   recordings chosen because a BirdNET run detected the species, plus
@@ -69,8 +71,9 @@ The annotated recordings are a test set of about 1% of the recordings
   of about 40 per site and none from MIM. That BirdNET run is not the
   one in `conf_birdnet`.
 
-The original selection script was lost. This account comes from the
-selection folders and notes kept by L. Piatti, compared with the data.
+The account of test sets 1 and 2 comes from the selection script of L.
+Piatti. That of test set 3 comes from her selection folders and notes,
+compared with the data.
 
 The verified method of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)

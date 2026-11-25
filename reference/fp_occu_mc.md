@@ -205,16 +205,16 @@ mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                  chains = 2, threads_per_chain = 1, seed = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 9.8 seconds.
-#> Chain 1 finished in 10.7 seconds.
+#> Chain 2 finished in 9.7 seconds.
+#> Chain 1 finished in 10.9 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 10.3 seconds.
-#> Total execution time: 10.8 seconds.
+#> Total execution time: 11.0 seconds.
 #> 
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 9.3 seconds.
+#> Chain 2 finished in 9.4 seconds.
 #> Chain 1 finished in 9.9 seconds.
 #> 
 #> Both chains finished successfully.
@@ -223,12 +223,12 @@ mc <- fp_occu_mc(versions, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
 #> 
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 9.6 seconds.
-#> Chain 2 finished in 11.1 seconds.
+#> Chain 1 finished in 9.9 seconds.
+#> Chain 2 finished in 11.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 10.4 seconds.
-#> Total execution time: 11.2 seconds.
+#> Mean chain execution time: 10.7 seconds.
+#> Total execution time: 11.6 seconds.
 #> 
 summary(mc)
 #> Posterior pooled over 3 fits (95% equal-tailed intervals)
@@ -277,7 +277,7 @@ if (requireNamespace("jsonlite", quietly = TRUE) &&
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 1 finished in 3.2 seconds.
-#> Chain 2 finished in 3.4 seconds.
+#> Chain 2 finished in 3.3 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 3.3 seconds.
@@ -290,21 +290,21 @@ if (requireNamespace("jsonlite", quietly = TRUE) &&
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 1 finished in 7.0 seconds.
-#> Chain 2 finished in 7.6 seconds.
+#> Chain 2 finished in 7.7 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 7.3 seconds.
-#> Total execution time: 7.7 seconds.
+#> Total execution time: 7.8 seconds.
 #> 
 #> Warning: No verified data: the false-positive rates are identified only by the priors. Treat the estimates with caution.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 7.8 seconds.
-#> Chain 2 finished in 8.9 seconds.
+#> Chain 1 finished in 7.5 seconds.
+#> Chain 2 finished in 8.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 8.3 seconds.
-#> Total execution time: 9.0 seconds.
+#> Mean chain execution time: 8.0 seconds.
+#> Total execution time: 8.6 seconds.
 #> 
 #> Posterior pooled over 3 fits (95% equal-tailed intervals)
 #> 

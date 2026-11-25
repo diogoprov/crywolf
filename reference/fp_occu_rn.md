@@ -291,7 +291,7 @@ m <- fp_occu_rn(s$data, random_det = TRUE, chains = 2,
                 iter_warmup = 300, iter_sampling = 300, seed = 1)
 #> Running MCMC with 2 parallel chains, with 2 thread(s) per chain...
 #> 
-#> Chain 2 finished in 6.6 seconds.
+#> Chain 2 finished in 6.5 seconds.
 #> Chain 1 finished in 7.6 seconds.
 #> 
 #> Both chains finished successfully.

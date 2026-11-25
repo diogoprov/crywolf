@@ -200,7 +200,7 @@ if (instantiate::stan_cmdstan_exists()) {
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 1 finished in 0.5 seconds.
-#> Chain 2 finished in 0.5 seconds.
+#> Chain 2 finished in 0.4 seconds.
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 0.5 seconds.

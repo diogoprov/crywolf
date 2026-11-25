@@ -3,3 +3,5 @@ pilot-*/
 logs*/
 *.log
 *.rds
+!sbc.rds
+!grid.rds

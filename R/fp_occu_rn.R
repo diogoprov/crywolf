@@ -72,12 +72,18 @@
 #' runs of detections (`markov` of [fp_occu()]), and the other outputs of
 #' [fp_occu()] (`predict()`, `coef()`, [fp_effects()], [plot()]).
 #'
-#' **Identifiability.** Simulations at 200 sites and at 21 sites with 17
-#' occasions (in `dev/rn-fp/` of the package repository) recovered
-#' `sd_det_site` near 1 and gave few false signals when it was 0; values
-#' near 0.5 were not distinguishable from 0, and `sd_abund_site` was weakly
+#' **Identifiability.** In simulations (`vignette("royle-nichols")`, code
+#' in `dev/rn-fp/` of the package repository), the power to detect
+#' `sd_det_site = 1` grew with the number of sites and occasions, from about
+#' half at 25 sites and 10 occasions to above 90% at 100 sites and 20
+#' occasions, and depended little on whether verified data or confirmed
+#' occasions supplied the information. `sd_abund_site` was weakly
 #' identified. With few sites the prior of `sd_det_site` carries much of the
 #' posterior near 0: compare fits under several values of `det_site_sd`.
+#' The default `adapt_delta` is 0.99, above the 0.95 of [fp_occu()]: the
+#' site effects create funnels, and at 0.95 most simulated designs had
+#' divergences. With many sites, also use longer chains than the default:
+#' the standard deviations of the site effects mix slowly.
 #'
 #' @return An object of class `fp_occu_rn`, with the elements of an
 #'   [fp_occu()] fit (`fit`, `draws`, `stan_data`, `formulas`, `design`,
@@ -97,9 +103,6 @@
 #' Chambert, T., Miller, D. A. W. and Nichols, J. D. (2015). Modeling false
 #' positive detections in species occurrence data under different study
 #' designs. *Ecology*, 96, 332–339. \doi{10.1890/14-1507.1}
-#' @section Experimental:
-#' This function is experimental (new after 2.3.0): its arguments and
-#' results may change in a minor version. See [crywolf-api].
 #' @seealso [simulate_fp_rn()], [fp_occu()]
 #' @export
 #' @examplesIf instantiate::stan_cmdstan_exists()
@@ -116,7 +119,7 @@ fp_occu_rn <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
                        priors = fp_priors(), chains = 4,
                        parallel_chains = chains, threads_per_chain = "auto",
                        iter_warmup = 1000, iter_sampling = 1000,
-                       adapt_delta = 0.95, seed = NULL, refresh = NULL,
+                       adapt_delta = 0.99, seed = NULL, refresh = NULL,
                        prior_only = FALSE, ...) {
   .check_fp_data(data)
   .check_sampler(chains, iter_warmup, iter_sampling, adapt_delta, seed)

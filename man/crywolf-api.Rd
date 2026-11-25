@@ -22,7 +22,7 @@ an argument after the existing named ones (and before a trailing
 (\code{fp_data}, \code{fp_occu}, \code{fp_priors}, \code{fp_sim}, \code{fp_calibration},
 \code{fp_sbc}, \code{fp_ppc}, \code{fp_prior_predictive}, \code{fp_effects}, \code{fp_sites},
 \code{fp_threshold_sweep}, \code{fp_sheepdog}, \code{fp_occu_dyn}, \code{fp_sim_dyn},
-\code{fp_occu_ms}, \code{fp_sim_ms},
+\code{fp_occu_ms}, \code{fp_sim_ms}, \code{fp_occu_rn},
 \code{summary.fp_occu}, \code{summary.fp_calibration}, \code{summary.fp_sbc}), and the class of the
 design warnings of \code{\link[=fp_data]{fp_data()}} (\code{crywolf_design_warning}), which code
 may catch. Classes of other packages (the \code{CmdStanModel} of
@@ -64,12 +64,14 @@ Fitting and checking: \code{\link[=fp_occu]{fp_occu()}}, \code{\link[=fp_priors]
 (multi-season) model, with its methods and \code{\link[=simulate.fp_occu_dyn]{simulate.fp_occu_dyn()}}, and
 \code{\link[=fp_occu_ms]{fp_occu_ms()}}, the multispecies model, with the \code{species} argument of
 \code{\link[=fp_data]{fp_data()}}, the methods of the \code{fp_occu_ms} class and
-\code{\link[=simulate.fp_occu_ms]{simulate.fp_occu_ms()}}.
+\code{\link[=simulate.fp_occu_ms]{simulate.fp_occu_ms()}}. From the release after 2.3.0, \code{\link[=fp_occu_rn]{fp_occu_rn()}}, the Royle-Nichols
+model with false positives, with the methods of the \code{fp_occu_rn} class
+(\link{fp_occu_rn-methods}).
 
 Results and simulation: \code{\link[=fp_effects]{fp_effects()}}, \code{\link[=fp_sites]{fp_sites()}}, \code{\link[=simulate_fp]{simulate_fp()}},
 \code{\link[=fp_calibrate]{fp_calibrate()}}, \code{\link[=fp_verification_curve]{fp_verification_curve()}}, \code{\link[=fp_calibrate_fit]{fp_calibrate_fit()}},
 \code{\link[=fp_sbc]{fp_sbc()}}, and, from 2.3.0, \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}, \code{\link[=simulate_fp_ms]{simulate_fp_ms()}} and
-\code{\link[=fp_richness]{fp_richness()}}.
+\code{\link[=fp_richness]{fp_richness()}}, and, from the release after 2.3.0, \code{\link[=simulate_fp_rn]{simulate_fp_rn()}}.
 
 The \code{print()}, \code{summary()} and \code{plot()} methods of the classes above
 are stable too.
@@ -82,10 +84,7 @@ are stable too.
 classifier calibration from 'sheepdog' into the model or pass data to
 'unmarked', and are still being evaluated. \code{\link[=fp_review_priority]{fp_review_priority()}}, new
 after 2.3.0, prepares directed review rounds of 'sheepdog'; it follows
-\code{select_directed()}, which may still change. \code{\link[=fp_occu_rn]{fp_occu_rn()}} and
-\code{\link[=simulate_fp_rn]{simulate_fp_rn()}}, new after 2.3.0, fit and simulate the Royle-Nichols
-model with false positives, with the \code{fp_occu_rn} class and its methods.
-Their arguments, classes and
+\code{select_directed()}, which may still change. Their arguments, classes and
 results may change in a minor version; the NEWS will say so. Each says
 so in its help. \code{\link[=fp_read_sheepdog]{fp_read_sheepdog()}}, by contrast, reads a versioned
 export format (\code{sheepdog-occupancy}, schema 1) and is stable.

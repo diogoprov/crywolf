@@ -593,6 +593,37 @@ espécies).
 - Por que é 3.0.0: muda as saídas e a interface multiespécies de forma
   incompatível com a Fase A, se a Fase A já estiver publicada.
 
+**Avaliação de 25/11/2026 (com o MSO estável e o RN validado):**
+- **Distância:** de 2 a 3 semanas de trabalho, no ritmo do RN e do
+  multiespécies. Hoje não há código nem protótipo.
+- **O que já serve:**
+  - A estrutura do `fp_occu_ms()`. As unidades sítio × espécie são
+    independentes dado o sítio. Os fatores entram como λⱼ′zᵢ no preditor da
+    ocupação, e dado zᵢ a verossimilhança continua fatorando por unidade. A
+    parte de detecção, falsos positivos e verificação fica intacta.
+  - A integração por Gauss–Hermite do `loo()`, já usada para os efeitos de
+    sítio. O `log_lik` passa a ser agrupado por sítio, e não por unidade,
+    porque zᵢ é comum às espécies do sítio.
+  - A receita de validação: piloto local, SBC e grade na AWS.
+- **Riscos, em ordem:**
+  1. Identificação das cargas: triângulo inferior com diagonal positiva.
+     Mesmo assim, cada cadeia pode convergir para um sinal diferente dos
+     fatores, e o R-hat explode. Ver antes como o jsdmstan resolve isso.
+  2. Coocorrência aparente por detecção correlacionada, e não por ocupação
+     correlacionada, com falsos positivos. A pergunta da simulação é se as
+     correlações residuais são recuperáveis com o nível de verificação dos
+     dados reais. O RN mostrou que a resposta pode ser "parcialmente".
+  3. Custo: nsítios × K parâmetros a mais. No FrogNet (5 M linhas), o
+     ajuste já é pesado, mas o custo extra fica só na ocupação.
+  4. Saídas novas: a matriz de correlação residual ΛΛ′, `print`,
+     `fp_sites()`, `simulate()`, `fp_ppc()` e uma vinheta com 0, 1 e 2
+     fatores comparados por LOO.
+- **Versão:** o critério "zero fatores = a mesma log-densidade da Fase A"
+  permite fazer o JSDM como um argumento `n_factors = 0` do `fp_occu_ms()`.
+  Assim nada quebra, e ele pode sair numa 2.x, e não necessariamente na 3.0.0.
+- **Primeiro passo:** protótipo de viabilidade em `dev/`, de 1 a 2 dias,
+  como a etapa 1 do RN. O foco são os riscos 1 e 2.
+
 ### Fora do plano
 
 Confusão entre espécies (o classificador marca A quando quem canta é B):
@@ -639,6 +670,10 @@ fica para depois da etapa 1.
   desenho A ficou no limite. O poder para σr depende sobretudo de sítios e
   ocasiões, e pouco do esquema de anotação. Com 100 sítios, 1000 + 1000
   iterações dão R-hat de 1,01–1,03. Detalhes em `dev/rn-fp/sim/README.md`.
+- **Etapa 5, feita (25/11/2026):** vinheta `royle-nichols` (lê os
+  resultados pré-computados das etapas 1 e 4), nomes das saídas em
+  `crywolf-output`, e `fp_occu_rn()` e `simulate_fp_rn()` passam à interface
+  estável a partir da release seguinte à 2.3.0 (número a decidir).
 
 **Etapa 1, o ponto de decisão (1–2 dias):**
 - Simular dados RN com falsos positivos e ajustar um protótipo em Stan fora do

@@ -181,9 +181,15 @@ one false observation \eqn{s_0 = p_{10}}. They can be the same occasions
 as the automated detections, so a fully annotated survey enters as one
 row per occasion with both columns filled.
 
+\strong{Outputs.} \code{print()}, \code{summary()}, \code{as_draws_df()}, \code{\link[=loo]{loo()}} (leave
+one site out), \code{\link[=simulate]{simulate()}} (new abundances and detections with the
+design of the data) and \code{\link[=fp_sites]{fp_sites()}} and \code{\link[=fp_ppc]{fp_ppc()}}, which use the
+posterior of each site's abundance given its data; see
+\link{fp_occu_rn-methods}.
+
 \strong{Not supported.} False-positive covariates measured on each occasion,
-runs of detections (\code{markov} of \code{\link[=fp_occu]{fp_occu()}}), the outputs of \code{\link[=fp_occu]{fp_occu()}}
-other than \code{print()}, \code{summary()} and \code{as_draws_df()} (for now).
+runs of detections (\code{markov} of \code{\link[=fp_occu]{fp_occu()}}), and the other outputs of
+\code{\link[=fp_occu]{fp_occu()}} (\code{predict()}, \code{coef()}, \code{\link[=fp_effects]{fp_effects()}}, \code{\link[=plot]{plot()}}).
 
 \strong{Identifiability.} Simulations at 200 sites and at 21 sites with 17
 occasions (in \verb{dev/rn-fp/} of the package repository) recovered

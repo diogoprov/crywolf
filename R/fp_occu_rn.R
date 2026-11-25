@@ -62,9 +62,15 @@
 #' as the automated detections, so a fully annotated survey enters as one
 #' row per occasion with both columns filled.
 #'
+#' **Outputs.** `print()`, `summary()`, `as_draws_df()`, [loo()] (leave
+#' one site out), [simulate()] (new abundances and detections with the
+#' design of the data) and [fp_sites()] and [fp_ppc()], which use the
+#' posterior of each site's abundance given its data; see
+#' [fp_occu_rn-methods].
+#'
 #' **Not supported.** False-positive covariates measured on each occasion,
-#' runs of detections (`markov` of [fp_occu()]), the outputs of [fp_occu()]
-#' other than `print()`, `summary()` and `as_draws_df()` (for now).
+#' runs of detections (`markov` of [fp_occu()]), and the other outputs of
+#' [fp_occu()] (`predict()`, `coef()`, [fp_effects()], [plot()]).
 #'
 #' **Identifiability.** Simulations at 200 sites and at 21 sites with 17
 #' occasions (in `dev/rn-fp/` of the package repository) recovered
@@ -256,15 +262,30 @@ fp_occu_rn <- function(data, occ = ~ 1, det = ~ 1, fp = ~ 1,
 #' Methods for Royle-Nichols fits
 #'
 #' @description
-#' `print()`, `summary()` and `as_draws_df()` for fits of [fp_occu_rn()].
+#' `print()`, `summary()`, `as_draws_df()`, `loo()` and `simulate()` for fits
+#' of [fp_occu_rn()]. [fp_sites()] and [fp_ppc()] also accept them.
+#'
+#' `loo()` computes the leave-one-site-out predictive density from the
+#' marginal log-likelihood of each site (abundance summed over 0..`n_max`),
+#' with the site effects integrated out (see `integrate`); `reloo = TRUE`
+#' refits [fp_occu_rn()] without each site with a high Pareto \eqn{k}.
+#' `simulate()` keeps the design of the data (sites, covariates, occasions,
+#' recorders, which occasions were verified or confirmed) and draws new
+#' abundances \eqn{N_i \sim \mathrm{Poisson}(\lambda_i)} and detections
+#' from the fitted model, as [simulate.fp_occu()] does for [fp_occu()]; with
+#' `truth = "mean"`, new site effects on log abundance are drawn from a
+#' normal distribution with the posterior mean of `sd_abund_site`.
 #'
 #' @param x,object A fit of [fp_occu_rn()].
 #' @param digits Digits to print.
 #' @param prob Probability mass of the equal-tailed credible intervals.
-#' @param ... Not used.
+#' @param ... Not used, except by `loo()`, which passes them to [loo::loo()].
 #' @return `print()` returns `x` invisibly; `summary()` an object of class
 #'   `summary.fp_occu` (see [summary.fp_occu()]); `as_draws_df()` the
-#'   posterior draws with readable names.
+#'   posterior draws with readable names; `loo()` a `psis_loo` object;
+#'   `simulate()` a list of `nsim` elements, each with `data` and `truth`,
+#'   as from [simulate.fp_occu()], with the coefficients of log abundance
+#'   named `abund_*` and the abundances `N` in `truth`.
 #' @name fp_occu_rn-methods
 NULL
 

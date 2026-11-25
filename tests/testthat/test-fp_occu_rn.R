@@ -140,3 +140,106 @@ test_that("fp_occu_rn() warns when n_max cuts off the abundance", {
       crywolf_sampler_warning = function(w) invokeRestart("muffleWarning")),
     "probability that abundance exceeds `n_max` (2) is", fixed = TRUE)
 })
+
+# Stan data of fp_occu_rn() for a dataset, captured without CmdStan
+rn_stan_data <- function(data, ...) {
+  captured <- NULL
+  testthat::with_mocked_bindings(
+    .compile_model = function(...) {
+      list(sample = function(data, ...) {
+        captured <<- data
+        stop("sampler reached", call. = FALSE)
+      })
+    },
+    expect_error(fp_occu_rn(data, threads_per_chain = 1, ...), "sampler reached")
+  )
+  captured
+}
+
+#' @srrstats {G5.4, G5.4a} The conditional posterior of abundance that the outputs of fp_occu_rn() use gives the likelihood written independently in R, occasion by occasion.
+test_that(".rn_core() gives the likelihood written in R and draws N from its conditional posterior", {
+  s <- simulate_fp_rn(nsite = 20, nocc = c(rep(3, 10), rep(5, 10)), psi = 0.6,
+                      frac_verified = 0.5, frac_confirmed = 0.4, seed = 21)
+  sd <- rn_stan_data(s$data, occ = ~ x, n_max = 15)
+  S <- 2
+  pars <- list(beta = matrix(c(0.2, 0.4, -0.3, 0.1), S, 2, byrow = TRUE),
+               alpha = matrix(c(-0.8, -1.2), S, 1), delta0 = c(0.3, -0.2),
+               delta_s = matrix(0, S, 0), gamma0 = c(-2.5, -1.8),
+               gamma_fp = matrix(0, S, 0))
+  r <- .rn_core(sd, pars)
+  for (k in seq_len(S)) {
+    lambda <- exp(pars$beta[k, 1] + pars$beta[k, 2] * s$data$sites$x)
+    ll_r <- rn_loglik_r(s$data, lambda, rep(plogis(pars$alpha[k, 1]), 20),
+                        rep(plogis(pars$gamma0[k]), 20), plogis(pars$delta0[k]), n_max = 15)
+    expect_equal(r$ll[k, ], ll_r, tolerance = 1e-10)
+  }
+  # known occupied sites have P(occupied) = 1, and E[N | y] >= P(N > 0 | y)
+  expect_true(all(r$pz[, sd$known_present == 1] == 1))
+  expect_true(all(r$n_mean >= r$pz - 1e-12))
+  # the share of drawn abundances above 0 matches P(occupied | y)
+  big <- lapply(pars, function(p) if (is.matrix(p)) p[rep(1, 4000), , drop = FALSE] else rep(p[1], 4000))
+  set.seed(1)
+  rb <- .rn_core(sd, big, draw = TRUE)
+  expect_equal(colMeans(rb$N > 0), rb$pz[1, ], tolerance = 0.03)
+  expect_equal(colMeans(rb$N), rb$n_mean[1, ], tolerance = 0.08)
+})
+
+#' @srrstats {G5.10, BS7.2} The outputs of fp_occu_rn() on a fit: leave-one-site-out, site estimates, posterior predictive check and simulation.
+test_that("the outputs of fp_occu_rn() work on a fit", {
+  skip_if_no_cmdstan()
+  s <- simulate_fp_rn(nsite = 40, nocc = 6, psi = 0.6, frac_verified = 0.4,
+                      frac_confirmed = 0.3, seed = 22)
+  m <- suppressWarnings(fp_occu_rn(s$data, occ = ~ x, random_det = TRUE, chains = 2,
+                                   iter_warmup = 200, iter_sampling = 150,
+                                   threads_per_chain = 1, seed = 22, refresh = 0,
+                                   show_messages = FALSE))
+  # the R likelihood equals the log_lik of the Stan program
+  pars <- .ppc_pars(m$fit, m$stan_data, NULL)
+  ll <- unclass(posterior::as_draws_matrix(m$fit$draws("log_lik")))
+  expect_equal(.rn_core(m$stan_data, pars)$ll, unname(ll), tolerance = 1e-5,
+               ignore_attr = TRUE)
+
+  l <- suppressWarnings(loo(m, integrate = FALSE))
+  expect_s3_class(l, "psis_loo")
+  expect_identical(nrow(l$pointwise), 40L)
+  li <- suppressWarnings(loo(m, nodes = 20))
+  expect_s3_class(li, "psis_loo")
+  expect_length(fp_loo_weights(a = li, b = l), 2)
+
+  st <- fp_sites(m, seed = 1)
+  expect_s3_class(st, "fp_sites")
+  expect_true(all(c("psi", "occupied", "abundance", "abundance_lower",
+                    "abundance_upper", "p10") %in% names(st)))
+  expect_true(all(st$occupied[st$verified] == 1))
+  expect_true(all(st$abundance >= st$occupied - 1e-12))
+  expect_identical(fp_sites(m, seed = 1, ndraws = 50), fp_sites(m, seed = 1, ndraws = 50))
+
+  p <- fp_ppc(m, ndraws = 100, seed = 1)
+  expect_s3_class(p, "fp_ppc")
+  expect_identical(dim(p$yrep), c(100L, length(p$y)))
+  expect_true(p$p_value >= 0 && p$p_value <= 1)
+  expect_identical(p, fp_ppc(m, ndraws = 100, seed = 1))
+  pv <- fp_ppc(m, method = "verified", fit_stat = "chi-squared", ndraws = 100, seed = 1)
+  expect_identical(length(pv$y), sum(tabulate(m$stan_data$site1, nbins = 40) > 0))
+
+  sims <- simulate(m, nsim = 2, seed = 1)
+  expect_length(sims, 2)
+  d1 <- sims[[1]]$data
+  expect_s3_class(d1, "fp_data")
+  expect_identical(dim(d1$auto), dim(s$data$auto))
+  # the confirmed occasions are the same, and a detection is a true or a false one
+  expect_identical(is.na(d1$auto$n_true), is.na(s$data$auto$n_true))
+  conf <- !is.na(d1$auto$n_true)
+  expect_identical(d1$auto$y[conf], pmax(d1$auto$n_true, d1$auto$n_false)[conf])
+  tr <- sims[[1]]$truth
+  expect_identical(tr$z, as.integer(tr$N > 0))
+  expect_true(all(c("abund_(Intercept)", "abund_x", "det_(Intercept)") %in% names(tr$pars)))
+  expect_identical(simulate(m, seed = 3), simulate(m, seed = 3))
+  expect_length(simulate(m, seed = 4, truth = "posterior")[[1]]$truth$N, 40L)
+})
+
+test_that("fp_ppc() of fp_occu_rn() needs verified data for method = \"verified\"", {
+  fake <- structure(list(stan_data = list(N1 = 0)), class = "fp_occu_rn")
+  expect_error(fp_ppc(fake, method = "verified"),
+               "The data have no verified occasions", fixed = TRUE)
+})

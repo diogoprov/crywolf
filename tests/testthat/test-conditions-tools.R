@@ -51,7 +51,7 @@ test_that("fp_calibrate_fit() and fp_ppc() reject objects that are not fits", {
   expect_error(fp_calibrate_fit(list(), models = list(a = ~ 1)),
                "`fit` must be an `fp_occu` object.", fixed = TRUE)
   expect_error(fp_ppc(list()),
-               "`object` must be an `fp_occu`, `fp_occu_dyn` or `fp_occu_ms` fit.",
+               "`object` must be an `fp_occu`, `fp_occu_dyn`, `fp_occu_ms` or `fp_occu_rn` fit.",
                fixed = TRUE)
 })
 

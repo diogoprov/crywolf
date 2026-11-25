@@ -214,8 +214,8 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #' is the quantity to map or rank sites by: a site with automated detections
 #' but a high false-positive rate can still be unlikely to be occupied.
 #'
-#' @param object An `fp_occu` object, an `fp_occu_dyn` object or an
-#'   `fp_occu_ms` object (see Details).
+#' @param object An `fp_occu` object, an `fp_occu_dyn` object, an
+#'   `fp_occu_ms` object or an `fp_occu_rn` object (see Details).
 #' @param prob Width of the credible intervals.
 #' @param ndraws Number of posterior draws to use (all by default).
 #' @param seed Optional seed for the choice of draws.
@@ -233,6 +233,14 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 #' For a multispecies model ([fp_occu_ms()]) the result has one row per site
 #' and species, with the species column of the data after the site columns,
 #' and every column refers to that species at that site.
+#'
+#' For a Royle-Nichols model ([fp_occu_rn()]), `psi` is
+#' \eqn{1 - e^{-\lambda}} with \eqn{\lambda} from the covariates of
+#' log abundance alone, `occupied` the probability that the site's
+#' abundance exceeds 0 given its data, and three more columns give the
+#' posterior mean abundance given the data, `abundance`, with
+#' `abundance_lower` and `abundance_upper` (quantiles over the draws of
+#' that conditional mean). The abundance is summed over 0 to `n_max`.
 #'
 #' @return A data frame of class `fp_sites`, one row per site (per
 #'   site-season for a dynamic model, per site and species for a
@@ -260,6 +268,7 @@ plot.fp_effects <- function(x, xlab = x$covariate[1], ...) {
 fp_sites <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   if (inherits(object, "fp_occu_dyn")) return(.fp_sites_dyn(object, prob, ndraws, seed))
   if (inherits(object, "fp_occu_ms")) return(.fp_sites_ms(object, prob, ndraws, seed))
+  if (inherits(object, "fp_occu_rn")) return(.fp_sites_rn(object, prob, ndraws, seed))
   sd <- object$stan_data
   if (!is.null(seed)) .set_seed(seed)
   pars <- .ppc_pars(object$fit, sd, ndraws)
@@ -271,12 +280,12 @@ fp_sites <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
 #' the columns of fp_sites() for the sites of one fp_occu() model, given the
 #' draws of its parameters and the conditional probabilities of occupancy pz
 #' @noRd
-.sites_table <- function(sites, sd, pars, pz, prob) {
-  psi <- stats::plogis(pars$beta %*% t(sd$X))
+.sites_table <- function(sites, sd, pars, pz, prob,
+                         psi = stats::plogis(pars$beta %*% t(sd$X)), extra = NULL) {
   a <- (1 - prob) / 2
   q <- .col_quantile
   new <- c("psi", "psi_lower", "psi_upper", "occupied", "occupied_lower",
-           "occupied_upper", "detections", "verified", "p10")
+           "occupied_upper", "detections", "verified", "p10", extra)
   clash <- intersect(new, names(sites))
   if (length(clash)) {
     stop("The sites table already has column(s) ", paste(clash, collapse = ", "),

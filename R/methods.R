@@ -191,9 +191,15 @@ loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL,
     stop("`x` holds draws from the priors alone (prior_only = TRUE); ",
          "leave-one-out needs a fit to the data.", call. = FALSE)
   }
-  if ((isTRUE(x$random_fp) || isTRUE(x$random_det)) && integrate) {
+  if ((isTRUE(x$random_fp) || isTRUE(x$random_det) || isTRUE(x$random_abund)) &&
+      integrate) {
     pars <- .ppc_pars(x$fit, x$stan_data, NULL)
-    llm <- .integrate_site_effect(x$stan_data, pars, nodes)
+    llm <- if (inherits(x, "fp_occu_rn")) {
+      .integrate_site_effect(x$stan_data, pars, nodes,
+                             function(sd, pars) .rn_core(sd, pars)$ll)
+    } else {
+      .integrate_site_effect(x$stan_data, pars, nodes)
+    }
     # iterations and chains as saved (thinning or a failed chain change them)
     dims <- dim(x$fit$draws("lp__"))[1:2]
     ll <- array(llm, dim = c(dims, ncol(llm)))
@@ -237,7 +243,8 @@ loo.fp_occu <- function(x, reloo = FALSE, k_threshold = 0.7, seed = NULL,
 #' 2018), or by pseudo-BMA. A thin wrapper of [loo::loo_model_weights()]
 #' that accepts fits or `loo()` results.
 #'
-#' @param ... Named `fp_occu` fits, or the results of [loo()] on them.
+#' @param ... Named `fp_occu` or `fp_occu_rn` fits, or the results of
+#'   [loo()] on them.
 #' @param method `"stacking"` (default) or `"pseudobma"`.
 #'
 #' @return A vector of weights summing to one, named by the arguments in
@@ -263,7 +270,9 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
     stop("Name every model, e.g. fp_loo_weights(constant = m0, fp_x = m1).",
          call. = FALSE)
   }
-  loos <- purrr::map(fits, function(f) if (inherits(f, "fp_occu")) loo(f) else f)
+  loos <- purrr::map(fits, function(f) {
+    if (inherits(f, c("fp_occu", "fp_occu_rn"))) loo(f) else f
+  })
   w <- loo::loo_model_weights(loos, method = method)
   stats::setNames(as.numeric(w), names(fits))
 }
@@ -282,12 +291,15 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   st <- purrr::compact(if (is.null(x$sampler)) list() else x$sampler)
   # the refit takes the seed given here, not the one the fit used
   st$seed <- NULL
-  refit <- suppressWarnings(do.call(fp_occu, c(list(
+  rn <- inherits(x, "fp_occu_rn")
+  refit <- suppressWarnings(do.call(if (rn) fp_occu_rn else fp_occu, c(list(
     d_i, occ = x$formulas$occ, det = x$formulas$det, fp = x$formulas$fp,
     random_recorder = isTRUE(x$random_recorder), random_fp = isTRUE(x$random_fp),
     random_det = isTRUE(x$random_det),
-    ver = if (is.null(x$formulas$ver)) ~ 1 else x$formulas$ver, markov = x$markov,
-    priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE), st)))
+    ver = if (is.null(x$formulas$ver)) ~ 1 else x$formulas$ver,
+    priors = x$priors, seed = seed, refresh = 0, show_messages = FALSE),
+    if (rn) list(random_abund = isTRUE(x$random_abund), n_max = x$n_max) else
+      list(markov = x$markov), st)))
   # the left-out site must not carry a recorder or a factor level of its own,
   # or its prediction would need a parameter the refit lacks
   same <- intersect(c("recorders", "occ_names", "det_names", "fp_names", "ver_names"),
@@ -299,26 +311,34 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
   }
   sd <- x$stan_data
   pars <- .ppc_pars(refit$fit, refit$stan_data, NULL)
-  ll <- if (!is.null(pars$e_fp) || !is.null(pars$d_det)) {
+  ll_fun <- if (rn) function(sd, pars) .rn_core(sd, pars)$ll else
+    function(sd, pars) .ppc_core(sd, pars, "automated", "freeman-tukey", ll_only = TRUE)$ll
+  ll <- if (!is.null(pars$e_fp) || !is.null(pars$d_det) || !is.null(pars$v_ab)) {
     # the left-out site's effects are integrated over the fitted distribution
-    .integrate_site_effect(sd, pars, nodes)[, i]
+    .integrate_site_effect(sd, pars, nodes, ll_fun)[, i]
   } else {
-    .ppc_core(sd, pars, "automated", "freeman-tukey", ll_only = TRUE)$ll[, i]
+    ll_fun(sd, pars)[, i]
   }
   .log_mean_exp(ll)
 }
 
 #' Log-likelihood of each site (S x nsite) with its random effects integrated
-#' out: log of the integral of p(y_i | e, d) over e ~ Normal(0, sigma_fp) (on
-#' the false-positive rate) and d ~ Normal(0, sigma_det) (on true detection),
+#' out: log of the integral of p(y_i | e, d, v) over e ~ Normal(0, sigma_fp)
+#' (on the false-positive rate), d ~ Normal(0, sigma_det) (on true
+#' detection) and v ~ Normal(0, sigma_lam) (on log abundance, fp_occu_rn()),
 #' whichever the model has, for each draw, by Gauss-Hermite quadrature with a
 #' product grid of `nodes` points per effect. The terms are summed as they
 #' come (a running log-sum-exp), so memory does not grow with the grid.
+#' `ll_fun(sd, pars)` gives the log-likelihood of each site at given effects.
 #' @noRd
-.integrate_site_effect <- function(sd, pars, nodes = NULL) {
-  effects <- c(e_fp = "sigma_fp", d_det = "sigma_det")
+.integrate_site_effect <- function(sd, pars, nodes = NULL,
+                                   ll_fun = function(sd, pars) {
+                                     .ppc_core(sd, pars, "automated", "freeman-tukey",
+                                               ll_only = TRUE)$ll
+                                   }) {
+  effects <- c(e_fp = "sigma_fp", d_det = "sigma_det", v_ab = "sigma_lam")
   effects <- effects[!purrr::map_lgl(pars[effects], is.null)]
-  if (is.null(nodes)) nodes <- if (length(effects) > 1) 30 else 100
+  if (is.null(nodes)) nodes <- c(100, 30, 12)[length(effects)]
   gh <- .gauss_hermite(nodes)
   grid <- as.matrix(expand.grid(rep(list(seq_len(nodes)), length(effects))))
   S <- nrow(pars$beta)
@@ -327,8 +347,7 @@ fp_loo_weights <- function(..., method = c("stacking", "pseudobma")) {
     pars[names(effects)] <- purrr::map2(unname(effects), k, function(sigma, kj) {
       matrix(sqrt(2) * pars[[sigma]] * gh$x[kj], S, sd$nsite)
     })
-    .ppc_core(sd, pars, "automated", "freeman-tukey", ll_only = TRUE)$ll +
-      sum(log(gh$w[k])) - 0.5 * length(effects) * log(pi)
+    ll_fun(sd, pars) + sum(log(gh$w[k])) - 0.5 * length(effects) * log(pi)
   }
   acc <- purrr::reduce(seq_len(nrow(grid))[-1], function(acc, g) {
     t <- term(g)

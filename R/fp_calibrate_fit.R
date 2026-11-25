@@ -179,9 +179,14 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     random_det = isTRUE(fit$random_det),
     ver = if (is.null(f$ver)) ~ 1 else f$ver,
     markov = fit$markov))
-  list(data = fit$data, formulas = f, stan_data = sl$stan_data,
-       design = sl$design, occasions = sl$occasions,
-       draws = .ppc_pars(fit$fit, sl$stan_data, NULL))
+  sd <- sl$stan_data
+  # a fit of fp_occu_rn() simulates abundances, with its site effects on log
+  # abundance when it has them
+  rn <- inherits(fit, "fp_occu_rn")
+  if (rn) sd$estimate_abund_re <- as.integer(isTRUE(fit$random_abund))
+  list(data = fit$data, formulas = f, stan_data = sd,
+       design = sl$design, occasions = sl$occasions, rn = rn,
+       draws = .ppc_pars(fit$fit, sd, NULL))
 }
 
 #' one set of parameter values: posterior means, or one random draw
@@ -199,6 +204,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   # distribution instead
   if (truth == "mean" && !is.null(p$sigma_fp)) p$e_fp <- NULL
   if (truth == "mean" && !is.null(p$sigma_det)) p$d_det <- NULL
+  if (truth == "mean" && !is.null(p$sigma_lam)) p$v_ab <- NULL
   p
 }
 
@@ -213,7 +219,20 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
   has_fp <- sd$estimate_fp == 1
   by_row <- isTRUE(sd$fp_by_row == 1)
 
-  if (is.null(z)) z <- stats::rbinom(nsite, 1, stats::plogis(drop(sd$X %*% p$beta)))
+  rn <- isTRUE(gen$rn)
+  if (rn) {
+    # Royle-Nichols: abundance N ~ Poisson(lambda), occupied when N > 0
+    llam <- drop(sd$X %*% p$beta)
+    if (!is.null(p$v_ab)) {
+      llam <- llam + p$v_ab
+    } else if (!is.null(p$sigma_lam)) {
+      llam <- llam + stats::rnorm(nsite, 0, p$sigma_lam)
+    }
+    N <- stats::rpois(nsite, exp(llam))
+    z <- as.integer(N > 0)
+  } else if (is.null(z)) {
+    z <- stats::rbinom(nsite, 1, stats::plogis(drop(sd$X %*% p$beta)))
+  }
   lp10 <- if (has_fp) {
     v <- rep(p$gamma0, nsite)
     if (sd$Kfp > 0 && !by_row) v <- v + drop(sd$Xfp %*% p$gamma_fp)
@@ -234,6 +253,10 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     lp11 <- lp11 + stats::rnorm(nsite, 0, p$sigma_det)[oc$site]
   }
   zi <- z[oc$site]
+  # probability of a true detection on each occasion: p11 at occupied sites,
+  # or, for Royle-Nichols, that at least one of the N individuals is detected
+  s1_occ <- if (rn) -expm1(N[oc$site] * stats::plogis(-lp11, log.p = TRUE)) else
+    zi * stats::plogis(lp11)
   lp10_occ <- lp10[oc$site]
   if (by_row) lp10_occ <- lp10_occ + drop(oc$Xfp %*% p$gamma_fp)
   s0 <- stats::plogis(lp10_occ)
@@ -267,9 +290,12 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     false_obs <- sims$false
   } else if (confirm) {
     # true and false observations occur independently on every occasion
-    true_obs <- stats::rbinom(n, 1, zi * stats::plogis(lp11))
+    true_obs <- stats::rbinom(n, 1, s1_occ)
     false_obs <- stats::rbinom(n, 1, s0)
     y <- pmax(true_obs, false_obs)
+  } else if (rn) {
+    # false positives occur on every occasion, also at occupied sites
+    y <- stats::rbinom(n, 1, 1 - (1 - s1_occ) * (1 - s0))
   } else {
     y <- stats::rbinom(n, 1, ifelse(zi == 1, stats::plogis(lp11), s0))
   }
@@ -288,7 +314,9 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     if (isTRUE(sd$Kver_s > 0)) {
       eta[oc$verified_order] <- p$delta0 + drop(oc$X1s %*% p$delta_s)
     }
-    verified[[d$y]] <- stats::rbinom(nrow(verified), 1, z[vs] * stats::plogis(eta))
+    p_ver <- if (rn) -expm1(N[vs] * stats::plogis(-eta, log.p = TRUE)) else
+      z[vs] * stats::plogis(eta)
+    verified[[d$y]] <- stats::rbinom(nrow(verified), 1, p_ver)
   }
 
   # warnings about the design are for the user's data, not for every draw
@@ -298,7 +326,7 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
             confirmed = d$confirmed),
     crywolf_design_warning = function(w) invokeRestart("muffleWarning"))
   truth <- c(
-    stats::setNames(p$beta, paste0("occ_", gen$design$occ_names)),
+    stats::setNames(p$beta, paste0(if (rn) "abund_" else "occ_", gen$design$occ_names)),
     stats::setNames(p$alpha, paste0("det_", gen$design$det_names)),
     `verified_(Intercept)` = p$delta0,
     if (isTRUE(sd$Kver_s > 0))
@@ -317,9 +345,10 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     } else stats::plogis(lp10)
   }
   list(data = data,
-       truth = list(pars = truth, z = z, p10_site = unname(p10_site),
-                    p10_bar = if (!has_fp) 0 else if (by_row) mean(s0[auto_rows])
-                              else mean(p10_site)))
+       truth = c(list(pars = truth, z = z), if (rn) list(N = N),
+                 list(p10_site = unname(p10_site),
+                      p10_bar = if (!has_fp) 0 else if (by_row) mean(s0[auto_rows])
+                                else mean(p10_site))))
 }
 
 #' true values of the quantities scored for one refitted model

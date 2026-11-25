@@ -18,7 +18,10 @@ for which detections are summed per site and season
 and the latent states are drawn jointly over seasons by forward
 filtering, backward sampling; or an \code{fp_occu_ms} object, for which
 detections are summed per site and species, the discrepancy is summed
-over species, and each species also gets its own p-value.}
+over species, and each species also gets its own p-value; or an
+\code{fp_occu_rn} object, for which the abundance of each site is drawn
+from its conditional posterior given the data and the parameters, and
+the detections are replicated given it.}
 
 \item{method}{Which data to check: \code{"automated"} (default; every site) or
 \code{"verified"} (verified sites only).}

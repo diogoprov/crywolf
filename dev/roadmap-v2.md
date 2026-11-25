@@ -618,6 +618,23 @@ do BirdNET têm estrutura de sítio além da atividade.
 começa depois das tarefas em andamento. A implementação, as etapas 2 a 5,
 fica para depois da etapa 1.
 
+**Andamento (24/11/2026):**
+- **Etapa 1, feita (#65):** favorável com 200 sítios; parcialmente favorável
+  no tamanho do ACAD (21 sítios). Resultados em `dev/rn-fp/README.md`.
+- **Etapa 2, feita (#66):** o Diogo decidiu por uma função própria,
+  `fp_occu_rn()`, e não por uma opção do `fp_occu()`. Falsos positivos
+  aditivos nos sítios ocupados. Entram a confirmação de Chambert e os efeitos
+  de sítio em r, log λ e p10, além do efeito por gravador. Ficam de fora as
+  covariáveis de fp por ocasião e o `markov`.
+- **Grade do desenho ACAD realista, pedida pelo FrogNet (#67):** só
+  confirmação. O posterior de σ_r acompanha o prior, então a análise do ACAD
+  deve mostrar σ_r sob mais de um prior. Detalhes em
+  `dev/rn-fp/acad-real/README.md`.
+- **Etapa 3, em andamento:** `loo()`, `simulate()`, `fp_sites()`, `fp_ppc()`
+  e `fp_loo_weights()` para `fp_occu_rn`. Todas usam o posterior de N de cada
+  sítio, calculado em R e testado contra o `log_lik` do Stan. `predict()`,
+  `coef()`, `fp_effects()` e `plot()` ficam para depois, se forem pedidos.
+
 **Etapa 1, o ponto de decisão (1–2 dias):**
 - Simular dados RN com falsos positivos e ajustar um protótipo em Stan fora do
   pacote, em `dev/`.

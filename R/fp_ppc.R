@@ -10,7 +10,10 @@
 #'   and the latent states are drawn jointly over seasons by forward
 #'   filtering, backward sampling; or an `fp_occu_ms` object, for which
 #'   detections are summed per site and species, the discrepancy is summed
-#'   over species, and each species also gets its own p-value.
+#'   over species, and each species also gets its own p-value; or an
+#'   `fp_occu_rn` object, for which the abundance of each site is drawn
+#'   from its conditional posterior given the data and the parameters, and
+#'   the detections are replicated given it.
 #' @param method Which data to check: `"automated"` (default; every site) or
 #'   `"verified"` (verified sites only).
 #' @param fit_stat Discrepancy statistic: `"freeman-tukey"` (default),
@@ -79,8 +82,10 @@ fp_ppc <- function(object, method = c("automated", "verified"),
                    ndraws = 1000, seed = NULL) {
   dyn <- inherits(object, "fp_occu_dyn")
   ms <- inherits(object, "fp_occu_ms")
-  if (!inherits(object, "fp_occu") && !dyn && !ms) {
-    stop("`object` must be an `fp_occu`, `fp_occu_dyn` or `fp_occu_ms` fit.", call. = FALSE)
+  rn <- inherits(object, "fp_occu_rn")
+  if (!inherits(object, "fp_occu") && !dyn && !ms && !rn) {
+    stop("`object` must be an `fp_occu`, `fp_occu_dyn`, `fp_occu_ms` or ",
+         "`fp_occu_rn` fit.", call. = FALSE)
   }
   method <- match.arg(method)
   fit_stat <- match.arg(fit_stat)
@@ -90,6 +95,7 @@ fp_ppc <- function(object, method = c("automated", "verified"),
     stop("The data have no verified occasions, so `method = \"verified\"` is not ",
          "available.", call. = FALSE)
   }
+  if (rn) return(.fp_ppc_rn(object, method, fit_stat, ndraws, seed))
   if (!is.null(seed)) .set_seed(seed)
   if (dyn) {
     # site-seasons, with the states drawn over seasons
@@ -146,7 +152,9 @@ print.fp_ppc <- function(x, digits = 3, ...) {
             if (sd$estimate_fp == 1) "gamma0",
             if (sd$estimate_fp == 1 && sd$Kfp > 0) "gamma_fp",
             if (isTRUE(sd$estimate_fp_re == 1)) c("e_raw", "sigma_fp"),
-            if (isTRUE(sd$estimate_det_re == 1)) c("d_raw", "sigma_det"))
+            if (isTRUE(sd$estimate_det_re == 1)) c("d_raw", "sigma_det"),
+            # site effects on log abundance, in fits of fp_occu_rn()
+            if (isTRUE(sd$estimate_abund_re == 1)) c("v_raw", "sigma_lam"))
   dm <- posterior::as_draws_matrix(fit$draws(variables = vars))
   total <- nrow(dm)
   if (!is.null(ndraws) && ndraws < total) {
@@ -171,7 +179,11 @@ print.fp_ppc <- function(x, digits = 3, ...) {
     # site effects on true detection, S x nsite
     d_det = if (isTRUE(sd$estimate_det_re == 1))
       cols("d_raw") * cols("sigma_det")[, 1] else NULL,
-    sigma_det = if (isTRUE(sd$estimate_det_re == 1)) cols("sigma_det")[, 1] else NULL
+    sigma_det = if (isTRUE(sd$estimate_det_re == 1)) cols("sigma_det")[, 1] else NULL,
+    # site effects on log abundance (fp_occu_rn()), S x nsite
+    v_ab = if (isTRUE(sd$estimate_abund_re == 1))
+      cols("v_raw") * cols("sigma_lam")[, 1] else NULL,
+    sigma_lam = if (isTRUE(sd$estimate_abund_re == 1)) cols("sigma_lam")[, 1] else NULL
   )
 }
 

@@ -10,8 +10,8 @@ fp_sites(object, prob = 0.95, ndraws = NULL, seed = NULL)
 \method{plot}{fp_sites}(x, coords = NULL, ...)
 }
 \arguments{
-\item{object}{An \code{fp_occu} object, an \code{fp_occu_dyn} object or an
-\code{fp_occu_ms} object (see Details).}
+\item{object}{An \code{fp_occu} object, an \code{fp_occu_dyn} object, an
+\code{fp_occu_ms} object or an \code{fp_occu_rn} object (see Details).}
 
 \item{prob}{Width of the credible intervals.}
 
@@ -63,6 +63,14 @@ forward-backward algorithm for each posterior draw). \code{detections},
 For a multispecies model (\code{\link[=fp_occu_ms]{fp_occu_ms()}}) the result has one row per site
 and species, with the species column of the data after the site columns,
 and every column refers to that species at that site.
+
+For a Royle-Nichols model (\code{\link[=fp_occu_rn]{fp_occu_rn()}}), \code{psi} is
+\eqn{1 - e^{-\lambda}} with \eqn{\lambda} from the covariates of
+log abundance alone, \code{occupied} the probability that the site's
+abundance exceeds 0 given its data, and three more columns give the
+posterior mean abundance given the data, \code{abundance}, with
+\code{abundance_lower} and \code{abundance_upper} (quantiles over the draws of
+that conditional mean). The abundance is summed over 0 to \code{n_max}.
 }
 \examples{
 \dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}

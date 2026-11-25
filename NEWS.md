@@ -8,7 +8,11 @@
   false-positive rate (`random_fp`). `random_det` then measures variation in
   detection among sites beyond that due to abundance. `simulate_fp_rn()`
   (experimental) simulates data from it, with unbalanced occasions if
-  needed, and `fp_priors()` gains `abund_site_sd`.
+  needed, and `fp_priors()` gains `abund_site_sd`. Its fits have `loo()`
+  (leave one site out, with the site effects integrated out and exact refits
+  with `reloo = TRUE`) and `simulate()` methods, and `fp_sites()` (with the
+  posterior mean abundance of each site), `fp_ppc()` and `fp_loo_weights()`
+  accept them.
 * `fp_occu()` no longer fails when every automated occasion is confirmed
   (observation-confirmation design with nothing left unchecked).
 * New `fp_review_priority()` (experimental) gives every site, or site and

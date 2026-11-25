@@ -7,7 +7,8 @@
 fp_loo_weights(..., method = c("stacking", "pseudobma"))
 }
 \arguments{
-\item{...}{Named \code{fp_occu} fits, or the results of \code{\link[=loo]{loo()}} on them.}
+\item{...}{Named \code{fp_occu} or \code{fp_occu_rn} fits, or the results of
+\code{\link[=loo]{loo()}} on them.}
 
 \item{method}{\code{"stacking"} (default) or \code{"pseudobma"}.}
 }

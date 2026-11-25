@@ -298,7 +298,7 @@ fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
 #> 
 #> Both chains finished successfully.
 #> Mean chain execution time: 4.4 seconds.
-#> Total execution time: 5.1 seconds.
+#> Total execution time: 5.0 seconds.
 #> 
 #> Warning: Largest R-hat is 1.012 (> 1.01); run longer chains.
 # readable coefficient names, shared by coef(), summary() and the draws

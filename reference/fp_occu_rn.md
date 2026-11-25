@@ -290,14 +290,15 @@ m <- fp_occu_rn(s$data, random_det = TRUE, chains = 2,
                 iter_warmup = 300, iter_sampling = 300, seed = 1)
 #> Running MCMC with 2 parallel chains, with 2 thread(s) per chain...
 #> 
-#> Chain 1 finished in 4.0 seconds.
-#> Chain 2 finished in 4.8 seconds.
+#> Chain 1 finished in 2.8 seconds.
+#> Chain 2 finished in 2.7 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 4.4 seconds.
-#> Total execution time: 4.8 seconds.
+#> Mean chain execution time: 2.8 seconds.
+#> Total execution time: 2.9 seconds.
 #> 
-#> Warning: Smallest bulk ESS is 187 (< 400).
+#> Warning: Largest R-hat is 1.013 (> 1.01); run longer chains.
+#> Smallest bulk ESS is 176 (< 400).
 m
 #> Bayesian Royle-Nichols occupancy model with false positives
 #> 
@@ -307,19 +308,19 @@ m
 #>   data:             60 sites, 600 automated (0 confirmed) and 42 verified occasions; N summed over 0..20
 #> 
 #>              variable    mean     sd   lower  upper  rhat ess_bulk ess_tail
-#>     abund_(Intercept) -0.0765 0.3054 -0.6281  0.563 1.000      264      172
-#>       det_(Intercept) -1.0104 0.3620 -1.7585 -0.352 0.998      247      368
-#>  verified_(Intercept)  0.1929 0.5032 -0.7819  1.189 0.999      434      325
-#>            r_verified  0.5456 0.1178  0.3139  0.767 0.999      434      325
-#>            lambda_ref  0.9716 0.3145  0.5336  1.756 1.000      264      172
-#>               psi_ref  0.6045 0.1075  0.4135  0.827 1.000      264      172
-#>            lambda_bar  0.9716 0.3145  0.5336  1.756 1.000      264      172
-#>               psi_bar  0.6045 0.1075  0.4135  0.827 1.000      264      172
-#>                 r_ref  0.2727 0.0686  0.1470  0.413 0.999      247      368
-#>        fp_(Intercept) -2.6733 0.5843 -4.0899 -1.965 1.003      267      128
-#>               p10_ref  0.0712 0.0268  0.0165  0.123 1.004      267      128
-#>           sd_det_site  0.7320 0.3105  0.1833  1.431 1.007      187      441
+#>     abund_(Intercept) -0.1155 0.2926 -0.6439  0.518 1.004      540      416
+#>       det_(Intercept) -0.9588 0.3439 -1.6625 -0.373 1.004      341      411
+#>  verified_(Intercept)  0.2022 0.5093 -0.7716  1.235 1.005      854      425
+#>            r_verified  0.5474 0.1191  0.3161  0.775 1.005      854      425
+#>            lambda_ref  0.9312 0.2928  0.5252  1.679 1.004      540      416
+#>               psi_ref  0.5906 0.1032  0.4086  0.813 1.004      540      416
+#>            lambda_bar  0.9312 0.2928  0.5252  1.679 1.004      540      416
+#>               psi_bar  0.5906 0.1032  0.4086  0.813 1.004      540      416
+#>                 r_ref  0.2823 0.0662  0.1594  0.408 1.004      341      411
+#>        fp_(Intercept) -2.6270 0.4507 -3.7777 -1.974 0.997      553      384
+#>               p10_ref  0.0723 0.0253  0.0224  0.122 0.997      553      384
+#>           sd_det_site  0.6933 0.3183  0.0668  1.363 1.013      176      139
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.007, min bulk/tail ESS 187/128
+#>   Sampler: 0 divergent transitions, max R-hat 1.013, min bulk/tail ESS 176/139
 # }
 ```

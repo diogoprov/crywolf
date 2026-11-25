@@ -623,6 +623,22 @@ espécies).
   Assim nada quebra, e ele pode sair numa 2.x, e não necessariamente na 3.0.0.
 - **Primeiro passo:** protótipo de viabilidade em `dev/`, de 1 a 2 dias,
   como a etapa 1 do RN. O foco são os riscos 1 e 2.
+- **Protótipo feito (25/11/2026, branch `jsdm-proto`, `dev/jsdm/README.md`):**
+  - Risco 1 resolvido: diagonal livre com sinal fixado depois da amostragem,
+    como no jsdmstan. A diagonal positiva misturou mal.
+  - Risco 2 resolvido para a detecção correlacionada: um efeito de sítio na
+    detecção, comum às espécies, remove o fator espúrio.
+  - O padrão de ΛΛ′ é recuperado com 100 sítios, mas a magnitude não.
+  - Risco novo, a confusão entre espécies no classificador. Ela vira
+    associação espúria em ΛΛ′ já com confusão moderada, e o efeito de
+    detecção não corrige.
+  - O mesmo problema afeta o `fp_occu()` e o `fp_occu_ms()`. Com confusão
+    forte, tão frequente quanto as detecções verdadeiras, a ocupação sai
+    enviesada para cima, em 0,6 a 1,7 logit. Com confusão moderada, não.
+- **Decisão pendente:** o JSDM só faz sentido com um termo de confusão para
+  pares declarados. Isso reabre o item "Fora do plano" abaixo. Até lá, a
+  premissa de p10 independente das outras espécies deve ser documentada no
+  `fp_occu()` e no `fp_occu_ms()`.
 
 ### Fora do plano
 

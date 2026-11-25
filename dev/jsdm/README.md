@@ -20,6 +20,8 @@ the package and touches no exported code.
 - `pilot.R`: pilot below. `pilot.rds`: its results.
 - `pilot_confusion.R`: classifier-confusion pilot below.
   `pilot_confusion.rds`: its results.
+- `pilot_confusion_pkg.R`: the same confusion in `fp_occu()` and
+  `fp_occu_ms()`. `pilot_confusion_pkg.rds`: its results.
 
 Priors: community means and SDs for intercepts, slopes, detection and log gap;
 `L ~ N(0, 1)`, `sigma_L ~ N(0, 1)`, `Z ~ N(0, 1)`, `sigma_d ~ N(0, 1)`.
@@ -109,9 +111,47 @@ in all of them (R-hat ≤ 1.02, bulk ESS ≥ 199).
 Confusion makes the false-positive rate of one species depend on the presence
 of another. The model assumes a false-positive rate that does not vary with
 site, so the factor absorbs the confusion as co-occurrence. The upward
-occupancy bias suggests the same assumption matters outside the JSDM. Our
-interpretation, not tested here: the single-species and multispecies models
-in crywolf would also be biased under this kind of confusion.
+occupancy bias suggests the same assumption matters outside the JSDM, which
+the next pilot tests.
+
+### Classifier confusion in the package models (E0–E2)
+
+Data from `simulate_fp_ms()` with 6 species, 100 sites and its defaults
+(verified data at 30% of the sites). Species 1, 3 and 5 received automated
+detections from the presence of species 2, 4 and 6. At `conf` 0.30, the
+detection rate of species 1 at sites where it was absent and species 2 was
+present rose from 0.09 to 0.38 per occasion, against 0.61 where species 1
+was present. Each dataset was fitted with `fp_occu_ms()` (all species) and
+with `fp_occu()` (species 1 alone), using `occ = ~ x, det = ~ bio`.
+
+| Scenario | `conf` | `fp_occu_ms()`, confused species | `fp_occu_ms()`, other species | `fp_occu()`, species 1 |
+|---|---|---|---|---|
+| E0 | 0 | −0.03 to 0.01 | 0.03 to 0.22 | −0.19 to 0.18 |
+| E1 | 0.15 | −0.09 to 0.13 | −0.22 to 0.23 | −0.43 to 0.33 |
+| E2 | 0.30 | 0.56 to 0.96 | −0.04 to 0.09 | −0.06 to 1.72 |
+
+The values are the occupancy intercept bias in logit (posterior mean minus
+truth), over three datasets per scenario.
+
+No fit had divergent transitions, and the largest R-hat was 1.01.
+`fp_occu()` took about 1 min per fit; `fp_occu_ms()` took 33–42 min with
+sequential chains.
+
+- **Moderate confusion was absorbed.** At `conf` 0.15, the bias was within
+  the range of the control in both models.
+- **Strong confusion biased occupancy upwards.** At `conf` 0.30, the bias was
+  0.56–0.96 logit in all three multispecies fits. In the single-species
+  fits it was about 1.7 logit in two of three datasets.
+- **The confusion and the JSDM interact.** The JSDM prototype was already
+  biased at `conf` 0.15 (0.18–0.61 logit). Our interpretation, not tested:
+  the factor turns the confused detections into a shared signal and
+  amplifies the bias.
+
+This is a limitation of the package models, not only of the JSDM. They
+assume that the false-positive rate of a species does not depend on which
+other species are present. With verified data at 30% of the sites, that
+assumption held up under moderate confusion but not when the confused
+detections were as frequent as true ones.
 
 ### What ΛΛ′ is not
 
@@ -144,8 +184,9 @@ version needs three conditions:
 
 Next steps, in order:
 
-- Check whether the single-species and multispecies models are biased under
-  confusion. This matters for crywolf beyond the JSDM.
+- Document in `fp_occu()` and `fp_occu_ms()` the assumption that the
+  false-positive rate does not depend on the presence of other species, and
+  its consequence under strong confusion (pilot E0–E2).
 - Prototype the confusion term and repeat D1–D3.
 - Only then, a grid over sites (50, 100, 200, 400) and species (10, 20) and an
   SBC run. Both need AWS (an estimate goes to the user before launch).
@@ -157,6 +198,8 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
   REPS=3 WORKERS=10 Rscript dev/jsdm/pilot.R
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
   REPS=3 WORKERS=9 Rscript dev/jsdm/pilot_confusion.R
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
+  REPS=3 WORKERS=9 Rscript dev/jsdm/pilot_confusion_pkg.R
 ```
 
 ## References

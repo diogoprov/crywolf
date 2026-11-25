@@ -208,6 +208,26 @@ deviation `sd_verified_(Intercept)`. It has no `p10_bar`. `log_lik[i]`
 is the log-likelihood of unit `i`, site `(i - 1) %/% nspecies + 1` and
 species `(i - 1) %% nspecies + 1`.
 
+## Royle-Nichols model
+
+[`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
+names the coefficients of log abundance `abund_(Intercept)` and
+`abund_<term>` (in place of `occ_*`), and those of the logit of the
+per-individual detection \\r\\ `det_*`. The false-positive coefficients
+are `fp_(Intercept)` and `fp_<term>`, with no gap, and the verified
+method is `verified_(Intercept)`, `verified_<term>` and `r_verified`,
+its per-individual detection. Derived quantities: `lambda_ref` and
+`psi_ref`, the abundance and occupancy at the reference of the
+covariates, with \\\psi = 1 - e^{-\lambda}\\; `lambda_bar` and
+`psi_bar`, their means over sites; `r_ref` and `p10_ref`. The standard
+deviations of the site effects are `sd_det_site`, `sd_abund_site` and
+`sd_fp_site`, and that of the recorder effect is `sd_recorder`.
+`log_lik[i]` is the log-likelihood of site `i`, with its abundance
+summed over 0 to `n_max`.
+[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+adds `abundance`, `abundance_lower` and `abundance_upper`, the posterior
+mean abundance of each site given its data and its interval.
+
 ## Dynamic model
 
 [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
@@ -293,12 +313,12 @@ fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
                threads_per_chain = 1, refresh = 0)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 2.2 seconds.
-#> Chain 1 finished in 2.7 seconds.
+#> Chain 2 finished in 4.0 seconds.
+#> Chain 1 finished in 4.9 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 2.4 seconds.
-#> Total execution time: 2.8 seconds.
+#> Mean chain execution time: 4.4 seconds.
+#> Total execution time: 5.1 seconds.
 #> 
 #> Warning: Largest R-hat is 1.012 (> 1.01); run longer chains.
 # readable coefficient names, shared by coef(), summary() and the draws

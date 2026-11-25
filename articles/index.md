@@ -30,6 +30,8 @@
   model](https://provetelab.org/crywolf/articles/multispecies.md):
 - [Use from one night to the
   next](https://provetelab.org/crywolf/articles/dynamic.md):
+- [Detection that depends on abundance: the Royle-Nichols
+  model](https://provetelab.org/crywolf/articles/royle-nichols.md):
 
 ### Design and checks
 

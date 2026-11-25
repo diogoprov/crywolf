@@ -20,7 +20,7 @@ From crywolf 2.0.0, for the stable functions listed below:
   (`fp_data`, `fp_occu`, `fp_priors`, `fp_sim`, `fp_calibration`,
   `fp_sbc`, `fp_ppc`, `fp_prior_predictive`, `fp_effects`, `fp_sites`,
   `fp_threshold_sweep`, `fp_sheepdog`, `fp_occu_dyn`, `fp_sim_dyn`,
-  `fp_occu_ms`, `fp_sim_ms`, `summary.fp_occu`,
+  `fp_occu_ms`, `fp_sim_ms`, `fp_occu_rn`, `summary.fp_occu`,
   `summary.fp_calibration`, `summary.fp_sbc`), and the class of the
   design warnings of
   [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)
@@ -97,6 +97,11 @@ the multispecies model, with the `species` argument of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md), the
 methods of the `fp_occu_ms` class and
 [`simulate.fp_occu_ms()`](https://provetelab.org/crywolf/reference/simulate.fp_occu_ms.md).
+From the release after 2.3.0,
+[`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md),
+the Royle-Nichols model with false positives, with the methods of the
+`fp_occu_rn` class
+([fp_occu_rn-methods](https://provetelab.org/crywolf/reference/fp_occu_rn-methods.md)).
 
 Results and simulation:
 [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md),
@@ -110,7 +115,9 @@ from 2.3.0,
 [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
 [`simulate_fp_ms()`](https://provetelab.org/crywolf/reference/simulate_fp_ms.md)
 and
-[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md).
+[`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md),
+and, from the release after 2.3.0,
+[`simulate_fp_rn()`](https://provetelab.org/crywolf/reference/simulate_fp_rn.md).
 
 The [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
@@ -128,12 +135,7 @@ propagate a classifier calibration from 'sheepdog' into the model or
 pass data to 'unmarked', and are still being evaluated.
 [`fp_review_priority()`](https://provetelab.org/crywolf/reference/fp_review_priority.md),
 new after 2.3.0, prepares directed review rounds of 'sheepdog'; it
-follows `select_directed()`, which may still change.
-[`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
-and
-[`simulate_fp_rn()`](https://provetelab.org/crywolf/reference/simulate_fp_rn.md),
-new after 2.3.0, fit and simulate the Royle-Nichols model with false
-positives, with the `fp_occu_rn` class and its methods. Their arguments,
+follows `select_directed()`, which may still change. Their arguments,
 classes and results may change in a minor version; the NEWS will say so.
 Each says so in its help.
 [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md),

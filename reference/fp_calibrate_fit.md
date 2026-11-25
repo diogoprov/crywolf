@@ -106,12 +106,12 @@ m_x <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
                chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 17.6 seconds.
-#> Chain 2 finished in 18.0 seconds.
+#> Chain 2 finished in 31.4 seconds.
+#> Chain 1 finished in 31.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 17.8 seconds.
-#> Total execution time: 18.1 seconds.
+#> Mean chain execution time: 31.4 seconds.
+#> Total execution time: 31.6 seconds.
 #> 
 cal <- fp_calibrate_fit(m_x, models = list(constant = ~ 1, fp_on_x = ~ x),
                         reps = 5,

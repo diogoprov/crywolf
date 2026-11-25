@@ -30,7 +30,7 @@ fp_occu_rn(
   threads_per_chain = "auto",
   iter_warmup = 1000,
   iter_sampling = 1000,
-  adapt_delta = 0.95,
+  adapt_delta = 0.99,
   seed = NULL,
   refresh = NULL,
   prior_only = FALSE,
@@ -251,19 +251,20 @@ the other outputs of
 [`fp_effects()`](https://provetelab.org/crywolf/reference/fp_effects.md),
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html)).
 
-**Identifiability.** Simulations at 200 sites and at 21 sites with 17
-occasions (in `dev/rn-fp/` of the package repository) recovered
-`sd_det_site` near 1 and gave few false signals when it was 0; values
-near 0.5 were not distinguishable from 0, and `sd_abund_site` was weakly
+**Identifiability.** In simulations
+([`vignette("royle-nichols")`](https://provetelab.org/crywolf/articles/royle-nichols.md),
+code in `dev/rn-fp/` of the package repository), the power to detect
+`sd_det_site = 1` grew with the number of sites and occasions, from
+about half at 25 sites and 10 occasions to above 90% at 100 sites and 20
+occasions, and depended little on whether verified data or confirmed
+occasions supplied the information. `sd_abund_site` was weakly
 identified. With few sites the prior of `sd_det_site` carries much of
 the posterior near 0: compare fits under several values of
-`det_site_sd`.
-
-## Experimental
-
-This function is experimental (new after 2.3.0): its arguments and
-results may change in a minor version. See
-[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md).
+`det_site_sd`. The default `adapt_delta` is 0.99, above the 0.95 of
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md): the
+site effects create funnels, and at 0.95 most simulated designs had
+divergences. With many sites, also use longer chains than the default:
+the standard deviations of the site effects mix slowly.
 
 ## References
 
@@ -290,15 +291,15 @@ m <- fp_occu_rn(s$data, random_det = TRUE, chains = 2,
                 iter_warmup = 300, iter_sampling = 300, seed = 1)
 #> Running MCMC with 2 parallel chains, with 2 thread(s) per chain...
 #> 
-#> Chain 1 finished in 2.8 seconds.
-#> Chain 2 finished in 2.7 seconds.
+#> Chain 2 finished in 6.6 seconds.
+#> Chain 1 finished in 7.6 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 2.8 seconds.
-#> Total execution time: 2.9 seconds.
+#> Mean chain execution time: 7.1 seconds.
+#> Total execution time: 7.7 seconds.
 #> 
-#> Warning: Largest R-hat is 1.013 (> 1.01); run longer chains.
-#> Smallest bulk ESS is 176 (< 400).
+#> Warning: Largest R-hat is 1.040 (> 1.01); run longer chains.
+#> Smallest bulk ESS is 76 (< 400).
 m
 #> Bayesian Royle-Nichols occupancy model with false positives
 #> 
@@ -307,20 +308,20 @@ m
 #>   false positive:   ~1  
 #>   data:             60 sites, 600 automated (0 confirmed) and 42 verified occasions; N summed over 0..20
 #> 
-#>              variable    mean     sd   lower  upper  rhat ess_bulk ess_tail
-#>     abund_(Intercept) -0.1155 0.2926 -0.6439  0.518 1.004      540      416
-#>       det_(Intercept) -0.9588 0.3439 -1.6625 -0.373 1.004      341      411
-#>  verified_(Intercept)  0.2022 0.5093 -0.7716  1.235 1.005      854      425
-#>            r_verified  0.5474 0.1191  0.3161  0.775 1.005      854      425
-#>            lambda_ref  0.9312 0.2928  0.5252  1.679 1.004      540      416
-#>               psi_ref  0.5906 0.1032  0.4086  0.813 1.004      540      416
-#>            lambda_bar  0.9312 0.2928  0.5252  1.679 1.004      540      416
-#>               psi_bar  0.5906 0.1032  0.4086  0.813 1.004      540      416
-#>                 r_ref  0.2823 0.0662  0.1594  0.408 1.004      341      411
-#>        fp_(Intercept) -2.6270 0.4507 -3.7777 -1.974 0.997      553      384
-#>               p10_ref  0.0723 0.0253  0.0224  0.122 0.997      553      384
-#>           sd_det_site  0.6933 0.3183  0.0668  1.363 1.013      176      139
+#>              variable    mean     sd   lower  upper rhat ess_bulk ess_tail
+#>     abund_(Intercept) -0.0895 0.2909 -0.6634  0.515 1.01    141.6      114
+#>       det_(Intercept) -0.9815 0.3401 -1.7084 -0.345 1.03     75.6      207
+#>  verified_(Intercept)  0.1806 0.4965 -0.8010  1.118 1.00    375.3      382
+#>            r_verified  0.5427 0.1173  0.3098  0.754 1.00    375.3      382
+#>            lambda_ref  0.9545 0.2924  0.5151  1.674 1.01    141.6      114
+#>               psi_ref  0.6000 0.1023  0.4026  0.813 1.01    141.6      114
+#>            lambda_bar  0.9545 0.2924  0.5151  1.674 1.01    141.6      114
+#>               psi_bar  0.6000 0.1023  0.4026  0.813 1.01    141.6      114
+#>                 r_ref  0.2777 0.0655  0.1534  0.415 1.03     75.6      207
+#>        fp_(Intercept) -2.6212 0.4405 -3.7438 -1.956 1.01    190.1      144
+#>               p10_ref  0.0725 0.0246  0.0231  0.124 1.01    190.1      144
+#>           sd_det_site  0.6900 0.3387  0.0713  1.377 1.04     84.9      207
 #> 
-#>   Sampler: 0 divergent transitions, max R-hat 1.013, min bulk/tail ESS 176/139
+#>   Sampler: 0 divergent transitions, max R-hat 1.040, min bulk/tail ESS 76/114
 # }
 ```

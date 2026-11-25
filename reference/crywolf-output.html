@@ -37,6 +37,7 @@ names in as_draws_df(fit), summary(fit)$table, and coef(fit)."><meta property="o
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
     <li><a class="dropdown-item" href="../articles/multispecies.html">Several species at once: the multispecies model</a></li>
     <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
+    <li><a class="dropdown-item" href="../articles/royle-nichols.html">Detection that depends on abundance: the Royle-Nichols model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -222,6 +223,25 @@ It has no <code>p10_bar</code>.
 <code>(i - 1) %/% nspecies + 1</code> and species <code>(i - 1) %% nspecies + 1</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="royle-nichols-model">Royle-Nichols model<a class="anchor" aria-label="anchor" href="#royle-nichols-model"></a></h2>
+
+
+<p><code><a href="fp_occu_rn.html">fp_occu_rn()</a></code> names the coefficients of log abundance <code>abund_(Intercept)</code>
+and <code>abund_&lt;term&gt;</code> (in place of <code>occ_*</code>), and those of the logit of the
+per-individual detection \(r\) <code>det_*</code>. The false-positive
+coefficients are <code>fp_(Intercept)</code> and <code>fp_&lt;term&gt;</code>, with no gap, and the
+verified method is <code>verified_(Intercept)</code>, <code>verified_&lt;term&gt;</code> and
+<code>r_verified</code>, its per-individual detection. Derived quantities:
+<code>lambda_ref</code> and <code>psi_ref</code>, the abundance and occupancy at the reference
+of the covariates, with \(\psi = 1 - e^{-\lambda}\); <code>lambda_bar</code> and <code>psi_bar</code>, their means over sites;
+<code>r_ref</code> and <code>p10_ref</code>. The standard deviations of the site effects are
+<code>sd_det_site</code>, <code>sd_abund_site</code> and <code>sd_fp_site</code>, and that of the
+recorder effect is <code>sd_recorder</code>. <code>log_lik[i]</code> is the log-likelihood of
+site <code>i</code>, with its abundance summed over 0 to <code>n_max</code>. <code><a href="fp_sites.html">fp_sites()</a></code>
+adds <code>abundance</code>, <code>abundance_lower</code> and <code>abundance_upper</code>, the posterior
+mean abundance of each site given its data and its interval.</p>
+    </div>
+    <div class="section level2">
     <h2 id="dynamic-model">Dynamic model<a class="anchor" aria-label="anchor" href="#dynamic-model"></a></h2>
 
 
@@ -285,12 +305,12 @@ their field names and raw Stan names are implementation details.</p>
 <span class="r-in"><span>               threads_per_chain <span class="op">=</span> <span class="fl">1</span>, refresh <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 2.2 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 2.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 4.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 4.9 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 2.4 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 2.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 4.4 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 5.1 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.012 (&gt; 1.01); run longer chains.</span>
 <span class="r-in"><span><span class="co"># readable coefficient names, shared by coef(), summary() and the draws</span></span></span>

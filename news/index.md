@@ -4,17 +4,15 @@
 
 - New
   [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
-  (experimental) fits the Royle-Nichols occupancy model with false
-  positives: Poisson abundance, per-individual detection, false
-  positives on every occasion, verified occasions and the
-  observation-confirmation design, with site effects on the
-  per-individual detection (`random_det`), on log abundance
-  (`random_abund`) and on the false-positive rate (`random_fp`).
-  `random_det` then measures variation in detection among sites beyond
-  that due to abundance.
+  fits the Royle-Nichols occupancy model with false positives: Poisson
+  abundance, per-individual detection, false positives on every
+  occasion, verified occasions and the observation-confirmation design,
+  with site effects on the per-individual detection (`random_det`), on
+  log abundance (`random_abund`) and on the false-positive rate
+  (`random_fp`). `random_det` then measures variation in detection among
+  sites beyond that due to abundance.
   [`simulate_fp_rn()`](https://provetelab.org/crywolf/reference/simulate_fp_rn.md)
-  (experimental) simulates data from it, with unbalanced occasions if
-  needed, and
+  simulates data from it, with unbalanced occasions if needed, and
   [`fp_priors()`](https://provetelab.org/crywolf/reference/fp_priors.md)
   gains `abund_site_sd`. Its fits have
   [`loo()`](https://mc-stan.org/loo/reference/loo.html) (leave one site
@@ -25,7 +23,14 @@
   (with the posterior mean abundance of each site),
   [`fp_ppc()`](https://provetelab.org/crywolf/reference/fp_ppc.md) and
   [`fp_loo_weights()`](https://provetelab.org/crywolf/reference/fp_loo_weights.md)
-  accept them.
+  accept them. Its default `adapt_delta` is 0.99, above the 0.95 of
+  [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md),
+  because divergences were common at 0.95 in simulations. Both functions
+  join the stable interface (`?crywolf-api`). The new article
+  [`vignette("royle-nichols")`](https://provetelab.org/crywolf/articles/royle-nichols.md)
+  describes the model and the simulations that validate it
+  (simulation-based calibration and a grid over sites, occasions and
+  annotation schemes).
 - [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) no
   longer fails when every automated occasion is confirmed
   (observation-confirmation design with nothing left unchecked).

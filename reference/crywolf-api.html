@@ -35,6 +35,7 @@ functions are still experimental."><meta property="og:image" content="https://pr
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
     <li><a class="dropdown-item" href="../articles/multispecies.html">Several species at once: the multispecies model</a></li>
     <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
+    <li><a class="dropdown-item" href="../articles/royle-nichols.html">Detection that depends on abundance: the Royle-Nichols model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -85,7 +86,7 @@ an argument after the existing named ones (and before a trailing
 (<code>fp_data</code>, <code>fp_occu</code>, <code>fp_priors</code>, <code>fp_sim</code>, <code>fp_calibration</code>,
 <code>fp_sbc</code>, <code>fp_ppc</code>, <code>fp_prior_predictive</code>, <code>fp_effects</code>, <code>fp_sites</code>,
 <code>fp_threshold_sweep</code>, <code>fp_sheepdog</code>, <code>fp_occu_dyn</code>, <code>fp_sim_dyn</code>,
-<code>fp_occu_ms</code>, <code>fp_sim_ms</code>,
+<code>fp_occu_ms</code>, <code>fp_sim_ms</code>, <code>fp_occu_rn</code>,
 <code>summary.fp_occu</code>, <code>summary.fp_calibration</code>, <code>summary.fp_sbc</code>), and the class of the
 design warnings of <code><a href="fp_data.html">fp_data()</a></code> (<code>crywolf_design_warning</code>), which code
 may catch. Classes of other packages (the <code>CmdStanModel</code> of
@@ -125,11 +126,13 @@ and method, so that a change cannot pass unnoticed.</p>
 (multi-season) model, with its methods and <code><a href="simulate.fp_occu_dyn.html">simulate.fp_occu_dyn()</a></code>, and
 <code><a href="fp_occu_ms.html">fp_occu_ms()</a></code>, the multispecies model, with the <code>species</code> argument of
 <code><a href="fp_data.html">fp_data()</a></code>, the methods of the <code>fp_occu_ms</code> class and
-<code><a href="simulate.fp_occu_ms.html">simulate.fp_occu_ms()</a></code>.</p>
+<code><a href="simulate.fp_occu_ms.html">simulate.fp_occu_ms()</a></code>. From the release after 2.3.0, <code><a href="fp_occu_rn.html">fp_occu_rn()</a></code>, the Royle-Nichols
+model with false positives, with the methods of the <code>fp_occu_rn</code> class
+(<a href="fp_occu_rn-methods.html">fp_occu_rn-methods</a>).</p>
 <p>Results and simulation: <code><a href="fp_effects.html">fp_effects()</a></code>, <code><a href="fp_sites.html">fp_sites()</a></code>, <code><a href="simulate_fp.html">simulate_fp()</a></code>,
 <code><a href="fp_calibrate.html">fp_calibrate()</a></code>, <code><a href="fp_verification_curve.html">fp_verification_curve()</a></code>, <code><a href="fp_calibrate_fit.html">fp_calibrate_fit()</a></code>,
 <code><a href="fp_sbc.html">fp_sbc()</a></code>, and, from 2.3.0, <code><a href="simulate_fp_dyn.html">simulate_fp_dyn()</a></code>, <code><a href="simulate_fp_ms.html">simulate_fp_ms()</a></code> and
-<code><a href="fp_richness.html">fp_richness()</a></code>.</p>
+<code><a href="fp_richness.html">fp_richness()</a></code>, and, from the release after 2.3.0, <code><a href="simulate_fp_rn.html">simulate_fp_rn()</a></code>.</p>
 <p>The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> methods of the classes above
 are stable too.</p>
     </div>
@@ -142,10 +145,7 @@ are stable too.</p>
 classifier calibration from 'sheepdog' into the model or pass data to
 'unmarked', and are still being evaluated. <code><a href="fp_review_priority.html">fp_review_priority()</a></code>, new
 after 2.3.0, prepares directed review rounds of 'sheepdog'; it follows
-<code>select_directed()</code>, which may still change. <code><a href="fp_occu_rn.html">fp_occu_rn()</a></code> and
-<code><a href="simulate_fp_rn.html">simulate_fp_rn()</a></code>, new after 2.3.0, fit and simulate the Royle-Nichols
-model with false positives, with the <code>fp_occu_rn</code> class and its methods.
-Their arguments, classes and
+<code>select_directed()</code>, which may still change. Their arguments, classes and
 results may change in a minor version; the NEWS will say so. Each says
 so in its help. <code><a href="fp_read_sheepdog.html">fp_read_sheepdog()</a></code>, by contrast, reads a versioned
 export format (<code>sheepdog-occupancy</code>, schema 1) and is stable.</p>

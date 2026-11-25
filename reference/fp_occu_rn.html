@@ -47,6 +47,7 @@ fp_occu() cannot separate from it."><meta property="og:image" content="https://p
     <li><a class="dropdown-item" href="../articles/site_effects.html">Site effects on detection and false positives</a></li>
     <li><a class="dropdown-item" href="../articles/multispecies.html">Several species at once: the multispecies model</a></li>
     <li><a class="dropdown-item" href="../articles/dynamic.html">Use from one night to the next</a></li>
+    <li><a class="dropdown-item" href="../articles/royle-nichols.html">Detection that depends on abundance: the Royle-Nichols model</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Design and checks</h6></li>
     <li><a class="dropdown-item" href="../articles/planning.html">Planning a study</a></li>
@@ -105,7 +106,7 @@ variation in detection among sites beyond that due to abundance, which
 <span>  threads_per_chain <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  iter_warmup <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  iter_sampling <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  adapt_delta <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  adapt_delta <span class="op">=</span> <span class="fl">0.99</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prior_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -297,19 +298,18 @@ posterior of each site's abundance given its data; see
 <p><strong>Not supported.</strong> False-positive covariates measured on each occasion,
 runs of detections (<code>markov</code> of <code><a href="fp_occu.html">fp_occu()</a></code>), and the other outputs of
 <code><a href="fp_occu.html">fp_occu()</a></code> (<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="fp_effects.html">fp_effects()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>).</p>
-<p><strong>Identifiability.</strong> Simulations at 200 sites and at 21 sites with 17
-occasions (in <code>dev/rn-fp/</code> of the package repository) recovered
-<code>sd_det_site</code> near 1 and gave few false signals when it was 0; values
-near 0.5 were not distinguishable from 0, and <code>sd_abund_site</code> was weakly
+<p><strong>Identifiability.</strong> In simulations (<code><a href="../articles/royle-nichols.html">vignette("royle-nichols")</a></code>, code
+in <code>dev/rn-fp/</code> of the package repository), the power to detect
+<code>sd_det_site = 1</code> grew with the number of sites and occasions, from about
+half at 25 sites and 10 occasions to above 90% at 100 sites and 20
+occasions, and depended little on whether verified data or confirmed
+occasions supplied the information. <code>sd_abund_site</code> was weakly
 identified. With few sites the prior of <code>sd_det_site</code> carries much of the
-posterior near 0: compare fits under several values of <code>det_site_sd</code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="experimental">Experimental<a class="anchor" aria-label="anchor" href="#experimental"></a></h2>
-
-
-<p>This function is experimental (new after 2.3.0): its arguments and
-results may change in a minor version. See <a href="crywolf-api.html">crywolf-api</a>.</p>
+posterior near 0: compare fits under several values of <code>det_site_sd</code>.
+The default <code>adapt_delta</code> is 0.99, above the 0.95 of <code><a href="fp_occu.html">fp_occu()</a></code>: the
+site effects create funnels, and at 0.95 most simulated designs had
+divergences. With many sites, also use longer chains than the default:
+the standard deviations of the site effects mix slowly.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -333,15 +333,15 @@ designs. <em>Ecology</em>, 96, 332–339. <a href="https://doi.org/10.1890/14-15
 <span class="r-in"><span>                iter_warmup <span class="op">=</span> <span class="fl">300</span>, iter_sampling <span class="op">=</span> <span class="fl">300</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 2 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 2.8 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 2.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 6.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 7.6 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 2.8 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 2.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 7.1 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 7.7 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.013 (&gt; 1.01); run longer chains.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Smallest bulk ESS is 176 (&lt; 400).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.040 (&gt; 1.01); run longer chains.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Smallest bulk ESS is 76 (&lt; 400).</span>
 <span class="r-in"><span><span class="va">m</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bayesian Royle-Nichols occupancy model with false positives</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -350,21 +350,21 @@ designs. <em>Ecology</em>, 96, 332–339. <a href="https://doi.org/10.1890/14-15
 <span class="r-out co"><span class="r-pr">#&gt;</span>   false positive:   ~1  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   data:             60 sites, 600 automated (0 confirmed) and 42 verified occasions; N summed over 0..20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              variable    mean     sd   lower  upper  rhat ess_bulk ess_tail</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     abund_(Intercept) -0.1155 0.2926 -0.6439  0.518 1.004      540      416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       det_(Intercept) -0.9588 0.3439 -1.6625 -0.373 1.004      341      411</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  verified_(Intercept)  0.2022 0.5093 -0.7716  1.235 1.005      854      425</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            r_verified  0.5474 0.1191  0.3161  0.775 1.005      854      425</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_ref  0.9312 0.2928  0.5252  1.679 1.004      540      416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_ref  0.5906 0.1032  0.4086  0.813 1.004      540      416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_bar  0.9312 0.2928  0.5252  1.679 1.004      540      416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_bar  0.5906 0.1032  0.4086  0.813 1.004      540      416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 r_ref  0.2823 0.0662  0.1594  0.408 1.004      341      411</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        fp_(Intercept) -2.6270 0.4507 -3.7777 -1.974 0.997      553      384</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               p10_ref  0.0723 0.0253  0.0224  0.122 0.997      553      384</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           sd_det_site  0.6933 0.3183  0.0668  1.363 1.013      176      139</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              variable    mean     sd   lower  upper rhat ess_bulk ess_tail</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     abund_(Intercept) -0.0895 0.2909 -0.6634  0.515 1.01    141.6      114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       det_(Intercept) -0.9815 0.3401 -1.7084 -0.345 1.03     75.6      207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  verified_(Intercept)  0.1806 0.4965 -0.8010  1.118 1.00    375.3      382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            r_verified  0.5427 0.1173  0.3098  0.754 1.00    375.3      382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_ref  0.9545 0.2924  0.5151  1.674 1.01    141.6      114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_ref  0.6000 0.1023  0.4026  0.813 1.01    141.6      114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            lambda_bar  0.9545 0.2924  0.5151  1.674 1.01    141.6      114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               psi_bar  0.6000 0.1023  0.4026  0.813 1.01    141.6      114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 r_ref  0.2777 0.0655  0.1534  0.415 1.03     75.6      207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        fp_(Intercept) -2.6212 0.4405 -3.7438 -1.956 1.01    190.1      144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               p10_ref  0.0725 0.0246  0.0231  0.124 1.01    190.1      144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           sd_det_site  0.6900 0.3387  0.0713  1.377 1.04     84.9      207</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Sampler: 0 divergent transitions, max R-hat 1.013, min bulk/tail ESS 176/139</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sampler: 0 divergent transitions, max R-hat 1.040, min bulk/tail ESS 76/114</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

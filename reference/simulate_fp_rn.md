@@ -102,13 +102,6 @@ occasions get the columns `n_true` and `n_false` of `auto` (0 or 1, `NA`
 elsewhere). A verified occasion is a detection with probability \\1 -
 (1 - r^v)^{N_i}\\.
 
-## Experimental
-
-This function is experimental (new after 2.3.0), like
-[`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md).
-See
-[crywolf-api](https://provetelab.org/crywolf/reference/crywolf-api.md).
-
 ## See also
 
 [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md),

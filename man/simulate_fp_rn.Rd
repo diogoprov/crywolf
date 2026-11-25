@@ -72,12 +72,6 @@ occasions get the columns \code{n_true} and \code{n_false} of \code{auto} (0 or 
 elsewhere). A verified occasion is a detection with probability
 \eqn{1 - (1 - r^v)^{N_i}}.
 }
-\section{Experimental}{
-
-This function is experimental (new after 2.3.0), like \code{\link[=fp_occu_rn]{fp_occu_rn()}}.
-See \link{crywolf-api}.
-}
-
 \examples{
 s <- simulate_fp_rn(nsite = 50, nocc = 10, sigma_r = 1, seed = 1)
 s

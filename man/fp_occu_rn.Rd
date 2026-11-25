@@ -191,19 +191,17 @@ posterior of each site's abundance given its data; see
 runs of detections (\code{markov} of \code{\link[=fp_occu]{fp_occu()}}), and the other outputs of
 \code{\link[=fp_occu]{fp_occu()}} (\code{predict()}, \code{coef()}, \code{\link[=fp_effects]{fp_effects()}}, \code{\link[=plot]{plot()}}).
 
-\strong{Identifiability.} Simulations at 200 sites and at 21 sites with 17
-occasions (in \verb{dev/rn-fp/} of the package repository) recovered
-\code{sd_det_site} near 1 and gave few false signals when it was 0; values
-near 0.5 were not distinguishable from 0, and \code{sd_abund_site} was weakly
+\strong{Identifiability.} In simulations (\code{vignette("royle-nichols")}, code
+in \verb{dev/rn-fp/} of the package repository), the power to detect
+\code{sd_det_site = 1} grew with the number of sites and occasions, from about
+half at 25 sites and 10 occasions to above 90\% at 100 sites and 20
+occasions, and depended little on whether verified data or confirmed
+occasions supplied the information. \code{sd_abund_site} was weakly
 identified. With few sites the prior of \code{sd_det_site} carries much of the
 posterior near 0: compare fits under several values of \code{det_site_sd}.
+With many sites, use \code{adapt_delta = 0.99} and longer chains than the
+default: the standard deviations of the site effects mix slowly.
 }
-\section{Experimental}{
-
-This function is experimental (new after 2.3.0): its arguments and
-results may change in a minor version. See \link{crywolf-api}.
-}
-
 \examples{
 \dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
 \donttest{

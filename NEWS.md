@@ -1,18 +1,21 @@
 # crywolf (development version)
 
-* New `fp_occu_rn()` (experimental) fits the Royle-Nichols occupancy model
+* New `fp_occu_rn()` fits the Royle-Nichols occupancy model
   with false positives: Poisson abundance, per-individual detection, false
   positives on every occasion, verified occasions and the
   observation-confirmation design, with site effects on the per-individual
   detection (`random_det`), on log abundance (`random_abund`) and on the
   false-positive rate (`random_fp`). `random_det` then measures variation in
   detection among sites beyond that due to abundance. `simulate_fp_rn()`
-  (experimental) simulates data from it, with unbalanced occasions if
+  simulates data from it, with unbalanced occasions if
   needed, and `fp_priors()` gains `abund_site_sd`. Its fits have `loo()`
   (leave one site out, with the site effects integrated out and exact refits
   with `reloo = TRUE`) and `simulate()` methods, and `fp_sites()` (with the
   posterior mean abundance of each site), `fp_ppc()` and `fp_loo_weights()`
-  accept them.
+  accept them. Both functions join the stable interface (`?crywolf-api`).
+  The new article `vignette("royle-nichols")` describes the model and the
+  simulations that validate it (simulation-based calibration and a grid over
+  sites, occasions and annotation schemes).
 * `fp_occu()` no longer fails when every automated occasion is confirmed
   (observation-confirmation design with nothing left unchecked).
 * New `fp_review_priority()` (experimental) gives every site, or site and

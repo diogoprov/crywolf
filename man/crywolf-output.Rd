@@ -198,6 +198,25 @@ It has no \code{p10_bar}.
 \code{(i - 1) \%/\% nspecies + 1} and species \code{(i - 1) \%\% nspecies + 1}.
 }
 
+\section{Royle-Nichols model}{
+
+\code{\link[=fp_occu_rn]{fp_occu_rn()}} names the coefficients of log abundance \code{abund_(Intercept)}
+and \verb{abund_<term>} (in place of \verb{occ_*}), and those of the logit of the
+per-individual detection \eqn{r} \verb{det_*}. The false-positive
+coefficients are \code{fp_(Intercept)} and \verb{fp_<term>}, with no gap, and the
+verified method is \code{verified_(Intercept)}, \verb{verified_<term>} and
+\code{r_verified}, its per-individual detection. Derived quantities:
+\code{lambda_ref} and \code{psi_ref}, the abundance and occupancy at the reference
+of the covariates, with \eqn{\psi = 1 - e^{-\lambda}}{psi = 1 -
+exp(-lambda)}; \code{lambda_bar} and \code{psi_bar}, their means over sites;
+\code{r_ref} and \code{p10_ref}. The standard deviations of the site effects are
+\code{sd_det_site}, \code{sd_abund_site} and \code{sd_fp_site}, and that of the
+recorder effect is \code{sd_recorder}. \code{log_lik[i]} is the log-likelihood of
+site \code{i}, with its abundance summed over 0 to \code{n_max}. \code{\link[=fp_sites]{fp_sites()}}
+adds \code{abundance}, \code{abundance_lower} and \code{abundance_upper}, the posterior
+mean abundance of each site given its data and its interval.
+}
+
 \section{Dynamic model}{
 
 \code{\link[=fp_occu_dyn]{fp_occu_dyn()}} uses the names above, except that the coefficients of

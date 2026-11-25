@@ -173,6 +173,23 @@
 #' `log_lik[i]` is the log-likelihood of unit `i`, site
 #' `(i - 1) %/% nspecies + 1` and species `(i - 1) %% nspecies + 1`.
 #'
+#' @section Royle-Nichols model:
+#' [fp_occu_rn()] names the coefficients of log abundance `abund_(Intercept)`
+#' and `abund_<term>` (in place of `occ_*`), and those of the logit of the
+#' per-individual detection \eqn{r} `det_*`. The false-positive
+#' coefficients are `fp_(Intercept)` and `fp_<term>`, with no gap, and the
+#' verified method is `verified_(Intercept)`, `verified_<term>` and
+#' `r_verified`, its per-individual detection. Derived quantities:
+#' `lambda_ref` and `psi_ref`, the abundance and occupancy at the reference
+#' of the covariates, with \eqn{\psi = 1 - e^{-\lambda}}{psi = 1 -
+#' exp(-lambda)}; `lambda_bar` and `psi_bar`, their means over sites;
+#' `r_ref` and `p10_ref`. The standard deviations of the site effects are
+#' `sd_det_site`, `sd_abund_site` and `sd_fp_site`, and that of the
+#' recorder effect is `sd_recorder`. `log_lik[i]` is the log-likelihood of
+#' site `i`, with its abundance summed over 0 to `n_max`. [fp_sites()]
+#' adds `abundance`, `abundance_lower` and `abundance_upper`, the posterior
+#' mean abundance of each site given its data and its interval.
+#'
 #' @section Dynamic model:
 #' [fp_occu_dyn()] uses the names above, except that the coefficients of
 #' initial occupancy are `psi1_(Intercept)` and `psi1_<term>` (in place of

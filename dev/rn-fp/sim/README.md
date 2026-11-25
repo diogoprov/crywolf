@@ -129,8 +129,10 @@ power.
 - When sigma_r = 1, the 90% coverage of sigma_r is 0.84-1.00.
 
 **Bayes factor.** BF01 < 1/3 in about half the fits where sigma_r = 1
-(median over designs 0.42-0.55). BF01 > 3 in 12-17% of the fits where
-sigma_r = 0, so the Bayes factor rarely confirms that sigma_r is absent.
+(median over designs 0.42-0.55). Where sigma_r = 0, the share of fits with
+BF01 > 3 grows with the design: 0-3% at 25 x 10 and 24-77% at 100 x 20. It
+is lower with sigma_lam = 0.7 (24-30% at 100 x 20) than without (66-77%).
+Small designs therefore cannot confirm that sigma_r is absent.
 
 **Sigma_lam.** It is overestimated when its true value is 0 (median 0.43-0.47,
 the half-Normal(0, 1) prior speaking) and slightly underestimated when it is

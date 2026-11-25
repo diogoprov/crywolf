@@ -14,7 +14,7 @@
 #'   (`fp_data`, `fp_occu`, `fp_priors`, `fp_sim`, `fp_calibration`,
 #'   `fp_sbc`, `fp_ppc`, `fp_prior_predictive`, `fp_effects`, `fp_sites`,
 #'   `fp_threshold_sweep`, `fp_sheepdog`, `fp_occu_dyn`, `fp_sim_dyn`,
-#'   `fp_occu_ms`, `fp_sim_ms`,
+#'   `fp_occu_ms`, `fp_sim_ms`, `fp_occu_rn`,
 #'   `summary.fp_occu`, `summary.fp_calibration`, `summary.fp_sbc`), and the class of the
 #'   design warnings of [fp_data()] (`crywolf_design_warning`), which code
 #'   may catch. Classes of other packages (the `CmdStanModel` of
@@ -53,12 +53,14 @@
 #' (multi-season) model, with its methods and [simulate.fp_occu_dyn()], and
 #' [fp_occu_ms()], the multispecies model, with the `species` argument of
 #' [fp_data()], the methods of the `fp_occu_ms` class and
-#' [simulate.fp_occu_ms()].
+#' [simulate.fp_occu_ms()]. From the release after 2.3.0, [fp_occu_rn()], the Royle-Nichols
+#' model with false positives, with the methods of the `fp_occu_rn` class
+#' ([fp_occu_rn-methods]).
 #'
 #' Results and simulation: [fp_effects()], [fp_sites()], [simulate_fp()],
 #' [fp_calibrate()], [fp_verification_curve()], [fp_calibrate_fit()],
 #' [fp_sbc()], and, from 2.3.0, [simulate_fp_dyn()], [simulate_fp_ms()] and
-#' [fp_richness()].
+#' [fp_richness()], and, from the release after 2.3.0, [simulate_fp_rn()].
 #'
 #' The `print()`, `summary()` and `plot()` methods of the classes above
 #' are stable too.
@@ -69,10 +71,7 @@
 #' classifier calibration from 'sheepdog' into the model or pass data to
 #' 'unmarked', and are still being evaluated. [fp_review_priority()], new
 #' after 2.3.0, prepares directed review rounds of 'sheepdog'; it follows
-#' `select_directed()`, which may still change. [fp_occu_rn()] and
-#' [simulate_fp_rn()], new after 2.3.0, fit and simulate the Royle-Nichols
-#' model with false positives, with the `fp_occu_rn` class and its methods.
-#' Their arguments, classes and
+#' `select_directed()`, which may still change. Their arguments, classes and
 #' results may change in a minor version; the NEWS will say so. Each says
 #' so in its help. [fp_read_sheepdog()], by contrast, reads a versioned
 #' export format (`sheepdog-occupancy`, schema 1) and is stable.

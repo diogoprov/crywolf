@@ -32,10 +32,6 @@
 #' elsewhere). A verified occasion is a detection with probability
 #' \eqn{1 - (1 - r^v)^{N_i}}.
 #'
-#' @section Experimental:
-#' This function is experimental (new after 2.3.0), like [fp_occu_rn()].
-#' See [crywolf-api].
-#'
 #' @return A list of class `fp_sim` with elements `data` (an `fp_data`
 #'   object; `sites` holds `x`) and `truth` (the generating values, the
 #'   intercepts `b0` of log abundance and `a0` of the logit of `r`, the

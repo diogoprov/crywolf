@@ -21,7 +21,7 @@ fp_occu_rn(
   threads_per_chain = "auto",
   iter_warmup = 1000,
   iter_sampling = 1000,
-  adapt_delta = 0.95,
+  adapt_delta = 0.99,
   seed = NULL,
   refresh = NULL,
   prior_only = FALSE,
@@ -199,8 +199,10 @@ occasions, and depended little on whether verified data or confirmed
 occasions supplied the information. \code{sd_abund_site} was weakly
 identified. With few sites the prior of \code{sd_det_site} carries much of the
 posterior near 0: compare fits under several values of \code{det_site_sd}.
-With many sites, use \code{adapt_delta = 0.99} and longer chains than the
-default: the standard deviations of the site effects mix slowly.
+The default \code{adapt_delta} is 0.99, above the 0.95 of \code{\link[=fp_occu]{fp_occu()}}: the
+site effects create funnels, and at 0.95 most simulated designs had
+divergences. With many sites, also use longer chains than the default:
+the standard deviations of the site effects mix slowly.
 }
 \examples{
 \dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}

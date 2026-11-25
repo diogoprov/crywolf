@@ -12,7 +12,8 @@
   (leave one site out, with the site effects integrated out and exact refits
   with `reloo = TRUE`) and `simulate()` methods, and `fp_sites()` (with the
   posterior mean abundance of each site), `fp_ppc()` and `fp_loo_weights()`
-  accept them. Both functions join the stable interface (`?crywolf-api`).
+  accept them. Its default `adapt_delta` is 0.99, above the 0.95 of
+  `fp_occu()`, because divergences were common at 0.95 in simulations. Both functions join the stable interface (`?crywolf-api`).
   The new article `vignette("royle-nichols")` describes the model and the
   simulations that validate it (simulation-based calibration and a grid over
   sites, occasions and annotation schemes).

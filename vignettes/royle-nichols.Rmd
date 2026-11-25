@@ -97,19 +97,19 @@ The fit with both site effects:
 
 ```{r fit, eval = FALSE}
 m <- fp_occu_rn(s$data, occ = ~ x, random_det = TRUE, random_abund = TRUE,
-                n_max = 25, adapt_delta = 0.99, iter_warmup = 1500,
+                n_max = 25, iter_warmup = 1500,
                 iter_sampling = 1500, seed = 1)
 m
 ```
 
-Three choices in this call matter more than in `fp_occu()`:
+Three settings matter more than in `fp_occu()`:
 
 - `n_max` must be large enough that the Poisson mass above it is negligible
   at every site. The fit warns when it is not, from the derived quantity
   `p_above_nmax`. The cost of the fit grows with `n_max`.
-- `adapt_delta = 0.99` avoids most divergences. The site effects create
-  funnels, and at the default of 0.95 divergences appeared in most designs
-  of the simulations below.
+- The default `adapt_delta` is 0.99, above the 0.95 of `fp_occu()`. The
+  site effects create funnels, and at 0.95 divergences appeared in most
+  designs of the simulations below.
 - With many sites, the standard deviations of the site effects mix slowly.
   At 100 sites, 1000 + 1000 iterations left a largest R-hat of 1.01-1.03 in
   half or more of the simulated fits. Longer chains are the remedy.

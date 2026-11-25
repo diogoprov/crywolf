@@ -630,10 +630,15 @@ fica para depois da etapa 1.
   confirmação. O posterior de σ_r acompanha o prior, então a análise do ACAD
   deve mostrar σ_r sob mais de um prior. Detalhes em
   `dev/rn-fp/acad-real/README.md`.
-- **Etapa 3, em andamento:** `loo()`, `simulate()`, `fp_sites()`, `fp_ppc()`
+- **Etapa 3, feita (#68):** `loo()`, `simulate()`, `fp_sites()`, `fp_ppc()`
   e `fp_loo_weights()` para `fp_occu_rn`. Todas usam o posterior de N de cada
   sítio, calculado em R e testado contra o `log_lik` do Stan. `predict()`,
   `coef()`, `fp_effects()` e `plot()` ficam para depois, se forem pedidos.
+- **Etapa 4, feita (25/11/2026):** SBC (2 × 500) e grade geral (72 células ×
+  100) na AWS, por cerca de US$10. O SBC está calibrado; só `beta[2]` no
+  desenho A ficou no limite. O poder para σr depende sobretudo de sítios e
+  ocasiões, e pouco do esquema de anotação. Com 100 sítios, 1000 + 1000
+  iterações dão R-hat de 1,01–1,03. Detalhes em `dev/rn-fp/sim/README.md`.
 
 **Etapa 1, o ponto de decisão (1–2 dias):**
 - Simular dados RN com falsos positivos e ajustar um protótipo em Stan fora do

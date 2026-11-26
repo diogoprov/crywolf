@@ -407,10 +407,12 @@ do k-fold e dos pikas (PR #22).
 **Depois do 2.2.0:**
 1. Feito: `fp_occu_dyn()` e `simulate_fp_dyn()` saíram de experimental e entraram
    no snapshot da API (critério 9); chega aos usuários no release seguinte.
-2. `fp_calibrate()` com desenhos dinâmicos, previsto no passo de validação e não
-   feito. Hoje a função só simula uma temporada, e a vinheta avisa disso.
-3. Opcional: dados de lobos de Miller et al. (2013), pedidos à Montana FWP em
-   05/11/2026, como comparação com temporadas independentes.
+2. `fp_calibrate()` com desenhos dinâmicos (`dynamic = TRUE`): **feito em
+   25/11/2026**. Simula com `simulate_fp_dyn()`, ajusta `fp_occu_dyn()` e
+   avalia a cobertura de `psi1`, `col`, `ext`, `p10_bar` e `p_verified`.
+3. Descartado em 25/11/2026: os dados de lobos de Miller et al. (2013),
+   pedidos à Montana FWP em 05/11/2026, nunca chegaram. O segundo conjunto de
+   dados da validação já são os pikas.
 
 ### Riscos
 

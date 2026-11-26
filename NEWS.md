@@ -17,6 +17,15 @@
   The new article `vignette("royle-nichols")` describes the model and the
   simulations that validate it (simulation-based calibration and a grid over
   sites, occasions and annotation schemes).
+* `fp_calibrate()` gains `dynamic`: with `dynamic = TRUE`, the design is
+  simulated with `simulate_fp_dyn()`, each dataset is fitted with
+  `fp_occu_dyn()` (formulas `psi1`, `col` and `ext`), and the coverage of
+  initial occupancy, colonization, extinction, the false-positive rate and
+  the verified detection probability is scored. `plot()` of a dynamic
+  calibration counts verified site-seasons. `fp_verification_curve()` gains
+  the same arguments and, with `dynamic = TRUE`, prints the coverage of
+  initial occupancy, colonization and extinction against the fraction of
+  site-seasons verified.
 * `?fp_occu` and `?fp_occu_ms` now state that the false-positive rate of a
   species does not depend on which other species are present. They also
   report how occupancy is overestimated when the classifier confuses two

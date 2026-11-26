@@ -14,13 +14,18 @@ fp_calibrate(
   base_seed = 1L,
   parallel = FALSE,
   fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling =
-    1000, adapt_delta = 0.95)
+    1000, adapt_delta = 0.95),
+  dynamic = FALSE,
+  psi1 = ~x,
+  col = ~1,
+  ext = ~1
 )
 }
 \arguments{
 \item{design}{A data frame (or list) whose columns are arguments of
-\code{\link[=simulate_fp]{simulate_fp()}}; each row is one cell of the design. Arguments not given
-take the defaults of \code{\link[=simulate_fp]{simulate_fp()}}.}
+\code{\link[=simulate_fp]{simulate_fp()}} (of \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}} with \code{dynamic = TRUE}); each row
+is one cell of the design. Arguments not given take the defaults of the
+simulator.}
 
 \item{models}{Named list of formulas for the false-positive rate, one model
 per element, as in the \code{fp} argument of \code{\link[=fp_occu]{fp_occu()}}. The default fits only
@@ -28,7 +33,8 @@ the constant-rate model.}
 
 \item{occ, det}{Formulas for occupancy and true detection, shared by all
 models. Simulated data have the occupancy covariate \code{x} and the detection
-covariates \code{bio} and \code{aci}.}
+covariates \code{bio} and \code{aci}. With \code{dynamic = TRUE}, \code{occ} is not used,
+and the data have no detection covariates.}
 
 \item{reps}{Number of replicate datasets per cell. Each costs one Stan fit
 per model. Fifty replicates give a Monte Carlo standard error of about
@@ -58,6 +64,16 @@ thread per chain (\code{threads_per_chain = 1}, unlike \code{\link[=fp_occu]{fp_
 default is \code{"auto"}): \code{"auto"} divides the cores among the chains of one
 fit, not among parallel workers, and one thread keeps every replicate
 reproducible by its seed.}
+
+\item{dynamic}{Logical. \code{TRUE} calibrates a multi-season design: the
+columns of \code{design} are arguments of \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}, and each
+dataset is fitted with \code{\link[=fp_occu_dyn]{fp_occu_dyn()}}.}
+
+\item{psi1, col, ext}{Formulas for initial occupancy, colonization and
+extinction, shared by all models, used only with \code{dynamic = TRUE}.
+Simulated dynamic data have the site covariate \code{x} and the site-season
+covariate \code{rain} (see \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}). Include the covariates of
+the design: with \code{b_col} not zero, for instance, use \code{col = ~ rain}.}
 }
 \value{
 A tibble of class \code{fp_calibration}, one row per replicate, model,
@@ -70,7 +86,9 @@ per cell and model.
 Simulates many datasets from a design with \code{\link[=simulate_fp]{simulate_fp()}}, fits one or more
 false-positive models to each with \code{\link[=fp_occu]{fp_occu()}}, and scores how often the
 credible intervals contain the true values and how biased the posterior
-means are. Use it before collecting data, to ask whether the correction
+means are. With \code{dynamic = TRUE}, the designs are multi-season: they are
+simulated with \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}} and fitted with \code{\link[=fp_occu_dyn]{fp_occu_dyn()}}. Use it
+before collecting data, to ask whether the correction
 will be calibrated for the number of sites, occasions, and verified sites
 you can afford, and whether a constant false-positive rate is enough under
 the confusion you suspect.
@@ -81,6 +99,16 @@ The scored quantities are the occupancy intercept and slope
 (\code{p10_bar}, against the realized mean rate), the detection probability of
 the verified method (\code{p_verified}), and, for models that include the
 confusing gradient \code{w}, its effect on the false-positive rate (\code{fp_w}).
+
+\strong{Dynamic designs.} With \code{dynamic = TRUE} the scored quantities are the
+intercepts of initial occupancy, colonization and extinction
+(\code{psi1_(Intercept)}, \code{col_(Intercept)}, \code{ext_(Intercept)}), their slopes
+when the formulas include the covariates of the simulator (\code{psi1_x},
+\code{col_rain}, \code{ext_x}), the false-positive rate (\code{p10_bar}, against the
+constant \code{p10} of the design) and the detection probability of the
+verified method (\code{p_verified}). Colonization and extinction are hard to
+tell from false positives in seasons without verified data, so designs
+with few verified site-seasons are the ones worth checking.
 }
 \examples{
 \dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
@@ -91,10 +119,15 @@ cal <- fp_calibrate(design,
                     occ = ~ x, reps = 5,
                     fit_args = list(chains = 2, threads_per_chain = 1))
 summary(cal)   # use 50 or more replicates in practice
+
+# a dynamic design: four seasons, colonization driven by rain
+cal_dyn <- fp_calibrate(data.frame(nseason = 4, b_col = 1),
+                        dynamic = TRUE, col = ~ rain, reps = 5,
+                        fit_args = list(chains = 2, threads_per_chain = 1))
+summary(cal_dyn)
 }
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=fp_verification_curve]{fp_verification_curve()}}, \code{\link[=simulate_fp]{simulate_fp()}}; for dynamic designs,
-which this function does not simulate, \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}
+\code{\link[=fp_verification_curve]{fp_verification_curve()}}, \code{\link[=simulate_fp]{simulate_fp()}}, \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}
 }

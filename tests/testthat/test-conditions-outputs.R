@@ -131,6 +131,8 @@ test_that("multispecies outputs check their input", {
   expect_error(fp_richness(list()), "`object` must be an `fp_occu_ms` fit.", fixed = TRUE)
   expect_error(fp_richness(structure(list(), class = "fp_occu")),
                "`object` must be an `fp_occu_ms` fit.", fixed = TRUE)
+  expect_error(fp_state_draws(list()),
+               "`object` of fp_state_draws() must be an `fp_occu_ms` fit.", fixed = TRUE)
 
   # no species are needed to reach the checks of the sites table
   local_mocked_bindings(.ms_species = function(object, ndraws) list())

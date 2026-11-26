@@ -365,6 +365,15 @@ test_that("the outputs of fp_occu_ms() use the likelihood of each species", {
   expect_true(all(r$richness <= 3 & r$detected <= 3))
   expect_true(all(r$richness_upper == round(r$richness_upper)))
   expect_error(fp_richness(list()), "fp_occu_ms")
+  # the states of fp_state_draws() are those that fp_richness() counts
+  z <- fp_state_draws(m1, ndraws = 20, seed = 1)
+  expect_equal(dim(z), c(20, 40, 3))
+  expect_identical(dimnames(z)[[3]], c("sp1", "sp2", "sp3"))
+  expect_true(all(z %in% c(0L, 1L)))
+  expect_equal(r$richness, colMeans(apply(z, c(1, 2), sum)), ignore_attr = TRUE)
+  known <- as.matrix(m1$data$known_present) == 1
+  expect_true(all(apply(z, c(2, 3), min)[known] == 1))
+  expect_identical(fp_state_draws(m1, ndraws = 20, seed = 1), z)
 
   pp <- fp_ppc(m1, ndraws = 20, seed = 1)
   expect_s3_class(pp, "fp_ppc")

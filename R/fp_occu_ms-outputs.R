@@ -46,14 +46,9 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
   sp <- .ms_species(object, ndraws)
   z <- psi <- 0
   for (x in sp) {
-    # the states from their conditional posterior, as in .ppc_core(), from
-    # the emissions alone (no replicated detections)
-    em <- .ppc_core(x$stan_data, x$pars, "automated", "freeman-tukey", emissions_only = TRUE)
-    lpsi <- x$pars$beta %*% t(x$stan_data$X)
-    pz <- stats::plogis(lpsi + em$occ - em$unocc)
-    pz[, x$stan_data$known_present == 1] <- 1
+    pz <- .ms_pz(x)
     z <- z + matrix(stats::rbinom(length(pz), 1, pz), nrow(pz))
-    psi <- psi + stats::plogis(lpsi)
+    psi <- psi + stats::plogis(x$pars$beta %*% t(x$stan_data$X))
   }
   sites <- object$data$sites
   new <- c("richness", "richness_lower", "richness_upper", "richness_psi",
@@ -75,6 +70,118 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
              detected = Reduce(`+`, detected),
              verified = rowSums(as.matrix(object$data$known_present) == 1),
              row.names = NULL)
+}
+
+#' Posterior probability that each site is occupied, per draw, for one
+#' species of a multispecies fit (an element of .ms_species()): the state
+#' given the data of the site, as in .ppc_core(), from the emissions alone
+#' (no replicated detections); 1 where a verified detection proves presence
+#' @noRd
+.ms_pz <- function(x) {
+  em <- .ppc_core(x$stan_data, x$pars, "automated", "freeman-tukey", emissions_only = TRUE)
+  lpsi <- x$pars$beta %*% t(x$stan_data$X)
+  pz <- stats::plogis(lpsi + em$occ - em$unocc)
+  pz[, x$stan_data$known_present == 1] <- 1
+  pz
+}
+
+#' Posterior draws of the occupancy states of a multispecies model
+#'
+#' Draws the occupancy state of every species at every site from an
+#' [fp_occu_ms()] fit, one site x species matrix of 0 and 1 per posterior
+#' draw, corrected for false positives. The draws can be passed to a joint
+#' species distribution model of another package, such as 'gllvm' or 'Hmsc',
+#' by multiple imputation: fit the model to each draw and average its
+#' estimates over the draws. **Experimental**: the name, arguments and output
+#' may change.
+#'
+#' For each posterior draw, the state of each species at each site is drawn
+#' from its conditional posterior given the data of that species at that site
+#' (as in [fp_sites()] and [fp_richness()]). A site where a verified
+#' detection proves the species is present in every draw.
+#'
+#' **Limits.** Two limits matter for a joint model fitted to the draws:
+#' * The strength of the associations between species is underestimated.
+#'   [fp_occu_ms()] draws the state of each species independently of the
+#'   others. Where the data leave a state uncertain, the draws carry no
+#'   co-occurrence, and the estimated residual associations shrink towards
+#'   zero. The pattern of the associations is better kept than their size.
+#' * Confusion between species is not corrected (see "Confusion between
+#'   species" in [fp_occu()]). When the classifier often marks one species
+#'   when another calls, the draws inherit the bias of [fp_occu_ms()], and the
+#'   joint model may read the confusion as a positive association.
+#'
+#' The joint model treats each draw as data, so the uncertainty of the
+#' states enters only through the spread of its estimates among draws.
+#' Average quantities that do not depend on the rotation of the latent
+#' factors, such as the residual covariance or correlation between species,
+#' not the loadings themselves.
+#'
+#' With 'gllvm', averaging the residual covariance over the draws:
+#' ```r
+#' z <- fp_state_draws(fit, ndraws = 20)
+#' X <- data.frame(x = fit$data$sites$x)
+#' ll <- lapply(seq_len(dim(z)[1]), function(k) {
+#'   m <- gllvm::gllvm(z[k, , ], X = X, formula = ~ x,
+#'                     family = binomial(link = "logit"), num.lv = 2)
+#'   lam <- m$params$theta %*% diag(m$params$sigma.lv, 2)
+#'   lam %*% t(lam)
+#' })
+#' Reduce(`+`, ll) / length(ll)
+#' ```
+#' With 'Hmsc', the residual covariance `Omega` of a site-level random effect:
+#' ```r
+#' units <- factor(seq_len(dim(z)[2]))
+#' omega <- lapply(seq_len(dim(z)[1]), function(k) {
+#'   m <- Hmsc::Hmsc(Y = z[k, , ], XData = X, XFormula = ~ x, distr = "probit",
+#'                   studyDesign = data.frame(site = units),
+#'                   ranLevels = list(site = Hmsc::HmscRandomLevel(units = units)))
+#'   m <- Hmsc::sampleMcmc(m, samples = 1000, thin = 5, transient = 2500,
+#'                         nChains = 2)
+#'   Hmsc::getPostEstimate(m, "Omega")$mean
+#' })
+#' Reduce(`+`, omega) / length(omega)
+#' ```
+#' A species present at every site, or at none, in a draw cannot enter a
+#' binary joint model; drop it from that draw.
+#'
+#' @param object An `fp_occu_ms` object.
+#' @param ndraws Number of posterior draws to use, chosen at random (all by
+#'   default).
+#' @param seed Optional seed for the choice of draws and the draws of the
+#'   states.
+#' @return An integer array of 0 and 1 with dimensions draw x site x species,
+#'   named by the sites (the site column of the data) and the species of the
+#'   model.
+#' @seealso [fp_occu_ms()], [fp_richness()], [fp_sites()]
+#' @export
+#' @examplesIf instantiate::stan_cmdstan_exists()
+#' \donttest{
+#' s <- simulate_fp_ms(nspecies = 5, nsite = 60, seed = 1)
+#' m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
+#'                 chains = 2, threads_per_chain = 1)
+#' z <- fp_state_draws(m, ndraws = 20, seed = 1)
+#' dim(z)
+#' # share of draws in which each species is present, against the truth
+#' plot(apply(z, c(2, 3), mean), s$truth$z)
+#' }
+fp_state_draws <- function(object, ndraws = NULL, seed = NULL) {
+  if (!inherits(object, "fp_occu_ms")) {
+    stop("`object` of fp_state_draws() must be an `fp_occu_ms` fit.", call. = FALSE)
+  }
+  if (!is.null(seed)) .set_seed(seed)
+  sp <- .ms_species(object, ndraws)
+  out <- NULL
+  for (s in seq_along(sp)) {
+    pz <- .ms_pz(sp[[s]])
+    if (is.null(out)) {
+      out <- array(NA_integer_, c(nrow(pz), ncol(pz), length(sp)),
+                   dimnames = list(NULL, as.character(object$data$sites[[object$data$site]]),
+                                   object$data$species_names))
+    }
+    out[, , s] <- matrix(stats::rbinom(length(pz), 1, pz), nrow(pz))
+  }
+  out
 }
 
 #' fp_sites() for the multispecies model: one row per site and species

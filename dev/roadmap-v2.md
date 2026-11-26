@@ -648,7 +648,8 @@ espécies).
 - **Condição para reabrir:** a validação registrar a espécie verdadeira dos
   falsos positivos, para que a confusão seja estimada como uma matriz de
   confusão. O sheepdog já permite declarar essa espécie no fluxo de
-  validação, mas é opcional, e o `fp_read_sheepdog()` ainda não lê o campo.
+  validação, mas é opcional. O `fp_read_sheepdog()` lê o campo desde
+  25/11/2026 (esquema 1.5).
   Seria um modelo de classificação errada entre espécies (ver "Fora do
   plano"), um projeto de pesquisa maior que o JSDM.
 - **Pedido do Diogo (25/11/2026): o `fp_read_sheepdog()` ler a espécie
@@ -672,7 +673,7 @@ espécies).
   - Limite: o campo é opcional no sheepdog. Só projetos que o preencham de
     forma sistemática dariam uma estimativa da confusão sem viés.
   - Combinado com a sessão do sheepdog (25/11/2026), no PR #176 do sheepdog,
-    ainda sem merge (depende do Diogo):
+    já no main do sheepdog:
     - `identity` e `identity_certainty` entram no `validation.csv` do export,
       logo depois de `review_scope`. Estão sempre presentes a partir do
       esquema 1.5 e vêm vazias (NA) onde não houve identidade.
@@ -689,10 +690,11 @@ espécies).
     - A vinheta crywolf-integration do sheepdog registra o limite: a taxa de
       confusão só sai sem viés quando todos os negativos do desenho recebem
       identidade.
-  - Próximo passo no crywolf, depois do merge do #176: o
-    `fp_read_sheepdog()` lê as duas colunas quando `schema_version >= 1.5`.
-    Junto, um resumo dos pares de espécies confundidas, nos moldes do
-    `confuser_summary()` do sheepdog.
+  - Feito em 25/11/2026: o `fp_read_sheepdog()` lê `identity` e
+    `identity_certainty` em `validation`, como texto; nos exports anteriores
+    ao 1.5 as duas colunas vêm com NA.
+  - Próximo passo, ainda não feito: um resumo dos pares de espécies
+    confundidas, nos moldes do `confuser_summary()` do sheepdog.
 - **Alternativa em avaliação:** exportar draws posteriores dos estados de
   ocupação do `fp_occu_ms()` para JSDMs externos (Hmsc, gllvm), por
   imputação múltipla. Viabilidade em `dev/jsdm-export/`, com um conjunto de

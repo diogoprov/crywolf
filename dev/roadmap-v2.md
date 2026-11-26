@@ -669,8 +669,28 @@ espécies).
     classificação errada forem reabertos.
   - Limite: o campo é opcional no sheepdog. Só projetos que o preencham de
     forma sistemática dariam uma estimativa da confusão sem viés.
-  - Próximo passo: combinar com a sessão do sheepdog o nome das colunas e a
-    versão do esquema.
+  - Combinado com a sessão do sheepdog (25/11/2026), no PR #176 do sheepdog,
+    ainda sem merge (depende do Diogo):
+    - `identity` e `identity_certainty` entram no `validation.csv` do export,
+      logo depois de `review_scope`. Estão sempre presentes a partir do
+      esquema 1.5 e vêm vazias (NA) onde não houve identidade.
+    - O formato é o do `run_app()` e do `join_identities()`. Várias
+      identidades vêm separadas por `|`, e `identity_certainty` é "sure",
+      "probable" ou vazio.
+    - `schema_version = 1.5` só acrescenta ao 1.4. O `fp_read_sheepdog()`
+      atual continua lendo os exports.
+    - Não há campo `is_class`. A confusão entre espécies sai da comparação de
+      `identity` com os rótulos em `species` do schema.json. Esse campo só
+      traz rótulos com alguma predição no export. Uma lista completa de
+      classes exigiria um argumento novo no export do sheepdog (decisão do
+      Diogo, se fizer falta).
+    - A vinheta crywolf-integration do sheepdog registra o limite: a taxa de
+      confusão só sai sem viés quando todos os negativos do desenho recebem
+      identidade.
+  - Próximo passo no crywolf, depois do merge do #176: o
+    `fp_read_sheepdog()` lê as duas colunas quando `schema_version >= 1.5`.
+    Junto, um resumo dos pares de espécies confundidas, nos moldes do
+    `confuser_summary()` do sheepdog.
 - **Alternativa em avaliação:** exportar draws posteriores dos estados de
   ocupação do `fp_occu_ms()` para JSDMs externos (Hmsc, gllvm), por
   imputação múltipla. Viabilidade em `dev/jsdm-export/`, com um conjunto de

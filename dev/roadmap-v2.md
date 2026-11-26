@@ -395,7 +395,7 @@ não foi ajustado. Vinheta `dynamic` com os resultados pré-computados.
 | 2, recuperação | atendido em 45 de 45 células; cobertura mínima 0,906, viés máximo 0,024 |
 | 3 a 7, limites, calibração, SBC, `random_det`, `markov` | atendidos, com os limites descritos na vinheta |
 | 8, segundo conjunto de dados | atendido com os pikas de Goldman et al. (2023), em `dev/dyn-pika/`: `dyn` 178,7 (EP 42,6) acima de `ind` por LOO de parcelas |
-| 9, um release sem mudança de interface | pendente: 2.2.0, depois os nomes entram em `tests/testthat/test-api.R` |
+| 9, um release sem mudança de interface | atendido: 2.2.0 saiu sem mudança de interface, e os nomes entraram no snapshot de `tests/testthat/test-api.R` no 2.3.0 |
 | 10, documentação dos limites | atendido |
 
 Na curiango, a validação cruzada em blocos pôs `dyn_mk` em primeiro: 206,9

@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 2.5.0
 
 * New `fp_state_draws()` (experimental) draws the occupancy state of every
   species at every site from an `fp_occu_ms()` fit, one site x species matrix

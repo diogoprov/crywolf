@@ -59,6 +59,17 @@
 #' (`"random_recordings"`) gives the state of the whole occasion; these go
 #' to `verified`, the verified method of [fp_data()].
 #'
+#' **True identity of reviewed clips.** From schema version 1.5, the
+#' reviewer may record what a clip held (`identity`) and how sure they were
+#' (`identity_certainty`, `"sure"` or `"probable"`). For a false positive,
+#' `identity` names what the classifier mistook for the species, such as
+#' another class of the classifier, an insect or rain; several identities
+#' are separated by `"|"` and mean any one of them. Both columns are read
+#' into `validation` as text, `NA` where the reviewer gave none and in
+#' exports before version 1.5. The models of crywolf do not use them (see
+#' "Confusion between species" in [fp_occu()]); they show which confusions
+#' the false-positive rate holds.
+#'
 #' **Censored scores.** Only predictions with a confidence of at least
 #' `schema$min_confidence` were exported, so thresholds below it count
 #' every exported prediction and no more.
@@ -83,7 +94,8 @@
 #'   `start`, `confidence`), `scores` (highest score and number of
 #'   predictions per occasion and species), `validation` (one row per
 #'   reviewed clip, with `start`, `end`, `confidence`, `sampling_mode`,
-#'   `inclusion_prob`, `verdict` as `TRUE`, `FALSE` or `NA`), `verified`
+#'   `inclusion_prob`, `verdict` as `TRUE`, `FALSE` or `NA`, `identity`,
+#'   `identity_certainty`), `verified`
 #'   (one row per annotated recording, with `y`, 1 or 0, and
 #'   `inclusion_prob`), `sites`, the parsed `schema`, and `files` (paths of
 #'   the tables found). Tables absent from the export are `NULL`.
@@ -140,7 +152,8 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
                                    "recording_hour", "night", keys))
   detections <- read("detections")
   scores <- read("scores")
-  validation <- read("validation", c("sampling_mode", "verdict", "reviewer"))
+  validation <- read("validation", c("sampling_mode", "verdict", "reviewer",
+                                     "identity", "identity_certainty"))
   verified <- read("recordings_verified", c("verdict", "reviewer"))
   sites <- read("sites")
 
@@ -217,6 +230,10 @@ fp_read_sheepdog <- function(path, species = NULL, keep_top = FALSE) {
     names(validation)[names(validation) == "verdict"] <- "verdict_label"
     validation$verdict <- as.logical(validation$tp)
     validation$tp <- NULL
+    # the true identity of the clip, from schema 1.5
+    for (cl in c("identity", "identity_certainty")) {
+      if (!cl %in% names(validation)) validation[[cl]] <- NA_character_
+    }
   }
   if (!is.null(verified)) {
     names(verified)[names(verified) == "verdict"] <- "verdict_label"

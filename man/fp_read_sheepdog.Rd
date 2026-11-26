@@ -30,7 +30,8 @@ per prediction: \code{site}, \code{occasion_id}, \code{species_code}, \code{spec
 \code{start}, \code{confidence}), \code{scores} (highest score and number of
 predictions per occasion and species), \code{validation} (one row per
 reviewed clip, with \code{start}, \code{end}, \code{confidence}, \code{sampling_mode},
-\code{inclusion_prob}, \code{verdict} as \code{TRUE}, \code{FALSE} or \code{NA}), \code{verified}
+\code{inclusion_prob}, \code{verdict} as \code{TRUE}, \code{FALSE} or \code{NA}, \code{identity},
+\code{identity_certainty}), \code{verified}
 (one row per annotated recording, with \code{y}, 1 or 0, and
 \code{inclusion_prob}), \code{sites}, the parsed \code{schema}, and \code{files} (paths of
 the tables found). Tables absent from the export are \code{NULL}.
@@ -81,6 +82,17 @@ false. These go to \code{validation}, for the observation-confirmation design
 through \code{fp_aggregate(validation = )}. A recording annotated by ear
 (\code{"random_recordings"}) gives the state of the whole occasion; these go
 to \code{verified}, the verified method of \code{\link[=fp_data]{fp_data()}}.
+
+\strong{True identity of reviewed clips.} From schema version 1.5, the
+reviewer may record what a clip held (\code{identity}) and how sure they were
+(\code{identity_certainty}, \code{"sure"} or \code{"probable"}). For a false positive,
+\code{identity} names what the classifier mistook for the species, such as
+another class of the classifier, an insect or rain; several identities
+are separated by \code{"|"} and mean any one of them. Both columns are read
+into \code{validation} as text, \code{NA} where the reviewer gave none and in
+exports before version 1.5. The models of crywolf do not use them (see
+"Confusion between species" in \code{\link[=fp_occu]{fp_occu()}}); they show which confusions
+the false-positive rate holds.
 
 \strong{Censored scores.} Only predictions with a confidence of at least
 \code{schema$min_confidence} were exported, so thresholds below it count

@@ -1,3 +1,12 @@
+# crywolf (development version)
+
+* `fp_read_sheepdog()` reads the true identity of reviewed clips from
+  schema version 1.5 of the sheepdog export: `validation` gains `identity`
+  (what the clip held; several identities separated by `"|"`) and
+  `identity_certainty` (`"sure"` or `"probable"`), `NA` where the reviewer
+  gave none and in earlier exports. The models do not use them; they show
+  which confusions the false-positive rate holds.
+
 # crywolf 2.4.0
 
 * New `fp_occu_rn()` fits the Royle-Nichols occupancy model

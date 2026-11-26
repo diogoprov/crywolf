@@ -17,7 +17,7 @@ expect."><meta property="og:image" content="https://provetelab.org/crywolf/logo.
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@ expect."><meta property="og:image" content="https://provetelab.org/crywolf/logo.
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Read an export of the sheepdog package</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v2.4.0/R/fp_read_sheepdog.R" class="external-link"><code>R/fp_read_sheepdog.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/fp_read_sheepdog.R" class="external-link"><code>R/fp_read_sheepdog.R</code></a></small>
       <div class="d-none name"><code>fp_read_sheepdog.Rd</code></div>
     </div>
 
@@ -120,7 +120,8 @@ per prediction: <code>site</code>, <code>occasion_id</code>, <code>species_code<
 <code>start</code>, <code>confidence</code>), <code>scores</code> (highest score and number of
 predictions per occasion and species), <code>validation</code> (one row per
 reviewed clip, with <code>start</code>, <code>end</code>, <code>confidence</code>, <code>sampling_mode</code>,
-<code>inclusion_prob</code>, <code>verdict</code> as <code>TRUE</code>, <code>FALSE</code> or <code>NA</code>), <code>verified</code>
+<code>inclusion_prob</code>, <code>verdict</code> as <code>TRUE</code>, <code>FALSE</code> or <code>NA</code>, <code>identity</code>,
+<code>identity_certainty</code>), <code>verified</code>
 (one row per annotated recording, with <code>y</code>, 1 or 0, and
 <code>inclusion_prob</code>), <code>sites</code>, the parsed <code>schema</code>, and <code>files</code> (paths of
 the tables found). Tables absent from the export are <code>NULL</code>.</p>
@@ -162,6 +163,16 @@ false. These go to <code>validation</code>, for the observation-confirmation des
 through <code>fp_aggregate(validation = )</code>. A recording annotated by ear
 (<code>"random_recordings"</code>) gives the state of the whole occasion; these go
 to <code>verified</code>, the verified method of <code><a href="fp_data.html">fp_data()</a></code>.</p>
+<p><strong>True identity of reviewed clips.</strong> From schema version 1.5, the
+reviewer may record what a clip held (<code>identity</code>) and how sure they were
+(<code>identity_certainty</code>, <code>"sure"</code> or <code>"probable"</code>). For a false positive,
+<code>identity</code> names what the classifier mistook for the species, such as
+another class of the classifier, an insect or rain; several identities
+are separated by <code>"|"</code> and mean any one of them. Both columns are read
+into <code>validation</code> as text, <code>NA</code> where the reviewer gave none and in
+exports before version 1.5. The models of crywolf do not use them (see
+"Confusion between species" in <code><a href="fp_occu.html">fp_occu()</a></code>); they show which confusions
+the false-positive rate holds.</p>
 <p><strong>Censored scores.</strong> Only predictions with a confidence of at least
 <code>schema$min_confidence</code> were exported, so thresholds below it count
 every exported prediction and no more.</p>

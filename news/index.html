@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,9 +58,14 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/v2.4.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/diogoprov/crywolf/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="crywolf-development-version">crywolf (development version)<a class="anchor" aria-label="anchor" href="#crywolf-development-version"></a></h2>
+<ul><li>
+<code><a href="../reference/fp_read_sheepdog.html">fp_read_sheepdog()</a></code> reads the true identity of reviewed clips from schema version 1.5 of the sheepdog export: <code>validation</code> gains <code>identity</code> (what the clip held; several identities separated by <code>"|"</code>) and <code>identity_certainty</code> (<code>"sure"</code> or <code>"probable"</code>), <code>NA</code> where the reviewer gave none and in earlier exports. The models do not use them; they show which confusions the false-positive rate holds.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.0" id="crywolf-240">crywolf 2.4.0<a class="anchor" aria-label="anchor" href="#crywolf-240"></a></h2>
 <ul><li>New <code><a href="../reference/fp_occu_rn.html">fp_occu_rn()</a></code> fits the Royle-Nichols occupancy model with false positives: Poisson abundance, per-individual detection, false positives on every occasion, verified occasions and the observation-confirmation design, with site effects on the per-individual detection (<code>random_det</code>), on log abundance (<code>random_abund</code>) and on the false-positive rate (<code>random_fp</code>). <code>random_det</code> then measures variation in detection among sites beyond that due to abundance. <code><a href="../reference/simulate_fp_rn.html">simulate_fp_rn()</a></code> simulates data from it, with unbalanced occasions if needed, and <code><a href="../reference/fp_priors.html">fp_priors()</a></code> gains <code>abund_site_sd</code>. Its fits have <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo()</a></code> (leave one site out, with the site effects integrated out and exact refits with <code>reloo = TRUE</code>) and <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> methods, and <code><a href="../reference/fp_sites.html">fp_sites()</a></code> (with the posterior mean abundance of each site), <code><a href="../reference/fp_ppc.html">fp_ppc()</a></code> and <code><a href="../reference/fp_loo_weights.html">fp_loo_weights()</a></code> accept them. Its default <code>adapt_delta</code> is 0.99, above the 0.95 of <code><a href="../reference/fp_occu.html">fp_occu()</a></code>, because divergences were common at 0.95 in simulations. Both functions join the stable interface (<code>?crywolf-api</code>). The new article <code><a href="../articles/royle-nichols.html">vignette("royle-nichols")</a></code> describes the model and the simulations that validate it (simulation-based calibration and a grid over sites, occasions and annotation schemes).</li>

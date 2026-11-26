@@ -68,12 +68,12 @@ m <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
              chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 23.0 seconds.
-#> Chain 2 finished in 23.2 seconds.
+#> Chain 2 finished in 18.1 seconds.
+#> Chain 1 finished in 19.1 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 23.1 seconds.
-#> Total execution time: 23.4 seconds.
+#> Mean chain execution time: 18.6 seconds.
+#> Total execution time: 19.2 seconds.
 #> 
 plot(m)
 

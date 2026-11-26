@@ -649,6 +649,48 @@ espécies).
   validação, mas é opcional, e o `fp_read_sheepdog()` ainda não lê o campo.
   Seria um modelo de classificação errada entre espécies (ver "Fora do
   plano"), um projeto de pesquisa maior que o JSDM.
+- **Pedido do Diogo (25/11/2026): o `fp_read_sheepdog()` ler a espécie
+  verdadeira dos falsos positivos.**
+  - No sheepdog, o campo é `identity`, com `identity_certainty` ("sure" ou
+    "probable"). Ele é preenchido nos clipes negativos ou incertos pelo app
+    (`run_app()`) ou pelo `join_identities()`. Várias identidades de um clipe
+    vêm separadas por `|`.
+  - O `confuser_summary()` já conta essas identidades por classe e marca com
+    `is_class` as que são outra classe do classificador, ou seja, a confusão
+    entre espécies.
+  - Hoje o campo não chega ao export de ocupação, e o `fp_read_sheepdog()`
+    não o lê. O pedido envolve os dois lados. Primeiro, o sheepdog leva
+    `identity` e `identity_certainty` à tabela de validação do export, numa
+    nova versão do esquema. Depois, o `fp_read_sheepdog()` passa a lê-los.
+  - Uso imediato, sem modelo novo: resumir quais pares de espécies o
+    classificador confunde e com que frequência, para avaliar o risco
+    descrito em "Confusion between species" (`?fp_occu`, `?fp_occu_ms`).
+  - Uso futuro: os dados da matriz de confusão, se o JSDM ou um modelo de
+    classificação errada forem reabertos.
+  - Limite: o campo é opcional no sheepdog. Só projetos que o preencham de
+    forma sistemática dariam uma estimativa da confusão sem viés.
+  - Combinado com a sessão do sheepdog (25/11/2026), no PR #176 do sheepdog,
+    ainda sem merge (depende do Diogo):
+    - `identity` e `identity_certainty` entram no `validation.csv` do export,
+      logo depois de `review_scope`. Estão sempre presentes a partir do
+      esquema 1.5 e vêm vazias (NA) onde não houve identidade.
+    - O formato é o do `run_app()` e do `join_identities()`. Várias
+      identidades vêm separadas por `|`, e `identity_certainty` é "sure",
+      "probable" ou vazio.
+    - `schema_version = 1.5` só acrescenta ao 1.4. O `fp_read_sheepdog()`
+      atual continua lendo os exports.
+    - Não há campo `is_class`. A confusão entre espécies sai da comparação de
+      `identity` com os rótulos em `species` do schema.json. Esse campo só
+      traz rótulos com alguma predição no export. Uma lista completa de
+      classes exigiria um argumento novo no export do sheepdog (decisão do
+      Diogo, se fizer falta).
+    - A vinheta crywolf-integration do sheepdog registra o limite: a taxa de
+      confusão só sai sem viés quando todos os negativos do desenho recebem
+      identidade.
+  - Próximo passo no crywolf, depois do merge do #176: o
+    `fp_read_sheepdog()` lê as duas colunas quando `schema_version >= 1.5`.
+    Junto, um resumo dos pares de espécies confundidas, nos moldes do
+    `confuser_summary()` do sheepdog.
 - **Alternativa em avaliação:** exportar draws posteriores dos estados de
   ocupação do `fp_occu_ms()` para JSDMs externos (Hmsc, gllvm), por
   imputação múltipla. Viabilidade em `dev/jsdm-export/`, com um conjunto de

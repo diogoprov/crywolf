@@ -1,4 +1,4 @@
-# crywolf (development version)
+# crywolf 2.4.0
 
 * New `fp_occu_rn()` fits the Royle-Nichols occupancy model
   with false positives: Poisson abundance, per-individual detection, false

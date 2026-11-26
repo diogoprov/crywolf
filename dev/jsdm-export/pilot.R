@@ -48,7 +48,9 @@ if (file.exists(z_file)) {
   zd <- z_draws(fit, ndraws = 200, seed = seed)
   saveRDS(list(zd = zd, mins = mins_ms), z_file)
 }
-zd <- zd[seq_len(ndraws), , , drop = FALSE]
+# fp_occu_ms() sorts the species as text (sp1, sp10, sp2, ...); before
+# 26/11/2026 the Hmsc part below compared them in that order with the truth
+zd <- zd[seq_len(ndraws), , sp_names, drop = FALSE]
 
 X <- data.frame(x = d$x)
 ll_gllvm <- function(y) {

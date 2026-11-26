@@ -695,19 +695,23 @@ espécies).
     ao 1.5 as duas colunas vêm com NA.
   - Próximo passo, ainda não feito: um resumo dos pares de espécies
     confundidas, nos moldes do `confuser_summary()` do sheepdog.
-- **Alternativa em avaliação:** exportar draws posteriores dos estados de
-  ocupação do `fp_occu_ms()` para JSDMs externos (Hmsc, gllvm), por
-  imputação múltipla. Viabilidade em `dev/jsdm-export/`, com um conjunto de
-  dados:
-  - Funciona e é barato.
-  - No gllvm, o padrão de ΛΛ′ melhora em relação às detecções brutas
-    (correlação com a verdade de 0,91 contra 0,82).
-  - A força das associações sai atenuada (|ΛΛ′| médio de 0,28, com verdade
-    de 0,69). Isso é esperado, porque o `fp_occu_ms()` sorteia os estados das
-    espécies de forma independente.
-  - O Hmsc ficou inconclusivo e precisa de configuração própria.
-  - Próximo passo, se for adiante: uma grade local só com gllvm e, depois,
-    uma função experimental de exportação com essas limitações documentadas.
+- **Exportação de draws para JSDMs externos (Hmsc, gllvm): feita em
+  26/11/2026.** O `fp_state_draws()` (experimental) devolve os draws dos
+  estados de ocupação do `fp_occu_ms()`, para imputação múltipla em outro
+  pacote. Detalhes em `dev/jsdm-export/README.md`.
+  - Grade com gllvm (30 conjuntos: 50, 100 e 200 sítios × fatores fracos e
+    fortes × 5 réplicas; cerca de 3 h no Mac). A média sobre os draws ficou
+    a 0,01–0,07 do oráculo na correlação com o ΛΛ′ verdadeiro e acima das
+    detecções brutas em 28 dos 30 conjuntos.
+  - A força das associações sai atenuada em todas as células (62–73% da do
+    oráculo com fatores fortes), porque o `fp_occu_ms()` sorteia os estados
+    das espécies de forma independente.
+  - Hmsc com a configuração padrão: 0,83 com os draws, contra 0,86 do
+    oráculo e 0,77 das detecções brutas. O 0,13 do piloto vinha de um erro
+    na ordem das espécies, já corrigido.
+  - A documentação mostra os laços com gllvm e Hmsc sem rodá-los, então
+    nenhum dos dois entra nas dependências. Ela também traz os dois limites:
+    atenuação e confusão entre espécies não corrigida.
 
 ### Fora do plano
 

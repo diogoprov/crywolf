@@ -438,11 +438,13 @@ source repository.
 - Runs of detections are common in passive acoustic monitoring, where
   occasions are minutes close in time. Check for them and consider
   `markov`.
-- [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
-  simulates only single-season designs, so it does not plan a dynamic
-  study;
-  [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md)
-  is the starting point for that.
+- To plan a dynamic study, `fp_calibrate(dynamic = TRUE)` simulates the
+  design with
+  [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
+  fits
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  to each dataset, and scores the coverage of initial occupancy,
+  colonization and extinction.
 
 ## References
 

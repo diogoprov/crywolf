@@ -145,21 +145,21 @@ sweep <- fp_threshold_sweep(occasions, detections, thresholds = c(0.2, 0.6),
                             threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 18.7 seconds.
-#> Chain 1 finished in 22.3 seconds.
+#> Chain 2 finished in 17.8 seconds.
+#> Chain 1 finished in 21.3 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 20.5 seconds.
-#> Total execution time: 22.4 seconds.
+#> Mean chain execution time: 19.5 seconds.
+#> Total execution time: 21.4 seconds.
 #> 
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 17.1 seconds.
-#> Chain 1 finished in 17.3 seconds.
+#> Chain 2 finished in 16.2 seconds.
+#> Chain 1 finished in 16.4 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 17.2 seconds.
-#> Total execution time: 17.5 seconds.
+#> Mean chain execution time: 16.3 seconds.
+#> Total execution time: 16.5 seconds.
 #> 
 plot(sweep)
 

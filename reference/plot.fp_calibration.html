@@ -13,7 +13,7 @@ level; bias, with a dashed line at zero."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +100,9 @@ level; bias, with a dashed line at zero.</p>
 
 <dt id="arg-parameter">parameter<a class="anchor" aria-label="anchor" href="#arg-parameter"></a></dt>
 <dd><p>Scored quantity to plot, by default the occupancy slope
-(<code>"occ_x"</code>). See <code><a href="fp_calibrate.html">fp_calibrate()</a></code> for the others.</p></dd>
+(<code>"occ_x"</code>); for a dynamic calibration without it, the first slope
+scored, or else the colonization intercept. See <code><a href="fp_calibrate.html">fp_calibrate()</a></code> for the
+others.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -119,7 +121,8 @@ become panels. With no varying column, the models are on the axis.</p></dd>
 number of verified sites (<code>"sites"</code>, <code>frac_verified * nsite</code>), or as the
 expected number of verified occasions, e.g. clips listened to
 (<code>"occasions"</code>, times <code>nver</code>), which is closer to the cost of the
-design.</p></dd>
+design. In a dynamic calibration, the fraction is of site-seasons, and
+the counts are multiplied by the number of seasons.</p></dd>
 
 
 <dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>

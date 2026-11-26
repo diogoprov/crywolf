@@ -31,8 +31,9 @@ plot(
 
 - parameter:
 
-  Scored quantity to plot, by default the occupancy slope (`"occ_x"`).
-  See
+  Scored quantity to plot, by default the occupancy slope (`"occ_x"`);
+  for a dynamic calibration without it, the first slope scored, or else
+  the colonization intercept. See
   [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
   for the others.
 
@@ -52,7 +53,9 @@ plot(
   the fraction of sites (default), as the expected number of verified
   sites (`"sites"`, `frac_verified * nsite`), or as the expected number
   of verified occasions, e.g. clips listened to (`"occasions"`, times
-  `nver`), which is closer to the cost of the design.
+  `nver`), which is closer to the cost of the design. In a dynamic
+  calibration, the fraction is of site-seasons, and the counts are
+  multiplied by the number of seasons.
 
 - target:
 

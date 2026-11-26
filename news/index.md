@@ -1,6 +1,6 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 2.4.0
 
 - New
   [`fp_occu_rn()`](https://provetelab.org/crywolf/reference/fp_occu_rn.md)
@@ -31,6 +31,20 @@
   describes the model and the simulations that validate it
   (simulation-based calibration and a grid over sites, occasions and
   annotation schemes).
+- [`fp_calibrate()`](https://provetelab.org/crywolf/reference/fp_calibrate.md)
+  gains `dynamic`: with `dynamic = TRUE`, the design is simulated with
+  [`simulate_fp_dyn()`](https://provetelab.org/crywolf/reference/simulate_fp_dyn.md),
+  each dataset is fitted with
+  [`fp_occu_dyn()`](https://provetelab.org/crywolf/reference/fp_occu_dyn.md)
+  (formulas `psi1`, `col` and `ext`), and the coverage of initial
+  occupancy, colonization, extinction, the false-positive rate and the
+  verified detection probability is scored.
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) of a dynamic
+  calibration counts verified site-seasons.
+  [`fp_verification_curve()`](https://provetelab.org/crywolf/reference/fp_verification_curve.md)
+  gains the same arguments and, with `dynamic = TRUE`, prints the
+  coverage of initial occupancy, colonization and extinction against the
+  fraction of site-seasons verified.
 - [`?fp_occu`](https://provetelab.org/crywolf/reference/fp_occu.md) and
   [`?fp_occu_ms`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
   now state that the false-positive rate of a species does not depend on

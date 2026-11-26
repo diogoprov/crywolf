@@ -14,17 +14,23 @@ fp_verification_curve(
   base_seed = 1L,
   parallel = FALSE,
   fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling =
-    1000, adapt_delta = 0.95)
+    1000, adapt_delta = 0.95),
+  dynamic = FALSE,
+  psi1 = ~x,
+  col = ~1,
+  ext = ~1
 )
 }
 \arguments{
-\item{...}{Arguments of \code{\link[=simulate_fp]{simulate_fp()}} that define the scenario (held
-fixed), e.g. \verb{p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7}.}
+\item{...}{Arguments of \code{\link[=simulate_fp]{simulate_fp()}} (of \code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}} with
+\code{dynamic = TRUE}) that define the scenario (held fixed), e.g.
+\verb{p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7}, or, for a dynamic
+scenario, \verb{nseason = 4, b_col = 1}.}
 
-\item{frac_verified}{Fractions of sites verified to sweep.}
+\item{frac_verified}{Fractions of sites (site-seasons with
+\code{dynamic = TRUE}) verified to sweep.}
 
-\item{models, occ, det, reps, base_seed, parallel, fit_args}{As in
-\code{\link[=fp_calibrate]{fp_calibrate()}}.}
+\item{models, occ, det, reps, base_seed, parallel, fit_args, dynamic, psi1, col, ext}{As in \code{\link[=fp_calibrate]{fp_calibrate()}}.}
 }
 \value{
 The \code{fp_calibration} object (invisibly), after printing the curve.
@@ -37,11 +43,22 @@ grows, the false positives are probably structured, and the remedy is to
 model the false-positive rate (for instance on the occupancy covariate),
 not to verify more.
 }
+\details{
+With \code{dynamic = TRUE} the scenario is multi-season (\code{\link[=simulate_fp_dyn]{simulate_fp_dyn()}}),
+\code{frac_verified} is the fraction of site-seasons verified, and the curve
+shows the coverage of initial occupancy, colonization and extinction
+(their intercepts, and their slopes when the formulas include them).
+}
 \examples{
 \dontshow{if (instantiate::stan_cmdstan_exists()) withAutoprint(\{ # examplesIf}
 \donttest{
 fp_verification_curve(p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7,
                       models = list(constant = ~ 1, fp_on_x = ~ x),
+                      frac_verified = c(0.1, 0.5), reps = 5,
+                      fit_args = list(chains = 2, threads_per_chain = 1))
+
+# a dynamic scenario: colonization and extinction against verification
+fp_verification_curve(nseason = 4, dynamic = TRUE,
                       frac_verified = c(0.1, 0.5), reps = 5,
                       fit_args = list(chains = 2, threads_per_chain = 1))
 }

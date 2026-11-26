@@ -395,7 +395,7 @@ não foi ajustado. Vinheta `dynamic` com os resultados pré-computados.
 | 2, recuperação | atendido em 45 de 45 células; cobertura mínima 0,906, viés máximo 0,024 |
 | 3 a 7, limites, calibração, SBC, `random_det`, `markov` | atendidos, com os limites descritos na vinheta |
 | 8, segundo conjunto de dados | atendido com os pikas de Goldman et al. (2023), em `dev/dyn-pika/`: `dyn` 178,7 (EP 42,6) acima de `ind` por LOO de parcelas |
-| 9, um release sem mudança de interface | pendente: 2.2.0, depois os nomes entram em `tests/testthat/test-api.R` |
+| 9, um release sem mudança de interface | atendido: 2.2.0 saiu sem mudança de interface, e os nomes entraram no snapshot de `tests/testthat/test-api.R` no 2.3.0 |
 | 10, documentação dos limites | atendido |
 
 Na curiango, a validação cruzada em blocos pôs `dyn_mk` em primeiro: 206,9
@@ -407,10 +407,12 @@ do k-fold e dos pikas (PR #22).
 **Depois do 2.2.0:**
 1. Feito: `fp_occu_dyn()` e `simulate_fp_dyn()` saíram de experimental e entraram
    no snapshot da API (critério 9); chega aos usuários no release seguinte.
-2. `fp_calibrate()` com desenhos dinâmicos, previsto no passo de validação e não
-   feito. Hoje a função só simula uma temporada, e a vinheta avisa disso.
-3. Opcional: dados de lobos de Miller et al. (2013), pedidos à Montana FWP em
-   05/11/2026, como comparação com temporadas independentes.
+2. `fp_calibrate()` com desenhos dinâmicos (`dynamic = TRUE`): **feito em
+   25/11/2026**. Simula com `simulate_fp_dyn()`, ajusta `fp_occu_dyn()` e
+   avalia a cobertura de `psi1`, `col`, `ext`, `p10_bar` e `p_verified`.
+3. Descartado em 25/11/2026: os dados de lobos de Miller et al. (2013),
+   pedidos à Montana FWP em 05/11/2026, nunca chegaram. O segundo conjunto de
+   dados da validação já são os pikas.
 
 ### Riscos
 

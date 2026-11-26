@@ -44,23 +44,23 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 20.8 seconds.
-#> Chain 2 finished in 27.2 seconds.
+#> Chain 1 finished in 20.6 seconds.
+#> Chain 2 finished in 26.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 24.0 seconds.
-#> Total execution time: 27.3 seconds.
+#> Mean chain execution time: 23.7 seconds.
+#> Total execution time: 27.0 seconds.
 #> 
 m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 23.4 seconds.
-#> Chain 2 finished in 25.1 seconds.
+#> Chain 1 finished in 23.9 seconds.
+#> Chain 2 finished in 24.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 24.2 seconds.
-#> Total execution time: 25.2 seconds.
+#> Mean chain execution time: 24.3 seconds.
+#> Total execution time: 24.9 seconds.
 #> 
 fp_loo_weights(constant = m0, fp_on_x = m1)
 #>  constant   fp_on_x 

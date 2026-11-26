@@ -2,6 +2,17 @@
 
 ## crywolf (development version)
 
+- New
+  [`fp_state_draws()`](https://provetelab.org/crywolf/reference/fp_state_draws.md)
+  (experimental) draws the occupancy state of every species at every
+  site from an
+  [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  fit, one site x species matrix per posterior draw, corrected for false
+  positives. The draws can be passed to a joint species distribution
+  model of another package (‘gllvm’, ‘Hmsc’) by multiple imputation; the
+  help page shows how, and states the limits: the associations between
+  species come out weaker than they are, and confusion between species
+  is not corrected.
 - [`fp_read_sheepdog()`](https://provetelab.org/crywolf/reference/fp_read_sheepdog.md)
   reads the true identity of reviewed clips from schema version 1.5 of
   the sheepdog export: `validation` gains `identity` (what the clip

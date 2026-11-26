@@ -61,8 +61,8 @@ fp_read_birdnet(tab)
 #> 1         1 Spectrogram 1       1          0        3
 #>                       begin_path file_offset species_code     common_name
 #> 1 /rec/SITE1_20240101_200000.wav           0       compau Common Pauraque
-#>   confidence                                table                      file
-#> 1       0.81 /tmp/RtmppAVEmW/file19e1539bde1e.txt SITE1_20240101_200000.wav
+#>   confidence                               table                      file
+#> 1       0.81 /tmp/Rtmp1xo6pf/file19ea412d22d.txt SITE1_20240101_200000.wav
 #>   start                time
 #> 1     0 2024-01-01 20:00:00
 ```

@@ -154,7 +154,8 @@ fp_calibrate_fit <- function(fit, models = list(fitted = fit$formulas$fp),
     sim <- .simulate_from(gen, .pick_pars(gen$draws, truth))
     purrr::imap(models, function(fp, model) {
       .fit_and_score(sim$data, .fit_targets(sim$truth, fp, gen),
-                     fp = fp, occ = gen$formulas$occ, det = gen$formulas$det,
+                     formulas = list(occ = gen$formulas$occ,
+                                     det = gen$formulas$det, fp = fp),
                      model = model, prob = prob, seed = seed,
                      fit_args = fit_args) |>
         cbind(cell = cell, rep = rep, seed = seed)

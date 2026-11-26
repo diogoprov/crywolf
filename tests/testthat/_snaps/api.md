@@ -4,7 +4,7 @@
       cat(out, sep = "\n")
     Output
       fp_aggregate(occasions, detections, threshold, by = "file", species = NULL, validation = NULL, standardize = NULL)
-      fp_calibrate(design, models = list(constant = ~1), occ = ~x, det = ~1, reps = 50, prob = 0.95, base_seed = 1L, parallel = FALSE, fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling = 1000, adapt_delta = 0.95))
+      fp_calibrate(design, models = list(constant = ~1), occ = ~x, det = ~1, reps = 50, prob = 0.95, base_seed = 1L, parallel = FALSE, fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling = 1000, adapt_delta = 0.95), dynamic = FALSE, psi1 = ~x, col = ~1, ext = ~1)
       fp_calibrate_fit(fit, models = list(fitted = fit$formulas$fp), reps = 50, truth = c("mean", "posterior"), prob = 0.95, base_seed = 1L, parallel = FALSE, fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling = 1000, adapt_delta = 0.95))
       fp_compile(force = FALSE, quiet = TRUE)
       fp_data(auto, sites, verified = NULL, site = "site", y = "y", recorder = NULL, confirmed = NULL, season = NULL, season_covs = NULL, species = NULL)
@@ -27,7 +27,7 @@
       fp_sites(object, prob = 0.95, ndraws = NULL, seed = NULL)
       fp_stan_file()
       fp_threshold_sweep(occasions, detections, thresholds = c("MaxF1", "MaxPrecision"), sites, verified = NULL, site = "site", by = "file", species = NULL, recorder = NULL, occ = ~1, det = ~1, fp = ~1, random_recorder = !is.null(recorder), prob = 0.95, validation = NULL, ...)
-      fp_verification_curve(..., frac_verified = c(0.1, 0.3, 0.5, 0.7, 0.9), models = list(constant = ~1), occ = ~x, det = ~1, reps = 50, base_seed = 1L, parallel = FALSE, fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling = 1000, adapt_delta = 0.95))
+      fp_verification_curve(..., frac_verified = c(0.1, 0.3, 0.5, 0.7, 0.9), models = list(constant = ~1), occ = ~x, det = ~1, reps = 50, base_seed = 1L, parallel = FALSE, fit_args = list(chains = 4, parallel_chains = 1, iter_warmup = 1000, iter_sampling = 1000, adapt_delta = 0.95), dynamic = FALSE, psi1 = ~x, col = ~1, ext = ~1)
       simulate_fp(nsite = 300, nocc = 20, psi = 0.5, b1 = -0.8, p11 = 0.6, p10 = 0.05, sigma_p10 = 0, p10_conc = NULL, conf_effect = 0, conf_cor = 0, r11 = 0.6, frac_verified = 0.3, nver = 3, a_bio = 0, a_aci = 0, sd_recorder = 0, nrec = 5, frac_confirmed = 0, seed = NULL)
       simulate_fp_dyn(nsite = 100, nseason = 5, nocc = 4, psi1 = 0.5, b_psi1 = 0, col = 0.2, b_col = 0, ext = 0.2, b_ext = 0, p11 = 0.6, p10 = 0.05, r11 = 0.8, frac_verified = 0.2, nver = 2, frac_confirmed = 0, seed = NULL)
       simulate_fp_ms(nspecies = 5, nsite = 100, nocc = 10, psi = 0.4, sd_psi = 1, b1 = -0.5, sd_b1 = 0.5, p11 = 0.5, sd_p11 = 0.5, p10 = 0.05, sd_gap = 0.3, a_bio = 0, r11 = 0.6, frac_verified = 0.3, nver = 3, sd_recorder = 0, nrec = 5, frac_confirmed = 0, ngroup = NULL, sd_fp_group = 0, sd_fp_site = 0, psi_rare = NULL, seed = NULL)

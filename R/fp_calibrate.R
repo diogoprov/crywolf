@@ -3,20 +3,24 @@
 #' Simulates many datasets from a design with [simulate_fp()], fits one or more
 #' false-positive models to each with [fp_occu()], and scores how often the
 #' credible intervals contain the true values and how biased the posterior
-#' means are. Use it before collecting data, to ask whether the correction
+#' means are. With `dynamic = TRUE`, the designs are multi-season: they are
+#' simulated with [simulate_fp_dyn()] and fitted with [fp_occu_dyn()]. Use it
+#' before collecting data, to ask whether the correction
 #' will be calibrated for the number of sites, occasions, and verified sites
 #' you can afford, and whether a constant false-positive rate is enough under
 #' the confusion you suspect.
 #'
 #' @param design A data frame (or list) whose columns are arguments of
-#'   [simulate_fp()]; each row is one cell of the design. Arguments not given
-#'   take the defaults of [simulate_fp()].
+#'   [simulate_fp()] (of [simulate_fp_dyn()] with `dynamic = TRUE`); each row
+#'   is one cell of the design. Arguments not given take the defaults of the
+#'   simulator.
 #' @param models Named list of formulas for the false-positive rate, one model
 #'   per element, as in the `fp` argument of [fp_occu()]. The default fits only
 #'   the constant-rate model.
 #' @param occ,det Formulas for occupancy and true detection, shared by all
 #'   models. Simulated data have the occupancy covariate `x` and the detection
-#'   covariates `bio` and `aci`.
+#'   covariates `bio` and `aci`. With `dynamic = TRUE`, `occ` is not used,
+#'   and the data have no detection covariates.
 #' @param reps Number of replicate datasets per cell. Each costs one Stan fit
 #'   per model. Fifty replicates give a Monte Carlo standard error of about
 #'   0.03 for a coverage of 0.95.
@@ -41,6 +45,14 @@
 #'   default is `"auto"`): `"auto"` divides the cores among the chains of one
 #'   fit, not among parallel workers, and one thread keeps every replicate
 #'   reproducible by its seed.
+#' @param dynamic Logical. `TRUE` calibrates a multi-season design: the
+#'   columns of `design` are arguments of [simulate_fp_dyn()], and each
+#'   dataset is fitted with [fp_occu_dyn()].
+#' @param psi1,col,ext Formulas for initial occupancy, colonization and
+#'   extinction, shared by all models, used only with `dynamic = TRUE`.
+#'   Simulated dynamic data have the site covariate `x` and the site-season
+#'   covariate `rain` (see [simulate_fp_dyn()]). Include the covariates of
+#'   the design: with `b_col` not zero, for instance, use `col = ~ rain`.
 #'
 #' @details
 #' The scored quantities are the occupancy intercept and slope
@@ -49,13 +61,22 @@
 #' the verified method (`p_verified`), and, for models that include the
 #' confusing gradient `w`, its effect on the false-positive rate (`fp_w`).
 #'
+#' **Dynamic designs.** With `dynamic = TRUE` the scored quantities are the
+#' intercepts of initial occupancy, colonization and extinction
+#' (`psi1_(Intercept)`, `col_(Intercept)`, `ext_(Intercept)`), their slopes
+#' when the formulas include the covariates of the simulator (`psi1_x`,
+#' `col_rain`, `ext_x`), the false-positive rate (`p10_bar`, against the
+#' constant `p10` of the design) and the detection probability of the
+#' verified method (`p_verified`). Colonization and extinction are hard to
+#' tell from false positives in seasons without verified data, so designs
+#' with few verified site-seasons are the ones worth checking.
+#'
 #' @return A tibble of class `fp_calibration`, one row per replicate, model,
 #'   and scored quantity, with the truth, the posterior mean and interval,
 #'   whether the interval covered the truth, and sampler diagnostics. Use
 #'   [base::summary()] for coverage, its Monte Carlo standard error, bias, and RMSE
 #'   per cell and model.
-#' @seealso [fp_verification_curve()], [simulate_fp()]; for dynamic designs,
-#'   which this function does not simulate, [simulate_fp_dyn()]
+#' @seealso [fp_verification_curve()], [simulate_fp()], [simulate_fp_dyn()]
 #' @export
 #' @examplesIf instantiate::stan_cmdstan_exists()
 #' \donttest{
@@ -65,18 +86,30 @@
 #'                     occ = ~ x, reps = 5,
 #'                     fit_args = list(chains = 2, threads_per_chain = 1))
 #' summary(cal)   # use 50 or more replicates in practice
+#'
+#' # a dynamic design: four seasons, colonization driven by rain
+#' cal_dyn <- fp_calibrate(data.frame(nseason = 4, b_col = 1),
+#'                         dynamic = TRUE, col = ~ rain, reps = 5,
+#'                         fit_args = list(chains = 2, threads_per_chain = 1))
+#' summary(cal_dyn)
 #' }
 fp_calibrate <- function(design, models = list(constant = ~ 1),
                          occ = ~ x, det = ~ 1, reps = 50, prob = 0.95,
                          base_seed = 1L, parallel = FALSE,
                          fit_args = list(chains = 4, parallel_chains = 1,
                                          iter_warmup = 1000, iter_sampling = 1000,
-                                         adapt_delta = 0.95)) {
+                                         adapt_delta = 0.95),
+                         dynamic = FALSE, psi1 = ~ x, col = ~ 1, ext = ~ 1) {
+  if (!isTRUE(dynamic) && !isFALSE(dynamic)) {
+    stop("`dynamic` must be TRUE or FALSE.", call. = FALSE)
+  }
   design <- as.data.frame(design)
-  bad <- setdiff(names(design), setdiff(names(formals(simulate_fp)), "seed"))
+  simulator <- if (dynamic) simulate_fp_dyn else simulate_fp
+  bad <- setdiff(names(design), setdiff(names(formals(simulator)), "seed"))
   if (length(bad)) {
-    stop("Unknown simulate_fp() argument(s) in `design`: ",
-         paste(bad, collapse = ", "), ".", call. = FALSE)
+    stop("Unknown ", if (dynamic) "simulate_fp_dyn()" else "simulate_fp()",
+         " argument(s) in `design`: ", paste(bad, collapse = ", "), ".",
+         call. = FALSE)
   }
   if (is.null(names(models)) || any(!nzchar(names(models)))) {
     stop("`models` must be a named list of formulas, one per model fitted by ",
@@ -86,16 +119,23 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
   jobs <- expand.grid(rep = seq_len(reps), cell = design$cell)
   jobs$seed <- as.integer(base_seed) + seq_len(nrow(jobs))
 
-  fp_compile()   # compile once, before any worker starts
+  # compile once, before any worker starts
+  if (dynamic) .compile_model("fp_occu_dyn") else fp_compile()
 
   run_one <- function(cell, rep, seed) {
     args <- as.list(design[design$cell == cell, setdiff(names(design), "cell"),
                            drop = FALSE])
-    sim <- do.call(simulate_fp, c(args, list(seed = seed)))
+    sim <- do.call(simulator, c(args, list(seed = seed)))
     purrr::imap(models, function(fp, model) {
-      .score_fit(sim, fp = fp, occ = occ, det = det, model = model,
-                 prob = prob, seed = seed, fit_args = fit_args) |>
-        cbind(cell = cell, rep = rep, seed = seed)
+      score <- if (dynamic) {
+        .score_fit_dyn(sim, fp = fp, psi1 = psi1, col = col, ext = ext,
+                       det = det, model = model, prob = prob, seed = seed,
+                       fit_args = fit_args)
+      } else {
+        .score_fit(sim, fp = fp, occ = occ, det = det, model = model,
+                   prob = prob, seed = seed, fit_args = fit_args)
+      }
+      cbind(score, cell = cell, rep = rep, seed = seed)
     }) |>
       purrr::list_rbind()
   }
@@ -104,7 +144,8 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
   out <- purrr::list_rbind(res)
   out <- merge(out, design, by = "cell", sort = FALSE)
   out <- tibble::as_tibble(out)
-  structure(out, class = c("fp_calibration", class(out)), prob = prob)
+  structure(out, class = c("fp_calibration", class(out)), prob = prob,
+            dynamic = dynamic)
 }
 
 #' Coverage as a function of verification effort
@@ -116,11 +157,19 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
 #' model the false-positive rate (for instance on the occupancy covariate),
 #' not to verify more.
 #'
-#' @param ... Arguments of [simulate_fp()] that define the scenario (held
-#'   fixed), e.g. `p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7`.
-#' @param frac_verified Fractions of sites verified to sweep.
-#' @param models,occ,det,reps,base_seed,parallel,fit_args As in
-#'   [fp_calibrate()].
+#' With `dynamic = TRUE` the scenario is multi-season ([simulate_fp_dyn()]),
+#' `frac_verified` is the fraction of site-seasons verified, and the curve
+#' shows the coverage of initial occupancy, colonization and extinction
+#' (their intercepts, and their slopes when the formulas include them).
+#'
+#' @param ... Arguments of [simulate_fp()] (of [simulate_fp_dyn()] with
+#'   `dynamic = TRUE`) that define the scenario (held fixed), e.g.
+#'   `p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7`, or, for a dynamic
+#'   scenario, `nseason = 4, b_col = 1`.
+#' @param frac_verified Fractions of sites (site-seasons with
+#'   `dynamic = TRUE`) verified to sweep.
+#' @param models,occ,det,reps,base_seed,parallel,fit_args,dynamic,psi1,col,ext
+#'   As in [fp_calibrate()].
 #'
 #' @return The `fp_calibration` object (invisibly), after printing the curve.
 #' @export
@@ -128,6 +177,11 @@ fp_calibrate <- function(design, models = list(constant = ~ 1),
 #' \donttest{
 #' fp_verification_curve(p10 = 0.05, conf_effect = 1.5, conf_cor = 0.7,
 #'                       models = list(constant = ~ 1, fp_on_x = ~ x),
+#'                       frac_verified = c(0.1, 0.5), reps = 5,
+#'                       fit_args = list(chains = 2, threads_per_chain = 1))
+#'
+#' # a dynamic scenario: colonization and extinction against verification
+#' fp_verification_curve(nseason = 4, dynamic = TRUE,
 #'                       frac_verified = c(0.1, 0.5), reps = 5,
 #'                       fit_args = list(chains = 2, threads_per_chain = 1))
 #' }
@@ -138,15 +192,27 @@ fp_verification_curve <- function(..., frac_verified = c(0.1, 0.3, 0.5, 0.7, 0.9
                                   fit_args = list(chains = 4, parallel_chains = 1,
                                                   iter_warmup = 1000,
                                                   iter_sampling = 1000,
-                                                  adapt_delta = 0.95)) {
+                                                  adapt_delta = 0.95),
+                                  dynamic = FALSE, psi1 = ~ x, col = ~ 1,
+                                  ext = ~ 1) {
   fixed <- list(...)
   design <- do.call(expand.grid, c(list(frac_verified = frac_verified),
                                    purrr::map(fixed, unique),
                                    list(stringsAsFactors = FALSE)))
   cal <- fp_calibrate(design, models = models, occ = occ, det = det,
                       reps = reps, base_seed = base_seed, parallel = parallel,
-                      fit_args = fit_args)
+                      fit_args = fit_args, dynamic = dynamic, psi1 = psi1,
+                      col = col, ext = ext)
   s <- summary(cal)
+  if (dynamic) {
+    curve <- s[grepl("^(psi1|col|ext)_", s$parameter),
+               c("model", "parameter", "frac_verified", "coverage", "mc_se", "bias")]
+    curve <- curve[order(curve$model, curve$parameter, curve$frac_verified), ]
+    cat("\nCoverage of initial occupancy, colonization and extinction against\n",
+        "verification effort (fraction of site-seasons verified)\n", sep = "")
+    print(as.data.frame(curve), digits = 2, row.names = FALSE)
+    return(invisible(cal))
+  }
   curve <- s[s$parameter == "occ_x",
              c("model", "frac_verified", "coverage", "mc_se", "bias")]
   curve <- curve[order(curve$model, curve$frac_verified), ]
@@ -204,11 +270,14 @@ print.fp_calibration <- function(x, ...) {
 #' @export
 print.summary.fp_calibration <- function(x, ...) {
   cat(sprintf("Calibration summary (%g%% intervals)\n\n", 100 * attr(x, "prob")))
-  is_slope <- grepl("^occ_", x$parameter) & x$parameter != "occ_(Intercept)"
+  is_slope <- grepl("^(occ|psi1|col|ext)_", x$parameter) &
+    !grepl("(Intercept)", x$parameter, fixed = TRUE)
   slope <- as.data.frame(x)[is_slope, , drop = FALSE]
   if (nrow(slope)) {
     several <- length(unique(slope$parameter)) > 1
-    cat(if (several) "Occupancy slopes:\n" else "Occupancy slope:\n")
+    dyn <- any(!grepl("^occ_", slope$parameter))
+    cat(if (dyn) "Slopes of initial occupancy, colonization and extinction:\n"
+        else if (several) "Occupancy slopes:\n" else "Occupancy slope:\n")
     slope$verdict <- vapply(slope$coverage, .verdict, character(1))
     keep <- if (several) names(slope) else setdiff(names(slope), "parameter")
     print(slope[, keep], digits = 2, row.names = FALSE)
@@ -245,20 +314,45 @@ print.summary.fp_calibration <- function(x, ...) {
     if ("w" %in% all.vars(fp)) targets <- c(targets, fp_w = tr$conf_effect)
   }
   if (!"x" %in% all.vars(occ)) targets <- targets[names(targets) != "occ_x"]
-  .fit_and_score(sim$data, targets, fp = fp, occ = occ, det = det,
+  .fit_and_score(sim$data, targets, formulas = list(occ = occ, det = det, fp = fp),
                  model = model, prob = prob, seed = seed, fit_args = fit_args)
 }
 
-#' fits one model and scores the posterior intervals of `targets`, a named
-#' vector of true values of output parameters
+#' Fit one simulated dynamic data set and score its estimates
 #' @noRd
-.fit_and_score <- function(data, targets, fp, occ, det, model, prob, seed,
+.score_fit_dyn <- function(sim, fp, psi1, col, ext, det, model, prob, seed,
                            fit_args) {
+  tr <- sim$truth
+  # simulate_fp_dyn() has no recorder effect
+  fit_args <- utils::modifyList(list(show_messages = FALSE,
+                                     show_exceptions = FALSE, refresh = 0,
+                                     threads_per_chain = 1,
+                                     random_recorder = FALSE),
+                                fit_args)
+  keep <- c("psi1_(Intercept)", "col_(Intercept)", "ext_(Intercept)",
+            if ("x" %in% all.vars(psi1)) "psi1_x",
+            if ("rain" %in% all.vars(col)) "col_rain",
+            if ("x" %in% all.vars(ext)) "ext_x")
+  targets <- tr$pars[keep]
+  if (NROW(sim$data$verified) > 0) targets <- c(targets, p_verified = tr$r11)
+  if (!is.null(fp)) targets <- c(targets, p10_bar = tr$p10)
+  .fit_and_score(sim$data, targets,
+                 formulas = list(psi1 = psi1, col = col, ext = ext, det = det,
+                                 fp = fp),
+                 model = model, prob = prob, seed = seed, fit_args = fit_args,
+                 fit_fun = fp_occu_dyn)
+}
+
+#' fits one model and scores the posterior intervals of `targets`, a named
+#' vector of true values of output parameters; `formulas` is a named list of
+#' the formula arguments of `fit_fun`
+#' @noRd
+.fit_and_score <- function(data, targets, formulas, model, prob, seed,
+                           fit_args, fit_fun = fp_occu) {
   t0 <- Sys.time()
   fit <- tryCatch(
-    suppressWarnings(do.call(fp_occu, c(list(data = data, occ = occ,
-                                             det = det, fp = fp, seed = seed),
-                                        fit_args))),
+    suppressWarnings(do.call(fit_fun, c(list(data = data), formulas,
+                                        list(seed = seed), fit_args))),
     error = function(e) NULL
   )
   secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
@@ -292,7 +386,9 @@ print.summary.fp_calibration <- function(x, ...) {
 #' @param x An `fp_calibration` object from [fp_calibrate()] or
 #'   [fp_verification_curve()].
 #' @param parameter Scored quantity to plot, by default the occupancy slope
-#'   (`"occ_x"`). See [fp_calibrate()] for the others.
+#'   (`"occ_x"`); for a dynamic calibration without it, the first slope
+#'   scored, or else the colonization intercept. See [fp_calibrate()] for the
+#'   others.
 #' @param type `"coverage"` (default) or `"bias"`.
 #' @param by Name of the design column for the horizontal axis. By default, the
 #'   first design column that varies among cells; further varying columns
@@ -302,7 +398,8 @@ print.summary.fp_calibration <- function(x, ...) {
 #'   number of verified sites (`"sites"`, `frac_verified * nsite`), or as the
 #'   expected number of verified occasions, e.g. clips listened to
 #'   (`"occasions"`, times `nver`), which is closer to the cost of the
-#'   design.
+#'   design. In a dynamic calibration, the fraction is of site-seasons, and
+#'   the counts are multiplied by the number of seasons.
 #' @param target Optional coverage to mark with a second line, for instance
 #'   the lowest coverage you are willing to accept (0.90).
 #' @param ... Unused.
@@ -328,6 +425,11 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
   }
   type <- match.arg(type)
   s <- as.data.frame(summary(x))
+  dynamic <- isTRUE(attr(x, "dynamic"))
+  if (missing(parameter) && !parameter %in% s$parameter && dynamic) {
+    slopes <- intersect(c("psi1_x", "col_rain", "ext_x"), s$parameter)
+    parameter <- if (length(slopes)) slopes[1] else "col_(Intercept)"
+  }
   if (!parameter %in% s$parameter) {
     stop("`parameter` must be one of: ",
          paste(unique(s$parameter), collapse = ", "), ".", call. = FALSE)
@@ -346,13 +448,16 @@ plot.fp_calibration <- function(x, parameter = "occ_x",
     stop("`verified` applies only when the axis is `frac_verified`.", call. = FALSE)
   }
   if (by == "frac_verified" && verified != "fraction") {
-    # design values, or the defaults of simulate_fp() when not in the design
+    # design values, or the defaults of the simulator when not in the design
+    simulator <- if (dynamic) simulate_fp_dyn else simulate_fp
     design_value <- function(nm) {
-      if (nm %in% names(s)) s[[nm]] else eval(formals(simulate_fp)[[nm]])
+      if (nm %in% names(s)) s[[nm]] else eval(formals(simulator)[[nm]])
     }
     s$frac_verified <- s$frac_verified * design_value("nsite") *
-      if (verified == "occasions") design_value("nver") else 1
-    xlab <- if (verified == "sites") "Expected number of verified sites" else
+      (if (dynamic) design_value("nseason") else 1) *
+      (if (verified == "occasions") design_value("nver") else 1)
+    unit <- if (dynamic) "site-seasons" else "sites"
+    xlab <- if (verified == "sites") paste("Expected number of verified", unit) else
       "Expected number of verified occasions"
   }
 

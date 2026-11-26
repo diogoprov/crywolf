@@ -19,7 +19,9 @@
 \code{\link[=fp_verification_curve]{fp_verification_curve()}}.}
 
 \item{parameter}{Scored quantity to plot, by default the occupancy slope
-(\code{"occ_x"}). See \code{\link[=fp_calibrate]{fp_calibrate()}} for the others.}
+(\code{"occ_x"}); for a dynamic calibration without it, the first slope
+scored, or else the colonization intercept. See \code{\link[=fp_calibrate]{fp_calibrate()}} for the
+others.}
 
 \item{type}{\code{"coverage"} (default) or \code{"bias"}.}
 
@@ -32,7 +34,8 @@ become panels. With no varying column, the models are on the axis.}
 number of verified sites (\code{"sites"}, \code{frac_verified * nsite}), or as the
 expected number of verified occasions, e.g. clips listened to
 (\code{"occasions"}, times \code{nver}), which is closer to the cost of the
-design.}
+design. In a dynamic calibration, the fraction is of site-seasons, and
+the counts are multiplied by the number of seasons.}
 
 \item{target}{Optional coverage to mark with a second line, for instance
 the lowest coverage you are willing to accept (0.90).}

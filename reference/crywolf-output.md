@@ -314,11 +314,11 @@ fit <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
 #> Chain 2 finished in 4.2 seconds.
-#> Chain 1 finished in 4.9 seconds.
+#> Chain 1 finished in 5.1 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 4.5 seconds.
-#> Total execution time: 5.1 seconds.
+#> Mean chain execution time: 4.7 seconds.
+#> Total execution time: 5.2 seconds.
 #> 
 #> Warning: Largest R-hat is 1.012 (> 1.01); run longer chains.
 # readable coefficient names, shared by coef(), summary() and the draws

@@ -155,12 +155,12 @@ m <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
              chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 2 finished in 22.3 seconds.
-#> Chain 1 finished in 22.6 seconds.
+#> Chain 1 finished in 23.3 seconds.
+#> Chain 2 finished in 23.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 22.4 seconds.
-#> Total execution time: 22.7 seconds.
+#> Mean chain execution time: 23.5 seconds.
+#> Total execution time: 24.0 seconds.
 #> 
 m                                   # posterior summary and diagnostics
 #> Bayesian false-positive occupancy model (multiple-methods design)

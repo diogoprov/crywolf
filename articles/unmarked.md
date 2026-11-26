@@ -124,14 +124,14 @@ m_cw <- fp_occu(d, occ = ~ x, fp = ~ 1, threads_per_chain = 1, parallel_chains =
 seed = 1)
 #> Running MCMC with 4 chains, at most 2 in parallel, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 25.7 seconds.
-#> Chain 2 finished in 29.9 seconds.
-#> Chain 3 finished in 31.3 seconds.
-#> Chain 4 finished in 29.4 seconds.
+#> Chain 1 finished in 26.9 seconds.
+#> Chain 2 finished in 30.5 seconds.
+#> Chain 3 finished in 32.5 seconds.
+#> Chain 4 finished in 30.7 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 29.1 seconds.
-#> Total execution time: 59.6 seconds.
+#> Mean chain execution time: 30.1 seconds.
+#> Total execution time: 61.6 seconds.
 coef(m_cw)
 #>      occ_(Intercept)                occ_x      det_(Intercept) 
 #>            0.1558039           -0.7741694            0.4283424 

@@ -138,6 +138,19 @@
 #' With none, the model still runs, but the rate is informed only by the priors
 #' and the gap, and the fit should not be trusted.
 #'
+#' **Confusion between species.** The false-positive rate does not depend on
+#' which other species occur at the site. The model assumes that the
+#' classifier mislabels noise, not the calls of another species. When the false
+#' positives of a species come from the calls of a species that is often
+#' present, they follow the occupancy of that species, and the model reads them
+#' as presence. In a small simulation (100 sites, 10 automated occasions, 30%
+#' of sites verified, three datasets per level), occupancy was not biased when a
+#' confused detection had a probability of 0.15 per occasion. At 0.30, close to
+#' the rate of true detection, the occupancy intercept was overestimated by
+#' about 1.7 on the logit scale in two of the three datasets. Where a
+#' classifier is known to confuse two species, verify detections of each at
+#' sites where the other occurs.
+#'
 #' **Observation-confirmation design.** When `data` has confirmed occasions
 #' (argument `confirmed` of [fp_data()]), the model follows the
 #' observation-confirmation design of Chambert et al. (2015): an expert checks

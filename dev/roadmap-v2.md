@@ -623,6 +623,45 @@ espécies).
   Assim nada quebra, e ele pode sair numa 2.x, e não necessariamente na 3.0.0.
 - **Primeiro passo:** protótipo de viabilidade em `dev/`, de 1 a 2 dias,
   como a etapa 1 do RN. O foco são os riscos 1 e 2.
+- **Protótipo feito (25/11/2026, branch `jsdm-proto`, `dev/jsdm/README.md`,
+  sem merge):**
+  - Risco 1 resolvido: diagonal livre com sinal fixado depois da amostragem,
+    como no jsdmstan. A diagonal positiva misturou mal.
+  - Risco 2 resolvido para a detecção correlacionada: um efeito de sítio na
+    detecção, comum às espécies, remove o fator espúrio.
+  - O padrão de ΛΛ′ é recuperado com 100 sítios, mas a magnitude não.
+  - Risco novo, a confusão entre espécies no classificador. Ela vira
+    associação espúria em ΛΛ′ já com confusão moderada (0,15 por ocasião),
+    e o efeito de detecção não corrige.
+  - O `fp_occu()` e o `fp_occu_ms()` absorvem a confusão moderada. Com
+    confusão forte (0,30), a ocupação sai enviesada para cima, em 0,6 a 1,7
+    logit. A premissa agora está documentada nos dois.
+- **Decidido pelo Diogo em 25/11/2026: JSDM arquivado.**
+  - O JSDM só faria sentido com um termo de confusão. Declarar os pares a
+    priori não basta, porque só os dados verificados separam confusão de
+    co-ocorrência.
+  - Ele é o modelo mais frágil à confusão e recupera só o padrão de ΛΛ′, com
+    custo alto. Para o público do crywolf, o retorno não compensa.
+  - A branch `jsdm-proto` fica como registro.
+- **Condição para reabrir:** a validação registrar a espécie verdadeira dos
+  falsos positivos, para que a confusão seja estimada como uma matriz de
+  confusão. O sheepdog já permite declarar essa espécie no fluxo de
+  validação, mas é opcional, e o `fp_read_sheepdog()` ainda não lê o campo.
+  Seria um modelo de classificação errada entre espécies (ver "Fora do
+  plano"), um projeto de pesquisa maior que o JSDM.
+- **Alternativa em avaliação:** exportar draws posteriores dos estados de
+  ocupação do `fp_occu_ms()` para JSDMs externos (Hmsc, gllvm), por
+  imputação múltipla. Viabilidade em `dev/jsdm-export/`, com um conjunto de
+  dados:
+  - Funciona e é barato.
+  - No gllvm, o padrão de ΛΛ′ melhora em relação às detecções brutas
+    (correlação com a verdade de 0,91 contra 0,82).
+  - A força das associações sai atenuada (|ΛΛ′| médio de 0,28, com verdade
+    de 0,69). Isso é esperado, porque o `fp_occu_ms()` sorteia os estados das
+    espécies de forma independente.
+  - O Hmsc ficou inconclusivo e precisa de configuração própria.
+  - Próximo passo, se for adiante: uma grade local só com gllvm e, depois,
+    uma função experimental de exportação com essas limitações documentadas.
 
 ### Fora do plano
 

@@ -123,7 +123,14 @@ gives each species its own slopes of \code{det} or \code{fp}, or its own interce
 the verified method, drawn around the community value as the intercepts
 are (\eqn{\alpha_{sk} = \alpha_k + \sigma_{\alpha k} z_{sk}}). The false positives of a
 species are independent of those of the others: the classifier errs in
-labelling a species, not in confusing two species.
+labelling a species, not in confusing two species. When the classifier
+does confuse two species, the false detections of one follow the occupancy
+of the other, and its occupancy is overestimated. In simulations with 6
+species, 100 sites and 30\% of sites verified (three datasets per level), the
+occupancy intercepts of the confused species were not biased when a confused
+detection had a probability of 0.15 per occasion. At 0.30 they were
+overestimated by 0.56 to 0.96 on the logit scale. See "Confusion between
+species" in \code{\link[=fp_occu]{fp_occu()}}.
 
 Two random effects let the false-positive rate vary beyond its
 covariates, on its logit, both with the half-Normal prior of

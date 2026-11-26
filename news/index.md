@@ -1,6 +1,6 @@
 # Changelog
 
-## crywolf (development version)
+## crywolf 2.5.0
 
 - New
   [`fp_state_draws()`](https://provetelab.org/crywolf/reference/fp_state_draws.md)

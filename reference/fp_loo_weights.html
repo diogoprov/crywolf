@@ -13,7 +13,7 @@ that accepts fits or loo() results."><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@ that accepts fits or loo() results."><meta property="og:image" content="https://
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Model weights by stacking</h1>
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/R/methods.R" class="external-link"><code>R/methods.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v2.5.0/R/methods.R" class="external-link"><code>R/methods.R</code></a></small>
       <div class="d-none name"><code>fp_loo_weights.Rd</code></div>
     </div>
 
@@ -114,23 +114,23 @@ Analysis</em>, 13, 917–1007. <a href="https://doi.org/10.1214/17-BA1091" class
 <span class="r-in"><span>              chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 20.6 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 26.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 11.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 14.1 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 23.7 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 27.0 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 12.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 14.2 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu"><a href="fp_occu.html">fp_occu</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span>, occ <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, fp <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>, random_recorder <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>              chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 23.9 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 24.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 12.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 13.4 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 24.3 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 24.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 12.9 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 13.5 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">fp_loo_weights</span><span class="op">(</span>constant <span class="op">=</span> <span class="va">m0</span>, fp_on_x <span class="op">=</span> <span class="va">m1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  constant   fp_on_x </span>

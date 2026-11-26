@@ -291,12 +291,12 @@ m <- fp_occu_rn(s$data, random_det = TRUE, chains = 2,
                 iter_warmup = 300, iter_sampling = 300, seed = 1)
 #> Running MCMC with 2 parallel chains, with 2 thread(s) per chain...
 #> 
-#> Chain 2 finished in 6.5 seconds.
-#> Chain 1 finished in 7.6 seconds.
+#> Chain 2 finished in 6.6 seconds.
+#> Chain 1 finished in 7.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 7.1 seconds.
-#> Total execution time: 7.7 seconds.
+#> Mean chain execution time: 7.2 seconds.
+#> Total execution time: 7.9 seconds.
 #> 
 #> Warning: Largest R-hat is 1.040 (> 1.01); run longer chains.
 #> Smallest bulk ESS is 76 (< 400).

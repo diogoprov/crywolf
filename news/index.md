@@ -31,6 +31,11 @@
   describes the model and the simulations that validate it
   (simulation-based calibration and a grid over sites, occasions and
   annotation schemes).
+- [`?fp_occu`](https://provetelab.org/crywolf/reference/fp_occu.md) and
+  [`?fp_occu_ms`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+  now state that the false-positive rate of a species does not depend on
+  which other species are present. They also report how occupancy is
+  overestimated when the classifier confuses two species often.
 - [`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md) no
   longer fails when every automated occasion is confirmed
   (observation-confirmation design with nothing left unchecked).

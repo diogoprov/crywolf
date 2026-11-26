@@ -236,6 +236,19 @@ already returns them standardized.
 rate. With none, the model still runs, but the rate is informed only by
 the priors and the gap, and the fit should not be trusted.
 
+**Confusion between species.** The false-positive rate does not depend
+on which other species occur at the site. The model assumes that the
+classifier mislabels noise, not the calls of another species. When the
+false positives of a species come from the calls of a species that is
+often present, they follow the occupancy of that species, and the model
+reads them as presence. In a small simulation (100 sites, 10 automated
+occasions, 30% of sites verified, three datasets per level), occupancy
+was not biased when a confused detection had a probability of 0.15 per
+occasion. At 0.30, close to the rate of true detection, the occupancy
+intercept was overestimated by about 1.7 on the logit scale in two of
+the three datasets. Where a classifier is known to confuse two species,
+verify detections of each at sites where the other occurs.
+
 **Observation-confirmation design.** When `data` has confirmed occasions
 (argument `confirmed` of
 [`fp_data()`](https://provetelab.org/crywolf/reference/fp_data.md)), the
@@ -386,11 +399,11 @@ m0 <- fp_occu(sim$data, occ = ~ x, fp = ~ 1, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 27.0 seconds.
-#> Chain 2 finished in 31.6 seconds.
+#> Chain 1 finished in 27.8 seconds.
+#> Chain 2 finished in 31.5 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 29.3 seconds.
+#> Mean chain execution time: 29.7 seconds.
 #> Total execution time: 31.7 seconds.
 #> 
 # false-positive rate that tracks the occupancy covariate
@@ -398,12 +411,12 @@ m1 <- fp_occu(sim$data, occ = ~ x, fp = ~ x, random_recorder = FALSE,
               chains = 2, threads_per_chain = 1)
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 35.2 seconds.
-#> Chain 2 finished in 35.5 seconds.
+#> Chain 2 finished in 35.8 seconds.
+#> Chain 1 finished in 36.4 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 35.3 seconds.
-#> Total execution time: 35.6 seconds.
+#> Mean chain execution time: 36.1 seconds.
+#> Total execution time: 36.5 seconds.
 #> 
 
 coef(m0)["occ_x"]; coef(m1)["occ_x"]   # truth: -0.8

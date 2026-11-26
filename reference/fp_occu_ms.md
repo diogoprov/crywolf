@@ -164,7 +164,15 @@ or `fp`, or its own intercept of the verified method, drawn around the
 community value as the intercepts are (\\\alpha\_{sk} = \alpha_k +
 \sigma\_{\alpha k} z\_{sk}\\). The false positives of a species are
 independent of those of the others: the classifier errs in labelling a
-species, not in confusing two species.
+species, not in confusing two species. When the classifier does confuse
+two species, the false detections of one follow the occupancy of the
+other, and its occupancy is overestimated. In simulations with 6
+species, 100 sites and 30% of sites verified (three datasets per level),
+the occupancy intercepts of the confused species were not biased when a
+confused detection had a probability of 0.15 per occasion. At 0.30 they
+were overestimated by 0.56 to 0.96 on the logit scale. See "Confusion
+between species" in
+[`fp_occu()`](https://provetelab.org/crywolf/reference/fp_occu.md).
 
 Two random effects let the false-positive rate vary beyond its
 covariates, on its logit, both with the half-Normal prior of
@@ -225,12 +233,12 @@ m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
 #> Parametrization (4 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 154.8 seconds.
-#> Chain 2 finished in 167.7 seconds.
+#> Chain 1 finished in 161.5 seconds.
+#> Chain 2 finished in 175.8 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 161.3 seconds.
-#> Total execution time: 167.8 seconds.
+#> Mean chain execution time: 168.6 seconds.
+#> Total execution time: 176.0 seconds.
 #> 
 #> Warning: Largest R-hat is 1.013 (> 1.01); run longer chains.
 m

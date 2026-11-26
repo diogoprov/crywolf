@@ -290,6 +290,18 @@ already returns them standardized.</p>
 <p><strong>Verified data.</strong> The verified detections anchor the false-positive rate.
 With none, the model still runs, but the rate is informed only by the priors
 and the gap, and the fit should not be trusted.</p>
+<p><strong>Confusion between species.</strong> The false-positive rate does not depend on
+which other species occur at the site. The model assumes that the
+classifier mislabels noise, not the calls of another species. When the false
+positives of a species come from the calls of a species that is often
+present, they follow the occupancy of that species, and the model reads them
+as presence. In a small simulation (100 sites, 10 automated occasions, 30%
+of sites verified, three datasets per level), occupancy was not biased when a
+confused detection had a probability of 0.15 per occasion. At 0.30, close to
+the rate of true detection, the occupancy intercept was overestimated by
+about 1.7 on the logit scale in two of the three datasets. Where a
+classifier is known to confuse two species, verify detections of each at
+sites where the other occurs.</p>
 <p><strong>Observation-confirmation design.</strong> When <code>data</code> has confirmed occasions
 (argument <code>confirmed</code> of <code><a href="fp_data.html">fp_data()</a></code>), the model follows the
 observation-confirmation design of Chambert et al. (2015): an expert checks
@@ -411,11 +423,11 @@ Learning Research</em>, 15, 1593–1623.
 <span class="r-in"><span>              chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 27.0 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 31.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 27.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 31.5 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 29.3 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 29.7 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 31.7 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># false-positive rate that tracks the occupancy covariate</span></span></span>
@@ -423,12 +435,12 @@ Learning Research</em>, 15, 1593–1623.
 <span class="r-in"><span>              chains <span class="op">=</span> <span class="fl">2</span>, threads_per_chain <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 35.2 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 35.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 35.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 36.4 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 35.3 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 35.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 36.1 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 36.5 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m0</span><span class="op">)</span><span class="op">[</span><span class="st">"occ_x"</span><span class="op">]</span>; <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">m1</span><span class="op">)</span><span class="op">[</span><span class="st">"occ_x"</span><span class="op">]</span>   <span class="co"># truth: -0.8</span></span></span>

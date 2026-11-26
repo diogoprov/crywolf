@@ -223,7 +223,14 @@ gives each species its own slopes of <code>det</code> or <code>fp</code>, or its
 the verified method, drawn around the community value as the intercepts
 are (\(\alpha_{sk} = \alpha_k + \sigma_{\alpha k} z_{sk}\)). The false positives of a
 species are independent of those of the others: the classifier errs in
-labelling a species, not in confusing two species.</p>
+labelling a species, not in confusing two species. When the classifier
+does confuse two species, the false detections of one follow the occupancy
+of the other, and its occupancy is overestimated. In simulations with 6
+species, 100 sites and 30% of sites verified (three datasets per level), the
+occupancy intercepts of the confused species were not biased when a confused
+detection had a probability of 0.15 per occasion. At 0.30 they were
+overestimated by 0.56 to 0.96 on the logit scale. See "Confusion between
+species" in <code><a href="fp_occu.html">fp_occu()</a></code>.</p>
 <p>Two random effects let the false-positive rate vary beyond its
 covariates, on its logit, both with the half-Normal prior of
 <code>fp_priors(fp_site_sd = )</code>: <code>fp_group</code> names a column of the sites that
@@ -275,12 +282,12 @@ way. See <code><a href="../articles/multispecies.html">vignette("multispecies", 
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Parametrization (4 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 154.8 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 167.7 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1 finished in 161.5 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 2 finished in 175.8 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Both chains finished successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 161.3 seconds.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 167.8 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mean chain execution time: 168.6 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total execution time: 176.0 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Largest R-hat is 1.013 (&gt; 1.01); run longer chains.</span>
 <span class="r-in"><span><span class="va">m</span></span></span>

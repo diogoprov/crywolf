@@ -545,6 +545,107 @@ two to four times slower, and whether the divergences come from the
 boundary at 0 remains open. Fits of data of this size are long, and their
 diagnostics should be checked before the estimates are used.
 
+## Co-occurrence in a joint species distribution model
+
+`fp_occu_ms()` treats the species as independent given the covariates. It
+does not estimate residual associations between species, as a joint species
+distribution model (JSDM) does. A JSDM of another package can still use its
+results. `fp_state_draws()` (experimental) draws the occupancy state of
+every species at every site, one site × species matrix of 0 and 1 per
+posterior draw. The states are corrected for false positives, and a species
+proven present by a verified detection is present in every draw. Fitting
+the JSDM to each draw and averaging its estimates over the draws is
+multiple imputation of the true states.
+
+```{r state-draws-code, eval = FALSE}
+z <- fp_state_draws(fit, ndraws = 20)
+X <- data.frame(x = fit$data$sites$x)
+# residual covariance between species from gllvm, averaged over the draws;
+# a species present at every site, or at none, in a draw must be dropped
+ll <- lapply(seq_len(dim(z)[1]), function(k) {
+  m <- gllvm::gllvm(z[k, , ], X = X, formula = ~ x,
+                    family = binomial(link = "logit"), num.lv = 2)
+  lam <- m$params$theta %*% diag(m$params$sigma.lv, 2)
+  lam %*% t(lam)
+})
+Reduce(`+`, ll) / length(ll)
+```
+
+Average quantities that do not depend on the rotation of the latent
+factors, such as the residual covariance or correlation, not the loadings.
+`?fp_state_draws` gives the same loop with 'Hmsc'.
+
+```{r state-draws-setup, include = FALSE}
+sd_res <- readRDS("state-draws-results.rds")
+g <- sd_res$gllvm
+gw <- reshape(g[c("S", "load_sd", "input", "cor")], idvar = c("S", "load_sd"),
+              timevar = "input", direction = "wide")
+gw <- gw[order(gw$S, gw$load_sd), ]
+gap_oracle <- range(gw$cor.oracle - gw$cor.draws_mean)
+gap_naive <- range(gw$cor.draws_mean - gw$cor.naive)
+ma <- reshape(g[c("S", "load_sd", "input", "mean_abs")], idvar = c("S", "load_sd"),
+              timevar = "input", direction = "wide")
+strong <- ma[ma$load_sd == 1, ]
+share_strong <- range(strong$mean_abs.draws_mean / strong$mean_abs.oracle)
+dg <- sd_res$diagnostics
+hm <- sd_res$hmsc
+```
+
+### How well the associations are recovered
+
+The data were simulated with two latent factors, as in a JSDM, on top of
+the false-positive model: 10 species, 10 automated occasions and verified
+data at 30% of the sites. The design crossed 50, 100 and 200 sites with
+weak and strong factors (loadings with standard deviation 0.5 or 1), with
+5 replicates each. `fp_occu_ms()` was fitted to each dataset, and 'gllvm'
+(Niku et al. 2019), with two latent variables, to 20 state draws. The same
+JSDM was fitted to the true states (the best possible input) and to the
+naive states (a species is present where it has at least one automated
+detection). The scripts are in `dev/jsdm-export/`.
+
+All `r nrow(dg)` fits of `fp_occu_ms()` converged, with no divergent
+transitions and a largest R-hat of `r round(max(dg$max_rhat), 3)`. The
+table gives the correlation between the estimated and the true residual
+covariances of the pairs of species, as a mean over the replicates.
+
+```{r state-draws-table, echo = FALSE}
+knitr::kable(data.frame(sites = gw$S,
+                        factors = ifelse(gw$load_sd == 1, "strong", "weak"),
+                        true_states = round(gw$cor.oracle, 2),
+                        naive_states = round(gw$cor.naive, 2),
+                        state_draws = round(gw$cor.draws_mean, 2)),
+             row.names = FALSE)
+```
+
+The state draws kept the pattern of the associations. Their correlation
+with the truth was `r round(gap_oracle[1], 2)` to
+`r round(gap_oracle[2], 2)` below that of the true states, and
+`r round(gap_naive[1], 2)` to `r round(gap_naive[2], 2)` above that of the
+naive states. They beat the naive states in `r sum(sd_res$beat$draws_beat_naive)`
+of the `r nrow(dg)` datasets. With 50 sites and weak factors, even the true
+states gave a poor estimate: such data hold little about the associations.
+
+The strength of the associations was underestimated. With strong factors,
+the mean absolute residual covariance from the draws was
+`r pct(share_strong[1])` to `r pct(share_strong[2])` of that from the true
+states. We read this as a consequence of the independence between species
+in `fp_occu_ms()`. Where the data leave the state of a species uncertain,
+its draws are independent of the other species. They then dilute the
+co-occurrence that the JSDM sees.
+
+'Hmsc' (Tikhonov et al. 2020), with its default setup, gave the same
+picture on one dataset of 100 sites with strong factors. Its residual
+covariance matched the truth at `r round(hm["draws_mean", "cov_scale"], 2)`
+from the state draws, `r round(hm["oracle", "cov_scale"], 2)` from the true
+states and `r round(hm["naive", "cov_scale"], 2)` from the naive states.
+
+Two limits follow. The associations from the draws are weaker than the true
+ones, so their pattern is more reliable than their size. The
+draws also inherit any confusion between species, which `fp_occu_ms()`
+does not correct (see "Species and community" above). When the classifier
+often labels one species where another calls, the JSDM may read the
+confusion as a positive association between them.
+
 ## References
 
 Dorazio, R. M., & Royle, J. A. (2005). Estimating size and composition of
@@ -557,3 +658,13 @@ Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 two types of observational error occur: non-detection and species
 misidentification. *Ecology*, 92, 1422–1428.
 https://doi.org/10.1890/10-1396.1
+
+Niku, J., Hui, F. K. C., Taskinen, S., & Warton, D. I. (2019). gllvm: Fast
+analysis of multivariate abundance data with generalized linear latent
+variable models in R. *Methods in Ecology and Evolution*, 10, 2173–2182.
+https://doi.org/10.1111/2041-210X.13303
+
+Tikhonov, G., Opedal, Ø. H., Abrego, N., Lehikoinen, A., de Jonge, M. M. J.,
+Oksanen, J., & Ovaskainen, O. (2020). Joint species distribution modelling
+with the R-package Hmsc. *Methods in Ecology and Evolution*, 11, 442–447.
+https://doi.org/10.1111/2041-210X.13345

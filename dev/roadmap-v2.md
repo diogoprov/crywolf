@@ -703,7 +703,7 @@ espécies).
     fortes × 5 réplicas; cerca de 3 h no Mac). A média sobre os draws ficou
     a 0,01–0,07 do oráculo na correlação com o ΛΛ′ verdadeiro e acima das
     detecções brutas em 28 dos 30 conjuntos.
-  - A força das associações sai atenuada em todas as células (62–73% da do
+  - A força das associações sai atenuada em todas as células (62–72% da do
     oráculo com fatores fortes), porque o `fp_occu_ms()` sorteia os estados
     das espécies de forma independente.
   - Hmsc com a configuração padrão: 0,83 com os draws, contra 0,86 do

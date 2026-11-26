@@ -208,3 +208,29 @@ test_that("clips of the score_bands design are dropped, or refused alone", {
   expect_error(suppressMessages(fp_read_sheepdog(dir3, species = "compau")),
                "Every reviewed clip.*\"random_detections\"")
 })
+
+test_that("the true identity of reviewed clips is read from schema 1.5", {
+  skip_if_not_installed("jsonlite")
+  val <- data.frame(
+    site = c("01", "02", "02"), occasion_id = c("a1", "b1", "b2"),
+    species_code = pauraque, species = "compau", clip_start = c(0, 6, 0),
+    clip_end = c(3, 9, 3), confidence = c(0.9, 0.7, 0.3),
+    sampling_mode = "random_detections", inclusion_prob = 0.5,
+    n_detections_occasion = 1, verdict = c("positive", "negative", "negative"),
+    tp = c(1, 0, 0), round = 1, stratum = NA, n_candidates = 3, n_drawn = 3,
+    review_scope = "species", identity = c(NA, "Other bird_Other", "insect|rain"),
+    identity_certainty = c(NA, "sure", "probable"))
+  dir <- write_export(file.path(tempdir(), "sheepdog-export-1.5"), version = 1.5,
+                      validation = val)
+  x <- suppressMessages(fp_read_sheepdog(dir, species = "compau"))
+  expect_identical(x$validation$identity, c(NA, "Other bird_Other", "insect|rain"))
+  expect_identical(x$validation$identity_certainty, c(NA, "sure", "probable"))
+  auto <- fp_aggregate(x$occasions, x$detections, threshold = 0.5,
+                       by = c("site", "occasion_id"), validation = x$validation)
+  expect_equal(auto$n_false, c(0L, NA, 1L, NA))
+  # before 1.5 the columns are absent from the export, and NA here
+  old <- suppressWarnings(suppressMessages(fp_read_sheepdog(
+    write_export(file.path(tempdir(), "sheepdog-export-1.0")), species = "compau")))
+  expect_true(all(is.na(old$validation$identity)))
+  expect_type(old$validation$identity_certainty, "character")
+})

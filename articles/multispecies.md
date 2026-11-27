@@ -598,6 +598,100 @@ divergences come from the boundary at 0 remains open. Fits of data of
 this size are long, and their diagnostics should be checked before the
 estimates are used.
 
+## Co-occurrence in a joint species distribution model
+
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+treats the species as independent given the covariates. It does not
+estimate residual associations between species, as a joint species
+distribution model (JSDM) does. A JSDM of another package can still use
+its results.
+[`fp_state_draws()`](https://provetelab.org/crywolf/reference/fp_state_draws.md)
+(experimental) draws the occupancy state of every species at every site,
+one site × species matrix of 0 and 1 per posterior draw. The states are
+corrected for false positives, and a species proven present by a
+verified detection is present in every draw. Fitting the JSDM to each
+draw and averaging its estimates over the draws is multiple imputation
+of the true states.
+
+``` r
+
+z <- fp_state_draws(fit, ndraws = 20)
+X <- data.frame(x = fit$data$sites$x)
+# residual covariance between species from gllvm, averaged over the draws;
+# a species present at every site, or at none, in a draw must be dropped
+ll <- lapply(seq_len(dim(z)[1]), function(k) {
+  m <- gllvm::gllvm(z[k, , ], X = X, formula = ~ x,
+                    family = binomial(link = "logit"), num.lv = 2)
+  lam <- m$params$theta %*% diag(m$params$sigma.lv, 2)
+  lam %*% t(lam)
+})
+Reduce(`+`, ll) / length(ll)
+```
+
+Average quantities that do not depend on the rotation of the latent
+factors, such as the residual covariance or correlation, not the
+loadings.
+[`?fp_state_draws`](https://provetelab.org/crywolf/reference/fp_state_draws.md)
+gives the same loop with ‘Hmsc’.
+
+### How well the associations are recovered
+
+The data were simulated with two latent factors, as in a JSDM, on top of
+the false-positive model: 10 species, 10 automated occasions and
+verified data at 30% of the sites. The design crossed 50, 100 and 200
+sites with weak and strong factors (loadings with standard deviation 0.5
+or 1), with 5 replicates each.
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+was fitted to each dataset, and ‘gllvm’ (Niku et al. 2019), with two
+latent variables, to 20 state draws. The same JSDM was fitted to the
+true states (the best possible input) and to the naive states (a species
+is present where it has at least one automated detection). The scripts
+are in `dev/jsdm-export/`.
+
+All 30 fits of
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+converged, with no divergent transitions and a largest R-hat of 1.009.
+The table gives the correlation between the estimated and the true
+residual covariances of the pairs of species, as a mean over the
+replicates.
+
+| sites | factors | true_states | naive_states | state_draws |
+|------:|:--------|------------:|-------------:|------------:|
+|    50 | weak    |        0.31 |         0.07 |        0.29 |
+|    50 | strong  |        0.68 |         0.45 |        0.65 |
+|   100 | weak    |        0.62 |         0.32 |        0.58 |
+|   100 | strong  |        0.86 |         0.75 |        0.83 |
+|   200 | weak    |        0.58 |         0.34 |        0.51 |
+|   200 | strong  |        0.89 |         0.71 |        0.88 |
+
+The state draws kept the pattern of the associations. Their correlation
+with the truth was 0.01 to 0.07 below that of the true states, and 0.08
+to 0.26 above that of the naive states. They beat the naive states in 28
+of the 30 datasets. With 50 sites and weak factors, even the true states
+gave a poor estimate: such data hold little about the associations.
+
+The strength of the associations was underestimated. With strong
+factors, the mean absolute residual covariance from the draws was 62% to
+72% of that from the true states. We read this as a consequence of the
+independence between species in
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md).
+Where the data leave the state of a species uncertain, its draws are
+independent of the other species. They then dilute the co-occurrence
+that the JSDM sees.
+
+‘Hmsc’ (Tikhonov et al. 2020), with its default setup, gave the same
+picture on one dataset of 100 sites with strong factors. Its residual
+covariance matched the truth at 0.83 from the state draws, 0.86 from the
+true states and 0.77 from the naive states.
+
+Two limits follow. The associations from the draws are weaker than the
+true ones, so their pattern is more reliable than their size. The draws
+also inherit any confusion between species, which
+[`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md)
+does not correct (see “Species and community” above). When the
+classifier often labels one species where another calls, the JSDM may
+read the confusion as a positive association between them.
+
 ## References
 
 Dorazio, R. M., & Royle, J. A. (2005). Estimating size and composition
@@ -610,3 +704,13 @@ Bailey, L. L., & Weir, L. A. (2011). Improving occupancy estimation when
 two types of observational error occur: non-detection and species
 misidentification. *Ecology*, 92, 1422–1428.
 <https://doi.org/10.1890/10-1396.1>
+
+Niku, J., Hui, F. K. C., Taskinen, S., & Warton, D. I. (2019). gllvm:
+Fast analysis of multivariate abundance data with generalized linear
+latent variable models in R. *Methods in Ecology and Evolution*, 10,
+2173–2182. <https://doi.org/10.1111/2041-210X.13303>
+
+Tikhonov, G., Opedal, Ø. H., Abrego, N., Lehikoinen, A., de Jonge, M. M.
+J., Oksanen, J., & Ovaskainen, O. (2020). Joint species distribution
+modelling with the R-package Hmsc. *Methods in Ecology and Evolution*,
+11, 442–447. <https://doi.org/10.1111/2041-210X.13345>

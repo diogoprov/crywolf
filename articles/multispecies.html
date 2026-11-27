@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">crywolf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Several species at once: the multispecies model</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/v2.5.0/vignettes/multispecies.Rmd" class="external-link"><code>vignettes/multispecies.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/diogoprov/crywolf/blob/main/vignettes/multispecies.Rmd" class="external-link"><code>vignettes/multispecies.Rmd</code></a></small>
       <div class="d-none name"><code>multispecies.Rmd</code></div>
     </div>
 
@@ -1970,6 +1970,131 @@ checked before the estimates are used.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="co-occurrence-in-a-joint-species-distribution-model">Co-occurrence in a joint species distribution model<a class="anchor" aria-label="anchor" href="#co-occurrence-in-a-joint-species-distribution-model"></a>
+</h2>
+<p><code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> treats the species as independent given the
+covariates. It does not estimate residual associations between species,
+as a joint species distribution model (JSDM) does. A JSDM of another
+package can still use its results. <code><a href="../reference/fp_state_draws.html">fp_state_draws()</a></code>
+(experimental) draws the occupancy state of every species at every site,
+one site × species matrix of 0 and 1 per posterior draw. The states are
+corrected for false positives, and a species proven present by a
+verified detection is present in every draw. Fitting the JSDM to each
+draw and averaging its estimates over the draws is multiple imputation
+of the true states.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fp_state_draws.html">fp_state_draws</a></span><span class="op">(</span><span class="va">fit</span>, ndraws <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">sites</span><span class="op">$</span><span class="va">x</span><span class="op">)</span></span>
+<span><span class="co"># residual covariance between species from gllvm, averaged over the draws;</span></span>
+<span><span class="co"># a species present at every site, or at none, in a draw must be dropped</span></span>
+<span><span class="va">ll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">gllvm</span><span class="fu">::</span><span class="fu">gllvm</span><span class="op">(</span><span class="va">z</span><span class="op">[</span><span class="va">k</span>, , <span class="op">]</span>, X <span class="op">=</span> <span class="va">X</span>, formula <span class="op">=</span> <span class="op">~</span> <span class="va">x</span>,</span>
+<span>                    family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>, num.lv <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">lam</span> <span class="op">&lt;-</span> <span class="va">m</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">theta</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">sigma.lv</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">lam</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">lam</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="va">`+`</span>, <span class="va">ll</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ll</span><span class="op">)</span></span></code></pre></div>
+<p>Average quantities that do not depend on the rotation of the latent
+factors, such as the residual covariance or correlation, not the
+loadings. <code><a href="../reference/fp_state_draws.html">?fp_state_draws</a></code> gives the same loop with
+‘Hmsc’.</p>
+<div class="section level3">
+<h3 id="how-well-the-associations-are-recovered">How well the associations are recovered<a class="anchor" aria-label="anchor" href="#how-well-the-associations-are-recovered"></a>
+</h3>
+<p>The data were simulated with two latent factors, as in a JSDM, on top
+of the false-positive model: 10 species, 10 automated occasions and
+verified data at 30% of the sites. The design crossed 50, 100 and 200
+sites with weak and strong factors (loadings with standard deviation 0.5
+or 1), with 5 replicates each. <code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> was fitted to
+each dataset, and ‘gllvm’ (Niku et al. 2019), with two latent variables,
+to 20 state draws. The same JSDM was fitted to the true states (the best
+possible input) and to the naive states (a species is present where it
+has at least one automated detection). The scripts are in
+<code>dev/jsdm-export/</code>.</p>
+<p>All 30 fits of <code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> converged, with no divergent
+transitions and a largest R-hat of 1.009. The table gives the
+correlation between the estimated and the true residual covariances of
+the pairs of species, as a mean over the replicates.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="right">sites</th>
+<th align="left">factors</th>
+<th align="right">true_states</th>
+<th align="right">naive_states</th>
+<th align="right">state_draws</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">50</td>
+<td align="left">weak</td>
+<td align="right">0.31</td>
+<td align="right">0.07</td>
+<td align="right">0.29</td>
+</tr>
+<tr class="even">
+<td align="right">50</td>
+<td align="left">strong</td>
+<td align="right">0.68</td>
+<td align="right">0.45</td>
+<td align="right">0.65</td>
+</tr>
+<tr class="odd">
+<td align="right">100</td>
+<td align="left">weak</td>
+<td align="right">0.62</td>
+<td align="right">0.32</td>
+<td align="right">0.58</td>
+</tr>
+<tr class="even">
+<td align="right">100</td>
+<td align="left">strong</td>
+<td align="right">0.86</td>
+<td align="right">0.75</td>
+<td align="right">0.83</td>
+</tr>
+<tr class="odd">
+<td align="right">200</td>
+<td align="left">weak</td>
+<td align="right">0.58</td>
+<td align="right">0.34</td>
+<td align="right">0.51</td>
+</tr>
+<tr class="even">
+<td align="right">200</td>
+<td align="left">strong</td>
+<td align="right">0.89</td>
+<td align="right">0.71</td>
+<td align="right">0.88</td>
+</tr>
+</tbody>
+</table>
+<p>The state draws kept the pattern of the associations. Their
+correlation with the truth was 0.01 to 0.07 below that of the true
+states, and 0.08 to 0.26 above that of the naive states. They beat the
+naive states in 28 of the 30 datasets. With 50 sites and weak factors,
+even the true states gave a poor estimate: such data hold little about
+the associations.</p>
+<p>The strength of the associations was underestimated. With strong
+factors, the mean absolute residual covariance from the draws was 62% to
+72% of that from the true states. We read this as a consequence of the
+independence between species in <code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code>. Where the
+data leave the state of a species uncertain, its draws are independent
+of the other species. They then dilute the co-occurrence that the JSDM
+sees.</p>
+<p>‘Hmsc’ (Tikhonov et al. 2020), with its default setup, gave the same
+picture on one dataset of 100 sites with strong factors. Its residual
+covariance matched the truth at 0.83 from the state draws, 0.86 from the
+true states and 0.77 from the naive states.</p>
+<p>Two limits follow. The associations from the draws are weaker than
+the true ones, so their pattern is more reliable than their size. The
+draws also inherit any confusion between species, which
+<code><a href="../reference/fp_occu_ms.html">fp_occu_ms()</a></code> does not correct (see “Species and community”
+above). When the classifier often labels one species where another
+calls, the JSDM may read the confusion as a positive association between
+them.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <p>Dorazio, R. M., &amp; Royle, J. A. (2005). Estimating size and
@@ -1980,6 +2105,14 @@ species. <em>Journal of the American Statistical Association</em>, 100,
 Bailey, L. L., &amp; Weir, L. A. (2011). Improving occupancy estimation
 when two types of observational error occur: non-detection and species
 misidentification. <em>Ecology</em>, 92, 1422–1428. <a href="https://doi.org/10.1890/10-1396.1" class="external-link uri">https://doi.org/10.1890/10-1396.1</a></p>
+<p>Niku, J., Hui, F. K. C., Taskinen, S., &amp; Warton, D. I. (2019).
+gllvm: Fast analysis of multivariate abundance data with generalized
+linear latent variable models in R. <em>Methods in Ecology and
+Evolution</em>, 10, 2173–2182. <a href="https://doi.org/10.1111/2041-210X.13303" class="external-link uri">https://doi.org/10.1111/2041-210X.13303</a></p>
+<p>Tikhonov, G., Opedal, Ø. H., Abrego, N., Lehikoinen, A., de Jonge, M.
+M. J., Oksanen, J., &amp; Ovaskainen, O. (2020). Joint species
+distribution modelling with the R-package Hmsc. <em>Methods in Ecology
+and Evolution</em>, 11, 442–447. <a href="https://doi.org/10.1111/2041-210X.13345" class="external-link uri">https://doi.org/10.1111/2041-210X.13345</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

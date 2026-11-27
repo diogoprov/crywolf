@@ -1,5 +1,14 @@
 # Changelog
 
+## crywolf (development version)
+
+- [`vignette("multispecies")`](https://provetelab.org/crywolf/articles/multispecies.md)
+  has a section on passing the state draws of
+  [`fp_state_draws()`](https://provetelab.org/crywolf/reference/fp_state_draws.md)
+  to a joint species distribution model, with the simulations that check
+  how well ‘gllvm’ and ‘Hmsc’ recover the residual associations between
+  species from them.
+
 ## crywolf 2.5.0
 
 - New

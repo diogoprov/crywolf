@@ -100,7 +100,9 @@ binary joint model; drop it from that draw.
 
 [`fp_occu_ms()`](https://provetelab.org/crywolf/reference/fp_occu_ms.md),
 [`fp_richness()`](https://provetelab.org/crywolf/reference/fp_richness.md),
-[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md)
+[`fp_sites()`](https://provetelab.org/crywolf/reference/fp_sites.md);
+[`vignette("multispecies")`](https://provetelab.org/crywolf/articles/multispecies.md)
+for how well a joint model fitted to the draws recovers the associations
 
 ## Examples
 
@@ -112,12 +114,12 @@ m <- fp_occu_ms(s$data, occ = ~ x, det = ~ bio, random_recorder = FALSE,
 #> Parametrization (5 species at 60 sites): centered = FALSE, centered_occ = FALSE; see ?fp_occu_ms.
 #> Running MCMC with 2 parallel chains, with 1 thread(s) per chain...
 #> 
-#> Chain 1 finished in 106.7 seconds.
-#> Chain 2 finished in 109.5 seconds.
+#> Chain 1 finished in 140.5 seconds.
+#> Chain 2 finished in 144.1 seconds.
 #> 
 #> Both chains finished successfully.
-#> Mean chain execution time: 108.1 seconds.
-#> Total execution time: 109.7 seconds.
+#> Mean chain execution time: 142.3 seconds.
+#> Total execution time: 144.2 seconds.
 #> 
 z <- fp_state_draws(m, ndraws = 20, seed = 1)
 dim(z)

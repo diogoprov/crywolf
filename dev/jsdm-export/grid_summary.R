@@ -31,3 +31,9 @@ print(agg[order(agg$S, agg$load_sd, agg$input), ], digits = 2, row.names = FALSE
 cat("\nDatasets where the mean over draws beat the naive states (of 5):\n")
 print(beat, row.names = FALSE)
 print(true_abs, digits = 2, row.names = FALSE)
+
+# the tables of vignette("multispecies"), section on joint models
+hm <- readRDS("dev/jsdm-export/hmsc_setup.rds")
+saveRDS(list(gllvm = agg, beat = beat, true_mean_abs = true_abs, diagnostics = diag,
+             hmsc = hm$draws),
+        "vignettes/state-draws-results.rds")

@@ -153,7 +153,9 @@ fp_richness <- function(object, prob = 0.95, ndraws = NULL, seed = NULL) {
 #' @return An integer array of 0 and 1 with dimensions draw x site x species,
 #'   named by the sites (the site column of the data) and the species of the
 #'   model.
-#' @seealso [fp_occu_ms()], [fp_richness()], [fp_sites()]
+#' @seealso [fp_occu_ms()], [fp_richness()], [fp_sites()];
+#'   `vignette("multispecies")` for how well a joint model fitted to the
+#'   draws recovers the associations
 #' @export
 #' @examplesIf instantiate::stan_cmdstan_exists()
 #' \donttest{

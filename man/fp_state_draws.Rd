@@ -98,5 +98,7 @@ plot(apply(z, c(2, 3), mean), s$truth$z)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=fp_occu_ms]{fp_occu_ms()}}, \code{\link[=fp_richness]{fp_richness()}}, \code{\link[=fp_sites]{fp_sites()}}
+\code{\link[=fp_occu_ms]{fp_occu_ms()}}, \code{\link[=fp_richness]{fp_richness()}}, \code{\link[=fp_sites]{fp_sites()}};
+\code{vignette("multispecies")} for how well a joint model fitted to the
+draws recovers the associations
 }

@@ -71,7 +71,7 @@ smallest bulk ESS 676. gllvm fitted every draw. Means over the 5 replicates:
   states in 28 of the 30 datasets. Averaging over draws was better than a
   single draw in every cell.
 - **Strength.** The associations were weaker than the oracle's in every
-  cell. With strong factors, the draws gave 62 to 73% of the oracle's mean
+  cell. With strong factors, the draws gave 62 to 72% of the oracle's mean
   |ΛΛ′|. Against the naive states the comparison went both ways: the draws
   gave more with 100 sites (both strengths) and with 200 sites and strong
   factors, less in the other three cells.

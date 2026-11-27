@@ -1,3 +1,10 @@
+# crywolf (development version)
+
+* `vignette("multispecies")` has a section on passing the state draws of
+  `fp_state_draws()` to a joint species distribution model, with the
+  simulations that check how well 'gllvm' and 'Hmsc' recover the residual
+  associations between species from them.
+
 # crywolf 2.5.0
 
 * New `fp_state_draws()` (experimental) draws the occupancy state of every
